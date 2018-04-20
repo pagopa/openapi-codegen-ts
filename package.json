@@ -1,6 +1,6 @@
 {
   "name": "italia-utils",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Tools and utilities for the Digital Citizenship project",
   "repository": "https://github.com/teamdigitale/italia-utils",
   "author": "https://teamdigitale.governo.it",
@@ -15,7 +15,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "tsc",
-    "version": "npm run build && git add -A dist",
+    "version": "npm run build",
     "postversion": "git push && git push --tags"
   },
   "dependencies": {
