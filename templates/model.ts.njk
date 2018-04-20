@@ -1,0 +1,195 @@
+{% import "macros.njk" as macro %}
+
+/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+{% for propName, prop in definition.properties -%}{%
+  if prop.$ref -%}{%-
+    set realPropName = prop.$ref | replace("#/definitions/", "") -%}
+    import { {{ realPropName }} } from "./{{ realPropName }}";{%
+  elif prop.items.$ref -%}{%-
+    set realPropName = prop.items.$ref | replace("#/definitions/", "") -%}
+    import { {{ realPropName }} } from "./{{ realPropName }}";{%
+  endif %}{%
+endfor %}
+
+{% for propName, prop in definition.properties -%}
+  {% if prop.default !== undefined %}
+    import { withDefault } from "../../utils/default";
+  {% endif %}
+{% endfor %}
+
+/**
+ * {{ definition.description | safe }}
+ */
+{% if definition.type == "object" %}
+
+import * as t from "io-ts";
+import { strictInterfaceWithOptionals } from "../../utils/types";
+
+// required attributes
+const {{ definitionName }}R = t.interface({
+{% for propName, prop in definition.properties -%}
+  {% if definition.required and (definition.required | contains(propName)) %}
+    {%-
+      if prop.$ref %}{%
+        set realPropType = prop.$ref | replace("#/definitions/", "") %}{%
+      elif prop.type == "array" and prop.items.$ref %}{%
+        set realPropType %}t.readonlyArray({{ prop.items.$ref | replace("#/definitions/", "") }}){% endset %}{%
+      else %}{%
+        set realPropType %}t.{{ prop.type | replace("integer", "number") }}{% endset %}{%
+      endif
+    %}
+    {% set q = '"' if prop.type == "string" else "" %}
+    {% set pds = "withDefault(" if prop.default !== undefined else "" %}
+    {% set pde = ", " + q + prop.default + q + ")" if prop.default !== undefined else "" %}
+    {{ propName }}: {{ pds | safe }}{{ realPropType | safe }}{{ pde | safe }},
+  {% endif %}
+{% endfor %}
+})
+
+// optional attributes
+const {{ definitionName }}O = t.partial({
+{% for propName, prop in definition.properties -%}
+  {% if (not definition.required) or (definition.required and not (definition.required | contains(propName))) %}
+    {%-
+      if prop.$ref %}{%
+        set realPropType = prop.$ref | replace("#/definitions/", "") %}{%
+      elif prop.type == "array" and prop.items.$ref %}{%
+        set realPropType %}t.readonlyArray({{ prop.items.$ref | replace("#/definitions/", "") }}){% endset %}{%
+      else %}{%
+        set realPropType %}t.{{ prop.type | replace("integer", "number") }}{% endset %}{%
+      endif
+    %}
+    {% set q = '"' if prop.type == "string" else "" %}
+    {% set pds = "withDefault(" if prop.default !== undefined else "" %}
+    {% set pde = ", " + q + prop.default + q + ")" if prop.default !== undefined else "" %}
+    {{ propName }}: {{ pds | safe }}{{ realPropType | safe }}{{ pde | safe }},
+  {% endif %}
+{% endfor %}
+})
+
+export const {{ definitionName }} = strictInterfaceWithOptionals(
+  {{ definitionName }}R.props, 
+  {{ definitionName }}O.props, 
+  "{{ definitionName }}"
+);
+
+export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+
+{% elif definition.type == "integer" %}
+
+  import { WithinRangeNumber } from "../../utils/numbers";
+
+  {% if definition.minimum and definition.maximum %}
+
+    {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef) }}
+
+  {% else %}
+
+    {% set typedef %}t.number{% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef) }}
+
+  {% endif %}
+
+{% elif definition.type == "string" %}
+
+  {% if definition.pattern %}
+
+    import { PatternString } from "../../utils/strings";
+
+    {% set typedef %}PatternString("{{ definition.pattern | safe }}"){% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
+
+  {% elif definition.minLength and definition.maxLength %}
+
+    import { WithinRangeString } from "../../utils/strings";
+
+    {% set typedef %}WithinRangeString({{ definition.minLength }}, {{ definition.maxLength }}){% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
+
+  {% elif definition.minLength == 1 %}
+
+    import { NonEmptyString } from "../../utils/strings";
+
+    {% set typedef %}NonEmptyString{% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
+
+  {% elif definition.format == "email" %}
+
+    import { EmailString } from "../../utils/strings";
+
+    {% set typedef %}EmailString{% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
+
+  {% elif definition.format == "date-time" %}
+
+    import { DateFromString } from "../../utils/types";
+
+    {% set typedef %}DateFromString{% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
+
+  {% elif definition["x-extensible-enum"] %}
+
+    import { enumType } from "../../utils/types";
+
+    export enum {{ definitionName }}Enum {
+        {% for enum in definition["x-extensible-enum"] %}
+          "{{ enum }}" = "{{ enum }}",
+        {% endfor %}
+    }
+
+    {% set typedef %}enumType<{{ definitionName }}Enum>(
+      {{ definitionName }}Enum,
+      "{{ definitionName }}"
+    ){% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
+
+  {% else %}
+
+    {% set typedef %}t.string{% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef) }}
+
+  {% endif %}
+
+{% elif definition.type == "boolean" %}
+
+    {% set typedef %}t.boolean{% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef) }}
+
+{% elif definition.type == "array" %}
+
+  import * as t from "io-ts";
+
+  {% if definition.items.$ref %}
+
+    {%- set realPropName = definition.items.$ref | replace("#/definitions/", "") -%}
+
+    import { {{ realPropName }} } from "./{{ realPropName }}";
+
+    export const {{ definitionName }} = t.readonlyArray({{ realPropName }}, "array of {{ realPropName }}");
+
+    export type {{ definitionName }} = t.TypeOf<typeof {{ realPropName }}>;
+
+  {% else %}
+
+    {%- set realPropName = definition.items.type | replace("integer", "number") -%}
+
+    export const {{ definitionName }} = t.readonlyArray(t.{{ realPropName }}, "array of {{ realPropName }}");
+
+    export type {{ definitionName }} = t.TypeOf<typeof t.{{ realPropName }}>;
+
+  {% endif %}
+
+{% else %}
+
+// TODO: generate model for definition "{{ definitionName }}"
+
+{% endif %}

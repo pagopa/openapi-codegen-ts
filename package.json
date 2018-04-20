@@ -1,0 +1,37 @@
+{
+  "name": "italia-utils",
+  "version": "0.0.1",
+  "description": "Tools and utilities for the Digital Citizenship project",
+  "repository": "https://github.com/teamdigitale/italia-utils",
+  "author": "https://teamdigitale.governo.it",
+  "license": "MIT",
+  "bin": {
+    "gen-api-models": "dist/gen-api-models.js"
+  },
+  "files": [
+    "dist/",
+    "templates/"
+  ],
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc",
+    "version": "npm run build && git add -A dist",
+    "postversion": "git push && git push --tags"
+  },
+  "dependencies": {
+    "fs-extra": "^5.0.0",
+    "nunjucks": "^3.1.2",
+    "prettier": "^1.12.1",
+    "swagger-parser": "^4.1.0",
+    "swagger-schema-official": "^2.0.0-bab6bed"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.2",
+    "@types/node": "^9.6.6",
+    "@types/nunjucks": "^3.0.0",
+    "@types/prettier": "^1.12.0",
+    "@types/swagger-parser": "^4.0.2",
+    "@types/yargs": "^11.0.0",
+    "typescript": "^2.8.3"
+  }
+}

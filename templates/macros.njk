@@ -1,0 +1,19 @@
+{% macro exportConst(defaultValue, type, typedef, quote = false) %}
+  import * as t from "io-ts";
+  {% if defaultValue !== undefined %}
+    {% set typeName = type + "Base" %}
+    {% set q = '"' if quote else "" %}
+    import { withDefault } from "../../utils/default";
+
+    export type {{ type }} = t.TypeOf<typeof {{ typeName }}>;
+
+    const {{ typeName }} = {{ typedef | safe }};
+
+    export const {{ type }} = withDefault({{ typeName }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ type }});
+
+  {% else %}
+    export type {{ type }} = t.TypeOf<typeof {{ type }}>;
+
+    export const {{ type }} = {{ typedef | safe }};
+  {% endif %}
+{% endmacro %}
