@@ -21,7 +21,7 @@ endfor %}
 
 {% for propName, prop in definition.properties -%}
   {% if prop.default !== undefined %}
-    import { withDefault } from "italia-ts-commons/dist/lib/types";
+    import { withDefault } from "italia-ts-commons/lib/types";
   {% endif %}
 {% endfor %}
 
@@ -31,7 +31,7 @@ endfor %}
 {% if definition.type == "object" %}
 
 import * as t from "io-ts";
-import { strictInterfaceWithOptionals } from "italia-ts-commons/dist/lib/types";
+import { strictInterfaceWithOptionals } from "italia-ts-commons/lib/types";
 
 // required attributes
 const {{ definitionName }}R = t.interface({
@@ -85,7 +85,7 @@ export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
 {% elif definition.type == "integer" %}
 
-  import { WithinRangeNumber } from "italia-ts-commons/dist/lib/numbers";
+  import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";
 
   {% if definition.minimum and definition.maximum %}
 
@@ -103,42 +103,42 @@ export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
   {% if definition.pattern %}
 
-    import { PatternString } from "italia-ts-commons/dist/lib/strings";
+    import { PatternString } from "italia-ts-commons/lib/strings";
 
     {% set typedef %}PatternString("{{ definition.pattern | safe }}"){% endset %}
     {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
 
   {% elif definition.minLength and definition.maxLength %}
 
-    import { WithinRangeString } from "italia-ts-commons/dist/lib/strings";
+    import { WithinRangeString } from "italia-ts-commons/lib/strings";
 
     {% set typedef %}WithinRangeString({{ definition.minLength }}, {{ definition.maxLength }}){% endset %}
     {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
 
   {% elif definition.minLength == 1 %}
 
-    import { NonEmptyString } from "italia-ts-commons/dist/lib/strings";
+    import { NonEmptyString } from "italia-ts-commons/lib/strings";
 
     {% set typedef %}NonEmptyString{% endset %}
     {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
 
   {% elif definition.format == "email" %}
 
-    import { EmailString } from "italia-ts-commons/dist/lib/strings";
+    import { EmailString } from "italia-ts-commons/lib/strings";
 
     {% set typedef %}EmailString{% endset %}
     {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
 
   {% elif definition.format == "date-time" %}
 
-    import { DateFromString } from "italia-ts-commons/dist/lib/dates";
+    import { DateFromString } from "italia-ts-commons/lib/dates";
 
     {% set typedef %}DateFromString{% endset %}
     {{ macro.exportConst(definition.default, definitionName, typedef, quote=true) }}
 
   {% elif definition["x-extensible-enum"] %}
 
-    import { enumType } from "italia-ts-commons/dist/lib/types";
+    import { enumType } from "italia-ts-commons/lib/types";
 
     export enum {{ definitionName }}Enum {
         {% for enum in definition["x-extensible-enum"] %}
