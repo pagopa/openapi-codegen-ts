@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "prepublish": "npm run build",
-    "build": "tsc",
+    "build": "rimraf dist && tsc",
     "version": "npm run build",
     "postversion": "git push && git push --tags"
   },
@@ -33,6 +33,7 @@
     "@types/swagger-parser": "^4.0.2",
     "@types/yargs": "^11.0.0",
     "danger": "^3.5.1",
+    "rimraf": "^2.6.2",
     "typescript": "^2.8.3"
   }
 }

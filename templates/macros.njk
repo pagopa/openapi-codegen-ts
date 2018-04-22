@@ -3,7 +3,7 @@
   {% if defaultValue !== undefined %}
     {% set typeName = type + "Base" %}
     {% set q = '"' if quote else "" %}
-    import { withDefault } from "../../utils/default";
+    import { withDefault } from "italia-ts-commons/lib/types";
 
     export type {{ type }} = t.TypeOf<typeof {{ typeName }}>;
 
