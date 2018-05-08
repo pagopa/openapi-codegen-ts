@@ -18,7 +18,14 @@ describe("gen-api-models", () => {
     expect(profileDefinition).toBeDefined();
     const code = await renderDefinitionCode(env, "Profile", profileDefinition);
     expect(code).toBeDefined();
-    expect(code).toMatchSnapshot();
+    expect(code).toMatchSnapshot("dup-imports");
+  });
+
+  it("should handle NonNegativeNumbers", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const profileDefinition = spec.definitions["NonNegativeNumberTest"];
+    const code = await renderDefinitionCode(env, "NonNegativeNumberTest", profileDefinition);
+    expect(code).toMatchSnapshot("non-negative-numbers");
   })
 
 })

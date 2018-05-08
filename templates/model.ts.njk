@@ -86,11 +86,18 @@ export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
 {% elif definition.type == "integer" %}
 
-  import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";
-
   {% if definition.minimum and definition.maximum %}
 
+    import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";
+
     {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
+    {{ macro.exportConst(definition.default, definitionName, typedef) }}
+
+  {% elif definition.minimum == "0" %}
+
+    import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";
+
+    {% set typedef %}NonNegativeNumber{% endset %}
     {{ macro.exportConst(definition.default, definitionName, typedef) }}
 
   {% else %}
