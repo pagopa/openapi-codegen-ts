@@ -2,15 +2,49 @@
 
 // tslint:disable:no-console
 
-import yargs = require("yargs");
 import * as fs from "fs-extra";
 import * as nunjucks from "nunjucks";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
-import { Spec } from "swagger-schema-official";
+import { Spec, Schema } from "swagger-schema-official";
 
-async function generateApi(
-  e: nunjucks.Environment,
+
+function renderAsync(
+  env: nunjucks.Environment,
+  definition: Schema,
+  definitionName: string
+): Promise<string> {
+  return new Promise((accept, reject) => {
+    env.render("model.ts.njk", {
+      definition,
+      definitionName
+    }, (err, res) => {
+      if(err) {
+        return reject(err);
+      }
+      accept(res);
+    });
+  })
+}
+
+export async function renderDefinitionCode(
+  env: nunjucks.Environment,
+  definitionName: string,
+  definition: Schema
+): Promise<string> {
+  const code = await renderAsync(
+    env,
+    definition,
+    definitionName
+  );
+  const prettifiedCode = prettier.format(code, {
+    parser: "typescript"
+  });
+  return prettifiedCode;
+}
+
+export async function generateApi(
+  env: nunjucks.Environment,
   specFilePath: string,
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined
@@ -47,73 +81,41 @@ async function generateApi(
       const definition = definitions[definitionName];
       const outPath = `${definitionsDirPath}/${definitionName}.ts`;
       console.log(`${definitionName} -> ${outPath}`);
-      const code = e.render("model.ts.njk", {
-        definition,
-        definitionName
-      });
-      const prettifiedCode = prettier.format(code, {
-        parser: "typescript"
-      });
+      const code = renderDefinitionCode(
+        env,
+        definitionName,
+        definition
+      );
       await fs.writeFile(
         outPath,
-        prettifiedCode
+        code
       );
     }
   }
 }
 
 //
-// parse command line
-//
-
-interface Argv {
-  help?: boolean
-  version?: boolean,
-  specFile?: string,
-  outDir?: string,
-  tsSpecFile?: string
-};
-
-const argv = yargs
-  .option("api-spec", {
-    demandOption: true,
-    string: true,
-    normalize: true,
-    description: "Path to input OpenAPI spec file"
-  })
-  .option("out-dir", {
-    demandOption: true,
-    string: true,
-    normalize: true,
-    description: "Output directory to store generated definition files"
-  })
-  .option("ts-spec-file", {
-    string: true,
-    normalize: true,
-    description: "If defined, converts the OpenAPI specs to TypeScript source and writes it to this file"
-  })
-  .help().argv;
-
-//
 // Configure nunjucks
 //
 
-nunjucks.configure({
-  trimBlocks: true
-});
+export function initNunJucksEnvironment(): nunjucks.Environment {
+  nunjucks.configure({
+    trimBlocks: true
+  });
+  const env = new nunjucks.Environment(
+    new nunjucks.FileSystemLoader(`${__dirname}/../templates`)
+  );
 
-const env = new nunjucks.Environment(
-  new nunjucks.FileSystemLoader(`${__dirname}/../templates`)
-);
-env.addFilter("contains", <T>(a: ReadonlyArray<T>, item: T) => {
-  return a.indexOf(item) !== -1;
-});
+  env.addFilter("contains", <T>(a: ReadonlyArray<T>, item: T) => {
+    return a.indexOf(item) !== -1;
+  });
 
-//
-// Generate APIs
-//
-
-generateApi(env, argv["api-spec"], argv["out-dir"], argv["ts-spec-file"]).then(
-  () => console.log("done"),
-  err => console.log(`Error: ${err}`)
-);
+  const seenItems: { [key: string]: true } = {};
+  env.addFilter("rememberSeen", (item: string) => {
+    seenItems[item] = true;
+  });
+  env.addFilter("isSeen", (item: string) => {
+    return seenItems[item] === true;
+  })
+  return env;
+}
