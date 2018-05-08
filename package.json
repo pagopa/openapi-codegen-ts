@@ -6,7 +6,7 @@
   "author": "https://teamdigitale.governo.it",
   "license": "MIT",
   "bin": {
-    "gen-api-models": "dist/gen-api-models.js"
+    "gen-api-models": "dist/index.js"
   },
   "files": [
     "dist/",
