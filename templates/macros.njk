@@ -17,3 +17,10 @@
     export const {{ type }} = {{ typedef | safe }};
   {% endif %}
 {% endmacro %}
+
+{% macro importLocalProp(realPropName) -%}
+{%- if not (realPropName | isSeen) -%}
+{{- realPropName | rememberSeen -}}
+import { {{ realPropName }} } from "./{{ realPropName }}";
+{%- endif -%}
+{% endmacro %}

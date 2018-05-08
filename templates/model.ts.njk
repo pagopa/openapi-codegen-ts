@@ -12,10 +12,10 @@
 {% for propName, prop in definition.properties -%}{%
   if prop.$ref -%}{%-
     set realPropName = prop.$ref | replace("#/definitions/", "") -%}
-    import { {{ realPropName }} } from "./{{ realPropName }}";{%
+    {{ macro.importLocalProp(realPropName) }}{%
   elif prop.items.$ref -%}{%-
     set realPropName = prop.items.$ref | replace("#/definitions/", "") -%}
-    import { {{ realPropName }} } from "./{{ realPropName }}";{%
+    {{ macro.importLocalProp(realPropName) }}{%
   endif %}{%
 endfor %}
 

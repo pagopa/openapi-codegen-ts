@@ -16,7 +16,8 @@
     "prepublish": "npm run build",
     "build": "rimraf dist && tsc",
     "version": "npm run build",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "test": "jest"
   },
   "dependencies": {
     "fs-extra": "^5.0.0",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.2",
+    "@types/jest": "^22.2.3",
     "@types/node": "^9.6.6",
     "@types/nunjucks": "^3.0.0",
     "@types/prettier": "^1.12.0",
@@ -34,7 +36,22 @@
     "@types/yargs": "^11.0.0",
     "danger": "^3.5.1",
     "danger-plugin-digitalcitizenship": "^0.2.0",
+    "jest": "^22.4.3",
     "rimraf": "^2.6.2",
+    "ts-jest": "^22.4.5",
     "typescript": "^2.8.3"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testMatch": [
+      "**/__tests__/*.ts"
+    ]
   }
 }
