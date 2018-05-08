@@ -81,7 +81,7 @@ export async function generateApi(
       const definition = definitions[definitionName];
       const outPath = `${definitionsDirPath}/${definitionName}.ts`;
       console.log(`${definitionName} -> ${outPath}`);
-      const code = renderDefinitionCode(
+      const code = await renderDefinitionCode(
         env,
         definitionName,
         definition
@@ -110,7 +110,10 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
     return a.indexOf(item) !== -1;
   });
 
-  const seenItems: { [key: string]: true } = {};
+  let seenItems: { [key: string]: true } = {};
+  env.addFilter("resetSeen", () => {
+    seenItems = {};
+  });
   env.addFilter("rememberSeen", (item: string) => {
     seenItems[item] = true;
   });
