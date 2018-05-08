@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import yargs = require("yargs");
 
 import { initNunJucksEnvironment, generateApi } from "./gen-api-models";
