@@ -20,7 +20,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "fs-extra": "^5.0.0",
+    "fs-extra": "^6.0.0",
     "nunjucks": "^3.1.2",
     "prettier": "^1.12.1",
     "swagger-parser": "^4.1.0",
