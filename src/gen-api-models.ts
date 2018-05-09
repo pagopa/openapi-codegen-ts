@@ -6,23 +6,26 @@ import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 import { Spec, Schema } from "swagger-schema-official";
 
-
 function renderAsync(
   env: nunjucks.Environment,
   definition: Schema,
   definitionName: string
 ): Promise<string> {
   return new Promise((accept, reject) => {
-    env.render("model.ts.njk", {
-      definition,
-      definitionName
-    }, (err, res) => {
-      if(err) {
-        return reject(err);
+    env.render(
+      "model.ts.njk",
+      {
+        definition,
+        definitionName
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+        accept(res);
       }
-      accept(res);
-    });
-  })
+    );
+  });
 }
 
 export async function renderDefinitionCode(
@@ -30,11 +33,7 @@ export async function renderDefinitionCode(
   definitionName: string,
   definition: Schema
 ): Promise<string> {
-  const code = await renderAsync(
-    env,
-    definition,
-    definitionName
-  );
+  const code = await renderAsync(env, definition, definitionName);
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
   });
@@ -47,7 +46,9 @@ export async function generateApi(
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined
 ): Promise<void> {
-  const api: Spec = await SwaggerParser.bundle(specFilePath);
+  const api: Spec = await SwaggerParser.dereference(
+    await SwaggerParser.bundle(specFilePath)
+  );
 
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */
@@ -58,7 +59,7 @@ export async function generateApi(
 
     export const specs = ${JSON.stringify(api)};
   `;
-  if(tsSpecFilePath) {
+  if (tsSpecFilePath) {
     console.log(`Writing TS Specs to ${tsSpecFilePath}`);
     await fs.writeFile(
       tsSpecFilePath,
@@ -79,15 +80,8 @@ export async function generateApi(
       const definition = definitions[definitionName];
       const outPath = `${definitionsDirPath}/${definitionName}.ts`;
       console.log(`${definitionName} -> ${outPath}`);
-      const code = await renderDefinitionCode(
-        env,
-        definitionName,
-        definition
-      );
-      await fs.writeFile(
-        outPath,
-        code
-      );
+      const code = await renderDefinitionCode(env, definitionName, definition);
+      await fs.writeFile(outPath, code);
     }
   }
 }
@@ -117,6 +111,6 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   });
   env.addFilter("isSeen", (item: string) => {
     return seenItems[item] === true;
-  })
+  });
   return env;
 }
