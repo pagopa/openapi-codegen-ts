@@ -45,7 +45,6 @@ import { PreferredLanguages } from \\"./PreferredLanguages\\";
  */
 
 import * as t from \\"io-ts\\";
-import { strictInterfaceWithOptionals } from \\"italia-ts-commons/lib/types\\";
 
 // required attributes
 const ProfileR = t.interface({
@@ -75,9 +74,8 @@ const ProfileO = t.partial({
   preferred_languages: PreferredLanguages
 });
 
-export const Profile = strictInterfaceWithOptionals(
-  ProfileR.props,
-  ProfileO.props,
+export const Profile = t.intersection(
+  [ProfileR.props, ProfileO.props],
   \\"Profile\\"
 );
 

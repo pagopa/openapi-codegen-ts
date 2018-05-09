@@ -9,14 +9,16 @@ import { Spec, Schema } from "swagger-schema-official";
 function renderAsync(
   env: nunjucks.Environment,
   definition: Schema,
-  definitionName: string
+  definitionName: string,
+  strictInterfaces: boolean
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
       "model.ts.njk",
       {
         definition,
-        definitionName
+        definitionName,
+        strictInterfaces
       },
       (err, res) => {
         if (err) {
@@ -31,9 +33,15 @@ function renderAsync(
 export async function renderDefinitionCode(
   env: nunjucks.Environment,
   definitionName: string,
-  definition: Schema
+  definition: Schema,
+  strictInterfaces: boolean
 ): Promise<string> {
-  const code = await renderAsync(env, definition, definitionName);
+  const code = await renderAsync(
+    env,
+    definition,
+    definitionName,
+    strictInterfaces
+  );
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
   });
@@ -44,7 +52,8 @@ export async function generateApi(
   env: nunjucks.Environment,
   specFilePath: string,
   definitionsDirPath: string,
-  tsSpecFilePath: string | undefined
+  tsSpecFilePath: string | undefined,
+  strictInterfaces: boolean
 ): Promise<void> {
   const api: Spec = await SwaggerParser.dereference(
     await SwaggerParser.bundle(specFilePath)
@@ -80,7 +89,12 @@ export async function generateApi(
       const definition = definitions[definitionName];
       const outPath = `${definitionsDirPath}/${definitionName}.ts`;
       console.log(`${definitionName} -> ${outPath}`);
-      const code = await renderDefinitionCode(env, definitionName, definition);
+      const code = await renderDefinitionCode(
+        env,
+        definitionName,
+        definition,
+        strictInterfaces
+      );
       await fs.writeFile(outPath, code);
     }
   }
