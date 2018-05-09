@@ -32,7 +32,6 @@ endfor %}
 {% if definition.type == "object" %}
 
 import * as t from "io-ts";
-import { strictInterfaceWithOptionals } from "italia-ts-commons/lib/types";
 
 // required attributes
 const {{ definitionName }}R = t.interface({
@@ -76,11 +75,14 @@ const {{ definitionName }}O = t.partial({
 {% endfor %}
 })
 
-export const {{ definitionName }} = strictInterfaceWithOptionals(
-  {{ definitionName }}R.props,
-  {{ definitionName }}O.props,
+export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %} 
+  t.intersection(
+  [
+    {{ definitionName }}R.props,
+    {{ definitionName }}O.props
+  ],
   "{{ definitionName }}"
-);
+) {% if strictInterfaces %}){% endif %};
 
 export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 

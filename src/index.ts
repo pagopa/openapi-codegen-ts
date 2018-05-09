@@ -8,20 +8,17 @@ import { initNunJucksEnvironment, generateApi } from "./gen-api-models";
 // parse command line
 //
 
-interface Argv {
-  help?: boolean
-  version?: boolean,
-  specFile?: string,
-  outDir?: string,
-  tsSpecFile?: string
-};
-
 const argv = yargs
   .option("api-spec", {
     demandOption: true,
     string: true,
     normalize: true,
     description: "Path to input OpenAPI spec file"
+  })
+  .option("strict", {
+    boolean: false,
+    default: true,
+    description: "Generate strict interfaces (default: true)"
   })
   .option("out-dir", {
     demandOption: true,
@@ -32,7 +29,8 @@ const argv = yargs
   .option("ts-spec-file", {
     string: true,
     normalize: true,
-    description: "If defined, converts the OpenAPI specs to TypeScript source and writes it to this file"
+    description:
+      "If defined, converts the OpenAPI specs to TypeScript source and writes it to this file"
   })
   .help().argv;
 
@@ -41,7 +39,10 @@ const argv = yargs
 //
 
 const env = initNunJucksEnvironment();
-generateApi(env, argv["api-spec"], argv["out-dir"], argv["ts-spec-file"]).then(
-  () => console.log("done"),
-  err => console.log(`Error: ${err}`)
-);
+generateApi(
+  env,
+  argv["api-spec"],
+  argv["out-dir"],
+  argv["ts-spec-file"],
+  argv["strict"]
+).then(() => console.log("done"), err => console.log(`Error: ${err}`));
