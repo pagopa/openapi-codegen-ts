@@ -55,9 +55,7 @@ export async function generateApi(
   tsSpecFilePath: string | undefined,
   strictInterfaces: boolean
 ): Promise<void> {
-  const api: Spec = await SwaggerParser.dereference(
-    await SwaggerParser.bundle(specFilePath)
-  );
+  const api: Spec = await SwaggerParser.bundle(specFilePath);
 
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */

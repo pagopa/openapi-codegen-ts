@@ -8,10 +8,7 @@
   "bin": {
     "gen-api-models": "dist/index.js"
   },
-  "files": [
-    "dist/",
-    "templates/"
-  ],
+  "files": ["dist/", "templates/"],
   "scripts": {
     "prepublish": "npm run build",
     "build": "rimraf dist && tsc",
@@ -43,15 +40,10 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
+    "moduleFileExtensions": ["ts", "js"],
     "transform": {
       "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testMatch": [
-      "**/__tests__/*.ts"
-    ]
+    "testMatch": ["**/__tests__/*.ts"]
   }
 }
