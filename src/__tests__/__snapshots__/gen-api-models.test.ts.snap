@@ -74,10 +74,7 @@ const ProfileO = t.partial({
   preferred_languages: PreferredLanguages
 });
 
-export const Profile = t.intersection(
-  [ProfileR.props, ProfileO.props],
-  \\"Profile\\"
-);
+export const Profile = t.intersection([ProfileR, ProfileO], \\"Profile\\");
 
 export type Profile = t.TypeOf<typeof Profile>;
 "

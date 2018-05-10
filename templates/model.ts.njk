@@ -80,8 +80,8 @@ const {{ definitionName }}O = t.partial({
 export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %} 
   t.intersection(
   [
-    {{ definitionName }}R.props,
-    {{ definitionName }}O.props
+    {{ definitionName }}R,
+    {{ definitionName }}O
   ],
   "{{ definitionName }}"
 ) {% if strictInterfaces %}){% endif %};
