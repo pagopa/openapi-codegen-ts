@@ -20,9 +20,11 @@
   endif %}{%
 endfor %}
 
+{% set defaultFound = 0 %}
 {% for propName, prop in definition.properties -%}
-  {% if prop.default !== undefined %}
+  {% if prop.default !== undefined and defaultFound === 0 %}
     import { withDefault } from "italia-ts-commons/lib/types";
+    {% set defaultFound = 1 %}
   {% endif %}
 {% endfor %}
 
