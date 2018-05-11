@@ -46,12 +46,11 @@ import * as t from "io-ts";
 {% if definition.additionalProperties %}
   // additional attributes
   const {{ definitionName }}A = {{ macro.defineObjectProperty(definition.additionalProperties) }}
-  export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %}
-    t.dictionary(
-      t.string,
-      {{ definitionName }}A,
-      "{{ definitionName }}"
-  ) {% if strictInterfaces %}){% endif %};  
+  export const {{ definitionName }} = t.dictionary(
+    t.string,
+    {{ definitionName }}A,
+    "{{ definitionName }}"
+  );
 {% else %}
   // required attributes
   const {{ definitionName }}R = t.interface({
