@@ -1,5 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`gen-api-models should generate a dictionary from additionalProperties: additional-properties 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+/**
+ *
+ */
+
+import * as t from \\"io-ts\\";
+
+// additional attributes
+const AdditionalPropsTestA = t.readonlyArray(t.number);
+
+export const AdditionalPropsTest = t.dictionary(
+  t.string,
+  AdditionalPropsTestA,
+  \\"AdditionalPropsTest\\"
+);
+
+export type AdditionalPropsTest = t.TypeOf<typeof AdditionalPropsTest>;
+"
+`;
+
 exports[`gen-api-models should handle NonNegativeNumbers: non-negative-numbers 1`] = `
 "/* tslint:disable:ordered-imports */
 /* tslint:disable:no-consecutive-blank-lines */

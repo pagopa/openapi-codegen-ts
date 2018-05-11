@@ -24,3 +24,22 @@
 import { {{ realPropName }} } from "./{{ realPropName }}";
 {%- endif -%}
 {% endmacro %}
+
+
+{% macro defineObjectProperty(prop, propName) -%}
+  {%-
+    if prop.$ref %}{%
+      set realPropType = prop.$ref | replace("#/definitions/", "") %}{%
+    elif prop.type == "array" and prop.items.$ref %}{%
+      set realPropType %}t.readonlyArray({{ prop.items.$ref | replace("#/definitions/", "") }}){% endset %}{%
+    elif prop.type == "array" and prop.items.type %}{%
+      set realPropType %}t.readonlyArray(t.{{ prop.items.type | replace("integer", "number") }}){% endset %}{%
+    else %}{%
+      set realPropType %}t.{{ prop.type | replace("integer", "number") }}{% endset %}{%
+    endif
+  %}
+  {% set q = '"' if prop.type == "string" else "" %}
+  {% set pds = "withDefault(" if prop.default !== undefined else "" %}
+  {% set pde = ", " + q + prop.default + q + ")" if prop.default !== undefined else "" %}
+  {% if propName %}{{ propName }}:{% endif %} {{ pds | safe }}{{ realPropType | safe }}{{ pde | safe }},
+{% endmacro %}
