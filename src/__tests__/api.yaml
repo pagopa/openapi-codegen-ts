@@ -248,6 +248,15 @@ definitions:
     $ref: "https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/CreatedMessageWithContent"
   ServicePublic:
     $ref: "https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/ServicePublic"
+  AdditionalPropsTest:
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: number
+  description: |-
+    All the notification channels blocked by the user.
+    Each channel is related to a specific service (sender).
   Message:
     title: Message
     type: object
