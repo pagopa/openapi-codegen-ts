@@ -20,6 +20,14 @@
   endif %}{%
 endfor %}
 
+{% if definition.additionalProperties.$ref -%}{%-
+    set realPropName = definition.additionalProperties.$ref | replace("#/definitions/", "") -%}
+    {{ macro.importLocalProp(realPropName) }}{%
+  elif definition.additionalProperties.items.$ref -%}{%-
+    set realPropName = definition.additionalProperties.items.$ref | replace("#/definitions/", "") -%}
+    {{ macro.importLocalProp(realPropName) }}{%
+endif %}
+
 {% set defaultFound = 0 %}
 {% for propName, prop in definition.properties -%}
   {% if prop.default !== undefined and defaultFound === 0 %}
@@ -35,56 +43,43 @@ endfor %}
 
 import * as t from "io-ts";
 
-// required attributes
-const {{ definitionName }}R = t.interface({
-{% for propName, prop in definition.properties -%}
-  {% if definition.required and (definition.required | contains(propName)) %}
-    {%-
-      if prop.$ref %}{%
-        set realPropType = prop.$ref | replace("#/definitions/", "") %}{%
-      elif prop.type == "array" and prop.items.$ref %}{%
-        set realPropType %}t.readonlyArray({{ prop.items.$ref | replace("#/definitions/", "") }}){% endset %}{%
-      else %}{%
-        set realPropType %}t.{{ prop.type | replace("integer", "number") }}{% endset %}{%
-      endif
-    %}
-    {% set q = '"' if prop.type == "string" else "" %}
-    {% set pds = "withDefault(" if prop.default !== undefined else "" %}
-    {% set pde = ", " + q + prop.default + q + ")" if prop.default !== undefined else "" %}
-    {{ propName }}: {{ pds | safe }}{{ realPropType | safe }}{{ pde | safe }},
-  {% endif %}
-{% endfor %}
-})
+{% if definition.additionalProperties %}
+  // additional attributes
+  const {{ definitionName }}A = {{ macro.defineObjectProperty(definition.additionalProperties) }}
+  export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %}
+    t.dictionary(
+      t.string,
+      {{ definitionName }}A,
+      "{{ definitionName }}"
+  ) {% if strictInterfaces %}){% endif %};  
+{% else %}
+  // required attributes
+  const {{ definitionName }}R = t.interface({
+  {% for propName, prop in definition.properties -%}
+    {% if definition.required and (definition.required | contains(propName)) %}
+      {{ macro.defineObjectProperty(prop, propName) }}
+    {% endif %}
+  {% endfor %}
+  });
 
-// optional attributes
-const {{ definitionName }}O = t.partial({
-{% for propName, prop in definition.properties -%}
-  {% if (not definition.required) or (definition.required and not (definition.required | contains(propName))) %}
-    {%-
-      if prop.$ref %}{%
-        set realPropType = prop.$ref | replace("#/definitions/", "") %}{%
-      elif prop.type == "array" and prop.items.$ref %}{%
-        set realPropType %}t.readonlyArray({{ prop.items.$ref | replace("#/definitions/", "") }}){% endset %}{%
-      else %}{%
-        set realPropType %}t.{{ prop.type | replace("integer", "number") }}{% endset %}{%
-      endif
-    %}
-    {% set q = '"' if prop.type == "string" else "" %}
-    {% set pds = "withDefault(" if prop.default !== undefined else "" %}
-    {% set pde = ", " + q + prop.default + q + ")" if prop.default !== undefined else "" %}
-    {{ propName }}: {{ pds | safe }}{{ realPropType | safe }}{{ pde | safe }},
-  {% endif %}
-{% endfor %}
-})
+  // optional attributes
+  const {{ definitionName }}O = t.partial({
+  {% for propName, prop in definition.properties -%}
+    {% if (not definition.required) or (definition.required and not (definition.required | contains(propName))) %}
+      {{ macro.defineObjectProperty(prop, propName) }}
+    {% endif %}
+  {% endfor %}
+  });
 
-export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %} 
-  t.intersection(
-  [
-    {{ definitionName }}R,
-    {{ definitionName }}O
-  ],
-  "{{ definitionName }}"
-) {% if strictInterfaces %}){% endif %};
+  export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %} 
+    t.intersection(
+    [
+      {{ definitionName }}R,
+      {{ definitionName }}O
+    ],
+    "{{ definitionName }}"
+  ) {% if strictInterfaces %}){% endif %};
+{% endif %}
 
 export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
