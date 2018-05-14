@@ -48,8 +48,8 @@
   resolved "https://registry.yarnpkg.com/@types/nunjucks/-/nunjucks-3.0.0.tgz#9393e33128d12c834b4bc8db6bbfd18ebce474f0"
 
 "@types/prettier@^1.12.0":
-  version "1.12.1"
-  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-1.12.1.tgz#d8aa9c353adc3e8c1c6e51e7acb642315fd79d2d"
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-1.12.2.tgz#4a37f0aa8ed20366ada6fa7994b1c6dfe787fdd1"
 
 "@types/swagger-parser@^4.0.2":
   version "4.0.2"
