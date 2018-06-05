@@ -161,11 +161,9 @@
 
 {% macro defineObject(definitionName, definition, strictInterfaces) -%}
   {{ importLocalProps(definition) }}
-  {% if definition.description %}
-    /**
-     * {{ definition.description | safe }}
-     */
-  {% endif %}
+  {%- if definition.description %}
+    {{ definition.description | comment | safe }}
+  {% endif -%}
   {% if definition.type == "object" %}
 
     {{- 'import * as t from "io-ts";' | addImport -}}

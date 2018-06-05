@@ -114,6 +114,10 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
     return a.indexOf(item) !== -1;
   });
 
+  env.addFilter("comment", (item: string) => {
+    return "/**\n * " + item.split("\n").join("\n * ") + "\n */";
+  });
+
   let imports: { [key: string]: true } = {};
   env.addFilter("resetImports", (item: string) => {
     imports = {};
