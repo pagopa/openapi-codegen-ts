@@ -1,12 +1,12 @@
 {% macro exportConst(defaultValue, type, typedef, quote = false) %}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if defaultValue !== undefined %}
-    {% set typeName = type + "Base" %}
-    {% set q = '"' if quote else "" %}
     {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
-    export type {{ type }} = t.TypeOf<typeof {{ typeName }}>;
-    const {{ typeName }} = {{ typedef | safe }};
-    export const {{ type }} = withDefault({{ typeName }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ type }});
+    {% set baseTypeName = type + "Base" %}
+    export type {{ type }} = t.TypeOf<typeof {{ baseTypeName }}>;
+    const {{ baseTypeName }} = {{ typedef | safe }};
+    {% set q = '"' if quote else "" %}
+    export const {{ type }} = withDefault({{ baseTypeName }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ type }});
   {% else %}
     export type {{ type }} = t.TypeOf<typeof {{ type }}>;
     export const {{ type }} = {{ typedef | safe }};
@@ -15,9 +15,24 @@
 
 {% macro inlineConst(defaultValue, type, typedef, quote = false) %}
   {% if defaultValue !== undefined %}
-    {% set q = '"' if quote else "" %}
     {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
-    withDefault({{ typedef | safe }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as t.TypeOf<typeof {{ typedef }}>),
+    {% if not (typedef | startsWith("t.")) %}
+      {# create a type alias to set a default value #}
+      {# this is mandatory as we need to cast the default value to this type #}
+      {% set typeName = type | capitalize | camelCase %}
+      {% set baseTypeName = typeName + "Base" %}
+      {% set typeAlias %}t.TypeOf<typeof {{ baseTypeName }}>{% endset %}
+      {% set typeAliasExport %}
+        type {{ typeName | safe }} = {{ typeAlias | safe }};
+        const {{ baseTypeName | safe }} = {{ typedef | safe }};
+      {% endset %}
+      {{- typeAliasExport | addTypeAlias -}}
+    {% else %}
+      {# if it is a primitive io-ts type, avoid create an alias #}
+      {% set typeName %}t.TypeOf<typeof {{ typedef }}>{% endset %}
+    {% endif %}
+    {% set q = '"' if quote else "" %}
+    withDefault({{ typedef | safe }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ typeName | safe }}),
   {% else %}
     {{ typedef | safe }},
   {% endif %}

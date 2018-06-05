@@ -9,12 +9,13 @@
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-{{- "" | resetImports | safe -}}
+{{- null | resetImports -}}
+{{- null | resetTypeAliases -}}
 
 {% set definition %}
   {{ macro.defineObject(definitionName, definition, strictInterfaces) }}
 {% endset %}
 
 {{ null | getImports | safe }}
-
+{{ null | getTypeAliases | safe }}
 {{ definition | safe }}
