@@ -105,10 +105,11 @@
   {% if definition.items.$ref %}
     {%- set realPropName = definition.items.$ref | replace("#/definitions/", "") -%}
     {{ importLocalProp(realPropName) }}
+    {% set typedef %}t.readonlyArray({{ realPropName }}, "array of {{ realPropName }}"){% endset %}
   {% else %}
     {%- set realPropName = definition.items.type | replace("integer", "number") -%}
+    {% set typedef %}t.readonlyArray(t.{{ realPropName }}, "array of {{ realPropName }}"){% endset %}
   {% endif %}
-  {% set typedef %}t.readonlyArray(t.{{ realPropName }}, "array of {{ realPropName }}"){% endset %}
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro %}
 
