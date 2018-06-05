@@ -1,5 +1,5 @@
 {## 
- # used when we want to export the main type / const
+ # used when we want to export the main type / const from its own module file
  #}
 {% macro exportConst(defaultValue, type, typedef, quote = false) %}
   {{- 'import * as t from "io-ts";' | addImport -}}
@@ -18,7 +18,7 @@
 
 {##
  # used when we want to define a properties of an object 
- # which is not exported in its own file / type
+ # which is not exported in its own file / type (inlined)
  #}
 {% macro inlineConst(defaultValue, type, typedef, quote = false) %}
   {% if defaultValue !== undefined %}
@@ -46,7 +46,7 @@
 {% endmacro %}
 
 {## 
- # convenience method uses to choose between export or inlining a type definition
+ # convenience method used to choose between export or inlining a type definition
  #}
 {% macro defineConst(defaultValue, type, typedef, quote = false, inline = false) -%}
   {% if inline -%}
@@ -57,7 +57,7 @@
 {% endmacro -%}
 
 {## 
- # convenience method uses import required modules
+ # convenience method used to import required modules
  # at the beginning of the type definition file
  #}
 {% macro importLocalProp(realPropName) -%}

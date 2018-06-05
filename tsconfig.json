@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "lib": ["es2015"],
     "rootDir": "src",
     "outDir": "dist",
@@ -10,10 +10,6 @@
     "declaration": true,
     "sourceMap": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "**/__tests__/*"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["**/__tests__/*"]
 }
