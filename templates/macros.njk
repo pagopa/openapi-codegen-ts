@@ -113,18 +113,21 @@
 {% endmacro %}
 
 {% macro defineObjectProperty(propName, prop, parentPropName) -%}
+  {% if propName %}
+    {{ propName }}:
+  {% endif %}
   {%- if prop.$ref %}
-    {{ propName }}: {{ defineRef(prop.$ref, prop, true) }}
+    {{ defineRef(prop.$ref, prop, true) }}
   {% elif prop.type == "object" %}
-    {{ propName }}: {{ defineSubObject(parentPropName, propName, prop) }}
+    {{ defineSubObject(parentPropName, propName, prop) }}
   {% elif prop.type == "array" %}
-    {{ propName }}: {{ defineArray(propName, prop, true) }}
+    {{ defineArray(propName, prop, true) }}
   {% elif prop.type == "integer" or prop.type == "number" %}
-    {{ propName }}: {{ defineInteger(propName, prop, true) }}
+    {{ defineInteger(propName, prop, true) }}
   {% elif prop.type == "string" %}
-    {{ propName }}: {{ defineString(propName, prop, true) }}
+    {{ defineString(propName, prop, true) }}
   {% elif prop.type == "boolean" %}
-    {{ propName }}: {{ defineBoolean(propName, prop, true) }}
+    {{ defineBoolean(propName, prop, true) }}
   {% else %}
     // TODO: generate model for definition "{{ propName }}: {{ prop.type }}"
   {% endif %}
@@ -175,7 +178,7 @@
 
     {% if definition.additionalProperties %}
       // additional attributes
-      const {{ definitionName }}A = {{ defineObjectProperty(definitionName, definition.additionalProperties) }}
+      const {{ definitionName }}A = {{ defineObjectProperty(false, definition.additionalProperties) }}
       export const {{ definitionName }} = t.dictionary(
         t.string,
         {{ definitionName }}A,

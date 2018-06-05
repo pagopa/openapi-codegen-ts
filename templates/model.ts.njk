@@ -11,6 +11,10 @@
 
 {{- "" | resetImports | safe -}}
 
-{{ macro.defineObject(definitionName, definition, strictInterfaces) }}
+{% set definition %}
+  {{ macro.defineObject(definitionName, definition, strictInterfaces) }}
+{% endset %}
 
-{{ "" | getImports | safe }}
+{{ null | getImports | safe }}
+
+{{ definition | safe }}
