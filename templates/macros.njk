@@ -1,3 +1,6 @@
+{## 
+ # used when we want to export the main type / const
+ #}
 {% macro exportConst(defaultValue, type, typedef, quote = false) %}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if defaultValue !== undefined %}
@@ -13,6 +16,10 @@
   {% endif %}
 {% endmacro %}
 
+{##
+ # used when we want to define a properties of an object 
+ # which is not exported in its own file / type
+ #}
 {% macro inlineConst(defaultValue, type, typedef, quote = false) %}
   {% if defaultValue !== undefined %}
     {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
@@ -38,6 +45,9 @@
   {% endif %}
 {% endmacro %}
 
+{## 
+ # convenience method uses to choose between export or inlining a type definition
+ #}
 {% macro defineConst(defaultValue, type, typedef, quote = false, inline = false) -%}
   {% if inline -%}
     {{ inlineConst(defaultValue, type, typedef, quote) }}
@@ -46,11 +56,18 @@
   {% endif -%}
 {% endmacro -%}
 
+{## 
+ # convenience method uses import required modules
+ # at the beginning of the type definition file
+ #}
 {% macro importLocalProp(realPropName) -%}
   {% set import -%}import { {{ realPropName }} } from "./{{ realPropName }}";{% endset -%}
   {{- import | addImport -}}
 {% endmacro %}
 
+{## 
+ # defines an integer (or float) property with constraints
+ #}
 {% macro defineInteger(definitionName, definition, inline = false) -%}
   {% if definition.minimum and definition.maximum %}
     {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
@@ -64,6 +81,9 @@
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro -%}
 
+{## 
+ # defines a string property with constraints
+ #}
 {% macro defineString(definitionName, definition, inline = false) -%}
     {% if definition.pattern %}
       {{- 'import { PatternString } from "italia-ts-commons/lib/strings";' | addImport -}}
@@ -99,21 +119,33 @@
     {{ defineConst(definition.default, definitionName, typedef, true, inline) }}
 {% endmacro %}
 
+{## 
+ # defines a boolean property
+ #}
 {% macro defineBoolean(definitionName, definition, inline = false) -%}
   {% set typedef %}t.boolean{% endset %}
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro %}
 
+{## 
+ # defines a $ref property
+ #}
 {% macro defineRef(definitionName, definition, inline = false) -%}
   {% set typedef %}{{ definitionName | replace("#/definitions/", "") }}{% endset %}
   {{ defineConst(definition.default, typedef, typedef, false, inline) }}
 {% endmacro %}
 
+{## 
+ # defines an object sub-property
+ #}
 {% macro defineSubObject(parentPropName, definitionName, definition) -%}
   {% set typedef %}{{ parentPropName }}{{ definitionName }}{% endset %}
   {{ defineConst(definition.default, definitionName, typedef, false, true) }}
 {% endmacro %}
 
+{## 
+ # defines an array property
+ #}
 {% macro defineArray(definitionName, definition, inline = false) -%}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if definition.items.$ref %}
@@ -127,6 +159,9 @@
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro %}
 
+{## 
+ # defines an object property of some prop.type
+ #}
 {% macro defineObjectProperty(propName, prop, parentPropName) -%}
   {% if propName %}
     {{ propName }}:
@@ -148,6 +183,9 @@
   {% endif %}
 {% endmacro %}
 
+{## 
+ # convenience method to import required modules from $ref pointers
+ #}
 {% macro importLocalProps(definition) -%}
   {% set defaultFound = 0 %}
   {% for propName, prop in definition.properties -%}{%
@@ -174,6 +212,10 @@
   {% endfor %}
 {% endmacro -%}
 
+{## 
+ # define object properties recursively,
+ # supports additionaProperties, allOf and oneOf.
+ #}
 {% macro defineObject(definitionName, definition, strictInterfaces) -%}
   {{ importLocalProps(definition) }}
   {%- if definition.description %}
@@ -242,6 +284,32 @@
     export const {{ definitionName }} = 
       t.intersection([
         {% for schema in definition.allOf -%}
+          {% if schema.type == "object" %}
+            {{ definitionName + loop.index }},
+          {% elif schema.$ref %}
+            {{ schema.$ref | replace("#/definitions/", "") }},
+          {% endif %}
+        {% endfor %}
+      ],
+      "{{ definitionName }}"
+    );
+
+    export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+
+  {% elif definition.oneOf %}
+
+    {% for schema in definition.oneOf -%}
+      {% if schema.type == "object" %}
+        {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
+      {% elif schema.$ref %}
+        {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
+        {{ importLocalProp(realPropName) }}
+      {% endif %}
+    {% endfor %}
+
+    export const {{ definitionName }} = 
+      t.union([
+        {% for schema in definition.oneOf -%}
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
