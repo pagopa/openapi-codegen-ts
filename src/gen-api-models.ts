@@ -114,15 +114,16 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
     return a.indexOf(item) !== -1;
   });
 
-  let seenItems: { [key: string]: true } = {};
-  env.addFilter("resetSeen", () => {
-    seenItems = {};
+  let imports: { [key: string]: true } = {};
+  env.addFilter("resetImports", (item: string) => {
+    imports = {};
   });
-  env.addFilter("rememberSeen", (item: string) => {
-    seenItems[item] = true;
+  env.addFilter("addImport", (item: string) => {
+    imports[item] = true;
   });
-  env.addFilter("isSeen", (item: string) => {
-    return seenItems[item] === true;
+  env.addFilter("getImports", (item: string) => {
+    return Object.keys(imports).join("\n");
   });
+
   return env;
 }
