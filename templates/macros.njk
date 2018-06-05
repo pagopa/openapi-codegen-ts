@@ -102,13 +102,14 @@
       {% set typedef %}DateFromString{% endset %}
     {% elif definition["x-extensible-enum"] %}
       {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
-      {% if not inline %}
+      {% set enumTypeAlias %}
         export enum {{ definitionName }}Enum {
             {% for enum in definition["x-extensible-enum"] %}
               "{{ enum }}" = "{{ enum }}",
             {% endfor %}
         }
-      {% endif %}
+      {% endset %}
+      {{- enumTypeAlias | addTypeAlias -}}
       {% set typedef %}enumType<{{ definitionName }}Enum>(
         {{ definitionName }}Enum,
         "{{ definitionName }}"
