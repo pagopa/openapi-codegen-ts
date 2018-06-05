@@ -10,14 +10,10 @@ exports[`gen-api-models should generate a dictionary from additionalProperties: 
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-/**
- *
- */
-
 import * as t from \\"io-ts\\";
 
 // additional attributes
-const AdditionalPropsTestA = t.readonlyArray(t.number);
+const AdditionalPropsTestA = t.readonlyArray(t.number, \\"array of number\\");
 
 export const AdditionalPropsTest = t.dictionary(
   t.string,
@@ -39,16 +35,10 @@ exports[`gen-api-models should handle NonNegativeNumbers: non-negative-numbers 1
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-/**
- *
- */
-
 import { NonNegativeNumber } from \\"italia-ts-commons/lib/numbers\\";
-
 import * as t from \\"io-ts\\";
 
 export type NonNegativeNumberTest = t.TypeOf<typeof NonNegativeNumberTest>;
-
 export const NonNegativeNumberTest = NonNegativeNumber;
 "
 `;
@@ -68,12 +58,11 @@ import { FiscalCode } from \\"./FiscalCode\\";
 import { IsInboxEnabled } from \\"./IsInboxEnabled\\";
 import { IsWebhookEnabled } from \\"./IsWebhookEnabled\\";
 import { PreferredLanguages } from \\"./PreferredLanguages\\";
+import * as t from \\"io-ts\\";
 
 /**
  * Describes the user's profile.
  */
-
-import * as t from \\"io-ts\\";
 
 // required attributes
 const ProfileR = t.interface({
