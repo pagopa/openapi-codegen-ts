@@ -15,10 +15,9 @@
 
 {% macro inlineConst(defaultValue, type, typedef, quote = false) %}
   {% if defaultValue !== undefined %}
-    {% set typeName = type + "Base" %}
     {% set q = '"' if quote else "" %}
     {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
-    withDefault({{ typedef | safe }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ type }}),
+    withDefault({{ typedef | safe }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as t.TypeOf<typeof {{ typedef }}>),
   {% else %}
     {{ typedef | safe }},
   {% endif %}
