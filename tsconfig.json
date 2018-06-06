@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "lib": ["es2015"],
+    "target": "es6",
     "rootDir": "src",
     "outDir": "dist",
     "module": "commonjs",
@@ -11,5 +10,5 @@
     "sourceMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["**/__tests__/*"]
+  "exclude": ["**/__tests__/*", "node_modules"]
 }
