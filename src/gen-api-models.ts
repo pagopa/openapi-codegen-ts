@@ -4,7 +4,7 @@ import * as fs from "fs-extra";
 import * as nunjucks from "nunjucks";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
-import { Spec, Schema } from "swagger-schema-official";
+import { Schema, Spec } from "swagger-schema-official";
 
 function renderAsync(
   env: nunjucks.Environment,
@@ -125,7 +125,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   });
 
   env.addFilter("camelCase", (item: string) => {
-    return item.replace(/(\_\w)/g, function(m) {
+    return item.replace(/(\_\w)/g, (m: string) => {
       return m[1].toUpperCase();
     });
   });

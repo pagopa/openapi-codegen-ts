@@ -1,0 +1,17 @@
+{
+  "defaultSeverity": "warn",
+  "extends": [
+    "typestrict",
+    "tslint:recommended",
+    "tslint-sonarts",
+    "tslint-plugin-prettier",
+    "tslint-config-prettier"
+  ],
+  "jsRules": {},
+  "rules": {
+    "no-null-keyword": true,
+    "no-any": true,
+    "prettier": true
+  },
+  "rulesDirectory": []
+}
