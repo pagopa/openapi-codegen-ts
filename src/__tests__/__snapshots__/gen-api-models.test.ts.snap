@@ -63,6 +63,44 @@ export type AllOfTest = t.TypeOf<typeof AllOfTest>;
 "
 `;
 
+exports[`gen-api-models should generate a type union from allOf when x-one-of is used: allofoneof-test 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import { Message } from \\"./Message\\";
+import * as t from \\"io-ts\\";
+import { PaginationResponse } from \\"./PaginationResponse\\";
+
+// required attributes
+const AllOfOneOfTest1R = t.interface({});
+
+// optional attributes
+const AllOfOneOfTest1O = t.partial({
+  items: t.readonlyArray(Message, \\"array of Message\\")
+});
+
+export const AllOfOneOfTest1 = t.intersection(
+  [AllOfOneOfTest1R, AllOfOneOfTest1O],
+  \\"AllOfOneOfTest1\\"
+);
+
+export type AllOfOneOfTest1 = t.TypeOf<typeof AllOfOneOfTest1>;
+
+export const AllOfOneOfTest = t.union(
+  [AllOfOneOfTest1, PaginationResponse],
+  \\"AllOfOneOfTest\\"
+);
+
+export type AllOfOneOfTest = t.TypeOf<typeof AllOfOneOfTest>;
+"
+`;
+
 exports[`gen-api-models should generate a type union from oneOf: oneof-test 1`] = `
 "/* tslint:disable:ordered-imports */
 /* tslint:disable:no-consecutive-blank-lines */

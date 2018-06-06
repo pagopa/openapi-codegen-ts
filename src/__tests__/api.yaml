@@ -18,6 +18,17 @@ definitions:
             items:
               $ref: "#/definitions/Message"
       - $ref: "#/definitions/PaginationResponse"
+  AllOfOneOfTest:
+    decription: test if we can use allOf as oneOf
+    x-one-of: true
+    allOf:
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: "#/definitions/Message"
+      - $ref: "#/definitions/PaginationResponse"
   OneOfTest:
     oneOf:
       - type: object

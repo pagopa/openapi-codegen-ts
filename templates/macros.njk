@@ -271,7 +271,7 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {% elif definition.allOf %}
+  {% elif definition.allOf and not definition["x-one-of"] %}
 
     {% for schema in definition.allOf -%}
       {% if schema.type == "object" %}
@@ -297,9 +297,12 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {% elif definition.oneOf %}
+  {# When using the custom property "x-one-of" allOf behaves like oneOf #}
+  {# Needed to support swagger specs 2.0 that don't support oneOf #}
+  {% elif definition.oneOf or (definition["x-one-of"] and definition.allOf) %}
+    {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
 
-    {% for schema in definition.oneOf -%}
+    {% for schema in oneOfProps -%}
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
       {% elif schema.$ref %}
@@ -310,7 +313,7 @@
 
     export const {{ definitionName }} = 
       t.union([
-        {% for schema in definition.oneOf -%}
+        {% for schema in oneOfProps -%}
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
