@@ -140,7 +140,7 @@
  # defines an object sub-property
  #}
 {% macro defineSubObject(parentPropName, definitionName, definition) -%}
-  {% set typedef %}{{ parentPropName }}{{ definitionName }}{% endset %}
+  {% set typedef %}{{ parentPropName }}{{ definitionName | capitalizeFirst }}{% endset %}
   {{ defineConst(definition.default, definitionName, typedef, false, true) }}
 {% endmacro %}
 

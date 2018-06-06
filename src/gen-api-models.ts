@@ -116,6 +116,9 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   env.addFilter("startsWith", <T>(a: string, item: string) => {
     return a.indexOf(item) === 0;
   });
+  env.addFilter("capitalizeFirst", (item: string) => {
+    return `${item[0].toUpperCase()}${item.slice(1)}`;
+  });
 
   env.addFilter("comment", (item: string) => {
     return "/**\n * " + item.split("\n").join("\n * ") + "\n */";
