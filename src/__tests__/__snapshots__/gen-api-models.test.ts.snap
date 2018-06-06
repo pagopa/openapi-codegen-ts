@@ -10,14 +10,10 @@ exports[`gen-api-models should generate a dictionary from additionalProperties: 
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-/**
- *
- */
-
 import * as t from \\"io-ts\\";
 
 // additional attributes
-const AdditionalPropsTestA = t.readonlyArray(t.number);
+const AdditionalPropsTestA = t.readonlyArray(t.number, \\"array of number\\");
 
 export const AdditionalPropsTest = t.dictionary(
   t.string,
@@ -26,6 +22,130 @@ export const AdditionalPropsTest = t.dictionary(
 );
 
 export type AdditionalPropsTest = t.TypeOf<typeof AdditionalPropsTest>;
+"
+`;
+
+exports[`gen-api-models should generate a type intersection from allOf: all-of-test 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import { Message } from \\"./Message\\";
+import * as t from \\"io-ts\\";
+import { PaginationResponse } from \\"./PaginationResponse\\";
+
+// required attributes
+const AllOfTest1R = t.interface({});
+
+// optional attributes
+const AllOfTest1O = t.partial({
+  items: t.readonlyArray(Message, \\"array of Message\\")
+});
+
+export const AllOfTest1 = t.intersection(
+  [AllOfTest1R, AllOfTest1O],
+  \\"AllOfTest1\\"
+);
+
+export type AllOfTest1 = t.TypeOf<typeof AllOfTest1>;
+
+export const AllOfTest = t.intersection(
+  [AllOfTest1, PaginationResponse],
+  \\"AllOfTest\\"
+);
+
+export type AllOfTest = t.TypeOf<typeof AllOfTest>;
+"
+`;
+
+exports[`gen-api-models should generate a type union from allOf when x-one-of is used: allofoneof-test 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import { Message } from \\"./Message\\";
+import * as t from \\"io-ts\\";
+import { PaginationResponse } from \\"./PaginationResponse\\";
+
+// required attributes
+const AllOfOneOfTest1R = t.interface({});
+
+// optional attributes
+const AllOfOneOfTest1O = t.partial({
+  items: t.readonlyArray(Message, \\"array of Message\\")
+});
+
+export const AllOfOneOfTest1 = t.intersection(
+  [AllOfOneOfTest1R, AllOfOneOfTest1O],
+  \\"AllOfOneOfTest1\\"
+);
+
+export type AllOfOneOfTest1 = t.TypeOf<typeof AllOfOneOfTest1>;
+
+export const AllOfOneOfTest = t.union(
+  [AllOfOneOfTest1, PaginationResponse],
+  \\"AllOfOneOfTest\\"
+);
+
+export type AllOfOneOfTest = t.TypeOf<typeof AllOfOneOfTest>;
+"
+`;
+
+exports[`gen-api-models should generate a type union from oneOf: oneof-test 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import * as t from \\"io-ts\\";
+
+// required attributes
+const OneOfTest1R = t.interface({});
+
+// optional attributes
+const OneOfTest1O = t.partial({
+  limited: t.boolean
+});
+
+export const OneOfTest1 = t.intersection(
+  [OneOfTest1R, OneOfTest1O],
+  \\"OneOfTest1\\"
+);
+
+export type OneOfTest1 = t.TypeOf<typeof OneOfTest1>;
+
+// required attributes
+const OneOfTest2R = t.interface({});
+
+// optional attributes
+const OneOfTest2O = t.partial({
+  unlimited: t.boolean
+});
+
+export const OneOfTest2 = t.intersection(
+  [OneOfTest2R, OneOfTest2O],
+  \\"OneOfTest2\\"
+);
+
+export type OneOfTest2 = t.TypeOf<typeof OneOfTest2>;
+
+export const OneOfTest = t.union([OneOfTest1, OneOfTest2], \\"OneOfTest\\");
+
+export type OneOfTest = t.TypeOf<typeof OneOfTest>;
 "
 `;
 
@@ -39,16 +159,10 @@ exports[`gen-api-models should handle NonNegativeNumbers: non-negative-numbers 1
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-/**
- *
- */
-
 import { NonNegativeNumber } from \\"italia-ts-commons/lib/numbers\\";
-
 import * as t from \\"io-ts\\";
 
 export type NonNegativeNumberTest = t.TypeOf<typeof NonNegativeNumberTest>;
-
 export const NonNegativeNumberTest = NonNegativeNumber;
 "
 `;
@@ -68,12 +182,11 @@ import { FiscalCode } from \\"./FiscalCode\\";
 import { IsInboxEnabled } from \\"./IsInboxEnabled\\";
 import { IsWebhookEnabled } from \\"./IsWebhookEnabled\\";
 import { PreferredLanguages } from \\"./PreferredLanguages\\";
+import * as t from \\"io-ts\\";
 
 /**
  * Describes the user's profile.
  */
-
-import * as t from \\"io-ts\\";
 
 // required attributes
 const ProfileR = t.interface({
@@ -106,5 +219,90 @@ const ProfileO = t.partial({
 export const Profile = t.intersection([ProfileR, ProfileO], \\"Profile\\");
 
 export type Profile = t.TypeOf<typeof Profile>;
+"
+`;
+
+exports[`gen-api-models should parse custom inline properties: inline-property 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import * as t from \\"io-ts\\";
+import { PatternString } from \\"italia-ts-commons/lib/strings\\";
+
+// required attributes
+const InlinePropertyTestR = t.interface({});
+
+// optional attributes
+const InlinePropertyTestO = t.partial({
+  inlineProp: PatternString(
+    \\"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\\"
+  )
+});
+
+export const InlinePropertyTest = t.intersection(
+  [InlinePropertyTestR, InlinePropertyTestO],
+  \\"InlinePropertyTest\\"
+);
+
+export type InlinePropertyTest = t.TypeOf<typeof InlinePropertyTest>;
+"
+`;
+
+exports[`gen-api-models should parse nested objects: nested-object 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import * as t from \\"io-ts\\";
+import { PatternString } from \\"italia-ts-commons/lib/strings\\";
+
+// required attributes
+const NestedObjectTestnestedObjectR = t.interface({});
+
+// optional attributes
+const NestedObjectTestnestedObjectO = t.partial({
+  inlineProp: PatternString(
+    \\"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\\"
+  )
+});
+
+export const NestedObjectTestnestedObject = t.intersection(
+  [NestedObjectTestnestedObjectR, NestedObjectTestnestedObjectO],
+  \\"NestedObjectTestnestedObject\\"
+);
+
+export type NestedObjectTestnestedObject = t.TypeOf<
+  typeof NestedObjectTestnestedObject
+>;
+
+// required attributes
+const NestedObjectTestR = t.interface({});
+
+// optional attributes
+const NestedObjectTestO = t.partial({
+  inlineProp: PatternString(
+    \\"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\\"
+  ),
+
+  nestedObject: NestedObjectTestNestedObject
+});
+
+export const NestedObjectTest = t.intersection(
+  [NestedObjectTestR, NestedObjectTestO],
+  \\"NestedObjectTest\\"
+);
+
+export type NestedObjectTest = t.TypeOf<typeof NestedObjectTest>;
 "
 `;

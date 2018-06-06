@@ -52,4 +52,71 @@ describe("gen-api-models", () => {
     expect(code).toContain("t.dictionary");
     expect(code).toMatchSnapshot("additional-properties");
   });
+
+  it("should generate a type intersection from allOf", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const definition = spec.definitions["AllOfTest"];
+    const code = await renderDefinitionCode(
+      env,
+      "AllOfTest",
+      definition,
+      false
+    );
+    expect(code).toContain("t.intersection");
+    expect(code).toContain("PaginationResponse");
+    expect(code).toMatchSnapshot("all-of-test");
+  });
+
+  it("should generate a type union from oneOf", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const definition = spec.definitions["OneOfTest"];
+    const code = await renderDefinitionCode(
+      env,
+      "OneOfTest",
+      definition,
+      false
+    );
+    expect(code).toContain("t.union");
+    expect(code).toMatchSnapshot("oneof-test");
+  });
+
+  it("should generate a type union from allOf when x-one-of is used", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const definition = spec.definitions["AllOfOneOfTest"];
+    const code = await renderDefinitionCode(
+      env,
+      "AllOfOneOfTest",
+      definition,
+      false
+    );
+    expect(code).toContain("t.union");
+    expect(code).toContain("PaginationResponse");
+    expect(code).toMatchSnapshot("allofoneof-test");
+  });
+
+  it("should parse custom inline properties", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const definition = spec.definitions["InlinePropertyTest"];
+    const code = await renderDefinitionCode(
+      env,
+      "InlinePropertyTest",
+      definition,
+      false
+    );
+    expect(code).toContain("PatternString");
+    expect(code).toMatchSnapshot("inline-property");
+  });
+
+  it("should parse nested objects", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const definition = spec.definitions["NestedObjectTest"];
+    const code = await renderDefinitionCode(
+      env,
+      "NestedObjectTest",
+      definition,
+      false
+    );
+    expect(code).toContain("t.TypeOf<typeof NestedObjectTest>");
+    expect(code).toMatchSnapshot("nested-object");
+  });
 });

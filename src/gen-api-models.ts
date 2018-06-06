@@ -113,16 +113,44 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   env.addFilter("contains", <T>(a: ReadonlyArray<T>, item: T) => {
     return a.indexOf(item) !== -1;
   });
+  env.addFilter("startsWith", <T>(a: string, item: string) => {
+    return a.indexOf(item) === 0;
+  });
+  env.addFilter("capitalizeFirst", (item: string) => {
+    return `${item[0].toUpperCase()}${item.slice(1)}`;
+  });
 
-  let seenItems: { [key: string]: true } = {};
-  env.addFilter("resetSeen", () => {
-    seenItems = {};
+  env.addFilter("comment", (item: string) => {
+    return "/**\n * " + item.split("\n").join("\n * ") + "\n */";
   });
-  env.addFilter("rememberSeen", (item: string) => {
-    seenItems[item] = true;
+
+  env.addFilter("camelCase", (item: string) => {
+    return item.replace(/(\_\w)/g, function(m) {
+      return m[1].toUpperCase();
+    });
   });
-  env.addFilter("isSeen", (item: string) => {
-    return seenItems[item] === true;
+
+  let imports: { [key: string]: true } = {};
+  env.addFilter("resetImports", (item: string) => {
+    imports = {};
   });
+  env.addFilter("addImport", (item: string) => {
+    imports[item] = true;
+  });
+  env.addFilter("getImports", (item: string) => {
+    return Object.keys(imports).join("\n");
+  });
+
+  let typeAliases: { [key: string]: true } = {};
+  env.addFilter("resetTypeAliases", (item: string) => {
+    typeAliases = {};
+  });
+  env.addFilter("addTypeAlias", (item: string) => {
+    typeAliases[item] = true;
+  });
+  env.addFilter("getTypeAliases", (item: string) => {
+    return Object.keys(typeAliases).join("\n");
+  });
+
   return env;
 }

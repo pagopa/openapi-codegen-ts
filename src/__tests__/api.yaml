@@ -1,231 +1,75 @@
 swagger: "2.0"
 info:
   version: 1.0.0
-  title: Proxy API
-  description: Mobile and web proxy API gateway.
+  title: Test API
+  description: Test API.
 host: localhost
 basePath: /api/v1
 schemes:
   - https
-paths:
-  "/services/{service_id}":
-    x-swagger-router-controller: ServicesController
-    parameters:
-      - name: service_id
-        in: path
-        type: string
-        required: true
-        description: The ID of an existing Service.
-    get:
-      operationId: getService
-      summary: Get Service
-      description: A previously created service with the provided service ID is returned.
-      responses:
-        '200':
-          description: Service found.
-          schema:
-            "$ref": "#/definitions/ServicePublic"
-          examples:
-            application/json:
-              department_name: dept
-              organization_name: org
-              service_id: 2b3e728c1a5d1efa035c
-              service_name: service
-              version: 1
-        '404':
-          description: No service found for the provided ID.
-      parameters: []
-  "/messages":
-    x-swagger-router-controller: MessagesController
-    parameters:
-      - $ref: "#/parameters/PaginationRequest"
-    get:
-      operationId: getUserMessages
-      summary: Get user's messages
-      description: |-
-        Returns the messages for the user identified by the provided fiscal code.
-        Messages will be returned in inverse acceptance order (from last to first).
-        The "next" field, when present, contains an URL pointing to the next page of results.
-      responses:
-        "200":
-          description: Found.
-          schema:
-            allOf:
-              - type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: "#/definitions/Message"
-              - $ref: "#/definitions/PaginationResponse"
-          examples:
-            application/json:
-              items:
-                - id: 01BX9NSMKVXXS5PSP2FATZMYYY
-                  content:
-                    subject: amet sunt dolor nulla esseesseanim
-                    markdown: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et mollis felis.
-                      Vivamus orci nisl, commodo ut sodales ut, eleifend a libero. Donec dapibus, turpis in mattis tempor,
-                      risus nunc malesuada ex, non aliquet metus nunc a lacus. Aenean in arcu vitae nisl porta
-                      fermentum nec non nibh. Phasellus tortor tellus, semper in metus eget, eleifend
-                      laoreet nibh. Aenean feugiat lectus ut nisl eleifend gravida.
-                - id: 01BX9NSMKVXXS5PSP2FATZM123
-                  content:
-                    subject: idUt quis tempor esseesseanim
-                    markdown: Nullam dapibus metus sed elementum efficitur. Curabitur facilisis sagittis risus nec sodales.
-                      Vestibulum in eros sapien. Donec ac odio sit amet dui semper ornare eget nec odio. Pellentesque habitant
-                      morbi tristique senectus et netus et malesuada fames ac turpis egestas. Praesent nibh ex, mattis sit amet
-                      felis id, sodales euismod velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              page_size: 2
-              next: https://example.com/next
-        "404":
-          description: No message found.
-        "500":
-          description: There was an error in retrieving the messages.
-  "/messages/{id}":
-    x-swagger-router-controller: MessagesController
-    parameters:
-      - name: id
-        in: path
-        type: string
-        required: true
-        description: The ID of the message.
-    get:
-      operationId: getUserMessage
-      summary: Get message
-      description: |-
-        Returns the message with the provided message ID.
-      responses:
-        "200":
-          description: Found.
-          schema:
-            $ref: "#/definitions/Message"
-          examples:
-            application/json:
-              message:
-                id: 01BX9NSMKAAAS5PSP2FATZM6BQ
-                content:
-                  subject: message subject, aliquip sint nulla in estinut
-                  markdown: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et mollis felis.
-                    Vivamus orci nisl, commodo ut sodales ut, eleifend a libero. Donec dapibus, turpis in mattis tempor,
-                    risus nunc malesuada ex, non aliquet metus nunc a lacus. Aenean in arcu vitae nisl porta
-                    fermentum nec non nibh. Phasellus tortor tellus, semper in metus eget, eleifend
-                    laoreet nibh. Aenean feugiat lectus ut nisl eleifend gravida.
-        "404":
-          description: No message found for the provided ID.
-        "500":
-          description: There was an error in retrieving the message.
-  "/profile":
-    x-swagger-router-controller: ProfileController
-    get:
-      operationId: getUserProfile
-      summary: Get user's profile
-      description: Returns the profile for the user identified by the provided fiscal code.
-      responses:
-        "200":
-          description: Found.
-          schema:
-            $ref: "#/definitions/Profile"
-          examples:
-            application/json:
-              fiscal_code: "TMMEXQ60A10Y526X"
-              email: "email@example.com"
-        "500":
-          description: There was an error in retrieving the user profile.
-    post:
-      operationId: upsertProfile
-      summary: Set User's profile
-      description: Create or update the profile for the user identified by the provided fiscal code.
-      parameters:
-        - in: body
-          name: body
-          schema:
-            $ref: "#/definitions/ExtendedProfile"
-          x-examples:
-            application/json:
-              email: foobar@example.com
-      responses:
-        '200':
-          description: Profile updated.
-          schema:
-            allOf:
-              - $ref: "#/definitions/LimitedProfile"
-              - $ref: "#/definitions/ExtendedProfile"
-          examples:
-            application/json:
-              email: foobar@example.com
-              version: 0
-        "404":
-          description: No user found for the provided fiscal code.
-        '400':
-          description: Invalid payload.
-        '500':
-          description: Profile cannot be updated.
-  "/notify":
-    x-swagger-router-controller: NotificationController
-    parameters:
-      - in: body
-        name: body
-        schema:
-          $ref: "#/definitions/Notification"
-        x-examples:
-          application/json:
-            message:
-              content:
-                  subject: message subject, aliquip sint nulla in estinut
-                  markdown: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et mollis felis.
-                    Vivamus orci nisl, commodo ut sodales ut, eleifend a libero. Donec dapibus, turpis in mattis tempor,
-                    risus nunc malesuada ex, non aliquet metus nunc a lacus. Aenean in arcu vitae nisl porta
-                    fermentum nec non nibh. Phasellus tortor tellus, semper in metus eget, eleifend
-                    laoreet nibh. Aenean feugiat lectus ut nisl eleifend gravida.
-              created_at: "2018-05-03T16:21:38.167Z"
-              fiscal_code: "TMMEXQ60A10Y526X"
-              id: "01CCKCY7QQ7WCHWTH8NB504386"
-              sender_service_id: "5a25abf4fcc89605c082f042c49a"
-            senderMetadata:
-              department_name: "Department name"
-              organization_name: "Organization name"
-              service_name: "Service name"
-    post:
-      operationId: notify
-      summary: Notify a user
-      description: |-
-        Post the notification to the user using a push notification.
-      responses:
-        "200":
-          description: Success.
-        "500":
-          description: There was an error in forwarding the notification to the Notification Hub.
-  "/installations/{installationID}":
-    x-swagger-router-controller: NotificationController
-    parameters:
-      - name: installationID
-        in: path
-        required: true
-        schema:
-          $ref: "#/definitions/installationID"
-        x-examples:
-          application/json:
-            installationId: "550e8400-e29b-41d4-a716-446655440000"
-    put:
-      operationId: createOrUpdateInstallation
-      summary: Create or update an Installation
-      description: Create or update an Installation to the Azure Notification hub.
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/Installation"
-          x-examples:
-            application/json:
-              platform: "gcm"
-              pushChannel: "fLKP3EATnBI:APA91bEy4go681jeSEpLkNqhtIrdPnEKu6Dfi-STtUiEnQn8RwMfBiPGYaqdWrmzJyXIh5Yms4017MYRS9O1LGPZwA4sOLCNIoKl4Fwg7cSeOkliAAtlQ0rVg71Kr5QmQiLlDJyxcq3p"
-      responses:
-        "200":
-          description: Success.
-        "500":
-          description: There was an error in registering the device to the Notification Hub.
+paths: {}
 definitions:
+  AllOfTest:
+    allOf:
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: "#/definitions/Message"
+      - $ref: "#/definitions/PaginationResponse"
+  AllOfOneOfTest:
+    decription: test if we can use allOf as oneOf
+    x-one-of: true
+    allOf:
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: "#/definitions/Message"
+      - $ref: "#/definitions/PaginationResponse"
+  OneOfTest:
+    oneOf:
+      - type: object
+        properties:
+          limited:
+            type: boolean
+      - type: object
+        properties:
+          unlimited:
+            type: boolean
+  AdditionalPropsTest:
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: number
+  NonNegativeNumberTest:
+    title: NonNegativeNumberTest
+    type: integer
+    minimum: 0
+  InlinePropertyTest:
+    type: object
+    properties:
+      inlineProp:
+        type: string
+        description: The device global unique identifier.
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  NestedObjectTest:
+    type: object
+    properties:
+      inlineProp:
+        type: string
+        description: The device global unique identifier.
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      nestedObject:
+        type: object
+        properties:
+          inlineProp:
+            type: string
+            description: The device global unique identifier.
+            pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
   MessageContent:
     $ref: "https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/MessageContent"
   FiscalCode:
@@ -248,15 +92,6 @@ definitions:
     $ref: "https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/CreatedMessageWithContent"
   ServicePublic:
     $ref: "https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/ServicePublic"
-  AdditionalPropsTest:
-    type: object
-    additionalProperties:
-      type: array
-      items:
-        type: number
-  description: |-
-    All the notification channels blocked by the user.
-    Each channel is related to a specific service (sender).
   Message:
     title: Message
     type: object
@@ -270,54 +105,6 @@ definitions:
     required:
       - id
       - content
-  installationID:
-    type: string
-    description: The device global unique identifier.
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-  Installation:
-    title: Installation
-    description: Describes an app installation.
-    type: object
-    properties:
-      platform:
-        type: string
-        description: The platform type where the installation happened.
-        enum: [apns, gcm]
-      pushChannel:
-        type: string
-        description: |-
-          The Push Notification Service handle for this Installation.
-          See https://docs.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management
-    required:
-      - platform
-      - pushChannel
-  Notification:
-    title: Notification
-    description: A received Notification.
-    type: object
-    properties:
-      message:
-        $ref: '#/definitions/CreatedMessageWithContent'
-      senderMetadata:
-        $ref: '#/definitions/CreatedMessageEventSenderMetadata'
-    required:
-      - message
-      - senderMetadata
-  CreatedMessageEventSenderMetadata:
-    title: CreatedMessageEventSenderMetadata
-    description: The metadata for a Notification.
-    type: object
-    properties:
-      departmentName:
-        type: string
-      organizationName:
-        type: string
-      serviceName:
-        type: string
-    required:
-      - departmentName
-      - organizationName
-      - serviceName
   Profile:
     title: Profile
     description: Describes the user's profile.
@@ -352,10 +139,6 @@ definitions:
       - is_email_set
       - name
       - version
-  NonNegativeNumberTest:
-    title: NonNegativeNumberTest
-    type: integer
-    minimum: 0
 responses: {}
 parameters:
   PaginationRequest:
