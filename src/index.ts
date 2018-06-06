@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import yargs = require("yargs");
-
-import { initNunJucksEnvironment, generateApi } from "./gen-api-models";
+import { generateApi, initNunJucksEnvironment } from "./gen-api-models";
 
 //
 // parse command line
@@ -11,9 +10,9 @@ import { initNunJucksEnvironment, generateApi } from "./gen-api-models";
 const argv = yargs
   .option("api-spec", {
     demandOption: true,
-    string: true,
+    description: "Path to input OpenAPI spec file",
     normalize: true,
-    description: "Path to input OpenAPI spec file"
+    string: true
   })
   .option("strict", {
     boolean: false,
@@ -22,15 +21,15 @@ const argv = yargs
   })
   .option("out-dir", {
     demandOption: true,
-    string: true,
+    description: "Output directory to store generated definition files",
     normalize: true,
-    description: "Output directory to store generated definition files"
+    string: true
   })
   .option("ts-spec-file", {
-    string: true,
-    normalize: true,
     description:
-      "If defined, converts the OpenAPI specs to TypeScript source and writes it to this file"
+      "If defined, converts the OpenAPI specs to TypeScript source and writes it to this file",
+    normalize: true,
+    string: true
   })
   .help().argv;
 
@@ -44,5 +43,6 @@ generateApi(
   argv["api-spec"],
   argv["out-dir"],
   argv["ts-spec-file"],
-  argv["strict"]
+  argv.strict
+  // tslint:disable-next-line:no-console
 ).then(() => console.log("done"), err => console.log(`Error: ${err}`));
