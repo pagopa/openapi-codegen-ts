@@ -50,7 +50,7 @@ export async function renderDefinitionCode(
 
 export async function generateApi(
   env: nunjucks.Environment,
-  specFilePath: string,
+  specFilePath: string | Spec,
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined,
   strictInterfaces: boolean

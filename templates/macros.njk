@@ -165,7 +165,7 @@
  #}
 {% macro defineObjectProperty(propName, prop, parentPropName) -%}
   {% if propName %}
-    {{ propName }}:
+    "{{ propName }}":
   {% endif %}
   {%- if prop.$ref %}
     {{ defineRef(prop.$ref, prop, true) }}
