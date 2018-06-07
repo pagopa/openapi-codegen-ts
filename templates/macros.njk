@@ -206,9 +206,8 @@
       {{ importLocalProp(realPropName) }}{%
   endif %}
   {% for propName, prop in definition.properties -%}
-    {% if prop.default !== undefined and defaultFound === 0 %}
+    {% if prop.default !== undefined %}
       {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
-      {% set defaultFound = 1 %}
     {% endif %}
   {% endfor %}
 {% endmacro -%}
@@ -222,6 +221,7 @@
   {%- if definition.description %}
     {{ definition.description | comment | safe }}
   {% endif -%}
+
   {% if definition.type == "object" %}
 
     {{- 'import * as t from "io-ts";' | addImport -}}
@@ -234,12 +234,20 @@
 
     {% if definition.additionalProperties %}
       // additional attributes
-      const {{ definitionName }}A = {{ defineObjectProperty(false, definition.additionalProperties) }}
-      export const {{ definitionName }} = t.dictionary(
-        t.string,
-        {{ definitionName }}A,
-        "{{ definitionName }}"
-      );
+      {% if definition.additionalProperties == true %}
+        export const {{ definitionName }} = t.dictionary(
+          t.string,
+          t.any,
+          "{{ definitionName }}"
+        );
+      {% else %}
+        const {{ definitionName }}A = {{ defineObjectProperty(false, definition.additionalProperties) }}
+        export const {{ definitionName }} = t.dictionary(
+          t.string,
+          {{ definitionName }}A,
+          "{{ definitionName }}"
+        );
+      {% endif %}
     {% else %}
       // required attributes
       const {{ definitionName }}R = t.interface({
