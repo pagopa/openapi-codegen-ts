@@ -45,6 +45,9 @@ definitions:
       type: array
       items:
         type: number
+  AdditionalPropsTrueTest:
+    type: object
+    additionalProperties: true
   NonNegativeNumberTest:
     title: NonNegativeNumberTest
     type: integer
