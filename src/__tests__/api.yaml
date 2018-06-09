@@ -45,6 +45,13 @@ definitions:
       type: array
       items:
         type: number
+  AdditionalpropsDefault:
+    type: object
+    default: { "test": [1000] }
+    additionalProperties:
+      type: array
+      items:
+        type: number
   AdditionalPropsTrueTest:
     type: object
     additionalProperties: true

@@ -14,11 +14,11 @@ import * as t from \\"io-ts\\";
 
 // additional attributes
 
-const AdditionalPropsTestA = t.readonlyArray(t.number, \\"array of number\\");
-
 export const AdditionalPropsTest = t.dictionary(
   t.string,
-  AdditionalPropsTestA,
+
+  t.readonlyArray(t.number, \\"array of number\\"),
+
   \\"AdditionalPropsTest\\"
 );
 
@@ -329,5 +329,37 @@ export const NestedObjectTest = t.intersection(
 );
 
 export type NestedObjectTest = t.TypeOf<typeof NestedObjectTest>;
+"
+`;
+
+exports[`gen-api-models should support additionalProperties default value: additional-properties-default 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import * as t from \\"io-ts\\";
+import { withDefault } from \\"italia-ts-commons/lib/types\\";
+
+type AdditionalpropsDefaultBase = t.TypeOf<typeof AdditionalpropsDefaultBase>;
+const AdditionalpropsDefaultBase = t.dictionary(
+  t.string,
+
+  t.readonlyArray(t.number, \\"array of number\\"),
+
+  \\"AdditionalpropsDefault\\"
+);
+
+// additional attributes
+
+export const AdditionalpropsDefault = withDefault(AdditionalpropsDefaultBase, {
+  test: [1000]
+} as AdditionalpropsDefaultBase);
+
+export type AdditionalpropsDefault = t.TypeOf<typeof AdditionalpropsDefault>;
 "
 `;

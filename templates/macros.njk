@@ -23,23 +23,23 @@
 {% macro inlineConst(defaultValue, type, typedef, quote = false) %}
   {% if defaultValue !== undefined %}
     {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
-    {% if not (typedef | startsWith("t.")) %}
+    {# check if it is a primitive io-ts type (ie. t.string) #}
+    {# if it is a primitive io-ts type, avoid to create an alias #}
+    {% if not r/^t\.[a-z]+$/.test(typedef) %}
       {# create a type alias to set a default value #}
       {# this is mandatory as we need to cast the default value to this type #}
-      {% set typeName = type | capitalize | camelCase %}
+      {% set typeName = type | capitalizeFirst | camelCase %}
       {% set baseTypeName = typeName + "Base" %}
       {% set typeAlias %}t.TypeOf<typeof {{ baseTypeName }}>{% endset %}
       {% set typeAliasExport %}
-        type {{ typeName | safe }} = {{ typeAlias | safe }};
+        type {{ baseTypeName | safe }} = {{ typeAlias | safe }};
         const {{ baseTypeName | safe }} = {{ typedef | safe }};
       {% endset %}
       {{- typeAliasExport | addTypeAlias -}}
-    {% else %}
-      {# if it is a primitive io-ts type, avoid create an alias #}
-      {% set typeName %}t.TypeOf<typeof {{ typedef }}>{% endset %}
     {% endif %}
     {% set q = '"' if quote else "" %}
-    withDefault({{ typedef | safe }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ typeName | safe }}),
+    withDefault({{ typedef if not baseTypeName else baseTypeName | safe }},
+      {{ q | safe }}{{ defaultValue }}{{ q | safe }} {{ "as " + baseTypeName if baseTypeName else "" | safe }}),
   {% else %}
     {{ typedef | safe }},
   {% endif %}
@@ -234,20 +234,15 @@
 
     {% if definition.additionalProperties %}
       // additional attributes
-      {% if definition.additionalProperties == true %}
-        export const {{ definitionName }} = t.dictionary(
-          t.string,
-          t.any,
-          "{{ definitionName }}"
-        );
+      {% if definition.additionalProperties == true -%}
+        {% set typedef %}t.dictionary(t.string, t.any, "{{ definitionName }}"){% endset %}
       {% else %}
-        const {{ definitionName }}A = {{ defineObjectProperty(false, definition.additionalProperties) }}
-        export const {{ definitionName }} = t.dictionary(
-          t.string,
-          {{ definitionName }}A,
-          "{{ definitionName }}"
-        );
-      {% endif %}
+        {% set typedef %}t.dictionary(t.string, 
+          {{ defineObjectProperty(false, definition.additionalProperties) }} "{{ definitionName }}")
+        {% endset %}
+      {%- endif %}
+      {% set defaultValue = definition.default | dump | safe if definition.default else undefined %}
+      export const {{ definitionName }} = {{ inlineConst(defaultValue, definitionName, typedef, false) }};
     {% else %}
       // required attributes
       const {{ definitionName }}R = t.interface({
