@@ -24,6 +24,7 @@
   {% if defaultValue !== undefined %}
     {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
     {# check if it is a primitive io-ts type (ie. t.string) #}
+    {# if it is a primitive io-ts type, avoid to create an alias #}
     {% if not r/^t\.[a-z]+$/.test(typedef) %}
       {# create a type alias to set a default value #}
       {# this is mandatory as we need to cast the default value to this type #}
@@ -35,13 +36,10 @@
         const {{ baseTypeName | safe }} = {{ typedef | safe }};
       {% endset %}
       {{- typeAliasExport | addTypeAlias -}}
-    {% else %}
-      {# if it is a primitive io-ts type, avoid to create an alias #}
-      {% set typeName %}t.TypeOf<typeof {{ typedef }}>{% endset %}
     {% endif %}
     {% set q = '"' if quote else "" %}
     withDefault({{ typedef if not baseTypeName else baseTypeName | safe }},
-      {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ typedef if not baseTypeName else baseTypeName | safe }}),
+      {{ q | safe }}{{ defaultValue }}{{ q | safe }} {{ "as " + baseTypeName if baseTypeName else "" | safe }}),
   {% else %}
     {{ typedef | safe }},
   {% endif %}
