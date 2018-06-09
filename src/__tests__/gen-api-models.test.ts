@@ -67,6 +67,20 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("additional-properties-true");
   });
 
+  it("should support additionalProperties default value", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const definition = spec.definitions.AdditionalpropsDefault;
+    const code = await renderDefinitionCode(
+      env,
+      "AdditionalpropsDefault",
+      definition,
+      false
+    );
+    expect(code).toContain("t.dictionary");
+    expect(code).toContain("withDefault");
+    expect(code).toMatchSnapshot("additional-properties-default");
+  });
+
   it("should generate a type intersection from allOf", async () => {
     const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.AllOfTest;
