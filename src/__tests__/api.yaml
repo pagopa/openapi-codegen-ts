@@ -59,6 +59,11 @@ definitions:
     title: NonNegativeNumberTest
     type: integer
     minimum: 0
+  WithinRangeNumberTest:
+    title: WithinRangeNumberTest
+    type: integer
+    minimum: 0
+    maximum: 10
   InlinePropertyTest:
     type: object
     properties:
