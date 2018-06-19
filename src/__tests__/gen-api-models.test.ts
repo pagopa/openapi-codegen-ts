@@ -1,3 +1,5 @@
+/* tslint:disable:no-duplicate-string */
+
 import * as SwaggerParser from "swagger-parser";
 import { Schema, Spec } from "swagger-schema-official";
 
@@ -30,11 +32,11 @@ describe("gen-api-models", () => {
 
   it("should handle NonNegativeNumbers", async () => {
     const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
-    const profileDefinition = spec.definitions.NonNegativeNumberTest;
+    const definition = spec.definitions.NonNegativeNumberTest;
     const code = await renderDefinitionCode(
       env,
       "NonNegativeNumberTest",
-      profileDefinition,
+      definition,
       false
     );
     expect(code).toContain("NonNegativeNumber");
@@ -43,15 +45,28 @@ describe("gen-api-models", () => {
 
   it("should handle WithinRangeNumbers", async () => {
     const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
-    const profileDefinition = spec.definitions.WithinRangeNumberTest;
+    const definition = spec.definitions.WithinRangeNumberTest;
     const code = await renderDefinitionCode(
       env,
       "WithinRangeNumberTest",
-      profileDefinition,
+      definition,
       false
     );
     expect(code).toContain("WithinRangeNumber");
     expect(code).toMatchSnapshot("within-range-numbers");
+  });
+
+  it("should handle CustomStringFormats", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const definition = spec.definitions.CustomStringFormatTest;
+    const code = await renderDefinitionCode(
+      env,
+      "CustomStringFormatTest",
+      definition,
+      false
+    );
+    expect(code).toContain("import SomeCustomStringType");
+    expect(code).toMatchSnapshot("custom-string-format");
   });
 
   it("should generate a dictionary from additionalProperties", async () => {

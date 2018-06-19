@@ -71,6 +71,10 @@ definitions:
         type: string
         description: The device global unique identifier.
         pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  CustomStringFormatTest:
+    type: string
+    x-import: italia-ts-commons/lib/string
+    format: SomeCustomStringType
   NestedObjectTest:
     type: object
     properties:
