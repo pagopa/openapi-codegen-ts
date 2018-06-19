@@ -37,7 +37,21 @@ describe("gen-api-models", () => {
       profileDefinition,
       false
     );
+    expect(code).toContain("NonNegativeNumber");
     expect(code).toMatchSnapshot("non-negative-numbers");
+  });
+
+  it("should handle WithinRangeNumbers", async () => {
+    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
+    const profileDefinition = spec.definitions.WithinRangeNumberTest;
+    const code = await renderDefinitionCode(
+      env,
+      "WithinRangeNumberTest",
+      profileDefinition,
+      false
+    );
+    expect(code).toContain("WithinRangeNumber");
+    expect(code).toMatchSnapshot("within-range-numbers");
   });
 
   it("should generate a dictionary from additionalProperties", async () => {

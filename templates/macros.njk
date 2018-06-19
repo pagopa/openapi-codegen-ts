@@ -69,7 +69,7 @@
  # defines an integer (or float) property with constraints
  #}
 {% macro defineInteger(definitionName, definition, inline = false) -%}
-  {% if definition.minimum and definition.maximum %}
+  {% if definition.minimum != undefined and definition.maximum != undefined %}
     {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
   {% elif definition.minimum == "0" %}

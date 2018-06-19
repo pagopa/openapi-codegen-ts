@@ -192,6 +192,24 @@ export const NonNegativeNumberTest = NonNegativeNumber;
 "
 `;
 
+exports[`gen-api-models should handle WithinRangeNumbers: within-range-numbers 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import { WithinRangeNumber } from \\"italia-ts-commons/lib/numbers\\";
+import * as t from \\"io-ts\\";
+
+export type WithinRangeNumberTest = t.TypeOf<typeof WithinRangeNumberTest>;
+export const WithinRangeNumberTest = WithinRangeNumber(0, 10);
+"
+`;
+
 exports[`gen-api-models should not generate duplicate imports: dup-imports 1`] = `
 "/* tslint:disable:ordered-imports */
 /* tslint:disable:no-consecutive-blank-lines */
