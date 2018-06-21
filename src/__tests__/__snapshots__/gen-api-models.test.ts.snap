@@ -184,11 +184,11 @@ exports[`gen-api-models should handle CustomStringFormats: custom-string-format 
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-import { SomeCustomStringType } from \\"italia-ts-commons/lib/string\\";
+import { SomeCustomStringType as SomeCustomStringTypeT } from \\"italia-ts-commons/lib/string\\";
 import * as t from \\"io-ts\\";
 
 export type CustomStringFormatTest = t.TypeOf<typeof CustomStringFormatTest>;
-export const CustomStringFormatTest = SomeCustomStringType;
+export const CustomStringFormatTest = SomeCustomStringTypeT;
 "
 `;
 
@@ -202,7 +202,7 @@ exports[`gen-api-models should handle NonNegativeIntegers: non-negative-integer 
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-import { NonNegativeNumber } from \\"italia-ts-commons/lib/numbers\\";
+import { NonNegativeInteger } from \\"italia-ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type NonNegativeIntegerTest = t.TypeOf<typeof NonNegativeIntegerTest>;
@@ -238,7 +238,7 @@ exports[`gen-api-models should handle WithinRangeIntegers: within-range-integer 
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-import { WithinRangeNumber } from \\"italia-ts-commons/lib/numbers\\";
+import { WithinRangeInteger } from \\"italia-ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeIntegerTest = t.TypeOf<typeof WithinRangeIntegerTest>;
@@ -274,13 +274,13 @@ exports[`gen-api-models should include aliases for types already defined elsewhe
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-import { OrganizationFiscalCode } from \\"italia-ts-commons/lib/string\\";
+import { OrganizationFiscalCode as OrganizationFiscalCodeT } from \\"italia-ts-commons/lib/string\\";
 import * as t from \\"io-ts\\";
 
 export type OrganizationFiscalCodeTest = t.TypeOf<
   typeof OrganizationFiscalCodeTest
 >;
-export const OrganizationFiscalCodeTest = OrganizationFiscalCode;
+export const OrganizationFiscalCodeTest = OrganizationFiscalCodeT;
 "
 `;
 

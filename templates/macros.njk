@@ -86,10 +86,10 @@
  #}
 {% macro defineInteger(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
-    {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {{- 'import { WithinRangeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}WithinRangeInteger({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
   {% elif definition.minimum == "0" %}
-    {{- 'import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {{- 'import { NonNegativeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeInteger{% endset %}
   {% else %}
     {% set typedef %}t.Integer{% endset %}
@@ -117,8 +117,8 @@
       {{- 'import { DateFromString } from "italia-ts-commons/lib/dates";' | addImport -}}
       {% set typedef %}DateFromString{% endset %}
     {% elif definition.format != undefined and definition["x-import"] %}
-      {% set typedef %}{{ definition.format }}{% endset %}
-      {% set importdef %}import { {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
+      {% set typedef %}{{ definition.format }}T{% endset %}
+      {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
     {% elif definition["x-extensible-enum"] %}
       {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
