@@ -89,7 +89,9 @@ describe("gen-api-models", () => {
       definition,
       false
     );
-    expect(code).toContain("import { SomeCustomStringType }");
+    expect(code).toContain(
+      "import { SomeCustomStringType as SomeCustomStringTypeT }"
+    );
     expect(code).toMatchSnapshot("custom-string-format");
   });
 
@@ -193,7 +195,7 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("nested-object");
   });
 
-  it("should skip types already defined elsewhere", async () => {
+  it("should include aliases for types already defined elsewhere if they have the same name", async () => {
     const definition = spec.definitions.OrganizationFiscalCode;
     const code = await renderDefinitionCode(
       env,
@@ -201,8 +203,11 @@ describe("gen-api-models", () => {
       definition,
       false
     );
-    expect(code).toBeUndefined();
+    expect(code).toContain(
+      "import { OrganizationFiscalCode as OrganizationFiscalCodeT }"
+    );
   });
+
   it("should include aliases for types already defined elsewhere if they have a different name", async () => {
     const definition = spec.definitions.OrganizationFiscalCodeTest;
     const code = await renderDefinitionCode(
