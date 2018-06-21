@@ -10,9 +10,12 @@ import {
 
 const env = initNunJucksEnvironment();
 
+let spec;
+beforeAll(async () =>
+  (spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`)));
+
 describe("gen-api-models", () => {
   it("should not generate duplicate imports", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     expect(spec.definitions).toBeDefined();
     if (spec.definitions === undefined) {
       fail("unexpected specs");
@@ -31,7 +34,6 @@ describe("gen-api-models", () => {
   });
 
   it("should handle NonNegativeNumbers", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.NonNegativeNumberTest;
     const code = await renderDefinitionCode(
       env,
@@ -43,8 +45,19 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("non-negative-numbers");
   });
 
+  it("should handle NonNegativeIntegers", async () => {
+    const definition = spec.definitions.NonNegativeIntegerTest;
+    const code = await renderDefinitionCode(
+      env,
+      "NonNegativeIntegerTest",
+      definition,
+      false
+    );
+    expect(code).toContain("NonNegativeInteger");
+    expect(code).toMatchSnapshot("non-negative-integer");
+  });
+
   it("should handle WithinRangeNumbers", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.WithinRangeNumberTest;
     const code = await renderDefinitionCode(
       env,
@@ -56,8 +69,19 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("within-range-numbers");
   });
 
+  it("should handle WithinRangeIntegers", async () => {
+    const definition = spec.definitions.WithinRangeIntegersTest;
+    const code = await renderDefinitionCode(
+      env,
+      "WithinRangeIntegersTest",
+      definition,
+      false
+    );
+    expect(code).toContain("WithinRangeInteger");
+    expect(code).toMatchSnapshot("within-range-integer");
+  });
+
   it("should handle CustomStringFormats", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.CustomStringFormatTest;
     const code = await renderDefinitionCode(
       env,
@@ -70,7 +94,6 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a dictionary from additionalProperties", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.AdditionalPropsTest;
     const code = await renderDefinitionCode(
       env,
@@ -83,7 +106,6 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a dictionary from additionalProperties: true", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.AdditionalPropsTrueTest;
     const code = await renderDefinitionCode(
       env,
@@ -97,7 +119,6 @@ describe("gen-api-models", () => {
   });
 
   it("should support additionalProperties default value", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.AdditionalpropsDefault;
     const code = await renderDefinitionCode(
       env,
@@ -111,7 +132,6 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type intersection from allOf", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.AllOfTest;
     const code = await renderDefinitionCode(
       env,
@@ -125,7 +145,6 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type union from oneOf", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.OneOfTest;
     const code = await renderDefinitionCode(
       env,
@@ -138,7 +157,6 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type union from allOf when x-one-of is used", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.AllOfOneOfTest;
     const code = await renderDefinitionCode(
       env,
@@ -152,7 +170,6 @@ describe("gen-api-models", () => {
   });
 
   it("should parse custom inline properties", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.InlinePropertyTest;
     const code = await renderDefinitionCode(
       env,
@@ -165,7 +182,6 @@ describe("gen-api-models", () => {
   });
 
   it("should parse nested objects", async () => {
-    const spec: Spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);
     const definition = spec.definitions.NestedObjectTest;
     const code = await renderDefinitionCode(
       env,

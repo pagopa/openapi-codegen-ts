@@ -66,9 +66,9 @@
 {% endmacro %}
 
 {## 
- # defines an integer (or float) property with constraints
+ # defines a number property with constraints
  #}
-{% macro defineInteger(definitionName, definition, inline = false) -%}
+{% macro defineNumber(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
     {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
@@ -77,6 +77,22 @@
     {% set typedef %}NonNegativeNumber{% endset %}
   {% else %}
     {% set typedef %}t.number{% endset %}
+  {% endif %}
+  {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
+{% endmacro -%}
+
+{## 
+ # defines an integer property with constraints
+ #}
+{% macro defineInteger(definitionName, definition, inline = false) -%}
+  {% if definition.minimum != undefined and definition.maximum != undefined %}
+    {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}WithinRangeInteger({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
+  {% elif definition.minimum == "0" %}
+    {{- 'import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}NonNegativeInteger{% endset %}
+  {% else %}
+    {% set typedef %}t.Integer{% endset %}
   {% endif %}
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro -%}
@@ -177,7 +193,9 @@
     {{ defineSubObject(parentPropName, propName, prop) }}
   {% elif prop.type == "array" %}
     {{ defineArray(propName, prop, true) }}
-  {% elif prop.type == "integer" or prop.type == "number" %}
+  {% elif prop.type == "number" %}
+    {{ defineNumber(propName, prop, true) }}
+  {% elif prop.type == "integer" %}
     {{ defineInteger(propName, prop, true) }}
   {% elif prop.type == "string" %}
     {{ defineString(propName, prop, true) }}
@@ -333,7 +351,11 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {% elif definition.type == "integer" or definition.type == "number" %}
+  {% elif definition.type == "number" %}
+
+    {{ defineNumber(definitionName, definition) }}
+
+  {% elif definition.type == "integer" %}
 
     {{ defineInteger(definitionName, definition) }}
 

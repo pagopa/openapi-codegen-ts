@@ -57,11 +57,11 @@ definitions:
     additionalProperties: true
   NonNegativeNumberTest:
     title: NonNegativeNumberTest
-    type: integer
+    type: number
     minimum: 0
   WithinRangeNumberTest:
     title: WithinRangeNumberTest
-    type: integer
+    type: number
     minimum: 0
     maximum: 10
   InlinePropertyTest:
@@ -75,6 +75,15 @@ definitions:
     type: string
     x-import: italia-ts-commons/lib/string
     format: SomeCustomStringType
+  NonNegativeIntegerTest:
+    title: NonNegativeIntegerTest
+    type: integer
+    minimum: 0
+  WithinRangeIntegerTest:
+    title: WithinRangeIntegerTest
+    type: integer
+    minimum: 0
+    maximum: 10
   NestedObjectTest:
     type: object
     properties:
