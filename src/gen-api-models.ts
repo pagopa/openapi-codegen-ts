@@ -35,17 +35,27 @@ export async function renderDefinitionCode(
   definitionName: string,
   definition: Schema,
   strictInterfaces: boolean
-): Promise<string> {
-  const code = await renderAsync(
-    env,
-    definition,
-    definitionName,
-    strictInterfaces
-  );
-  const prettifiedCode = prettier.format(code, {
-    parser: "typescript"
-  });
-  return prettifiedCode;
+): Promise<string | undefined> {
+  if (
+    // tslint:disable-next-line:no-any
+    (definition as any)["x-import"] &&
+    definitionName === definition.format
+  ) {
+    // skip generation of types that are already
+    // defined elsewhere with the same name
+    return undefined;
+  } else {
+    const code = await renderAsync(
+      env,
+      definition,
+      definitionName,
+      strictInterfaces
+    );
+    const prettifiedCode = prettier.format(code, {
+      parser: "typescript"
+    });
+    return prettifiedCode;
+  }
 }
 
 export async function generateApi(
@@ -93,7 +103,11 @@ export async function generateApi(
         definition,
         strictInterfaces
       );
-      await fs.writeFile(outPath, code);
+      if (code) {
+        await fs.writeFile(outPath, code);
+      } else {
+        console.log(`* skipping ${definitionName}`);
+      }
     }
   }
 }
