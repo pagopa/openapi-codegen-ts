@@ -192,6 +192,24 @@ export const CustomStringFormatTest = SomeCustomStringType;
 "
 `;
 
+exports[`gen-api-models should handle NonNegativeIntegers: non-negative-integer 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import { NonNegativeNumber } from \\"italia-ts-commons/lib/numbers\\";
+import * as t from \\"io-ts\\";
+
+export type NonNegativeIntegerTest = t.TypeOf<typeof NonNegativeIntegerTest>;
+export const NonNegativeIntegerTest = NonNegativeInteger;
+"
+`;
+
 exports[`gen-api-models should handle NonNegativeNumbers: non-negative-numbers 1`] = `
 "/* tslint:disable:ordered-imports */
 /* tslint:disable:no-consecutive-blank-lines */
@@ -207,6 +225,20 @@ import * as t from \\"io-ts\\";
 
 export type NonNegativeNumberTest = t.TypeOf<typeof NonNegativeNumberTest>;
 export const NonNegativeNumberTest = NonNegativeNumber;
+"
+`;
+
+exports[`gen-api-models should handle WithinRangeIntegers: within-range-integer 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+// TODO: generate model for definition \\"WithinRangeIntegersTest: \\"
 "
 `;
 
@@ -261,7 +293,7 @@ const ProfileR = t.interface({
 
   name: t.string,
 
-  version: t.number
+  version: t.Integer
 });
 
 // optional attributes
