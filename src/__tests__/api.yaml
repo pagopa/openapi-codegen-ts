@@ -75,6 +75,14 @@ definitions:
     type: string
     x-import: italia-ts-commons/lib/string
     format: SomeCustomStringType
+  OrganizationFiscalCode:
+    type: string
+    x-import: italia-ts-commons/lib/string
+    format: OrganizationFiscalCode
+  OrganizationFiscalCodeTest:
+    type: string
+    x-import: italia-ts-commons/lib/string
+    format: OrganizationFiscalCode
   NonNegativeIntegerTest:
     title: NonNegativeIntegerTest
     type: integer

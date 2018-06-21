@@ -118,7 +118,7 @@
       {% set typedef %}DateFromString{% endset %}
     {% elif definition.format != undefined and definition["x-import"] %}
       {% set typedef %}{{ definition.format }}{% endset %}
-      {% set importdef %}import {{ typedef }} from "{{ definition["x-import"] }}";{% endset %}
+      {% set importdef %}import { {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
     {% elif definition["x-extensible-enum"] %}
       {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}

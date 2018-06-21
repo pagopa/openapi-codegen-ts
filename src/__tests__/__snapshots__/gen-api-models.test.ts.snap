@@ -184,7 +184,7 @@ exports[`gen-api-models should handle CustomStringFormats: custom-string-format 
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-import SomeCustomStringType from \\"italia-ts-commons/lib/string\\";
+import { SomeCustomStringType } from \\"italia-ts-commons/lib/string\\";
 import * as t from \\"io-ts\\";
 
 export type CustomStringFormatTest = t.TypeOf<typeof CustomStringFormatTest>;
@@ -238,7 +238,11 @@ exports[`gen-api-models should handle WithinRangeIntegers: within-range-integer 
 /* tslint:disable:no-any */
 /* tslint:disable:object-literal-sort-keys */
 
-// TODO: generate model for definition \\"WithinRangeIntegersTest: \\"
+import { WithinRangeNumber } from \\"italia-ts-commons/lib/numbers\\";
+import * as t from \\"io-ts\\";
+
+export type WithinRangeIntegerTest = t.TypeOf<typeof WithinRangeIntegerTest>;
+export const WithinRangeIntegerTest = WithinRangeInteger(0, 10);
 "
 `;
 
@@ -257,6 +261,26 @@ import * as t from \\"io-ts\\";
 
 export type WithinRangeNumberTest = t.TypeOf<typeof WithinRangeNumberTest>;
 export const WithinRangeNumberTest = WithinRangeNumber(0, 10);
+"
+`;
+
+exports[`gen-api-models should include aliases for types already defined elsewhere if they have a different name: defined-type 1`] = `
+"/* tslint:disable:ordered-imports */
+/* tslint:disable:no-consecutive-blank-lines */
+/* tslint:disable:no-trailing-whitespace */
+/* tslint:disable:max-line-length */
+/* tslint:disable:jsdoc-format */
+/* tslint:disable:interface-name */
+/* tslint:disable:no-any */
+/* tslint:disable:object-literal-sort-keys */
+
+import { OrganizationFiscalCode } from \\"italia-ts-commons/lib/string\\";
+import * as t from \\"io-ts\\";
+
+export type OrganizationFiscalCodeTest = t.TypeOf<
+  typeof OrganizationFiscalCodeTest
+>;
+export const OrganizationFiscalCodeTest = OrganizationFiscalCode;
 "
 `;
 

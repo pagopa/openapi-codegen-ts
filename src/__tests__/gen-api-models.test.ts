@@ -70,10 +70,10 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeIntegers", async () => {
-    const definition = spec.definitions.WithinRangeIntegersTest;
+    const definition = spec.definitions.WithinRangeIntegerTest;
     const code = await renderDefinitionCode(
       env,
-      "WithinRangeIntegersTest",
+      "WithinRangeIntegerTest",
       definition,
       false
     );
@@ -89,7 +89,7 @@ describe("gen-api-models", () => {
       definition,
       false
     );
-    expect(code).toContain("import SomeCustomStringType");
+    expect(code).toContain("import { SomeCustomStringType }");
     expect(code).toMatchSnapshot("custom-string-format");
   });
 
@@ -191,5 +191,27 @@ describe("gen-api-models", () => {
     );
     expect(code).toContain("t.TypeOf<typeof NestedObjectTest>");
     expect(code).toMatchSnapshot("nested-object");
+  });
+
+  it("should skip types already defined elsewhere", async () => {
+    const definition = spec.definitions.OrganizationFiscalCode;
+    const code = await renderDefinitionCode(
+      env,
+      "OrganizationFiscalCode",
+      definition,
+      false
+    );
+    expect(code).toBeUndefined();
+  });
+  it("should include aliases for types already defined elsewhere if they have a different name", async () => {
+    const definition = spec.definitions.OrganizationFiscalCodeTest;
+    const code = await renderDefinitionCode(
+      env,
+      "OrganizationFiscalCodeTest",
+      definition,
+      false
+    );
+    expect(code).toContain("OrganizationFiscalCodeTest");
+    expect(code).toMatchSnapshot("defined-type");
   });
 });
