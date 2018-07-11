@@ -59,6 +59,11 @@ definitions:
     title: NonNegativeNumberTest
     type: number
     minimum: 0
+  WithinRangeStringTest:
+    title: WithinRangeStringTest
+    type: string
+    minLength: 10
+    maxLength: 10
   WithinRangeNumberTest:
     title: WithinRangeNumberTest
     type: number

@@ -106,7 +106,8 @@
       {% set typedef %}PatternString("{{ definition.pattern | safe }}"){% endset %}
     {% elif definition.minLength and definition.maxLength %}
       {{- 'import { WithinRangeString } from "italia-ts-commons/lib/strings";' | addImport -}}
-      {% set typedef %}WithinRangeString({{ definition.minLength }}, {{ definition.maxLength }}){% endset %}
+      {% set maxLength = definition.maxLength + 1 %}
+      {% set typedef %}WithinRangeString({{ definition.minLength }}, {{ maxLength }}){% endset %}
     {% elif definition.minLength == 1 %}
       {{- 'import { NonEmptyString } from "italia-ts-commons/lib/strings";' | addImport -}}
       {% set typedef %}NonEmptyString{% endset %}
