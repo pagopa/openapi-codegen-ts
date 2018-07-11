@@ -33,6 +33,18 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("dup-imports");
   });
 
+  it("should handle WithinRangeStrings", async () => {
+    const definition = spec.definitions.WithinRangeStringTest;
+    const code = await renderDefinitionCode(
+      env,
+      "WithinRangeStringTest",
+      definition,
+      false
+    );
+    expect(code).toContain("WithinRangeString(10, 11)");
+    expect(code).toMatchSnapshot("within-range-strings");
+  });
+
   it("should handle NonNegativeNumbers", async () => {
     const definition = spec.definitions.NonNegativeNumberTest;
     const code = await renderDefinitionCode(
