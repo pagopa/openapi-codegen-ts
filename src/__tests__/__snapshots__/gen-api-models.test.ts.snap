@@ -51,8 +51,8 @@ exports[`gen-api-models should generate a type intersection from allOf: all-of-t
  */
 /* tslint:disable */
 
-import { Message } from \\"./Message\\";
 import * as t from \\"io-ts\\";
+import { Message } from \\"./Message\\";
 import { PaginationResponse } from \\"./PaginationResponse\\";
 
 // required attributes
@@ -86,8 +86,8 @@ exports[`gen-api-models should generate a type union from allOf when x-one-of is
  */
 /* tslint:disable */
 
-import { Message } from \\"./Message\\";
 import * as t from \\"io-ts\\";
+import { Message } from \\"./Message\\";
 import { PaginationResponse } from \\"./PaginationResponse\\";
 
 // required attributes
