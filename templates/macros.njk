@@ -299,6 +299,8 @@
 
   {% elif definition.allOf and not definition["x-one-of"] %}
 
+    {{- 'import * as t from "io-ts";' | addImport -}}
+
     {% for schema in definition.allOf -%}
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
@@ -327,6 +329,8 @@
   {# Needed to support swagger specs 2.0 that don't support oneOf #}
   {% elif definition.oneOf or (definition["x-one-of"] and definition.allOf) %}
     {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
+
+    {{- 'import * as t from "io-ts";' | addImport -}}
 
     {% for schema in oneOfProps -%}
       {% if schema.type == "object" %}
