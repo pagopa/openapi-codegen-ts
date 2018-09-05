@@ -25,7 +25,8 @@
     "nunjucks": "^3.1.2",
     "prettier": "^1.12.1",
     "swagger-parser": "^4.1.0",
-    "swagger-schema-official": "^2.0.0-bab6bed"
+    "swagger-schema-official": "^2.0.0-bab6bed",
+    "yargs": "^11.1.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.2",
@@ -34,7 +35,7 @@
     "@types/nunjucks": "^3.0.0",
     "@types/prettier": "^1.12.0",
     "@types/swagger-parser": "^4.0.2",
-    "@types/yargs": "^11.0.0",
+    "@types/yargs": "^11.1.0",
     "crlf": "^1.1.1",
     "danger": "^3.5.1",
     "danger-plugin-digitalcitizenship": "^0.3.1",
