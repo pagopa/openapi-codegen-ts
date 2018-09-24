@@ -121,12 +121,14 @@ export function renderOperation(
       }
 
       params[uncapitalize(parsedRef.e2)] = paramType;
-      importedTypes.add(parsedRef.e2);
+      if (refType === "definition") {
+        importedTypes.add(parsedRef.e2);
+      }
     });
   }
 
   const paramsCode = Object.keys(params)
-    .map(paramKey => `${paramKey}: ${params[paramKey]}`)
+    .map(paramKey => `readonly ${paramKey}: ${params[paramKey]}`)
     .join(",");
 
   const headers =
