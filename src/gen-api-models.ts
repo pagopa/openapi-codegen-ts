@@ -263,6 +263,8 @@ export async function generateApi(
       .join("\n");
 
     const operationsCode = `
+      // tslint:disable:max-union-size
+
       import * as r from "italia-ts-commons/lib/requests";
 
       ${Array.from(operationsImports.values())
