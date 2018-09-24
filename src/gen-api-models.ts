@@ -59,15 +59,27 @@ function uncapitalize(s: string): string {
   return `${s[0].toLowerCase()}${s.slice(1)}`;
 }
 
-function typeFromRef(s: string): string | undefined {
+function typeFromRef(
+  s: string
+): ITuple2<"definition" | "parameter" | "other", string> | undefined {
   const parts = s.split("/");
-  return parts && parts.length > 0 ? parts[parts.length - 1] : undefined;
+  if (parts && parts.length === 3) {
+    const refType: "definition" | "parameter" | "other" =
+      parts[1] === "definitions"
+        ? "definition"
+        : parts[1] === "parameters"
+          ? "parameter"
+          : "other";
+    return Tuple2(refType, parts[2]);
+  }
+  return undefined;
 }
 
 export function renderOperation(
   method: string,
   operationId: string,
-  operation: Operation
+  operation: Operation,
+  specParameters: Spec["parameters"]
 ): ITuple2<string, ReadonlySet<string>> {
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
   const params: { [key: string]: string } = {};
@@ -85,13 +97,31 @@ export function renderOperation(
         );
         return;
       }
-      const paramType = typeFromRef(refInParam);
-      if (paramType === undefined) {
+      const parsedRef = typeFromRef(refInParam);
+      if (parsedRef === undefined) {
         console.warn(`Cannot extract type from ref [${refInParam}]`);
         return;
       }
-      params[uncapitalize(paramType)] = paramType;
-      importedTypes.add(paramType);
+      const refType = parsedRef.e1;
+      if (refType === "other") {
+        console.warn(`Unrecognized ref type [${refInParam}]`);
+        return;
+      }
+
+      const paramType: string | undefined =
+        refType === "definition"
+          ? parsedRef.e2
+          : specParameters
+            ? (specParameters[parsedRef.e2] as any).type
+            : undefined;
+
+      if (paramType === undefined) {
+        console.warn(`Cannot resolve parameter ${parsedRef.e2}`);
+        return;
+      }
+
+      params[uncapitalize(parsedRef.e2)] = paramType;
+      importedTypes.add(parsedRef.e2);
     });
   }
 
@@ -99,20 +129,32 @@ export function renderOperation(
     .map(paramKey => `${paramKey}: ${params[paramKey]}`)
     .join(",");
 
+  const headers =
+    (method === "post" || method === "put") && Object.keys(params).length > 0
+      ? ["Content-Type"]
+      : [];
+
+  const headersCode =
+    headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
+
   const responses = Object.keys(operation.responses).map(responseKey => {
     const response = operation.responses[responseKey];
     const typeRef = response.schema ? response.schema.$ref : undefined;
-    const responseType = typeRef ? typeFromRef(typeRef) : undefined;
-    if (responseType !== undefined) {
-      importedTypes.add(responseType);
+    const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
+    if (parsedRef !== undefined) {
+      importedTypes.add(parsedRef.e2);
     }
-    return `r.IResponseType<${responseKey}, ${responseType || "undefined"}>`;
+    return `r.IResponseType<${responseKey}, ${
+      parsedRef ? parsedRef.e2 : "undefined"
+    }>`;
   });
+
+  const responsesCode = responses.join("|");
 
   const code = `
     export type ${capitalize(
       operationId
-    )}T = ${requestType}<{${paramsCode}}, never, never, ${responses.join("|")}>;
+    )}T = ${requestType}<{${paramsCode}}, ${headersCode}, never, ${responsesCode}>;
   `;
 
   return Tuple2(code, importedTypes);
@@ -199,7 +241,7 @@ export async function generateApi(
           return;
         }
 
-        return renderOperation(method, operationId, operation);
+        return renderOperation(method, operationId, operation, api.parameters);
       });
     });
 
