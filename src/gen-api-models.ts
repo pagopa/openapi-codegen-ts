@@ -1,10 +1,13 @@
 // tslint:disable:no-console
 
 import * as fs from "fs-extra";
+import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
-import { Schema, Spec } from "swagger-schema-official";
+import { Operation, Schema, Spec } from "swagger-schema-official";
+
+const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 
 function renderAsync(
   env: nunjucks.Environment,
@@ -48,12 +51,80 @@ export async function renderDefinitionCode(
   return prettifiedCode;
 }
 
+function capitalize(s: string): string {
+  return `${s[0].toUpperCase()}${s.slice(1)}`;
+}
+
+function uncapitalize(s: string): string {
+  return `${s[0].toLowerCase()}${s.slice(1)}`;
+}
+
+function typeFromRef(s: string): string | undefined {
+  const parts = s.split("/");
+  return parts && parts.length > 0 ? parts[parts.length - 1] : undefined;
+}
+
+export function renderOperation(
+  method: string,
+  operationId: string,
+  operation: Operation
+): ITuple2<string, ReadonlySet<string>> {
+  const requestType = `r.I${capitalize(method)}ApiRequestType`;
+  const params: { [key: string]: string } = {};
+  const importedTypes = new Set<string>();
+  if (operation.parameters !== undefined) {
+    operation.parameters.forEach(param => {
+      const refInParam: string | undefined =
+        (param as any).$ref ||
+        ((param as any).schema ? (param as any).schema.$ref : undefined);
+      if (refInParam === undefined) {
+        console.warn(
+          `Skipping param without ref in operation [${operationId}] [${
+            param.name
+          }]`
+        );
+        return;
+      }
+      const paramType = typeFromRef(refInParam);
+      if (paramType === undefined) {
+        console.warn(`Cannot extract type from ref [${refInParam}]`);
+        return;
+      }
+      params[uncapitalize(paramType)] = paramType;
+      importedTypes.add(paramType);
+    });
+  }
+
+  const paramsCode = Object.keys(params)
+    .map(paramKey => `${paramKey}: ${params[paramKey]}`)
+    .join(",");
+
+  const responses = Object.keys(operation.responses).map(responseKey => {
+    const response = operation.responses[responseKey];
+    const typeRef = response.schema ? response.schema.$ref : undefined;
+    const responseType = typeRef ? typeFromRef(typeRef) : undefined;
+    if (responseType !== undefined) {
+      importedTypes.add(responseType);
+    }
+    return `r.IResponseType<${responseKey}, ${responseType || "undefined"}>`;
+  });
+
+  const code = `
+    export type ${capitalize(
+      operationId
+    )}T = ${requestType}<{${paramsCode}}, never, never, ${responses.join("|")}>;
+  `;
+
+  return Tuple2(code, importedTypes);
+}
+
 export async function generateApi(
   env: nunjucks.Environment,
   specFilePath: string | Spec,
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined,
-  strictInterfaces: boolean
+  strictInterfaces: boolean,
+  generateRequestTypes: boolean
 ): Promise<void> {
   const api: Spec = await SwaggerParser.bundle(specFilePath);
 
@@ -95,6 +166,76 @@ export async function generateApi(
       );
       await fs.writeFile(outPath, code);
     }
+  }
+
+  if (generateRequestTypes) {
+    const operationsTypes = Object.keys(api.paths).map(path => {
+      const pathSpec = api.paths[path];
+      return Object.keys(pathSpec).map(operationKey => {
+        const method = operationKey.toLowerCase();
+        if (SUPPORTED_SPEC_METHODS.indexOf(method) < 0) {
+          // skip unsupported spec methods
+          return;
+        }
+        const operation =
+          method === "get"
+            ? pathSpec.get
+            : method === "post"
+              ? pathSpec.post
+              : method === "put"
+                ? pathSpec.put
+                : method === "head"
+                  ? pathSpec.head
+                  : method === "delete"
+                    ? pathSpec.delete
+                    : undefined;
+        if (operation === undefined) {
+          console.warn(`Skipping unsupported method [${method}]`);
+          return;
+        }
+        const operationId = operation.operationId;
+        if (operationId === undefined) {
+          console.warn(`Skipping method with missing operationId [${method}]`);
+          return;
+        }
+
+        return renderOperation(method, operationId, operation);
+      });
+    });
+
+    const operationsImports = new Set<string>();
+    const operationTypesCode = operationsTypes
+      .map(ops =>
+        ops
+          .map(op => {
+            if (op === undefined) {
+              return;
+            }
+            op.e2.forEach(i => operationsImports.add(i));
+            return op.e1;
+          })
+          .join("\n")
+      )
+      .join("\n");
+
+    const operationsCode = `
+      import * as r from "italia-ts-commons/lib/requests";
+
+      ${Array.from(operationsImports.values())
+        .map(i => `import { ${i} } from "./${i}";`)
+        .join("\n\n")}
+
+      ${operationTypesCode}
+    `;
+
+    const prettifiedOperationsCode = prettier.format(operationsCode, {
+      parser: "typescript"
+    });
+
+    const requestTypesPath = `${definitionsDirPath}/requestTypes.ts`;
+
+    console.log(`Generating request types -> ${requestTypesPath}`);
+    await fs.writeFile(requestTypesPath, prettifiedOperationsCode);
   }
 }
 
