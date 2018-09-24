@@ -6,10 +6,11 @@ import * as nunjucks from "nunjucks";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 import {
+  ApiKeySecurity,
   Operation,
+  Parameter,
   Schema,
-  Spec,
-  ApiKeySecurity
+  Spec
 } from "swagger-schema-official";
 
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
@@ -80,18 +81,28 @@ function typeFromRef(
   return undefined;
 }
 
+function specTypeToTs(t: string): string {
+  return t === "integer" ? "number" : t;
+}
+
 export function renderOperation(
   method: string,
   operationId: string,
   operation: Operation,
   specParameters: Spec["parameters"],
-  extraHeaders: ReadonlyArray<string>
+  extraHeaders: ReadonlyArray<string>,
+  extraParameters: { [key: string]: string }
 ): ITuple2<string, ReadonlySet<string>> {
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
     operation.parameters.forEach(param => {
+      if (param.name && (param as any).type) {
+        params[param.name] = specTypeToTs((param as any).type);
+        return;
+      }
+
       const refInParam: string | undefined =
         (param as any).$ref ||
         ((param as any).schema ? (param as any).schema.$ref : undefined);
@@ -118,7 +129,7 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-            ? (specParameters[parsedRef.e2] as any).type
+            ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
             : undefined;
 
       if (paramType === undefined) {
@@ -126,15 +137,20 @@ export function renderOperation(
         return;
       }
 
-      params[uncapitalize(parsedRef.e2)] = paramType;
+      const paramName = `${uncapitalize(parsedRef.e2)}${
+        param.required === true ? "" : "?"
+      }`;
+
+      params[paramName] = paramType;
       if (refType === "definition") {
         importedTypes.add(parsedRef.e2);
       }
     });
   }
 
-  const paramsCode = Object.keys(params)
-    .map(paramKey => `readonly ${paramKey}: ${params[paramKey]}`)
+  const allParams = { ...extraParameters, ...params };
+  const paramsCode = Object.keys(allParams)
+    .map(paramKey => `readonly ${paramKey}: ${allParams[paramKey]}`)
     .join(",");
 
   const headers =
@@ -238,8 +254,21 @@ export async function generateApi(
 
     const operationsTypes = Object.keys(api.paths).map(path => {
       const pathSpec = api.paths[path];
+      const extraParameters: { [key: string]: string } = {};
+      if (pathSpec.parameters !== undefined) {
+        pathSpec.parameters.forEach(param => {
+          const paramType: string | undefined = (param as any).type;
+          if (paramType) {
+            const paramName = `${param.name}${
+              param.required === true ? "" : "?"
+            }`;
+            extraParameters[paramName] = specTypeToTs(paramType);
+          }
+        });
+      }
       return Object.keys(pathSpec).map(operationKey => {
         const method = operationKey.toLowerCase();
+
         if (SUPPORTED_SPEC_METHODS.indexOf(method) < 0) {
           // skip unsupported spec methods
           return;
@@ -271,7 +300,8 @@ export async function generateApi(
           operationId,
           operation,
           api.parameters,
-          authHeaders
+          authHeaders,
+          extraParameters
         );
       });
     });
