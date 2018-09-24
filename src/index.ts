@@ -31,6 +31,11 @@ const argv = yargs
     normalize: true,
     string: true
   })
+  .option("request-types", {
+    boolean: false,
+    default: false,
+    description: "Generate request types (experimental, default: false)"
+  })
   .help().argv;
 
 //
@@ -43,6 +48,7 @@ generateApi(
   argv["api-spec"],
   argv["out-dir"],
   argv["ts-spec-file"],
-  argv.strict
+  argv.strict,
+  argv["request-types"]
   // tslint:disable-next-line:no-console
 ).then(() => console.log("done"), err => console.log(`Error: ${err}`));
