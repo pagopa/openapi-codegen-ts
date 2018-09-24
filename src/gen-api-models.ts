@@ -5,7 +5,12 @@ import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
-import { Operation, Schema, Spec } from "swagger-schema-official";
+import {
+  Operation,
+  Schema,
+  Spec,
+  ApiKeySecurity
+} from "swagger-schema-official";
 
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 
@@ -79,7 +84,8 @@ export function renderOperation(
   method: string,
   operationId: string,
   operation: Operation,
-  specParameters: Spec["parameters"]
+  specParameters: Spec["parameters"],
+  extraHeaders: ReadonlyArray<string>
 ): ITuple2<string, ReadonlySet<string>> {
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
   const params: { [key: string]: string } = {};
@@ -133,8 +139,8 @@ export function renderOperation(
 
   const headers =
     (method === "post" || method === "put") && Object.keys(params).length > 0
-      ? ["Content-Type"]
-      : [];
+      ? ["Content-Type", ...extraHeaders]
+      : extraHeaders;
 
   const headersCode =
     headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
@@ -160,6 +166,21 @@ export function renderOperation(
   `;
 
   return Tuple2(code, importedTypes);
+}
+
+function getAuthHeaders(api: Spec): ReadonlyArray<string> {
+  const security = api.security;
+  const securityDefinitions = api.securityDefinitions;
+  if (security === undefined || securityDefinitions === undefined) {
+    return [];
+  }
+  return security
+    .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+    .filter(_ => _ !== undefined)
+    .map(k => securityDefinitions[k as string])
+    .filter(_ => _ !== undefined)
+    .filter(_ => (_ as ApiKeySecurity).in === "header")
+    .map(_ => (_ as ApiKeySecurity).name);
 }
 
 export async function generateApi(
@@ -213,6 +234,8 @@ export async function generateApi(
   }
 
   if (generateRequestTypes) {
+    const authHeaders = getAuthHeaders(api);
+
     const operationsTypes = Object.keys(api.paths).map(path => {
       const pathSpec = api.paths[path];
       return Object.keys(pathSpec).map(operationKey => {
@@ -243,7 +266,13 @@ export async function generateApi(
           return;
         }
 
-        return renderOperation(method, operationId, operation, api.parameters);
+        return renderOperation(
+          method,
+          operationId,
+          operation,
+          api.parameters,
+          authHeaders
+        );
       });
     });
 
