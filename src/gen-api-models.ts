@@ -137,8 +137,15 @@ export function renderOperation(
         return;
       }
 
+      const isParamRequired =
+        refType === "definition"
+          ? param.required === true
+          : specParameters
+            ? specParameters[parsedRef.e2].required
+            : false;
+
       const paramName = `${uncapitalize(parsedRef.e2)}${
-        param.required === true ? "" : "?"
+        isParamRequired ? "" : "?"
       }`;
 
       params[paramName] = paramType;
