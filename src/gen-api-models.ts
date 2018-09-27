@@ -194,13 +194,24 @@ export function renderOperation(
 function getAuthHeaders(api: Spec): ReadonlyArray<string> {
   const security = api.security;
   const securityDefinitions = api.securityDefinitions;
-  if (security === undefined || securityDefinitions === undefined) {
+  if (security === undefined && securityDefinitions === undefined) {
     return [];
   }
-  return security
-    .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
-    .filter(_ => _ !== undefined)
-    .map(k => securityDefinitions[k as string])
+
+  const securityDefs =
+    security !== undefined && securityDefinitions !== undefined
+      ? // If we have both security and securityDefinitions defined, we extract
+        // security items mapped to their securityDefinitions definitions.
+        security
+          .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+          .filter(_ => _ !== undefined)
+          .map(k => securityDefinitions[k as string])
+      : // If security we take all securityDefinitions
+        securityDefinitions !== undefined
+        ? Object.keys(securityDefinitions).map(_ => securityDefinitions[_])
+        : [];
+
+  return securityDefs
     .filter(_ => _ !== undefined)
     .filter(_ => (_ as ApiKeySecurity).in === "header")
     .map(_ => (_ as ApiKeySecurity).name);
