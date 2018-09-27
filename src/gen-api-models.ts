@@ -101,10 +101,14 @@ export function renderOperation(
   if (operation.parameters !== undefined) {
     operation.parameters.forEach(param => {
       if (param.name && (param as any).type) {
-        params[param.name] = specTypeToTs((param as any).type);
+        // The parameter description is inline
+        const isRequired = param.required === true;
+        params[`${param.name}${isRequired ? "" : "?"}`] = specTypeToTs(
+          (param as any).type
+        );
         return;
       }
-
+      // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
         (param as any).$ref ||
         ((param as any).schema ? (param as any).schema.$ref : undefined);
