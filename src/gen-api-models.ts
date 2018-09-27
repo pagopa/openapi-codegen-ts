@@ -91,7 +91,9 @@ export function renderOperation(
   operation: Operation,
   specParameters: Spec["parameters"],
   extraHeaders: ReadonlyArray<string>,
-  extraParameters: { [key: string]: string }
+  extraParameters: { [key: string]: string },
+  defaultSuccessType: string,
+  defaultErrorType: string
 ): ITuple2<string, ReadonlySet<string>> {
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
   const params: { [key: string]: string } = {};
@@ -175,9 +177,12 @@ export function renderOperation(
     if (parsedRef !== undefined) {
       importedTypes.add(parsedRef.e2);
     }
-    return `r.IResponseType<${responseKey}, ${
-      parsedRef ? parsedRef.e2 : "undefined"
-    }>`;
+    const responseType = parsedRef
+      ? parsedRef.e2
+      : responseKey === "200"
+        ? defaultSuccessType
+        : defaultErrorType;
+    return `r.IResponseType<${responseKey}, ${responseType}>`;
   });
 
   const responsesCode = responses.join("|");
@@ -223,7 +228,9 @@ export async function generateApi(
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined,
   strictInterfaces: boolean,
-  generateRequestTypes: boolean
+  generateRequestTypes: boolean,
+  defaultSuccessType: string,
+  defaultErrorType: string
 ): Promise<void> {
   const api: Spec = await SwaggerParser.bundle(specFilePath);
 
@@ -319,7 +326,9 @@ export async function generateApi(
           operation,
           api.parameters,
           authHeaders,
-          extraParameters
+          extraParameters,
+          defaultSuccessType,
+          defaultErrorType
         );
       });
     });

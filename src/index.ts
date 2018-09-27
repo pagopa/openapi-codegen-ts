@@ -36,6 +36,20 @@ const argv = yargs
     default: false,
     description: "Generate request types (experimental, default: false)"
   })
+  .option("default-success-type", {
+    default: "undefined",
+    description:
+      "Default type for success responses (experimental, default: 'undefined')",
+    normalize: true,
+    string: true
+  })
+  .option("default-error-type", {
+    default: "undefined",
+    description:
+      "Default type for error responses (experimental, default: 'undefined')",
+    normalize: true,
+    string: true
+  })
   .help().argv;
 
 //
@@ -49,6 +63,8 @@ generateApi(
   argv["out-dir"],
   argv["ts-spec-file"],
   argv.strict,
-  argv["request-types"]
+  argv["request-types"],
+  argv["default-success-type"],
+  argv["default-error-type"]
   // tslint:disable-next-line:no-console
 ).then(() => console.log("done"), err => console.log(`Error: ${err}`));
