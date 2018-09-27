@@ -90,6 +90,7 @@ export function renderOperation(
   operationId: string,
   operation: Operation,
   specParameters: Spec["parameters"],
+  securityDefinitions: Spec["securityDefinitions"],
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
   defaultSuccessType: string,
@@ -166,10 +167,21 @@ export function renderOperation(
     .map(paramKey => `readonly ${paramKey}: ${allParams[paramKey]}`)
     .join(",");
 
-  const headers =
+  const contentTypeHeaders =
     (method === "post" || method === "put") && Object.keys(params).length > 0
-      ? ["Content-Type", ...extraHeaders]
-      : extraHeaders;
+      ? ["Content-Type"]
+      : [];
+
+  const authHeaders = operation.security
+    ? getAuthHeaders(
+        securityDefinitions,
+        operation.security
+          .map(_ => Object.keys(_)[0])
+          .filter(_ => _ !== undefined)
+      )
+    : [];
+
+  const headers = [...contentTypeHeaders, ...authHeaders, ...extraHeaders];
 
   const headersCode =
     headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
@@ -200,23 +212,20 @@ export function renderOperation(
   return Tuple2(code, importedTypes);
 }
 
-function getAuthHeaders(api: Spec): ReadonlyArray<string> {
-  const security = api.security;
-  const securityDefinitions = api.securityDefinitions;
-  if (security === undefined && securityDefinitions === undefined) {
+function getAuthHeaders(
+  securityDefinitions: Spec["securityDefinitions"],
+  securityKeys: ReadonlyArray<string>
+): ReadonlyArray<string> {
+  if (securityKeys === undefined && securityDefinitions === undefined) {
     return [];
   }
 
   const securityDefs =
-    security !== undefined && securityDefinitions !== undefined
+    securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
         // security items mapped to their securityDefinitions definitions.
-        security
-          .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
-          .filter(_ => _ !== undefined)
-          .map(k => securityDefinitions[k as string])
-      : // If security we take all securityDefinitions
-        securityDefinitions !== undefined
+        securityKeys.map(k => securityDefinitions[k as string])
+      : securityDefinitions !== undefined
         ? Object.keys(securityDefinitions).map(_ => securityDefinitions[_])
         : [];
 
@@ -279,7 +288,12 @@ export async function generateApi(
   }
 
   if (generateRequestTypes) {
-    const authHeaders = getAuthHeaders(api);
+    // map global auth headers only if global security is defined
+    const globalAuthHeaders = api.security
+      ? getAuthHeaders(api.securityDefinitions, api.security
+          .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+          .filter(_ => _ !== undefined) as ReadonlyArray<string>)
+      : [];
 
     const operationsTypes = Object.keys(api.paths).map(path => {
       const pathSpec = api.paths[path];
@@ -329,7 +343,8 @@ export async function generateApi(
           operationId,
           operation,
           api.parameters,
-          authHeaders,
+          api.securityDefinitions,
+          globalAuthHeaders,
           extraParameters,
           defaultSuccessType,
           defaultErrorType
