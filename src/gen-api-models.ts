@@ -88,7 +88,7 @@ function specTypeToTs(t: string): string {
 function getDecoderForResponse(status: string, type: string): string {
   switch (type) {
     case "undefined":
-      return `r.constantResponseDecoder<${status}, undefined>(${status}, undefined)`;
+      return `r.constantResponseDecoder<undefined, ${status}>(${status}, undefined)`;
     case "Error":
       return `r.basicErrorResponseDecoder<${status}>(${status})`;
     default:
