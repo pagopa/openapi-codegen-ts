@@ -36,6 +36,12 @@ const argv = yargs
     default: false,
     description: "Generate request types (experimental, default: false)"
   })
+  .option("response-decoders", {
+    boolean: false,
+    default: false,
+    description:
+      "Generate response decoders (experimental, default: false, implies --request-types)"
+  })
   .option("default-success-type", {
     default: "undefined",
     description:
@@ -65,6 +71,7 @@ generateApi(
   argv.strict,
   argv["request-types"],
   argv["default-success-type"],
-  argv["default-error-type"]
+  argv["default-error-type"],
+  argv["response-decoders"]
   // tslint:disable-next-line:no-console
 ).then(() => console.log("done"), err => console.log(`Error: ${err}`));

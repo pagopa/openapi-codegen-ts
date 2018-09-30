@@ -85,6 +85,17 @@ function specTypeToTs(t: string): string {
   return t === "integer" ? "number" : t;
 }
 
+function getDecoderForResponse(status: string, type: string): string {
+  switch (type) {
+    case "undefined":
+      return `r.constantResponseDecoder<${status}, undefined>(${status}, undefined)`;
+    case "Error":
+      return `r.basicErrorResponseDecoder<${status}>(${status})`;
+    default:
+      return `r.ioResponseDecoder<${status}, ${type}>(${status}, ${type})`;
+  }
+}
+
 export function renderOperation(
   method: string,
   operationId: string,
@@ -94,7 +105,8 @@ export function renderOperation(
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
   defaultSuccessType: string,
-  defaultErrorType: string
+  defaultErrorType: string,
+  generateResponseDecoders: boolean
 ): ITuple2<string, ReadonlySet<string>> {
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
   const params: { [key: string]: string } = {};
@@ -186,8 +198,8 @@ export function renderOperation(
   const headersCode =
     headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
 
-  const responses = Object.keys(operation.responses).map(responseKey => {
-    const response = operation.responses[responseKey];
+  const responses = Object.keys(operation.responses).map(responseStatus => {
+    const response = operation.responses[responseStatus];
     const typeRef = response.schema ? response.schema.$ref : undefined;
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
     if (parsedRef !== undefined) {
@@ -195,19 +207,31 @@ export function renderOperation(
     }
     const responseType = parsedRef
       ? parsedRef.e2
-      : responseKey === "200"
+      : responseStatus === "200"
         ? defaultSuccessType
         : defaultErrorType;
-    return `r.IResponseType<${responseKey}, ${responseType}>`;
+    return Tuple2(responseStatus, responseType);
   });
 
-  const responsesCode = responses.join("|");
+  const responsesType = responses
+    .map(r => `r.IResponseType<${r.e2}, ${r.e2}>`)
+    .join("|");
 
-  const code = `
+  const responsesDecoderCode = generateResponseDecoders
+    ? `export const ${operationId}Decoder = ` +
+      responses.reduce((acc, r) => {
+        const d = getDecoderForResponse(r.e1, r.e2);
+        return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
+      }, "") +
+      ";"
+    : "";
+
+  const code =
+    `
     export type ${capitalize(
       operationId
-    )}T = ${requestType}<{${paramsCode}}, ${headersCode}, never, ${responsesCode}>;
-  `;
+    )}T = ${requestType}<{${paramsCode}}, ${headersCode}, never, ${responsesType}>;
+  ` + responsesDecoderCode;
 
   return Tuple2(code, importedTypes);
 }
@@ -243,7 +267,8 @@ export async function generateApi(
   strictInterfaces: boolean,
   generateRequestTypes: boolean,
   defaultSuccessType: string,
-  defaultErrorType: string
+  defaultErrorType: string,
+  generateResponseDecoders: boolean
 ): Promise<void> {
   const api: Spec = await SwaggerParser.bundle(specFilePath);
 
@@ -287,7 +312,7 @@ export async function generateApi(
     }
   }
 
-  if (generateRequestTypes) {
+  if (generateRequestTypes || generateResponseDecoders) {
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
       ? getAuthHeaders(api.securityDefinitions, api.security
@@ -347,7 +372,8 @@ export async function generateApi(
           globalAuthHeaders,
           extraParameters,
           defaultSuccessType,
-          defaultErrorType
+          defaultErrorType,
+          generateResponseDecoders
         );
       });
     });
