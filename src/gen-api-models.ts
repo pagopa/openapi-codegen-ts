@@ -92,7 +92,7 @@ function getDecoderForResponse(status: string, type: string): string {
     case "Error":
       return `r.basicErrorResponseDecoder<${status}>(${status})`;
     default:
-      return `r.ioResponseDecoder<${status}, ${type}>(${status}, ${type})`;
+      return `r.ioResponseDecoder<${status}, (typeof ${type})["_A"], (typeof ${type})["_O"]>(${status}, ${type})`;
   }
 }
 
