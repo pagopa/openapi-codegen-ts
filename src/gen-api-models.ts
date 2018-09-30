@@ -214,7 +214,7 @@ export function renderOperation(
   });
 
   const responsesType = responses
-    .map(r => `r.IResponseType<${r.e2}, ${r.e2}>`)
+    .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
   const responsesDecoderCode = generateResponseDecoders
