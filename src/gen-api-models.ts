@@ -232,7 +232,7 @@ export function renderOperation(
 
         // Decodes the success response with the type defined in the specs
         export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(${
-          successType.e2
+          successType.e2 === "undefined" ? "t.undefined" : successType.e2
         });`
       : "";
 
