@@ -1,4 +1,4 @@
-{## 
+{##
  # used when we want to export the main type / const from its own module file
  #}
 {% macro exportConst(defaultValue, type, typedef, quote = false) %}
@@ -17,7 +17,7 @@
 {% endmacro %}
 
 {##
- # used when we want to define a properties of an object 
+ # used when we want to define a properties of an object
  # which is not exported in its own file / type (inlined)
  #}
 {% macro inlineConst(defaultValue, type, typedef, quote = false) %}
@@ -45,7 +45,7 @@
   {% endif %}
 {% endmacro %}
 
-{## 
+{##
  # convenience method used to choose between export or inlining a type definition
  #}
 {% macro defineConst(defaultValue, type, typedef, quote = false, inline = false) -%}
@@ -56,7 +56,7 @@
   {% endif -%}
 {% endmacro -%}
 
-{## 
+{##
  # convenience method used to import required modules
  # at the beginning of the type definition file
  #}
@@ -65,7 +65,7 @@
   {{- import | addImport -}}
 {% endmacro %}
 
-{## 
+{##
  # defines a number property with constraints
  #}
 {% macro defineNumber(definitionName, definition, inline = false) -%}
@@ -81,7 +81,7 @@
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro -%}
 
-{## 
+{##
  # defines an integer property with constraints
  #}
 {% macro defineInteger(definitionName, definition, inline = false) -%}
@@ -97,7 +97,7 @@
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro -%}
 
-{## 
+{##
  # defines a string property with constraints
  #}
 {% macro defineString(definitionName, definition, inline = false) -%}
@@ -141,7 +141,7 @@
     {{ defineConst(definition.default, definitionName, typedef, true, inline) }}
 {% endmacro %}
 
-{## 
+{##
  # defines a boolean property
  #}
 {% macro defineBoolean(definitionName, definition, inline = false) -%}
@@ -149,7 +149,7 @@
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro %}
 
-{## 
+{##
  # defines a $ref property
  #}
 {% macro defineRef(definitionName, definition, inline = false) -%}
@@ -157,7 +157,7 @@
   {{ defineConst(definition.default, typedef, typedef, false, inline) }}
 {% endmacro %}
 
-{## 
+{##
  # defines an object sub-property
  #}
 {% macro defineSubObject(parentPropName, definitionName, definition) -%}
@@ -165,7 +165,7 @@
   {{ defineConst(definition.default, definitionName, typedef, false, true) }}
 {% endmacro %}
 
-{## 
+{##
  # defines an array property
  #}
 {% macro defineArray(definitionName, definition, inline = false) -%}
@@ -181,7 +181,7 @@
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro %}
 
-{## 
+{##
  # defines an object property of some prop.type
  #}
 {% macro defineObjectProperty(propName, prop, parentPropName) -%}
@@ -207,7 +207,7 @@
   {% endif %}
 {% endmacro %}
 
-{## 
+{##
  # convenience method to import required modules from $ref pointers
  #}
 {% macro importLocalProps(definition) -%}
@@ -235,7 +235,7 @@
   {% endfor %}
 {% endmacro -%}
 
-{## 
+{##
  # define object properties recursively,
  # supports additionaProperties, allOf and oneOf.
  #}
@@ -251,7 +251,8 @@
 
     {% for propName, prop in definition.properties -%}
       {% if prop.type == "object" %}
-        {{ defineObject(definitionName + propName, prop, strictInterfaces) }}
+        {% set composedPropName %}{{ definitionName }}{{ propName | capitalizeFirst }}{% endset %}
+        {{ defineObject(composedPropName, prop, strictInterfaces) }}
       {% endif %}
     {% endfor %}
 
@@ -260,7 +261,7 @@
       {% if definition.additionalProperties == true -%}
         {% set typedef %}t.dictionary(t.string, t.any, "{{ definitionName }}"){% endset %}
       {% else %}
-        {% set typedef %}t.dictionary(t.string, 
+        {% set typedef %}t.dictionary(t.string,
           {{ defineObjectProperty(false, definition.additionalProperties) }} "{{ definitionName }}")
         {% endset %}
       {%- endif %}
@@ -285,7 +286,7 @@
       {% endfor %}
       });
 
-      export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %} 
+      export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %}
         t.intersection(
         [
           {{ definitionName }}R,
@@ -310,7 +311,7 @@
       {% endif %}
     {% endfor %}
 
-    export const {{ definitionName }} = 
+    export const {{ definitionName }} =
       t.intersection([
         {% for schema in definition.allOf -%}
           {% if schema.type == "object" %}
@@ -341,7 +342,7 @@
       {% endif %}
     {% endfor %}
 
-    export const {{ definitionName }} = 
+    export const {{ definitionName }} =
       t.union([
         {% for schema in oneOfProps -%}
           {% if schema.type == "object" %}
