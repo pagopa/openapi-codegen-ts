@@ -285,6 +285,19 @@ import * as t from \\"io-ts\\";
  */
 
 // required attributes
+const ProfilePayloadR = t.interface({});
+
+// optional attributes
+const ProfilePayloadO = t.partial({});
+
+export const ProfilePayload = t.intersection(
+  [ProfilePayloadR, ProfilePayloadO],
+  \\"ProfilePayload\\"
+);
+
+export type ProfilePayload = t.TypeOf<typeof ProfilePayload>;
+
+// required attributes
 const ProfileR = t.interface({
   family_name: t.string,
 
@@ -309,7 +322,9 @@ const ProfileO = t.partial({
 
   preferred_email: EmailAddress,
 
-  preferred_languages: PreferredLanguages
+  preferred_languages: PreferredLanguages,
+
+  payload: ProfilePayload
 });
 
 export const Profile = t.intersection([ProfileR, ProfileO], \\"Profile\\");
@@ -358,22 +373,22 @@ import * as t from \\"io-ts\\";
 import { PatternString } from \\"italia-ts-commons/lib/strings\\";
 
 // required attributes
-const NestedObjectTestnestedObjectR = t.interface({});
+const NestedObjectTestNestedObjectR = t.interface({});
 
 // optional attributes
-const NestedObjectTestnestedObjectO = t.partial({
+const NestedObjectTestNestedObjectO = t.partial({
   inlineProp: PatternString(
     \\"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\\"
   )
 });
 
-export const NestedObjectTestnestedObject = t.intersection(
-  [NestedObjectTestnestedObjectR, NestedObjectTestnestedObjectO],
-  \\"NestedObjectTestnestedObject\\"
+export const NestedObjectTestNestedObject = t.intersection(
+  [NestedObjectTestNestedObjectR, NestedObjectTestNestedObjectO],
+  \\"NestedObjectTestNestedObject\\"
 );
 
-export type NestedObjectTestnestedObject = t.TypeOf<
-  typeof NestedObjectTestnestedObject
+export type NestedObjectTestNestedObject = t.TypeOf<
+  typeof NestedObjectTestNestedObject
 >;
 
 // required attributes
