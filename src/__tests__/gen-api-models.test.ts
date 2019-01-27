@@ -5,7 +5,8 @@ import { Schema, Spec } from "swagger-schema-official";
 
 import {
   initNunJucksEnvironment,
-  renderDefinitionCode
+  renderDefinitionCode,
+  renderOperation
 } from "../gen-api-models";
 
 const env = initNunJucksEnvironment();
@@ -230,5 +231,24 @@ describe("gen-api-models", () => {
     );
     expect(code).toContain("OrganizationFiscalCodeTest");
     expect(code).toMatchSnapshot("defined-type");
+  });
+
+  it("should generate the operator definition", async () => {
+    const operation = spec.paths["/test-auth-bearer"].get;
+
+    const code = await renderOperation(
+      "get",
+      operation.operationId,
+      operation,
+      spec.parameters,
+      spec.securityDefinitions,
+      [],
+      {},
+      "undefined",
+      "undefined",
+      true
+    );
+
+    expect(code.e1).toMatchSnapshot();
   });
 });

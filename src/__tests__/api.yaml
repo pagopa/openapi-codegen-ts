@@ -7,7 +7,31 @@ host: localhost
 basePath: /api/v1
 schemes:
   - https
-paths: {}
+securityDefinitions:
+  bearerToken:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  /test-auth-bearer:
+    get:
+      operationId: "testAuthBearer"
+      security:
+        - bearerToken: []
+      parameters:
+        - name: "qo"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "qr"
+          in: "query"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Will send `Authenticated`"
+        "403":
+          description: "You do not have necessary permissions for the resource"
 definitions:
   AllOfTest:
     allOf:

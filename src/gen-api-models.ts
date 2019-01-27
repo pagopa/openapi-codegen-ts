@@ -174,7 +174,20 @@ export function renderOperation(
     });
   }
 
-  const allParams = { ...extraParameters, ...params };
+  const authHeadersAndParams = operation.security
+    ? getAuthHeaders(
+        securityDefinitions,
+        operation.security
+          .map(_ => Object.keys(_)[0])
+          .filter(_ => _ !== undefined)
+      )
+    : [];
+
+  const authParams: { [k: string]: string } = {};
+  authHeadersAndParams.forEach(_ => (authParams[_.e1] = "string"));
+
+  const allParams = { ...extraParameters, ...authParams, ...params };
+
   const paramsCode = Object.keys(allParams)
     .map(paramKey => `readonly ${paramKey}: ${allParams[paramKey]}`)
     .join(",");
@@ -184,14 +197,7 @@ export function renderOperation(
       ? ["Content-Type"]
       : [];
 
-  const authHeaders = operation.security
-    ? getAuthHeaders(
-        securityDefinitions,
-        operation.security
-          .map(_ => Object.keys(_)[0])
-          .filter(_ => _ !== undefined)
-      )
-    : [];
+  const authHeaders = authHeadersAndParams.map(_ => _.e2);
 
   const headers = [...contentTypeHeaders, ...authHeaders, ...extraHeaders];
 
@@ -254,7 +260,7 @@ export function renderOperation(
 function getAuthHeaders(
   securityDefinitions: Spec["securityDefinitions"],
   securityKeys: ReadonlyArray<string>
-): ReadonlyArray<string> {
+): ReadonlyArray<ITuple2<string, string>> {
   if (securityKeys === undefined && securityDefinitions === undefined) {
     return [];
   }
@@ -263,15 +269,17 @@ function getAuthHeaders(
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
         // security items mapped to their securityDefinitions definitions.
-        securityKeys.map(k => securityDefinitions[k as string])
+        securityKeys.map(k => Tuple2(k, securityDefinitions[k as string]))
       : securityDefinitions !== undefined
-        ? Object.keys(securityDefinitions).map(_ => securityDefinitions[_])
+        ? Object.keys(securityDefinitions).map(k =>
+            Tuple2(k, securityDefinitions[k])
+          )
         : [];
 
   return securityDefs
-    .filter(_ => _ !== undefined)
-    .filter(_ => (_ as ApiKeySecurity).in === "header")
-    .map(_ => (_ as ApiKeySecurity).name);
+    .filter(_ => _.e2 !== undefined)
+    .filter(_ => (_.e2 as ApiKeySecurity).in === "header")
+    .map(_ => Tuple2(_.e1, (_.e2 as ApiKeySecurity).name));
 }
 
 export async function generateApi(
@@ -349,6 +357,9 @@ export async function generateApi(
           }
         });
       }
+      // add global auth parameters to extraParameters
+      globalAuthHeaders.forEach(_ => (extraParameters[_.e1] = "string"));
+
       return Object.keys(pathSpec).map(operationKey => {
         const method = operationKey.toLowerCase();
 
@@ -384,7 +395,7 @@ export async function generateApi(
           operation,
           api.parameters,
           api.securityDefinitions,
-          globalAuthHeaders,
+          globalAuthHeaders.map(_ => _.e2),
           extraParameters,
           defaultSuccessType,
           defaultErrorType,
