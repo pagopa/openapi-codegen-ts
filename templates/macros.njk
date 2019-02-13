@@ -124,15 +124,29 @@
     {% elif definition["x-extensible-enum"] %}
       {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
       {% set enumTypeAlias %}
-        export enum {{ definitionName }}Enum {
+        export enum {{ definitionName | capitalizeFirst }}Enum {
             {% for enum in definition["x-extensible-enum"] %}
               "{{ enum }}" = "{{ enum }}",
             {% endfor %}
         }
       {% endset %}
       {{- enumTypeAlias | addTypeAlias -}}
-      {% set typedef %}enumType<{{ definitionName }}Enum>(
-        {{ definitionName }}Enum,
+      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
+        {{ definitionName | capitalizeFirst }}Enum,
+        "{{ definitionName }}"
+      ){% endset %}
+    {% elif definition["enum"] %}
+      {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
+      {% set enumTypeAlias %}
+        export enum {{ definitionName | capitalizeFirst }}Enum {
+            {% for enum in definition["enum"] %}
+              "{{ enum }}" = "{{ enum }}",
+            {% endfor %}
+        }
+      {% endset %}
+      {{- enumTypeAlias | addTypeAlias -}}
+      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
+        {{ definitionName | capitalizeFirst }}Enum,
         "{{ definitionName }}"
       ){% endset %}
     {% else %}
