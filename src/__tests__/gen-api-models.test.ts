@@ -108,6 +108,12 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("custom-string-format");
   });
 
+  it("should handle enums", async () => {
+    const definition = spec.definitions.EnumTest;
+    const code = await renderDefinitionCode(env, "EnumTest", definition, false);
+    expect(code).toMatchSnapshot("enum-simple");
+  });
+
   it("should generate a dictionary from additionalProperties", async () => {
     const definition = spec.definitions.AdditionalPropsTest;
     const code = await renderDefinitionCode(

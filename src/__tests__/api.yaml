@@ -135,6 +135,15 @@ definitions:
             type: string
             description: The device global unique identifier.
             pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  EnumTest:
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+          - value1
+          - value2
+          - value3
   MessageContent:
     $ref: "https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/MessageContent"
   FiscalCode:
