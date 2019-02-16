@@ -257,4 +257,23 @@ describe("gen-api-models", () => {
 
     expect(code.e1).toMatchSnapshot();
   });
+
+  it("should support file uploads", async () => {
+    const operation = spec.paths["/test-file-upload"].post;
+
+    const code = await renderOperation(
+      "post",
+      operation.operationId,
+      operation,
+      spec.parameters,
+      spec.securityDefinitions,
+      [],
+      {},
+      "undefined",
+      "undefined",
+      true
+    );
+
+    expect(code.e1).toMatchSnapshot();
+  });
 });

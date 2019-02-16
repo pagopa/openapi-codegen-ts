@@ -32,6 +32,17 @@ paths:
           description: "Will send `Authenticated`"
         "403":
           description: "You do not have necessary permissions for the resource"
+  /test-file-upload:
+    post:
+      operationId: "testFileUpload"
+      parameters:
+        - name: "file"
+          in: "formData"
+          type: "file"
+          required: true
+      responses:
+        "200":
+          description: "File uploaded"
 definitions:
   AllOfTest:
     allOf:
