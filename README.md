@@ -6,7 +6,7 @@ Digital Citizenship initiative.
 To add the tools to a project:
 
 ```
-$ yarn add -D italia-utils
+$ yarn add -D io-utils
 ```
 
 ## gen-api-models
@@ -18,7 +18,7 @@ In simple terms it converts an OpenAPI spec like [this one](https://github.com/t
 * A TypeScript [representation of the specs](https://github.com/teamdigitale/io-functions/blob/6798225bd725a42753b16375ce18a954a268f9b6/lib/api/public_api_v1.ts).
 * An [io-ts](https://github.com/gcanti/io-ts) type definitions for [each API definition](https://github.com/teamdigitale/io-functions/tree/6798225bd725a42753b16375ce18a954a268f9b6/lib/api/definitions) that provides compile time types and runtime validation.
 
-Note: the generated models requires the runtime dependency `italia-ts-commons`.
+Note: the generated models requires the runtime dependency `io-ts-commons`.
 
 ### Usage
 

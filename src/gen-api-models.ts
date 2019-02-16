@@ -1,7 +1,7 @@
 // tslint:disable:no-console
 
 import * as fs from "fs-extra";
-import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
+import { ITuple2, Tuple2 } from "io-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
@@ -434,7 +434,7 @@ export async function generateApi(
 
       import * as t from "io-ts";
 
-      import * as r from "italia-ts-commons/lib/requests";
+      import * as r from "io-ts-commons/lib/requests";
 
       ${Array.from(operationsImports.values())
         .map(i => `import { ${i} } from "./${i}";`)
