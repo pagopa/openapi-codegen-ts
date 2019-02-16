@@ -2,7 +2,7 @@
   "name": "italia-utils",
   "version": "3.15.2",
   "description": "Tools and utilities for the Digital Citizenship project",
-  "repository": "https://github.com/teamdigitale/italia-utils",
+  "repository": "https://github.com/teamdigitale/io-utils",
   "author": "https://teamdigitale.governo.it",
   "license": "MIT",
   "bin": {
