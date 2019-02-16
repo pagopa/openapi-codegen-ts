@@ -82,7 +82,14 @@ function typeFromRef(
 }
 
 function specTypeToTs(t: string): string {
-  return t === "integer" ? "number" : t;
+  switch (t) {
+    case "integer":
+      return "number";
+    case "file":
+      return "{ uri: string, name: string, type: string }";
+    default:
+      return t;
+  }
 }
 
 function getDecoderForResponse(status: string, type: string): string {
