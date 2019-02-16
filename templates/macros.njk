@@ -4,7 +4,7 @@
 {% macro exportConst(defaultValue, type, typedef, quote = false) %}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if defaultValue !== undefined %}
-    {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
+    {{- 'import { withDefault } from "io-ts-commons/lib/types";' | addImport -}}
     {% set baseTypeName = type + "Base" %}
     export type {{ type }} = t.TypeOf<typeof {{ baseTypeName }}>;
     const {{ baseTypeName }} = {{ typedef | safe }};
@@ -22,7 +22,7 @@
  #}
 {% macro inlineConst(defaultValue, type, typedef, quote = false) %}
   {% if defaultValue !== undefined %}
-    {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
+    {{- 'import { withDefault } from "io-ts-commons/lib/types";' | addImport -}}
     {# check if it is a primitive io-ts type (ie. t.string) #}
     {# if it is a primitive io-ts type, avoid to create an alias #}
     {% if not r/^t\.[a-z]+$/.test(typedef) %}
@@ -70,10 +70,10 @@
  #}
 {% macro defineNumber(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
-    {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {{- 'import { WithinRangeNumber } from "io-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
   {% elif definition.minimum == "0" %}
-    {{- 'import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {{- 'import { NonNegativeNumber } from "io-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeNumber{% endset %}
   {% else %}
     {% set typedef %}t.number{% endset %}
@@ -86,10 +86,10 @@
  #}
 {% macro defineInteger(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
-    {{- 'import { WithinRangeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {{- 'import { WithinRangeInteger } from "io-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}WithinRangeInteger({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
   {% elif definition.minimum == "0" %}
-    {{- 'import { NonNegativeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {{- 'import { NonNegativeInteger } from "io-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeInteger{% endset %}
   {% else %}
     {% set typedef %}t.Integer{% endset %}
@@ -102,27 +102,27 @@
  #}
 {% macro defineString(definitionName, definition, inline = false) -%}
     {% if definition.pattern %}
-      {{- 'import { PatternString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {{- 'import { PatternString } from "io-ts-commons/lib/strings";' | addImport -}}
       {% set typedef %}PatternString("{{ definition.pattern | safe }}"){% endset %}
     {% elif definition.minLength and definition.maxLength %}
-      {{- 'import { WithinRangeString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {{- 'import { WithinRangeString } from "io-ts-commons/lib/strings";' | addImport -}}
       {% set maxLength = definition.maxLength + 1 %}
       {% set typedef %}WithinRangeString({{ definition.minLength }}, {{ maxLength }}){% endset %}
     {% elif definition.minLength == 1 %}
-      {{- 'import { NonEmptyString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {{- 'import { NonEmptyString } from "io-ts-commons/lib/strings";' | addImport -}}
       {% set typedef %}NonEmptyString{% endset %}
     {% elif definition.format == "email" %}
-      {{- 'import { EmailString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {{- 'import { EmailString } from "io-ts-commons/lib/strings";' | addImport -}}
       {% set typedef %}EmailString{% endset %}
     {% elif definition.format == "date-time" %}
-      {{- 'import { DateFromString } from "italia-ts-commons/lib/dates";' | addImport -}}
+      {{- 'import { DateFromString } from "io-ts-commons/lib/dates";' | addImport -}}
       {% set typedef %}DateFromString{% endset %}
     {% elif definition.format != undefined and definition["x-import"] %}
       {% set typedef %}{{ definition.format }}T{% endset %}
       {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
     {% elif definition["x-extensible-enum"] %}
-      {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
+      {{- 'import { enumType } from "io-ts-commons/lib/types";' | addImport -}}
       {% set enumTypeAlias %}
         export enum {{ definitionName | capitalizeFirst }}Enum {
             {% for enum in definition["x-extensible-enum"] %}
@@ -136,7 +136,7 @@
         "{{ definitionName }}"
       ){% endset %}
     {% elif definition["enum"] %}
-      {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
+      {{- 'import { enumType } from "io-ts-commons/lib/types";' | addImport -}}
       {% set enumTypeAlias %}
         export enum {{ definitionName | capitalizeFirst }}Enum {
             {% for enum in definition["enum"] %}
@@ -244,7 +244,7 @@
   endif %}
   {% for propName, prop in definition.properties -%}
     {% if prop.default !== undefined %}
-      {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
+      {{- 'import { withDefault } from "io-ts-commons/lib/types";' | addImport -}}
     {% endif %}
   {% endfor %}
 {% endmacro -%}
