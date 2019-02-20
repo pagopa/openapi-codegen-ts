@@ -230,7 +230,7 @@ export function renderOperation(
     .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
-  const successType = responses.find(_ => _.e1 === "200");
+  const successType = responses.find(_ => _.e1 === "200" || _.e1 === "201");
 
   const responsesDecoderCode =
     generateResponseDecoders && successType !== undefined
