@@ -230,7 +230,8 @@ export function renderOperation(
     .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
-  const successType = responses.find(_ => _.e1 === "200" || _.e1 === "201");
+  // use the first 2xx type as "success type" that we allow to be overridden
+  const successType = responses.find(_ => _.e1.length === 3 && _.e1[0] === "2");
 
   const responsesDecoderCode =
     generateResponseDecoders && successType !== undefined
@@ -238,7 +239,10 @@ export function renderOperation(
         // Decodes the success response with a custom success type
         export function ${operationId}Decoder<A, O>(type: t.Type<A, O>) { return ` +
         responses.reduce((acc, r) => {
-          const d = getDecoderForResponse(r.e1, r.e1 === "200" ? "type" : r.e2);
+          const d = getDecoderForResponse(
+            r.e1,
+            successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
+          );
           return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
         }, "") +
         `; }
