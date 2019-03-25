@@ -36,7 +36,7 @@
     "@types/nunjucks": "^3.0.0",
     "@types/prettier": "^1.12.0",
     "@types/swagger-parser": "^4.0.2",
-    "@types/yargs": "^11.1.0",
+    "@types/yargs": "^12.0.10",
     "crlf": "^1.1.1",
     "danger": "^3.5.1",
     "danger-plugin-digitalcitizenship": "^0.3.1",
