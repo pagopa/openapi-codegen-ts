@@ -35,6 +35,8 @@ paths:
   /test-file-upload:
     post:
       operationId: "testFileUpload"
+      consumes:
+       - multipart/form-data
       parameters:
         - name: "file"
           in: "formData"
@@ -54,7 +56,6 @@ definitions:
               $ref: "#/definitions/Message"
       - $ref: "#/definitions/PaginationResponse"
   AllOfOneOfTest:
-    decription: test if we can use allOf as oneOf
     x-one-of: true
     allOf:
       - type: object
@@ -64,16 +65,6 @@ definitions:
             items:
               $ref: "#/definitions/Message"
       - $ref: "#/definitions/PaginationResponse"
-  OneOfTest:
-    oneOf:
-      - type: object
-        properties:
-          limited:
-            type: boolean
-      - type: object
-        properties:
-          unlimited:
-            type: boolean
   AdditionalPropsTest:
     type: object
     additionalProperties:
