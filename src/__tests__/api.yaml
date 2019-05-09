@@ -54,7 +54,7 @@ definitions:
               $ref: "#/definitions/Message"
       - $ref: "#/definitions/PaginationResponse"
   AllOfOneOfTest:
-    decription: test if we can use allOf as oneOf
+    description: test if we can use allOf as oneOf
     x-one-of: true
     allOf:
       - type: object
