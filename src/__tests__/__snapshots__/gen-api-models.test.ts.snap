@@ -90,6 +90,10 @@ import * as t from \\"io-ts\\";
 import { Message } from \\"./Message\\";
 import { PaginationResponse } from \\"./PaginationResponse\\";
 
+/**
+ * test if we can use allOf as oneOf
+ */
+
 // required attributes
 const AllOfOneOfTest1R = t.interface({});
 
