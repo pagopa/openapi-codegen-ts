@@ -21,7 +21,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "fs-extra": "^6.0.0",
+    "fs-extra": "^8.0.1",
     "italia-ts-commons": "^5.0.1",
     "nunjucks": "^3.1.2",
     "prettier": "^1.12.1",
