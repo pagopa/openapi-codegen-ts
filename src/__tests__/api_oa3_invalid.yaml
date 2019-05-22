@@ -1,0 +1,247 @@
+openapi: 4.0.0
+info:
+  version: 1.0.0
+  title: Test API
+  description: Test API.
+paths:
+  /test-auth-bearer:
+    get:
+      operationId: testAuthBearer
+      security:
+        - bearerToken: []
+      parameters:
+        - name: qo
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: qr
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Will send `Authenticated`
+        "403":
+          description: You do not have necessary permissions for the resource
+  /test-file-upload:
+    post:
+      operationId: testFileUpload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+      responses:
+        "200":
+          description: File uploaded
+servers:
+  - url: https://localhost/api/v1
+components:
+  parameters:
+    PaginationRequest:
+      name: cursor
+      in: query
+      description: An opaque identifier that points to the next item in the collection.
+      schema:
+        type: string
+        minimum: 1
+  securitySchemes:
+    bearerToken:
+      type: apiKey
+      name: Authorization
+      in: header
+  schemas:
+    AllOfTest:
+      allOf:
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Message"
+        - $ref: "#/components/schemas/PaginationResponse"
+    AllOfOneOfTest:
+      description: test if we can use allOf as oneOf
+      x-one-of: true
+      allOf:
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Message"
+        - $ref: "#/components/schemas/PaginationResponse"
+    OneOfTest:
+      oneOf:
+        - type: object
+          properties:
+            limited:
+              type: boolean
+        - type: object
+          properties:
+            unlimited:
+              type: boolean
+    AdditionalPropsTest:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: number
+    AdditionalpropsDefault:
+      type: object
+      default:
+        test:
+          - 1000
+      additionalProperties:
+        type: array
+        items:
+          type: number
+    AdditionalPropsTrueTest:
+      type: object
+      additionalProperties: true
+    NonNegativeNumberTest:
+      title: NonNegativeNumberTest
+      type: number
+      minimum: 0
+    WithinRangeStringTest:
+      title: WithinRangeStringTest
+      type: string
+      minLength: 10
+      maxLength: 10
+    WithinRangeNumberTest:
+      title: WithinRangeNumberTest
+      type: number
+      minimum: 0
+      maximum: 10
+    InlinePropertyTest:
+      type: object
+      properties:
+        inlineProp:
+          type: string
+          description: The device global unique identifier.
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+    CustomStringFormatTest:
+      type: string
+      x-import: italia-ts-commons/lib/string
+      format: SomeCustomStringType
+    OrganizationFiscalCode:
+      type: string
+      x-import: italia-ts-commons/lib/string
+      format: OrganizationFiscalCode
+    OrganizationFiscalCodeTest:
+      type: string
+      x-import: italia-ts-commons/lib/string
+      format: OrganizationFiscalCode
+    NonNegativeIntegerTest:
+      title: NonNegativeIntegerTest
+      type: integer
+      minimum: 0
+    WithinRangeIntegerTest:
+      title: WithinRangeIntegerTest
+      type: integer
+      minimum: 0
+      maximum: 10
+    NestedObjectTest:
+      type: object
+      properties:
+        inlineProp:
+          type: string
+          description: The device global unique identifier.
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        nestedObject:
+          type: object
+          properties:
+            inlineProp:
+              type: string
+              description: The device global unique identifier.
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+    EnumTest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - value1
+            - value2
+            - value3
+    MessageContent:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/MessageContent
+    FiscalCode:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/FiscalCode
+    EmailAddress:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/EmailAddress
+    ExtendedProfile:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/ExtendedProfile
+    LimitedProfile:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/LimitedProfile
+    PreferredLanguages:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/PreferredLanguages
+    IsInboxEnabled:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/IsInboxEnabled
+    IsWebhookEnabled:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/IsWebhookEnabled
+    PaginationResponse:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/PaginationResponse
+    CreatedMessageWithContent:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/CreatedMessageWithContent
+    ServicePublic:
+      $ref: https://raw.githubusercontent.com/teamdigitale/digital-citizenship-functions/v0.38.0/api/definitions.yaml#/ServicePublic
+    Message:
+      title: Message
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          $ref: "#/components/schemas/MessageContent"
+        sender_service_id:
+          type: string
+      required:
+        - id
+        - content
+    Profile:
+      title: Profile
+      description: Describes the user's profile.
+      type: object
+      properties:
+        email:
+          $ref: "#/components/schemas/EmailAddress"
+        family_name:
+          type: string
+        fiscal_code:
+          $ref: "#/components/schemas/FiscalCode"
+        has_profile:
+          type: boolean
+        is_email_set:
+          type: boolean
+        is_inbox_enabled:
+          $ref: "#/components/schemas/IsInboxEnabled"
+        is_webhook_enabled:
+          $ref: "#/components/schemas/IsWebhookEnabled"
+        name:
+          type: string
+        preferred_email:
+          $ref: "#/components/schemas/EmailAddress"
+        preferred_languages:
+          $ref: "#/components/schemas/PreferredLanguages"
+        version:
+          type: integer
+        payload:
+          type: object
+          properties: {}
+      required:
+        - fiscal_code
+        - family_name
+        - has_profile
+        - is_email_set
+        - name
+        - version
+
