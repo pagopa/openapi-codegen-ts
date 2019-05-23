@@ -1,7 +1,6 @@
 import * as SwaggerParser from "swagger-parser";
-
 test("Validate Schema OpenApi 3.0 ", () => {
-  SwaggerParser.validate(`${__dirname}/api_oa3.yaml`, (err, api) => {
+  SwaggerParser.validate(`${__dirname}/api_oas3.yaml`, (err, api) => {
     if (err) {
       console.error(err);
     } else {
@@ -16,7 +15,7 @@ test("Validate Schema OpenApi 3.0 ", () => {
 });
 
 test("Fail invalid OpenApi schema", () => {
-  SwaggerParser.validate(`${__dirname}/api_oa3_invalid.yaml`, (err, api) => {
+  SwaggerParser.validate(`${__dirname}/api_oas3_invalid.yaml`, (err, api) => {
     if (err) {
       console.log(err);
     } else {
