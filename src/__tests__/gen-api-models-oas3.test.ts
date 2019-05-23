@@ -15,14 +15,15 @@ let spec;
 beforeAll(
   async () => (spec = await SwaggerParser.bundle(`${__dirname}/api_oas3.yaml`))
 );
+
 describe("gen-api-models", () => {
   it("should not generate duplicate imports", async () => {
-    expect(spec).toBeDefined();
-    if (spec === undefined) {
+    expect(spec.components.schemas).toBeDefined();
+    if (spec.components.schemas === undefined) {
       fail("unexpected specs");
       return;
     }
-    const profileDefinition = spec.Profile;
+    const profileDefinition = spec.components.schemas.Profile;
     expect(profileDefinition).toBeDefined();
     const code = await renderDefinitionCode(
       env,
@@ -35,7 +36,7 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeStrings", async () => {
-    const definition = spec.WithinRangeStringTest;
+    const definition = spec.components.schemas.WithinRangeStringTest;
     const code = await renderDefinitionCode(
       env,
       "WithinRangeStringTest",
@@ -47,7 +48,7 @@ describe("gen-api-models", () => {
   });
 
   it("should handle NonNegativeNumbers", async () => {
-    const definition = spec.NonNegativeNumberTest;
+    const definition = spec.components.schemas.NonNegativeNumberTest;
     const code = await renderDefinitionCode(
       env,
       "NonNegativeNumberTest",
@@ -59,7 +60,7 @@ describe("gen-api-models", () => {
   });
 
   it("should handle NonNegativeIntegers", async () => {
-    const definition = spec.NonNegativeIntegerTest;
+    const definition = spec.components.schemas.NonNegativeIntegerTest;
     const code = await renderDefinitionCode(
       env,
       "NonNegativeIntegerTest",
@@ -71,7 +72,7 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeNumbers", async () => {
-    const definition = spec.WithinRangeNumberTest;
+    const definition = spec.components.schemas.WithinRangeNumberTest;
     const code = await renderDefinitionCode(
       env,
       "WithinRangeNumberTest",
@@ -83,7 +84,7 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeIntegers", async () => {
-    const definition = spec.WithinRangeIntegerTest;
+    const definition = spec.components.schemas.WithinRangeIntegerTest;
     const code = await renderDefinitionCode(
       env,
       "WithinRangeIntegerTest",
@@ -95,7 +96,7 @@ describe("gen-api-models", () => {
   });
 
   it("should handle CustomStringFormats", async () => {
-    const definition = spec.CustomStringFormatTest;
+    const definition = spec.components.schemas.CustomStringFormatTest;
     const code = await renderDefinitionCode(
       env,
       "CustomStringFormatTest",
@@ -109,13 +110,13 @@ describe("gen-api-models", () => {
   });
 
   it("should handle enums", async () => {
-    const definition = spec.EnumTest;
+    const definition = spec.components.schemas.EnumTest;
     const code = await renderDefinitionCode(env, "EnumTest", definition, false);
     expect(code).toMatchSnapshot("enum-simple");
   });
 
   it("should generate a dictionary from additionalProperties", async () => {
-    const definition = spec.AdditionalPropsTest;
+    const definition = spec.components.schemas.AdditionalPropsTest;
     const code = await renderDefinitionCode(
       env,
       "AdditionalPropsTest",
@@ -127,7 +128,7 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a dictionary from additionalProperties: true", async () => {
-    const definition = spec.AdditionalPropsTrueTest;
+    const definition = spec.components.schemas.AdditionalPropsTrueTest;
     const code = await renderDefinitionCode(
       env,
       "AdditionalPropsTrueTest",
@@ -140,7 +141,7 @@ describe("gen-api-models", () => {
   });
 
   it("should support additionalProperties default value", async () => {
-    const definition = spec.AdditionalpropsDefault;
+    const definition = spec.components.schemas.AdditionalpropsDefault;
     const code = await renderDefinitionCode(
       env,
       "AdditionalpropsDefault",
@@ -153,7 +154,7 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type intersection from allOf", async () => {
-    const definition = spec.AllOfTest;
+    const definition = spec.components.schemas.AllOfTest;
     const code = await renderDefinitionCode(
       env,
       "AllOfTest",
@@ -166,7 +167,7 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type union from oneOf", async () => {
-    const definition = spec.OneOfTest;
+    const definition = spec.components.schemas.OneOfTest;
     const code = await renderDefinitionCode(
       env,
       "OneOfTest",
@@ -178,7 +179,7 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type union from allOf when x-one-of is used", async () => {
-    const definition = spec.AllOfOneOfTest;
+    const definition = spec.components.schemas.AllOfOneOfTest;
     const code = await renderDefinitionCode(
       env,
       "AllOfOneOfTest",
@@ -191,7 +192,7 @@ describe("gen-api-models", () => {
   });
 
   it("should parse custom inline properties", async () => {
-    const definition = spec.InlinePropertyTest;
+    const definition = spec.components.schemas.InlinePropertyTest;
     const code = await renderDefinitionCode(
       env,
       "InlinePropertyTest",
@@ -203,7 +204,7 @@ describe("gen-api-models", () => {
   });
 
   it("should parse nested objects", async () => {
-    const definition = spec.NestedObjectTest;
+    const definition = spec.components.schemas.NestedObjectTest;
     const code = await renderDefinitionCode(
       env,
       "NestedObjectTest",
@@ -215,7 +216,7 @@ describe("gen-api-models", () => {
   });
 
   it("should include aliases for types already defined elsewhere if they have the same name", async () => {
-    const definition = spec.OrganizationFiscalCode;
+    const definition = spec.components.schemas.OrganizationFiscalCode;
     const code = await renderDefinitionCode(
       env,
       "OrganizationFiscalCode",
@@ -228,7 +229,7 @@ describe("gen-api-models", () => {
   });
 
   it("should include aliases for types already defined elsewhere if they have a different name", async () => {
-    const definition = spec.OrganizationFiscalCodeTest;
+    const definition = spec.components.schemas.OrganizationFiscalCodeTest;
     const code = await renderDefinitionCode(
       env,
       "OrganizationFiscalCodeTest",
@@ -247,7 +248,7 @@ describe("gen-api-models", () => {
       operation.operationId,
       operation,
       spec.parameters,
-      spec.securityDefinitions,
+      spec.securitycomponents.schemas,
       [],
       {},
       "undefined",
@@ -266,7 +267,7 @@ describe("gen-api-models", () => {
       operation.operationId,
       operation,
       spec.parameters,
-      spec.securityDefinitions,
+      spec.securitycomponents.schemas,
       [],
       {},
       "undefined",
