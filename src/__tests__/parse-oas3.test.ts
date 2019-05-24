@@ -13,18 +13,3 @@ test("Validate Schema OpenApi 3.0 ", () => {
     expect(err).toBeNull();
   });
 });
-
-test("Fail invalid OpenApi schema", () => {
-  SwaggerParser.validate(`${__dirname}/api_oas3_invalid.yaml`, (err, api) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.error(
-        "API name: %s, Version: %s",
-        api.info.title,
-        api.info.version
-      );
-    }
-    expect(err).not.toBeNull();
-  });
-});
