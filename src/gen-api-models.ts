@@ -8,16 +8,16 @@ import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
-
 function renderAsync(
   env: nunjucks.Environment,
   definition: OpenAPIV2.DefinitionsObject,
   definitionName: string,
-  strictInterfaces: boolean
+  strictInterfaces: boolean,
+  model: string,
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
-      "model.ts.njk",
+      model,
       {
         definition,
         definitionName,
@@ -43,7 +43,8 @@ export async function renderDefinitionCode(
     env,
     definition,
     definitionName,
-    strictInterfaces
+    strictInterfaces,
+    model,
   );
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
@@ -131,7 +132,7 @@ export function renderOperation(
       if (refInParam === undefined) {
         console.warn(
           `Skipping param without ref in operation [${operationId}] [${
-            param.name
+          param.name
           }]`
         );
         return;
@@ -168,7 +169,7 @@ export function renderOperation(
 
       const paramName = `${uncapitalize(parsedRef.e2)}${
         isParamRequired ? "" : "?"
-      }`;
+        }`;
 
       params[paramName] = paramType;
       if (refType === "definition") {
@@ -234,19 +235,19 @@ export function renderOperation(
       ? `
         // Decodes the success response with a custom success type
         export function ${operationId}Decoder<A, O>(type: t.Type<A, O>) { return ` +
-        responses.reduce((acc, r) => {
-          const d = getDecoderForResponse(
-            r.e1,
-            successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
-          );
-          return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
-        }, "") +
-        `; }
+      responses.reduce((acc, r) => {
+        const d = getDecoderForResponse(
+          r.e1,
+          successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
+        );
+        return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
+      }, "") +
+      `; }
 
         // Decodes the success response with the type defined in the specs
         export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(${
-          successType.e2 === "undefined" ? "t.undefined" : successType.e2
-        });`
+      successType.e2 === "undefined" ? "t.undefined" : successType.e2
+      });`
       : "";
 
   const code =
@@ -345,7 +346,8 @@ export async function generateApi(
         env,
         definitionName,
         definition,
-        strictInterfaces
+        strictInterfaces,
+        model
       );
       await fs.writeFile(outPath, code);
     }
