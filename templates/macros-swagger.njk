@@ -167,7 +167,7 @@
  # defines a $ref property
  #}
 {% macro defineRef(definitionName, definition, inline = false) -%}
-  {% set typedef %}{{ definitionName | replace("#/definitions/", "") | replace("#/components/schemas/", "") }}{% endset %}
+  {% set typedef %}{{ definitionName | replace("#/definitions/", "") }}{% endset %}
   {{ defineConst(definition.default, typedef, typedef, false, inline) }}
 {% endmacro %}
 
@@ -185,7 +185,7 @@
 {% macro defineArray(definitionName, definition, inline = false) -%}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if definition.items.$ref %}
-    {%- set realPropName = definition.items.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") -%}
+    {%- set realPropName = definition.items.$ref | replace("#/definitions/", "") -%}
     {{ importLocalProp(realPropName) }}
     {% set typedef %}t.readonlyArray({{ realPropName }}, "array of {{ realPropName }}"){% endset %}
   {% else %}
@@ -228,18 +228,18 @@
   {% set defaultFound = 0 %}
   {% for propName, prop in definition.properties -%}{%
     if prop.$ref -%}{%-
-      set realPropName = prop.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") -%}
+      set realPropName = prop.$ref | replace("#/definitions/", "") -%}
       {{ importLocalProp(realPropName) }}{%
     elif prop.items.$ref -%}{%-
-      set realPropName = prop.items.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") -%}
+      set realPropName = prop.items.$ref | replace("#/definitions/", "") -%}
       {{ importLocalProp(realPropName) }}{%
     endif %}{%
   endfor %}
   {% if definition.additionalProperties.$ref -%}{%-
-      set realPropName = definition.additionalProperties.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") -%}
+      set realPropName = definition.additionalProperties.$ref | replace("#/definitions/", "") -%}
       {{ importLocalProp(realPropName) }}{%
     elif definition.additionalProperties.items.$ref -%}{%-
-      set realPropName = definition.additionalProperties.items.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") -%}
+      set realPropName = definition.additionalProperties.items.$ref | replace("#/definitions/", "") -%}
       {{ importLocalProp(realPropName) }}{%
   endif %}
   {% for propName, prop in definition.properties -%}
@@ -320,7 +320,7 @@
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") -%}
+        {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -331,7 +331,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") }},
+            {{ schema.$ref | replace("#/definitions/", "") }},
           {% endif %}
         {% endfor %}
       ],
@@ -351,7 +351,7 @@
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") -%}
+        {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -362,7 +362,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace("#/definitions/", "") | replace("#/components/schemas/", "") }},
+            {{ schema.$ref | replace("#/definitions/", "") }},
           {% endif %}
         {% endfor %}
       ],

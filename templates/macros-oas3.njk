@@ -1,0 +1,399 @@
+{##
+ # used when we want to export the main type / const from its own module file
+ #}
+{% macro exportConst(defaultValue, type, typedef, quote = false) %}
+  {{- 'import * as t from "io-ts";' | addImport -}}
+  {% if defaultValue !== undefined %}
+    {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
+    {% set baseTypeName = type + "Base" %}
+    export type {{ type }} = t.TypeOf<typeof {{ baseTypeName }}>;
+    const {{ baseTypeName }} = {{ typedef | safe }};
+    {% set q = '"' if quote else "" %}
+    export const {{ type }} = withDefault({{ baseTypeName }}, {{ q | safe }}{{ defaultValue }}{{ q | safe }} as {{ type }});
+  {% else %}
+    export type {{ type }} = t.TypeOf<typeof {{ type }}>;
+    export const {{ type }} = {{ typedef | safe }};
+  {% endif %}
+{% endmacro %}
+
+{##
+ # used when we want to define a properties of an object
+ # which is not exported in its own file / type (inlined)
+ #}
+{% macro inlineConst(defaultValue, type, typedef, quote = false) %}
+  {% if defaultValue !== undefined %}
+    {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
+    {# check if it is a primitive io-ts type (ie. t.string) #}
+    {# if it is a primitive io-ts type, avoid to create an alias #}
+    {% if not r/^t\.[a-z]+$/.test(typedef) %}
+      {# create a type alias to set a default value #}
+      {# this is mandatory as we need to cast the default value to this type #}
+      {% set typeName = type | capitalizeFirst | camelCase %}
+      {% set baseTypeName = typeName + "Base" %}
+      {% set typeAlias %}t.TypeOf<typeof {{ baseTypeName }}>{% endset %}
+      {% set typeAliasExport %}
+        type {{ baseTypeName | safe }} = {{ typeAlias | safe }};
+        const {{ baseTypeName | safe }} = {{ typedef | safe }};
+      {% endset %}
+      {{- typeAliasExport | addTypeAlias -}}
+    {% endif %}
+    {% set q = '"' if quote else "" %}
+    withDefault({{ typedef if not baseTypeName else baseTypeName | safe }},
+      {{ q | safe }}{{ defaultValue }}{{ q | safe }} {{ "as " + baseTypeName if baseTypeName else "" | safe }}),
+  {% else %}
+    {{ typedef | safe }},
+  {% endif %}
+{% endmacro %}
+
+{##
+ # convenience method used to choose between export or inlining a type definition
+ #}
+{% macro defineConst(defaultValue, type, typedef, quote = false, inline = false) -%}
+  {% if inline -%}
+    {{ inlineConst(defaultValue, type, typedef, quote) }}
+  {% else %}
+    {{ exportConst(defaultValue, type, typedef, quote) }}
+  {% endif -%}
+{% endmacro -%}
+
+{##
+ # convenience method used to import required modules
+ # at the beginning of the type definition file
+ #}
+{% macro importLocalProp(realPropName) -%}
+  {% set import -%}import { {{ realPropName }} } from "./{{ realPropName }}";{% endset -%}
+  {{- import | addImport -}}
+{% endmacro %}
+
+{##
+ # defines a number property with constraints
+ #}
+{% macro defineNumber(definitionName, definition, inline = false) -%}
+  {% if definition.minimum != undefined and definition.maximum != undefined %}
+    {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
+  {% elif definition.minimum == "0" %}
+    {{- 'import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}NonNegativeNumber{% endset %}
+  {% else %}
+    {% set typedef %}t.number{% endset %}
+  {% endif %}
+  {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
+{% endmacro -%}
+
+{##
+ # defines an integer property with constraints
+ #}
+{% macro defineInteger(definitionName, definition, inline = false) -%}
+  {% if definition.minimum != undefined and definition.maximum != undefined %}
+    {{- 'import { WithinRangeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}WithinRangeInteger({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
+  {% elif definition.minimum == "0" %}
+    {{- 'import { NonNegativeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}NonNegativeInteger{% endset %}
+  {% else %}
+    {% set typedef %}t.Integer{% endset %}
+  {% endif %}
+  {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
+{% endmacro -%}
+
+{##
+ # defines a string property with constraints
+ #}
+{% macro defineString(definitionName, definition, inline = false) -%}
+    {% if definition.pattern %}
+      {{- 'import { PatternString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {% set typedef %}PatternString("{{ definition.pattern | safe }}"){% endset %}
+    {% elif definition.minLength and definition.maxLength %}
+      {{- 'import { WithinRangeString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {% set maxLength = definition.maxLength + 1 %}
+      {% set typedef %}WithinRangeString({{ definition.minLength }}, {{ maxLength }}){% endset %}
+    {% elif definition.minLength == 1 %}
+      {{- 'import { NonEmptyString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {% set typedef %}NonEmptyString{% endset %}
+    {% elif definition.format == "email" %}
+      {{- 'import { EmailString } from "italia-ts-commons/lib/strings";' | addImport -}}
+      {% set typedef %}EmailString{% endset %}
+    {% elif definition.format == "date-time" %}
+      {{- 'import { DateFromString } from "italia-ts-commons/lib/dates";' | addImport -}}
+      {% set typedef %}DateFromString{% endset %}
+    {% elif definition.format != undefined and definition["x-import"] %}
+      {% set typedef %}{{ definition.format }}T{% endset %}
+      {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
+      {{- importdef | addImport -}}
+    {% elif definition["x-extensible-enum"] %}
+      {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
+      {% set enumTypeAlias %}
+        export enum {{ definitionName | capitalizeFirst }}Enum {
+            {% for enum in definition["x-extensible-enum"] %}
+              "{{ enum }}" = "{{ enum }}",
+            {% endfor %}
+        }
+      {% endset %}
+      {{- enumTypeAlias | addTypeAlias -}}
+      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
+        {{ definitionName | capitalizeFirst }}Enum,
+        "{{ definitionName }}"
+      ){% endset %}
+    {% elif definition["enum"] %}
+      {{- 'import { enumType } from "italia-ts-commons/lib/types";' | addImport -}}
+      {% set enumTypeAlias %}
+        export enum {{ definitionName | capitalizeFirst }}Enum {
+            {% for enum in definition["enum"] %}
+              "{{ enum }}" = "{{ enum }}",
+            {% endfor %}
+        }
+      {% endset %}
+      {{- enumTypeAlias | addTypeAlias -}}
+      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
+        {{ definitionName | capitalizeFirst }}Enum,
+        "{{ definitionName }}"
+      ){% endset %}
+    {% else %}
+      {% set typedef %}t.string{% endset %}
+    {% endif %}
+    {{ defineConst(definition.default, definitionName, typedef, true, inline) }}
+{% endmacro %}
+
+{##
+ # defines a boolean property
+ #}
+{% macro defineBoolean(definitionName, definition, inline = false) -%}
+  {% set typedef %}t.boolean{% endset %}
+  {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
+{% endmacro %}
+
+{##
+ # defines a $ref property
+ #}
+{% macro defineRef(definitionName, definition, inline = false) -%}
+  {% set typedef %}{{ definitionName | replace("#/components/schemas/", "") }}{% endset %}
+  {{ defineConst(definition.default, typedef, typedef, false, inline) }}
+{% endmacro %}
+
+{##
+ # defines an object sub-property
+ #}
+{% macro defineSubObject(parentPropName, definitionName, definition) -%}
+  {% set typedef %}{{ parentPropName }}{{ definitionName | capitalizeFirst }}{% endset %}
+  {{ defineConst(definition.default, definitionName, typedef, false, true) }}
+{% endmacro %}
+
+{##
+ # defines an array property
+ #}
+{% macro defineArray(definitionName, definition, inline = false) -%}
+  {{- 'import * as t from "io-ts";' | addImport -}}
+  {% if definition.items.$ref %}
+    {%- set realPropName = definition.items.$ref | replace("#/components/schemas/", "") -%}
+    {{ importLocalProp(realPropName) }}
+    {% set typedef %}t.readonlyArray({{ realPropName }}, "array of {{ realPropName }}"){% endset %}
+  {% else %}
+    {%- set realPropName = definition.items.type | replace("integer", "number") -%}
+    {% set typedef %}t.readonlyArray(t.{{ realPropName }}, "array of {{ realPropName }}"){% endset %}
+  {% endif %}
+  {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
+{% endmacro %}
+
+{##
+ # defines an object property of some prop.type
+ #}
+{% macro defineObjectProperty(propName, prop, parentPropName) -%}
+  {% if propName %}
+    "{{ propName }}":
+  {% endif %}
+  {%- if prop.$ref %}
+    {{ defineRef(prop.$ref, prop, true) }}
+  {% elif prop.type == "object" %}
+    {{ defineSubObject(parentPropName, propName, prop) }}
+  {% elif prop.type == "array" %}
+    {{ defineArray(propName, prop, true) }}
+  {% elif prop.type == "number" %}
+    {{ defineNumber(propName, prop, true) }}
+  {% elif prop.type == "integer" %}
+    {{ defineInteger(propName, prop, true) }}
+  {% elif prop.type == "string" %}
+    {{ defineString(propName, prop, true) }}
+  {% elif prop.type == "boolean" %}
+    {{ defineBoolean(propName, prop, true) }}
+  {% else %}
+    // TODO: generate model for definition "{{ propName }}: {{ prop.type }}"
+  {% endif %}
+{% endmacro %}
+
+{##
+ # convenience method to import required modules from $ref pointers
+ #}
+{% macro importLocalProps(definition) -%}
+  {% set defaultFound = 0 %}
+  {% for propName, prop in definition.properties -%}{%
+    if prop.$ref -%}{%-
+      set realPropName = prop.$ref | replace("#/components/schemas/", "") -%}
+      {{ importLocalProp(realPropName) }}{%
+    elif prop.items.$ref -%}{%-
+      set realPropName = prop.items.$ref | replace("#/components/schemas/", "") -%}
+      {{ importLocalProp(realPropName) }}{%
+    endif %}{%
+  endfor %}
+  {% if definition.additionalProperties.$ref -%}{%-
+      set realPropName = definition.additionalProperties.$ref | replace("#/components/schemas/", "") -%}
+      {{ importLocalProp(realPropName) }}{%
+    elif definition.additionalProperties.items.$ref -%}{%-
+      set realPropName = definition.additionalProperties.items.$ref | replace("#/components/schemas/", "") -%}
+      {{ importLocalProp(realPropName) }}{%
+  endif %}
+  {% for propName, prop in definition.properties -%}
+    {% if prop.default !== undefined %}
+      {{- 'import { withDefault } from "italia-ts-commons/lib/types";' | addImport -}}
+    {% endif %}
+  {% endfor %}
+{% endmacro -%}
+
+{##
+ # define object properties recursively,
+ # supports additionaProperties, allOf and oneOf.
+ #}
+{% macro defineObject(definitionName, definition, strictInterfaces) -%}
+  {{ importLocalProps(definition) }}
+  {%- if definition.description %}
+    {{ definition.description | comment | safe }}
+  {% endif -%}
+
+  {% if definition.type == "object" %}
+
+    {{- 'import * as t from "io-ts";' | addImport -}}
+
+    {% for propName, prop in definition.properties -%}
+      {% if prop.type == "object" %}
+        {% set composedPropName %}{{ definitionName }}{{ propName | capitalizeFirst }}{% endset %}
+        {{ defineObject(composedPropName, prop, strictInterfaces) }}
+      {% endif %}
+    {% endfor %}
+
+    {% if definition.additionalProperties %}
+      // additional attributes
+      {% if definition.additionalProperties == true -%}
+        {% set typedef %}t.dictionary(t.string, t.any, "{{ definitionName }}"){% endset %}
+      {% else %}
+        {% set typedef %}t.dictionary(t.string,
+          {{ defineObjectProperty(false, definition.additionalProperties) }} "{{ definitionName }}")
+        {% endset %}
+      {%- endif %}
+      {% set defaultValue = definition.default | dump | safe if definition.default else undefined %}
+      export const {{ definitionName }} = {{ inlineConst(defaultValue, definitionName, typedef, false) }};
+    {% else %}
+      // required attributes
+      const {{ definitionName }}R = t.interface({
+      {% for propName, prop in definition.properties -%}
+        {% if definition.required and (definition.required | contains(propName)) %}
+          {{ defineObjectProperty(propName, prop, definitionName) }}
+        {% endif %}
+      {% endfor %}
+      });
+
+      // optional attributes
+      const {{ definitionName }}O = t.partial({
+      {% for propName, prop in definition.properties -%}
+        {% if (not definition.required) or (definition.required and not (definition.required | contains(propName))) %}
+          {{ defineObjectProperty(propName, prop, definitionName) }}
+        {% endif %}
+      {% endfor %}
+      });
+
+      export const {{ definitionName }} = {% if strictInterfaces %}t.exact({% endif %}
+        t.intersection(
+        [
+          {{ definitionName }}R,
+          {{ definitionName }}O
+        ],
+        "{{ definitionName }}"
+      ) {% if strictInterfaces %}){% endif %};
+    {% endif %}
+
+    export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+
+  {% elif definition.allOf and not definition["x-one-of"] %}
+
+    {{- 'import * as t from "io-ts";' | addImport -}}
+
+    {% for schema in definition.allOf -%}
+      {% if schema.type == "object" %}
+        {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
+      {% elif schema.$ref %}
+        {%- set realPropName = schema.$ref | replace("#/components/schemas/", "") -%}
+        {{ importLocalProp(realPropName) }}
+      {% endif %}
+    {% endfor %}
+
+    export const {{ definitionName }} =
+      t.intersection([
+        {% for schema in definition.allOf -%}
+          {% if schema.type == "object" %}
+            {{ definitionName + loop.index }},
+          {% elif schema.$ref %}
+            {{ schema.$ref | replace("#/components/schemas/", "") }},
+          {% endif %}
+        {% endfor %}
+      ],
+      "{{ definitionName }}"
+    );
+
+    export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+
+  {# When using the custom property "x-one-of" allOf behaves like oneOf #}
+  {# Needed to support swagger specs 2.0 that don't support oneOf #}
+  {% elif definition.oneOf or (definition["x-one-of"] and definition.allOf) %}
+    {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
+
+    {{- 'import * as t from "io-ts";' | addImport -}}
+
+    {% for schema in oneOfProps -%}
+      {% if schema.type == "object" %}
+        {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
+      {% elif schema.$ref %}
+        {%- set realPropName = schema.$ref | replace("#/components/schemas/", "") -%}
+        {{ importLocalProp(realPropName) }}
+      {% endif %}
+    {% endfor %}
+
+    export const {{ definitionName }} =
+      t.union([
+        {% for schema in oneOfProps -%}
+          {% if schema.type == "object" %}
+            {{ definitionName + loop.index }},
+          {% elif schema.$ref %}
+            {{ schema.$ref | replace("#/components/schemas/", "") }},
+          {% endif %}
+        {% endfor %}
+      ],
+      "{{ definitionName }}"
+    );
+
+    export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+
+  {% elif definition.type == "number" %}
+
+    {{ defineNumber(definitionName, definition) }}
+
+  {% elif definition.type == "integer" %}
+
+    {{ defineInteger(definitionName, definition) }}
+
+  {% elif definition.type == "string" %}
+
+    {{ defineString(definitionName, definition) }}
+
+  {% elif definition.type == "boolean" %}
+
+    {{ defineBoolean(definitionName, definition) }}
+
+  {% elif definition.type == "array" %}
+
+    {{ defineArray(definitionName, definition) }}
+
+  {% else %}
+
+    // TODO: generate model for definition "{{ definitionName }}: {{ prop.type }}"
+
+  {% endif %}
+{% endmacro -%}

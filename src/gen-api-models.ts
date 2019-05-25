@@ -14,16 +14,16 @@ import {
 } from "swagger-schema-official";
 
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
-
 function renderAsync(
   env: nunjucks.Environment,
   definition: Schema,
   definitionName: string,
-  strictInterfaces: boolean
+  strictInterfaces: boolean,
+  model: string,
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
-      "model.ts.njk",
+      model,
       {
         definition,
         definitionName,
@@ -43,13 +43,15 @@ export async function renderDefinitionCode(
   env: nunjucks.Environment,
   definitionName: string,
   definition: Schema,
-  strictInterfaces: boolean
+  strictInterfaces: boolean,
+  model: string,
 ): Promise<string> {
   const code = await renderAsync(
     env,
     definition,
     definitionName,
-    strictInterfaces
+    strictInterfaces,
+    model,
   );
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
@@ -135,7 +137,7 @@ export function renderOperation(
       if (refInParam === undefined) {
         console.warn(
           `Skipping param without ref in operation [${operationId}] [${
-            param.name
+          param.name
           }]`
         );
         return;
@@ -172,7 +174,7 @@ export function renderOperation(
 
       const paramName = `${uncapitalize(parsedRef.e2)}${
         isParamRequired ? "" : "?"
-      }`;
+        }`;
 
       params[paramName] = paramType;
       if (refType === "definition") {
@@ -183,11 +185,11 @@ export function renderOperation(
 
   const authHeadersAndParams = operation.security
     ? getAuthHeaders(
-        securityDefinitions,
-        operation.security
-          .map(_ => Object.keys(_)[0])
-          .filter(_ => _ !== undefined)
-      )
+      securityDefinitions,
+      operation.security
+        .map(_ => Object.keys(_)[0])
+        .filter(_ => _ !== undefined)
+    )
     : [];
 
   const authParams: { [k: string]: string } = {};
@@ -238,19 +240,19 @@ export function renderOperation(
       ? `
         // Decodes the success response with a custom success type
         export function ${operationId}Decoder<A, O>(type: t.Type<A, O>) { return ` +
-        responses.reduce((acc, r) => {
-          const d = getDecoderForResponse(
-            r.e1,
-            successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
-          );
-          return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
-        }, "") +
-        `; }
+      responses.reduce((acc, r) => {
+        const d = getDecoderForResponse(
+          r.e1,
+          successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
+        );
+        return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
+      }, "") +
+      `; }
 
         // Decodes the success response with the type defined in the specs
         export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(${
-          successType.e2 === "undefined" ? "t.undefined" : successType.e2
-        });`
+      successType.e2 === "undefined" ? "t.undefined" : successType.e2
+      });`
       : "";
 
   const code =
@@ -279,12 +281,12 @@ function getAuthHeaders(
   const securityDefs =
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
-        // security items mapped to their securityDefinitions definitions.
-        securityKeys.map(k => Tuple2(k, securityDefinitions[k as string]))
+      // security items mapped to their securityDefinitions definitions.
+      securityKeys.map(k => Tuple2(k, securityDefinitions[k as string]))
       : securityDefinitions !== undefined
         ? Object.keys(securityDefinitions).map(k =>
-            Tuple2(k, securityDefinitions[k])
-          )
+          Tuple2(k, securityDefinitions[k])
+        )
         : [];
 
   return securityDefs
@@ -305,8 +307,17 @@ export async function generateApi(
   generateResponseDecoders: boolean
 ): Promise<void> {
   const api: Spec = await SwaggerParser.bundle(specFilePath);
+  
+    let model: string;
+    if(api.swagger){
+      model = "model-swagger.ts.njk";
+    } 
 
-  const specCode = `
+    if(api.openapi){
+      model = "model-oas3.ts.njk";
+    }
+
+    const specCode = `
     /* tslint:disable:object-literal-sort-keys */
     /* tslint:disable:no-duplicate-string */
 
@@ -340,7 +351,8 @@ export async function generateApi(
         env,
         definitionName,
         definition,
-        strictInterfaces
+        strictInterfaces,
+        model
       );
       await fs.writeFile(outPath, code);
     }
@@ -350,8 +362,8 @@ export async function generateApi(
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
       ? getAuthHeaders(api.securityDefinitions, api.security
-          .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
-          .filter(_ => _ !== undefined) as ReadonlyArray<string>)
+        .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+        .filter(_ => _ !== undefined) as ReadonlyArray<string>)
       : [];
 
     const operationsTypes = Object.keys(api.paths).map(path => {
@@ -363,7 +375,7 @@ export async function generateApi(
           if (paramType) {
             const paramName = `${param.name}${
               param.required === true ? "" : "?"
-            }`;
+              }`;
             extraParameters[paramName] = specTypeToTs(paramType);
           }
         });
