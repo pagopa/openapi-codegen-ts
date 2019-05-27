@@ -309,11 +309,12 @@ export async function generateApi(
   const api: Spec = await SwaggerParser.bundle(specFilePath);
   
     let model: string;
-    if(api.swagger){
+
+    if(api.hasOwnProperty("swagger")){
       model = "model-swagger.ts.njk";
     } 
 
-    if(api.openapi){
+    if(api.hasOwnProperty("openapi")){
       model = "model-oas3.ts.njk";
     }
 
