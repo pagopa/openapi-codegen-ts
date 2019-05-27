@@ -436,7 +436,7 @@ export async function generateApi(
       // tslint:disable:max-union-size
       // tslint:disable:no-identical-functions
 
-      import * as t from "io-ts";
+      ${generateResponseDecoders ? 'import * as t from "io-ts";' : ""}
 
       import * as r from "italia-ts-commons/lib/requests";
 
