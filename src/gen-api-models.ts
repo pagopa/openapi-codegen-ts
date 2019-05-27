@@ -74,8 +74,8 @@ function typeFromRef(
       parts[1] === "definitions"
         ? "definition"
         : parts[1] === "parameters"
-          ? "parameter"
-          : "other";
+        ? "parameter"
+        : "other";
     return Tuple2(refType, parts[2]);
   }
   return undefined;
@@ -155,8 +155,8 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-            ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
-            : undefined;
+          ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
+          : undefined;
 
       if (paramType === undefined) {
         console.warn(`Cannot resolve parameter ${parsedRef.e2}`);
@@ -167,8 +167,8 @@ export function renderOperation(
         refType === "definition"
           ? param.required === true
           : specParameters
-            ? specParameters[parsedRef.e2].required
-            : false;
+          ? specParameters[parsedRef.e2].required
+          : false;
 
       const paramName = `${uncapitalize(parsedRef.e2)}${
         isParamRequired ? "" : "?"
@@ -221,8 +221,8 @@ export function renderOperation(
     const responseType = parsedRef
       ? parsedRef.e2
       : responseStatus === "200"
-        ? defaultSuccessType
-        : defaultErrorType;
+      ? defaultSuccessType
+      : defaultErrorType;
     return Tuple2(responseStatus, responseType);
   });
 
@@ -282,10 +282,10 @@ function getAuthHeaders(
         // security items mapped to their securityDefinitions definitions.
         securityKeys.map(k => Tuple2(k, securityDefinitions[k as string]))
       : securityDefinitions !== undefined
-        ? Object.keys(securityDefinitions).map(k =>
-            Tuple2(k, securityDefinitions[k])
-          )
-        : [];
+      ? Object.keys(securityDefinitions).map(k =>
+          Tuple2(k, securityDefinitions[k])
+        )
+      : [];
 
   return securityDefs
     .filter(_ => _.e2 !== undefined)
@@ -382,14 +382,14 @@ export async function generateApi(
           method === "get"
             ? pathSpec.get
             : method === "post"
-              ? pathSpec.post
-              : method === "put"
-                ? pathSpec.put
-                : method === "head"
-                  ? pathSpec.head
-                  : method === "delete"
-                    ? pathSpec.delete
-                    : undefined;
+            ? pathSpec.post
+            : method === "put"
+            ? pathSpec.put
+            : method === "head"
+            ? pathSpec.head
+            : method === "delete"
+            ? pathSpec.delete
+            : undefined;
         if (operation === undefined) {
           console.warn(`Skipping unsupported method [${method}]`);
           return;
