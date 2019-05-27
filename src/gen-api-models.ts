@@ -76,8 +76,8 @@ function typeFromRef(
       parts[1] === "definitions"
         ? "definition"
         : parts[1] === "parameters"
-          ? "parameter"
-          : "other";
+        ? "parameter"
+        : "other";
     return Tuple2(refType, parts[2]);
   }
   return undefined;
@@ -157,8 +157,8 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-            ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
-            : undefined;
+          ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
+          : undefined;
 
       if (paramType === undefined) {
         console.warn(`Cannot resolve parameter ${parsedRef.e2}`);
@@ -169,8 +169,8 @@ export function renderOperation(
         refType === "definition"
           ? param.required === true
           : specParameters
-            ? specParameters[parsedRef.e2].required
-            : false;
+          ? specParameters[parsedRef.e2].required
+          : false;
 
       const paramName = `${uncapitalize(parsedRef.e2)}${
         isParamRequired ? "" : "?"
@@ -223,8 +223,8 @@ export function renderOperation(
     const responseType = parsedRef
       ? parsedRef.e2
       : responseStatus === "200"
-        ? defaultSuccessType
-        : defaultErrorType;
+      ? defaultSuccessType
+      : defaultErrorType;
     return Tuple2(responseStatus, responseType);
   });
 
@@ -395,14 +395,14 @@ export async function generateApi(
           method === "get"
             ? pathSpec.get
             : method === "post"
-              ? pathSpec.post
-              : method === "put"
-                ? pathSpec.put
-                : method === "head"
-                  ? pathSpec.head
-                  : method === "delete"
-                    ? pathSpec.delete
-                    : undefined;
+            ? pathSpec.post
+            : method === "put"
+            ? pathSpec.put
+            : method === "head"
+            ? pathSpec.head
+            : method === "delete"
+            ? pathSpec.delete
+            : undefined;
         if (operation === undefined) {
           console.warn(`Skipping unsupported method [${method}]`);
           return;
@@ -449,7 +449,7 @@ export async function generateApi(
       // tslint:disable:max-union-size
       // tslint:disable:no-identical-functions
 
-      import * as t from "io-ts";
+      ${generateResponseDecoders ? 'import * as t from "io-ts";' : ""}
 
       import * as r from "italia-ts-commons/lib/requests";
 
