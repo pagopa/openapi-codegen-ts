@@ -308,7 +308,7 @@ export async function generateApi(
 ): Promise<void> {
   const api: Spec = await SwaggerParser.bundle(specFilePath);
   
-    let model: string;
+    let model:string = "";
 
     if(api.hasOwnProperty("swagger")){
       model = "model-swagger.ts.njk";
