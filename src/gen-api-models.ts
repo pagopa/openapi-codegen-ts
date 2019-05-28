@@ -99,7 +99,8 @@ function getDecoderForResponse(status: string, type: string): string {
     case "Error":
       return `r.basicErrorResponseDecoder<${status}>(${status})`;
     default:
-      return `r.ioResponseDecoder<${status}, (typeof ${type})["_A"], (typeof ${type})["_O"]>(${status}, ${type})`;
+      const decoderType = status === "200" ? type : `t.${type.toLowerCase()}`;
+      return `r.ioResponseDecoder<${status}, (typeof ${decoderType})["_A"], (typeof ${decoderType})["_O"]>(${status}, ${decoderType})`;
   }
 }
 
