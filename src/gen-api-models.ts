@@ -99,6 +99,9 @@ function getDecoderForResponse(status: string, type: string): string {
     case "Error":
       return `r.basicErrorResponseDecoder<${status}>(${status})`;
     default:
+      // if the status === 200 decoderType will be type
+      // otherwise (handling an error) decoderType can be undefined or defined by command line (--default-error-type)
+      // in that cases we will use the io-ts decoders/combinators (https://github.com/gcanti/io-ts#implemented-types--combinators)
       const decoderType = status === "200" ? type : `t.${type.toLowerCase()}`;
       return `r.ioResponseDecoder<${status}, (typeof ${decoderType})["_A"], (typeof ${decoderType})["_O"]>(${status}, ${decoderType})`;
   }
