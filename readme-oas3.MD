@@ -12,15 +12,15 @@ the current version of the [`swagger-schema-official 2.0`](https://github.com/De
 ## To support OAS3 we identified those strategies:
 
 ### strategy 1
-Create schema for oas3:
+Create TypeScript schema like 'swagger-schema-official' for oas3:
 
 - pro
 
-Control of updating, editing.
+I have total control of updating, editing and other.
 
 - cons
 
-Maintenance.
+It is necessary to maintain the security etc...
 
 ### strategy 2
 Use of other external dependencies:
