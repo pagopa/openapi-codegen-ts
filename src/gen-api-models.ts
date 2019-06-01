@@ -69,8 +69,8 @@ function typeFromRef(
       parts[1] === "definitions"
         ? "definition"
         : parts[1] === "parameters"
-        ? "parameter"
-        : "other";
+          ? "parameter"
+          : "other";
     return Tuple2(refType, parts[2]);
   }
   return undefined;
@@ -164,8 +164,8 @@ export function renderOperation(
         refType === "definition"
           ? param.required === true
           : specParameters
-          ? specParameters[parsedRef.e2].required
-          : false;
+            ? specParameters[parsedRef.e2].required
+            : false;
 
       const paramName = `${uncapitalize(parsedRef.e2)}${
         isParamRequired ? "" : "?"
@@ -218,8 +218,8 @@ export function renderOperation(
     const responseType = parsedRef
       ? parsedRef.e2
       : responseStatus === "200"
-      ? defaultSuccessType
-      : defaultErrorType;
+        ? defaultSuccessType
+        : defaultErrorType;
     return Tuple2(responseStatus, responseType);
   });
 
@@ -296,6 +296,23 @@ export function isOpenAPIV2(
   return specs.hasOwnProperty("swagger");
 }
 
+function detectVersion(api: any) {
+
+  let model: string = "";
+  let definition: any;
+  if (api.hasOwnProperty("swagger")) {
+    model = "model-swagger.ts.njk";
+    definition = api.definitions;
+  }
+
+  if (api.hasOwnProperty("openapi")) {
+    model = "model-oas3.ts.njk";
+    definition = api.components.schemas;
+  }
+
+  return { model, definition };
+}
+
 export async function generateApi(
   env: nunjucks.Environment,
   specFilePath: string | OpenAPIV2.Document,
@@ -330,8 +347,8 @@ export async function generateApi(
       })
     );
   }
-
-  const definitions = api.definitions;
+  const model = version.model;
+  const definitions = version.definition;
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
@@ -397,14 +414,14 @@ export async function generateApi(
           method === "get"
             ? pathSpec.get
             : method === "post"
-            ? pathSpec.post
-            : method === "put"
-            ? pathSpec.put
-            : method === "head"
-            ? pathSpec.head
-            : method === "delete"
-            ? pathSpec.delete
-            : undefined;
+              ? pathSpec.post
+              : method === "put"
+                ? pathSpec.put
+                : method === "head"
+                  ? pathSpec.head
+                  : method === "delete"
+                    ? pathSpec.delete
+                    : undefined;
         if (operation === undefined) {
           console.warn(`Skipping unsupported method [${method}]`);
           return;
