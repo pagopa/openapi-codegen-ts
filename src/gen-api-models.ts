@@ -76,8 +76,8 @@ function typeFromRef(
       parts[1] === "definitions"
         ? "definition"
         : parts[1] === "parameters"
-        ? "parameter"
-        : "other";
+          ? "parameter"
+          : "other";
     return Tuple2(refType, parts[2]);
   }
   return undefined;
@@ -157,8 +157,8 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-          ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
-          : undefined;
+            ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
+            : undefined;
 
       if (paramType === undefined) {
         console.warn(`Cannot resolve parameter ${parsedRef.e2}`);
@@ -169,8 +169,8 @@ export function renderOperation(
         refType === "definition"
           ? param.required === true
           : specParameters
-          ? specParameters[parsedRef.e2].required
-          : false;
+            ? specParameters[parsedRef.e2].required
+            : false;
 
       const paramName = `${uncapitalize(parsedRef.e2)}${
         isParamRequired ? "" : "?"
@@ -223,8 +223,8 @@ export function renderOperation(
     const responseType = parsedRef
       ? parsedRef.e2
       : responseStatus === "200"
-      ? defaultSuccessType
-      : defaultErrorType;
+        ? defaultSuccessType
+        : defaultErrorType;
     return Tuple2(responseStatus, responseType);
   });
 
@@ -295,6 +295,23 @@ function getAuthHeaders(
     .map(_ => Tuple2(_.e1, (_.e2 as ApiKeySecurity).name));
 }
 
+function detectVersion(api: any) {
+
+  let model: string = "";
+  let definition: any;
+  if (api.hasOwnProperty("swagger")) {
+    model = "model-swagger.ts.njk";
+    definition = api.definitions;
+  }
+
+  if (api.hasOwnProperty("openapi")) {
+    model = "model-oas3.ts.njk";
+    definition = api.components.schemas;
+  }
+
+  return { model, definition };
+}
+
 export async function generateApi(
   env: nunjucks.Environment,
   specFilePath: string | Spec,
@@ -306,19 +323,11 @@ export async function generateApi(
   defaultErrorType: string,
   generateResponseDecoders: boolean
 ): Promise<void> {
-  const api: Spec = await SwaggerParser.bundle(specFilePath);
-  
-    let model:string = "";
+  const api: any = await SwaggerParser.bundle(specFilePath);
 
-    if(api.hasOwnProperty("swagger")){
-      model = "model-swagger.ts.njk";
-    } 
+  const version = detectVersion(api);
 
-    if(api.hasOwnProperty("openapi")){
-      model = "model-oas3.ts.njk";
-    }
-
-    const specCode = `
+  const specCode = `
     /* tslint:disable:object-literal-sort-keys */
     /* tslint:disable:no-duplicate-string */
 
@@ -336,8 +345,8 @@ export async function generateApi(
       })
     );
   }
-
-  const definitions = api.definitions;
+  const model = version.model;
+  const definitions = version.definition;
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
@@ -363,15 +372,15 @@ export async function generateApi(
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
       ? getAuthHeaders(api.securityDefinitions, api.security
-        .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
-        .filter(_ => _ !== undefined) as ReadonlyArray<string>)
+        .map((_: any) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+        .filter((_: any )=> _ !== undefined) as ReadonlyArray<string>)
       : [];
 
     const operationsTypes = Object.keys(api.paths).map(path => {
       const pathSpec = api.paths[path];
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
-        pathSpec.parameters.forEach(param => {
+        pathSpec.parameters.forEach((param: any) => {
           const paramType: string | undefined = (param as any).type;
           if (paramType) {
             const paramName = `${param.name}${
@@ -395,14 +404,14 @@ export async function generateApi(
           method === "get"
             ? pathSpec.get
             : method === "post"
-            ? pathSpec.post
-            : method === "put"
-            ? pathSpec.put
-            : method === "head"
-            ? pathSpec.head
-            : method === "delete"
-            ? pathSpec.delete
-            : undefined;
+              ? pathSpec.post
+              : method === "put"
+                ? pathSpec.put
+                : method === "head"
+                  ? pathSpec.head
+                  : method === "delete"
+                    ? pathSpec.delete
+                    : undefined;
         if (operation === undefined) {
           console.warn(`Skipping unsupported method [${method}]`);
           return;
