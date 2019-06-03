@@ -4,6 +4,7 @@ import * as SwaggerParser from "swagger-parser";
 import { Schema, Spec } from "swagger-schema-official";
 
 import {
+  detectVersion,
   initNunJucksEnvironment,
   renderDefinitionCode,
   renderOperation
@@ -13,8 +14,13 @@ const env = initNunJucksEnvironment();
 
 let spec;
 let model;
-beforeAll(async () =>
-  (spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`);model ="model-swagger.ts.njk"));
+
+beforeAll(
+  async () => (
+    (spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`)),
+    (model = "model-swagger.ts.njk")
+  )
+);
 
 describe("gen-api-models", () => {
   it("should not generate duplicate imports", async () => {
@@ -34,6 +40,12 @@ describe("gen-api-models", () => {
     );
     expect(code).toBeDefined();
     expect(code).toMatchSnapshot("dup-imports");
+  });
+
+  it("should handle version of specification", async () => {
+    const code = detectVersion(spec);
+    expect(code.model).toContain("model-swagger.ts.njk");
+    expect(code.definition).toBeDefined();
   });
 
   it("should handle WithinRangeStrings", async () => {
@@ -118,7 +130,7 @@ describe("gen-api-models", () => {
 
   it("should handle enums", async () => {
     const definition = spec.definitions.EnumTest;
-    const code = await renderDefinitionCode(env, "EnumTest", definition, false,model);
+    const code = await renderDefinitionCode(env, "EnumTest", definition, false, model);
     expect(code).toMatchSnapshot("enum-simple");
   });
 

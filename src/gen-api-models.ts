@@ -296,7 +296,7 @@ export function isOpenAPIV2(
   return specs.hasOwnProperty("swagger");
 }
 
-function detectVersion(api: any) {
+export function detectVersion(api: any) {
 
   let model: string = "";
   let definition: any;
