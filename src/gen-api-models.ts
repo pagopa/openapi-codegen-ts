@@ -295,7 +295,7 @@ function getAuthHeaders(
     .map(_ => Tuple2(_.e1, (_.e2 as ApiKeySecurity).name));
 }
 
-function detectVersion(api: any) {
+export function detectVersion(api: any) {
 
   let model: string = "";
   let definition: any;
@@ -373,7 +373,7 @@ export async function generateApi(
     const globalAuthHeaders = api.security
       ? getAuthHeaders(api.securityDefinitions, api.security
         .map((_: any) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
-        .filter((_: any )=> _ !== undefined) as ReadonlyArray<string>)
+        .filter((_: any) => _ !== undefined) as ReadonlyArray<string>)
       : [];
 
     const operationsTypes = Object.keys(api.paths).map(path => {

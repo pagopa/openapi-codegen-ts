@@ -4,6 +4,7 @@ import * as SwaggerParser from "swagger-parser";
 import { Schema, Spec } from "swagger-schema-official";
 
 import {
+  detectVersion,
   initNunJucksEnvironment,
   renderDefinitionCode,
   renderOperation
@@ -14,7 +15,10 @@ const env = initNunJucksEnvironment();
 let spec;
 let model;
 beforeAll(
-  async () => (spec = await SwaggerParser.bundle(`${__dirname}/api_oas3.yaml`);  model = "model-oas3.ts.njk")
+  async () => (
+    (spec = await SwaggerParser.bundle(`${__dirname}/api_oas3.yaml`)),
+    (model = "model-oas3.ts.njk")
+  )
 );
 
 describe("gen-api-models", () => {
@@ -31,10 +35,16 @@ describe("gen-api-models", () => {
       "Profile",
       profileDefinition,
       false,
-     model
+      model
     );
     expect(code).toBeDefined();
     expect(code).toMatchSnapshot("dup-imports");
+  });
+
+  it("should handle version of specification", async () => {
+    const code = detectVersion(spec);
+    expect(code.model).toContain("model-oas3.ts.njk");
+    expect(code.definition).toBeDefined();
   });
 
   it("should handle WithinRangeStrings", async () => {
@@ -44,7 +54,7 @@ describe("gen-api-models", () => {
       "WithinRangeStringTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("WithinRangeString(10, 11)");
     expect(code).toMatchSnapshot("within-range-strings");
@@ -57,7 +67,7 @@ describe("gen-api-models", () => {
       "NonNegativeNumberTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("NonNegativeNumber");
     expect(code).toMatchSnapshot("non-negative-numbers");
@@ -70,7 +80,7 @@ describe("gen-api-models", () => {
       "NonNegativeIntegerTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("NonNegativeInteger");
     expect(code).toMatchSnapshot("non-negative-integer");
@@ -83,7 +93,7 @@ describe("gen-api-models", () => {
       "WithinRangeNumberTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("WithinRangeNumber");
     expect(code).toMatchSnapshot("within-range-numbers");
@@ -96,7 +106,7 @@ describe("gen-api-models", () => {
       "WithinRangeIntegerTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("WithinRangeInteger");
     expect(code).toMatchSnapshot("within-range-integer");
@@ -109,7 +119,7 @@ describe("gen-api-models", () => {
       "CustomStringFormatTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain(
       "import { SomeCustomStringType as SomeCustomStringTypeT }"
@@ -119,7 +129,7 @@ describe("gen-api-models", () => {
 
   it("should handle enums", async () => {
     const definition = spec.components.schemas.EnumTest;
-    const code = await renderDefinitionCode(env, "EnumTest", definition, false,model);
+    const code = await renderDefinitionCode(env, "EnumTest", definition, false, model);
     expect(code).toMatchSnapshot("enum-simple");
   });
 
@@ -130,7 +140,7 @@ describe("gen-api-models", () => {
       "AdditionalPropsTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("t.dictionary");
     expect(code).toMatchSnapshot("additional-properties");
@@ -143,7 +153,7 @@ describe("gen-api-models", () => {
       "AdditionalPropsTrueTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("t.dictionary");
     expect(code).toContain("t.any");
@@ -157,7 +167,7 @@ describe("gen-api-models", () => {
       "AdditionalpropsDefault",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("t.dictionary");
     expect(code).toContain("withDefault");
@@ -171,7 +181,7 @@ describe("gen-api-models", () => {
       "AllOfTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("t.intersection");
     expect(code).toContain("PaginationResponse");
@@ -185,7 +195,7 @@ describe("gen-api-models", () => {
       "OneOfTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("t.union");
     expect(code).toMatchSnapshot("oneof-test");
@@ -198,7 +208,7 @@ describe("gen-api-models", () => {
       "AllOfOneOfTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("t.union");
     expect(code).toContain("PaginationResponse");
@@ -212,7 +222,7 @@ describe("gen-api-models", () => {
       "InlinePropertyTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("PatternString");
     expect(code).toMatchSnapshot("inline-property");
@@ -225,7 +235,7 @@ describe("gen-api-models", () => {
       "NestedObjectTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("t.TypeOf<typeof NestedObjectTest>");
     expect(code).toMatchSnapshot("nested-object");
@@ -238,7 +248,7 @@ describe("gen-api-models", () => {
       "OrganizationFiscalCode",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain(
       "import { OrganizationFiscalCode as OrganizationFiscalCodeT }"
@@ -252,7 +262,7 @@ describe("gen-api-models", () => {
       "OrganizationFiscalCodeTest",
       definition,
       false,
-     model
+      model
     );
     expect(code).toContain("OrganizationFiscalCodeTest");
     expect(code).toMatchSnapshot("defined-type");
