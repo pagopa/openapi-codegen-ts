@@ -299,17 +299,20 @@ export function detectVersion(api: any) {
 
   let model: string = "";
   let definition: any;
+  let security: any;
   if (api.hasOwnProperty("swagger")) {
     model = "model-swagger.ts.njk";
     definition = api.definitions;
+    security = api.securityDefinitions;
   }
 
   if (api.hasOwnProperty("openapi")) {
     model = "model-oas3.ts.njk";
     definition = api.components.schemas;
+    security = api.components.securitySchemes;
   }
 
-  return { model, definition };
+  return { model, definition, security };
 }
 
 export async function generateApi(
@@ -347,6 +350,7 @@ export async function generateApi(
   }
   const model = version.model;
   const definitions = version.definition;
+  const securityDefinitions = version.security;
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
@@ -371,7 +375,7 @@ export async function generateApi(
   if (generateRequestTypes || generateResponseDecoders) {
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
-      ? getAuthHeaders(api.securityDefinitions, api.security
+      ? getAuthHeaders(securityDefinitions, api.security
         .map((_: any) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
         .filter((_: any) => _ !== undefined) as ReadonlyArray<string>)
       : [];
@@ -427,7 +431,7 @@ export async function generateApi(
           operationId,
           operation,
           api.parameters,
-          api.securityDefinitions,
+          securityDefinitions,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
           defaultSuccessType,
