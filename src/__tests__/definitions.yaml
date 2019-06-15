@@ -51,12 +51,7 @@ CreatedMessageWithContent:
     time_to_live:
       $ref: "#/TimeToLiveSeconds"
     created_at:
-      Timestamp:
-        type: string
-        format: UTCISODateFromString
-        description: A date-time field in ISO-8601 format and UTC timezone.
-        x-import: italia-ts-commons/lib/dates
-        example: "2018-10-13T00:00:00.000Z"
+      $ref: "#/Timestamp"
     content:
       $ref: "#/MessageContent"
     sender_service_id:
