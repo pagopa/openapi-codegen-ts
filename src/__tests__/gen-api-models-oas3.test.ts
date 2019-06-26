@@ -12,8 +12,8 @@ import {
 
 const env = initNunJucksEnvironment();
 
-let spec;
-let model;
+let spec: any;
+let model: string;
 beforeAll(
   async () => (
     (spec = await SwaggerParser.bundle(`${__dirname}/api_oas3.yaml`)),
