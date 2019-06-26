@@ -3,6 +3,7 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
+import { OpenAPI } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 import {
@@ -323,7 +324,7 @@ export async function generateApi(
   defaultErrorType: string,
   generateResponseDecoders: boolean
 ): Promise<void> {
-  const api: any = await SwaggerParser.bundle(specFilePath);
+  const api: OpenAPI.Document | any = await SwaggerParser.bundle(specFilePath);
 
   const detectedSpecVersion = detectVersion(api);
   const specCode = `

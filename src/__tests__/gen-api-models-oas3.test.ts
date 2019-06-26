@@ -1,7 +1,6 @@
 /* tslint:disable:no-duplicate-string */
 
 import * as SwaggerParser from "swagger-parser";
-import { Schema, Spec } from "swagger-schema-official";
 
 import {
   detectVersion,
