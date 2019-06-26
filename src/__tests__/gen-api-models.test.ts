@@ -45,7 +45,7 @@ describe("gen-api-models", () => {
   it("should handle version of specification", async () => {
     const code = detectVersion(spec);
     expect(code.model).toContain("model-swagger.ts.njk");
-    expect(code.definition).toBeDefined();
+    expect(code.definitions).toBeDefined();
   });
 
   it("should handle WithinRangeStrings", async () => {
