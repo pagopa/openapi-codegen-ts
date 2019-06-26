@@ -300,7 +300,15 @@ export function detectVersion(api: any) {
   let model: string = "";
   let definition: any;
   let security: any;
-  if (api.hasOwnProperty("swagger")) {
+  return api.hasOwnProperty("swagger") ? {
+    model: "model-swagger.ts.njk",
+    definition: api.definitions,
+    security: api.securityDefinitions
+  } : api.hasOwnProperty("openapi") ? {
+    model: "model-oas3.ts.njk",
+    definition: api.components.schemas,
+    security: api.components.securitySchemes
+  } : undefined
     model = "model-swagger.ts.njk";
     definition = api.definitions;
     security = api.securityDefinitions;
