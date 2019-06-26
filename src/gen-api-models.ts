@@ -19,7 +19,7 @@ function renderAsync(
   definition: Schema,
   definitionName: string,
   strictInterfaces: boolean,
-  model: string,
+  model: string
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
@@ -44,14 +44,14 @@ export async function renderDefinitionCode(
   definitionName: string,
   definition: Schema,
   strictInterfaces: boolean,
-  model: string,
+  model: string
 ): Promise<string> {
   const code = await renderAsync(
     env,
     definition,
     definitionName,
     strictInterfaces,
-    model,
+    model
   );
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
@@ -297,30 +297,19 @@ function getAuthHeaders(
 
 export function detectVersion(api: any) {
 
-  let model: string = "";
-  let definition: any;
-  let security: any;
-  return api.hasOwnProperty("swagger") ? {
-    model: "model-swagger.ts.njk",
-    definition: api.definitions,
-    security: api.securityDefinitions
-  } : api.hasOwnProperty("openapi") ? {
-    model: "model-oas3.ts.njk",
-    definition: api.components.schemas,
-    security: api.components.securitySchemes
-  } : undefined
-    model = "model-swagger.ts.njk";
-    definition = api.definitions;
-    security = api.securityDefinitions;
-  }
-
-  if (api.hasOwnProperty("openapi")) {
-    model = "model-oas3.ts.njk";
-    definition = api.components.schemas;
-    security = api.components.securitySchemes;
-  }
-
-  return { model, definition, security };
+  return api.hasOwnProperty("swagger")
+    ? {
+      model: "model-swagger.ts.njk",
+      definitions: api.definitions,
+      securityDefinitions: api.securityDefinitions
+    }
+    : api.hasOwnProperty("openapi")
+      ? {
+        model: "model-oas3.ts.njk",
+        definitions: api.components.schemas,
+        securityDefinitions: api.components.securitySchemes
+      }
+    : { model: "", definitions: undefined, securityDefinitions: undefined };
 }
 
 export async function generateApi(
@@ -336,8 +325,7 @@ export async function generateApi(
 ): Promise<void> {
   const api: any = await SwaggerParser.bundle(specFilePath);
 
-  const version = detectVersion(api);
-
+  const detectedSpecVersion = detectVersion(api);
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */
     /* tslint:disable:no-duplicate-string */
@@ -356,9 +344,8 @@ export async function generateApi(
       })
     );
   }
-  const model = version.model;
-  const definitions = version.definition;
-  const securityDefinitions = version.security;
+  const { model, definitions, securityDefinitions } = detectedSpecVersion;
+
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
@@ -384,7 +371,9 @@ export async function generateApi(
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
       ? getAuthHeaders(securityDefinitions, api.security
-        .map((_: any) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+        .map((_: any) =>
+          Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined
+        )
         .filter((_: any) => _ !== undefined) as ReadonlyArray<string>)
       : [];
 
