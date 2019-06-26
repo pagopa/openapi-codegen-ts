@@ -13,7 +13,7 @@ function renderAsync(
   definition: OpenAPIV2.DefinitionsObject,
   definitionName: string,
   strictInterfaces: boolean,
-  model: string,
+  model: string
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
@@ -44,7 +44,7 @@ export async function renderDefinitionCode(
     definition,
     definitionName,
     strictInterfaces,
-    model,
+    model
   );
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
@@ -298,30 +298,19 @@ export function isOpenAPIV2(
 
 export function detectVersion(api: any) {
 
-  let model: string = "";
-  let definition: any;
-  let security: any;
-  return api.hasOwnProperty("swagger") ? {
-    model: "model-swagger.ts.njk",
-    definition: api.definitions,
-    security: api.securityDefinitions
-  } : api.hasOwnProperty("openapi") ? {
-    model: "model-oas3.ts.njk",
-    definition: api.components.schemas,
-    security: api.components.securitySchemes
-  } : undefined
-    model = "model-swagger.ts.njk";
-    definition = api.definitions;
-    security = api.securityDefinitions;
-  }
-
-  if (api.hasOwnProperty("openapi")) {
-    model = "model-oas3.ts.njk";
-    definition = api.components.schemas;
-    security = api.components.securitySchemes;
-  }
-
-  return { model, definition, security };
+  return api.hasOwnProperty("swagger")
+    ? {
+      model: "model-swagger.ts.njk",
+      definitions: api.definitions,
+      securityDefinitions: api.securityDefinitions
+    }
+    : api.hasOwnProperty("openapi")
+      ? {
+        model: "model-oas3.ts.njk",
+        definitions: api.components.schemas,
+        securityDefinitions: api.components.securitySchemes
+      }
+    : { model: "", definitions: undefined, securityDefinitions: undefined };
 }
 
 export async function generateApi(
@@ -358,9 +347,8 @@ export async function generateApi(
       })
     );
   }
-  const model = version.model;
-  const definitions = version.definition;
-  const securityDefinitions = version.security;
+  const { model, definitions, securityDefinitions } = detectedSpecVersion;
+
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
