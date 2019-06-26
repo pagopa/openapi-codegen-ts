@@ -314,7 +314,7 @@ export function detectVersion(api: any) {
 
 export async function generateApi(
   env: nunjucks.Environment,
-  specFilePath: string | Spec,
+  specFilePath: string,
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined,
   strictInterfaces: boolean,

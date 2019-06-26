@@ -12,8 +12,8 @@ import {
 
 const env = initNunJucksEnvironment();
 
-let spec;
-let model;
+let spec: any;
+let model: string;
 
 beforeAll(
   async () => (
