@@ -310,7 +310,7 @@ export function detectVersion(api: any) {
         definitions: api.components.schemas,
         securityDefinitions: api.components.securitySchemes
       }
-    : { model: "", definitions: undefined, securityDefinitions: undefined };
+      : { model: "", definitions: undefined, securityDefinitions: undefined };
 }
 
 export async function generateApi(
