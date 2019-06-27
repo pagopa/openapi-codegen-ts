@@ -188,7 +188,7 @@ export function renderOperation(
     ? getAuthHeaders(
       securityDefinitions,
       operation.security
-        .map(_ => Object.keys(_)[0])
+          .map(_ => Object.keys(_)[0])
         .filter(_ => _ !== undefined)
     )
     : [];
@@ -310,7 +310,7 @@ export function detectVersion(api: any) {
         definitions: api.components.schemas,
         securityDefinitions: api.components.securitySchemes
       }
-    : { model: "", definitions: undefined, securityDefinitions: undefined };
+      : { model: "", definitions: undefined, securityDefinitions: undefined };
 }
 
 export async function generateApi(
