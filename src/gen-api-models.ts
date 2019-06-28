@@ -3,21 +3,15 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
+import { OpenAPIV2, OpenAPIV3, OpenAPI } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
-import {
-  ApiKeySecurity,
-  Operation,
-  Parameter,
-  Schema,
-  Spec
-} from "swagger-schema-official";
 
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 
 function renderAsync(
   env: nunjucks.Environment,
-  definition: Schema,
+  definition: OpenAPIV2.DefinitionsObject,
   definitionName: string,
   strictInterfaces: boolean
 ): Promise<string> {
@@ -42,7 +36,7 @@ function renderAsync(
 export async function renderDefinitionCode(
   env: nunjucks.Environment,
   definitionName: string,
-  definition: Schema,
+  definition: OpenAPIV2.DefinitionsObject,
   strictInterfaces: boolean
 ): Promise<string> {
   const code = await renderAsync(
@@ -106,9 +100,9 @@ function getDecoderForResponse(status: string, type: string): string {
 export function renderOperation(
   method: string,
   operationId: string,
-  operation: Operation,
-  specParameters: Spec["parameters"],
-  securityDefinitions: Spec["securityDefinitions"],
+  operation: OpenAPIV2.OperationObject,
+  specParameters: OpenAPIV2.Parameter,
+  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
   defaultSuccessType: string,
@@ -119,7 +113,8 @@ export function renderOperation(
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
-    operation.parameters.forEach(param => {
+    operation.parameters.forEach((param: any) => {
+// tslint:disable-next-line: no-any
       if (param.name && (param as any).type) {
         // The parameter description is inline
         const isRequired = param.required === true;
@@ -185,7 +180,7 @@ export function renderOperation(
     ? getAuthHeaders(
         securityDefinitions,
         operation.security
-          .map(_ => Object.keys(_)[0])
+          .map((_: {}) => Object.keys(_)[0])
           .filter(_ => _ !== undefined)
       )
     : [];
@@ -269,7 +264,7 @@ export function renderOperation(
 }
 
 function getAuthHeaders(
-  securityDefinitions: Spec["securityDefinitions"],
+  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
   securityKeys: ReadonlyArray<string>
 ): ReadonlyArray<ITuple2<string, string>> {
   if (securityKeys === undefined && securityDefinitions === undefined) {
@@ -289,13 +284,13 @@ function getAuthHeaders(
 
   return securityDefs
     .filter(_ => _.e2 !== undefined)
-    .filter(_ => (_.e2 as ApiKeySecurity).in === "header")
-    .map(_ => Tuple2(_.e1, (_.e2 as ApiKeySecurity).name));
+    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
+    .map(_ => Tuple2(_.e1, (_.e2 as OpenAPIV2.SecuritySchemeApiKey).name));
 }
 
 export async function generateApi(
   env: nunjucks.Environment,
-  specFilePath: string | Spec,
+  specFilePath: string | OpenAPIV2.Document,
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined,
   strictInterfaces: boolean,
@@ -304,7 +299,7 @@ export async function generateApi(
   defaultErrorType: string,
   generateResponseDecoders: boolean
 ): Promise<void> {
-  const api: Spec = await SwaggerParser.bundle(specFilePath);
+  const api: OpenAPI.Document = await SwaggerParser.bundle(specFilePath);
 
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */
@@ -325,7 +320,7 @@ export async function generateApi(
     );
   }
 
-  const definitions = api.definitions;
+  const definitions = (api as any).definitions;
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
@@ -349,16 +344,16 @@ export async function generateApi(
   if (generateRequestTypes || generateResponseDecoders) {
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
-      ? getAuthHeaders(api.securityDefinitions, api.security
-          .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
-          .filter(_ => _ !== undefined) as ReadonlyArray<string>)
+      ? getAuthHeaders((api as any).securityDefinitions, api.security
+          .map((_: {}) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+          .filter( _ => _ !== undefined) as ReadonlyArray<string>)
       : [];
 
     const operationsTypes = Object.keys(api.paths).map(path => {
       const pathSpec = api.paths[path];
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
-        pathSpec.parameters.forEach(param => {
+        pathSpec.parameters.forEach((param: { name: any; required: boolean; }) => {
           const paramType: string | undefined = (param as any).type;
           if (paramType) {
             const paramName = `${param.name}${
@@ -404,8 +399,8 @@ export async function generateApi(
           method,
           operationId,
           operation,
-          api.parameters,
-          api.securityDefinitions,
+          (api as any).parameters,
+          (api as any).securityDefinitions,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
           defaultSuccessType,
@@ -423,7 +418,7 @@ export async function generateApi(
             if (op === undefined) {
               return;
             }
-            op.e2.forEach(i => operationsImports.add(i));
+            op.e2.forEach((i: string) => operationsImports.add(i));
             return op.e1;
           })
           .join("\n")
