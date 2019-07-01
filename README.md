@@ -8,7 +8,7 @@ To add the tools to a project:
 ```
 $ yarn add -D italia-utils
 ```
-## OpenAPI 3.0 support
+## OpenAPI support
 
 The current strategy is to maintain backward compatibility.
 With the ability to accept the swagger and oas3 specifications, after automatically detecting the version of the specification.
