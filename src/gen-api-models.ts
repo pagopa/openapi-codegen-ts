@@ -3,21 +3,14 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
-import { OpenAPI } from "openapi-types";
+import { OpenAPIV2, OpenAPIV3, OpenAPI } from "openapi-types"; 
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
-import {
-  ApiKeySecurity,
-  Operation,
-  Parameter,
-  Schema,
-  Spec
-} from "swagger-schema-official";
 
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 function renderAsync(
   env: nunjucks.Environment,
-  definition: Schema,
+  definition: OpenAPIV2.DefinitionsObject,
   definitionName: string,
   strictInterfaces: boolean,
   model: string
@@ -43,7 +36,7 @@ function renderAsync(
 export async function renderDefinitionCode(
   env: nunjucks.Environment,
   definitionName: string,
-  definition: Schema,
+  definition: OpenAPIV2.DefinitionsObject,
   strictInterfaces: boolean,
   model: string
 ): Promise<string> {
@@ -109,9 +102,9 @@ function getDecoderForResponse(status: string, type: string): string {
 export function renderOperation(
   method: string,
   operationId: string,
-  operation: Operation,
-  specParameters: Spec["parameters"],
-  securityDefinitions: Spec["securityDefinitions"],
+  operation: OpenAPIV2.OperationObject,
+  specParameters: OpenAPIV2.Parameter,
+  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
   defaultSuccessType: string,
@@ -122,7 +115,7 @@ export function renderOperation(
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
-    operation.parameters.forEach(param => {
+    operation.parameters.forEach((param: any) => {
       if (param.name && (param as any).type) {
         // The parameter description is inline
         const isRequired = param.required === true;
@@ -272,7 +265,7 @@ export function renderOperation(
 }
 
 function getAuthHeaders(
-  securityDefinitions: Spec["securityDefinitions"],
+  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
   securityKeys: ReadonlyArray<string>
 ): ReadonlyArray<ITuple2<string, string>> {
   if (securityKeys === undefined && securityDefinitions === undefined) {
@@ -292,8 +285,8 @@ function getAuthHeaders(
 
   return securityDefs
     .filter(_ => _.e2 !== undefined)
-    .filter(_ => (_.e2 as ApiKeySecurity).in === "header")
-    .map(_ => Tuple2(_.e1, (_.e2 as ApiKeySecurity).name));
+    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
+    .map(_ => Tuple2(_.e1, (_.e2 as OpenAPIV2.SecuritySchemeApiKey).name));
 }
 
 export function detectVersion(api: any) {
@@ -324,7 +317,7 @@ export async function generateApi(
   defaultErrorType: string,
   generateResponseDecoders: boolean
 ): Promise<void> {
-  const api: OpenAPI.Document | any = await SwaggerParser.bundle(specFilePath);
+  const api: OpenAPI.Document = await SwaggerParser.bundle(specFilePath);
 
   const detectedSpecVersion = detectVersion(api);
   const specCode = `
@@ -428,7 +421,7 @@ export async function generateApi(
           method,
           operationId,
           operation,
-          api.parameters,
+          (api as any).parameters,
           securityDefinitions,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
