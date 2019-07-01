@@ -436,7 +436,7 @@ export async function generateApi(
           method,
           operationId,
           operation,
-          api.parameters,
+          (api as any).parameters,
           securityDefinitions,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
