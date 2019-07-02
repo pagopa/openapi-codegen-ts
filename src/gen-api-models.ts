@@ -130,10 +130,7 @@ export function renderOperation(
       const refInParam: string | undefined =
         param.$ref || (param.schema ? param.schema.$ref : undefined);
       if (refInParam === undefined) {
-        console.warn(
-          `Skipping param without ref in operation [${operationId}] [${
-          param.name
-          }]`
+        console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`
         );
         return;
       }
