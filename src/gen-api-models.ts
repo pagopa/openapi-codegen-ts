@@ -373,7 +373,7 @@ export async function generateApi(
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
         pathSpec.parameters.forEach((param: any) => {
-          const paramType: string | undefined = (param as any).type;
+          const paramType: string | undefined = param.type;
           if (paramType) {
             const paramName = `${param.name}${
               param.required === true ? "" : "?"
