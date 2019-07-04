@@ -263,7 +263,7 @@ export function renderOperation(
 }
 
 function getAuthHeaders(
-  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
+  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject | undefined,
   securityKeys: ReadonlyArray<string>
 ): ReadonlyArray<ITuple2<string, string>> {
   if (securityKeys === undefined && securityDefinitions === undefined) {
@@ -319,7 +319,7 @@ export async function generateApi(
     );
   }
 
-  const definitions = (api as any).definitions;
+  const definitions = (api as OpenAPIV2.Document).definitions;
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
@@ -343,7 +343,7 @@ export async function generateApi(
   if (generateRequestTypes || generateResponseDecoders) {
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
-      ? getAuthHeaders((api as any).securityDefinitions, api.security
+      ? getAuthHeaders((api as OpenAPIV2.Document).securityDefinitions, api.security
           .map((_: {}) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
           .filter( _ => _ !== undefined) as ReadonlyArray<string>)
       : [];
