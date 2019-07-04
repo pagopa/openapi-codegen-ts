@@ -3,7 +3,7 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
-import { OpenAPIV2, OpenAPIV3, OpenAPI } from "openapi-types";
+import { OpenAPIV2, OpenAPI } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 
