@@ -114,7 +114,6 @@ export function renderOperation(
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
     operation.parameters.forEach((param: any) => {
-// tslint:disable-next-line: no-any
       if (param.name && (param as any).type) {
         // The parameter description is inline
         const isRequired = param.required === true;
