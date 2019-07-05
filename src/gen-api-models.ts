@@ -345,7 +345,7 @@ export async function generateApi(
     const globalAuthHeaders = api.security
       ? getAuthHeaders((api as OpenAPIV2.Document).securityDefinitions, api.security
           .map((_: {}) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
-          .filter( _ => _ !== undefined) as ReadonlyArray<string>)
+          .filter(_ => _ !== undefined) as ReadonlyArray<string>)
       : [];
 
     const operationsTypes = Object.keys(api.paths).map(path => {
