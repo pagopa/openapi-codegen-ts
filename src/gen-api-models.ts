@@ -3,7 +3,7 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
-import { OpenAPIV2, OpenAPIV3, OpenAPI } from "openapi-types"; 
+import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 
@@ -103,7 +103,7 @@ export function renderOperation(
   method: string,
   operationId: string,
   operation: OpenAPIV2.OperationObject,
-  specParameters: OpenAPIV2.Parameter,
+  specParameters: OpenAPIV2.ParametersDefinitionsObject,
   securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
@@ -126,8 +126,7 @@ export function renderOperation(
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        param.$ref ||
-        (param.schema ? param.schema.$ref : undefined);
+        param.$ref || (param.schema ? param.schema.$ref : undefined);
       if (refInParam === undefined) {
         console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`
         );
