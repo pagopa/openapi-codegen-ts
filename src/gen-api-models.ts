@@ -113,19 +113,21 @@ export function renderOperation(
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
-    operation.parameters.forEach((param: any) => {
-      if (param.name && (param as any).type) {
+    const parameters = operation.parameters.map(
+      p => p as OpenAPIV2.ParameterObject
+    );
+    parameters.forEach(param => {
+      if (param.name && param.type) {
         // The parameter description is inline
         const isRequired = param.required === true;
         params[`${param.name}${isRequired ? "" : "?"}`] = specTypeToTs(
-          (param as any).type
+          param.type
         );
         return;
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        (param as any).$ref ||
-        ((param as any).schema ? (param as any).schema.$ref : undefined);
+        param.$ref || (param.schema ? param.schema.$ref : undefined);
       if (refInParam === undefined) {
         console.warn(
           `Skipping param without ref in operation [${operationId}] [${
@@ -149,7 +151,7 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-          ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
+          ? specTypeToTs(specParameters[parsedRef.e2].type)
           : undefined;
 
       if (paramType === undefined) {
