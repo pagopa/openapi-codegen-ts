@@ -179,7 +179,7 @@ export function renderOperation(
     ? getAuthHeaders(
         securityDefinitions,
         operation.security
-          .map((_: {}) => Object.keys(_)[0])
+          .map((_: OpenAPIV2.SecurityRequirementObject) => Object.keys(_)[0])
           .filter(_ => _ !== undefined)
       )
     : [];
