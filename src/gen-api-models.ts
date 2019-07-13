@@ -127,7 +127,8 @@ export function renderOperation(
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        param.$ref || (param.schema ? param.schema.$ref : undefined);
+        param.$ref ||
+        (param.schema ? param.schema.$ref : undefined);
       if (refInParam === undefined) {
         console.warn(
           `Skipping param without ref in operation [${operationId}] [${
@@ -354,14 +355,18 @@ export async function generateApi(
       const pathSpec = api.paths[path];
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
-        pathSpec.parameters.forEach((param: { name: any; required: boolean; }) => {
-          const paramType: string | undefined = (param as any).type;
-          if (paramType) {
-            const paramName = `${param.name}${
+        pathSpec.parameters.forEach((param: {
+            name: string;
+            required: boolean;
+            type: string | undefined;
+          }) => {
+            const paramType = param.type;
+            if (paramType) {
+              const paramName = `${param.name}${
               param.required === true ? "" : "?"
-            }`;
-            extraParameters[paramName] = specTypeToTs(paramType);
-          }
+              }`;
+              extraParameters[paramName] = specTypeToTs(paramType);
+            }
         });
       }
       // add global auth parameters to extraParameters
