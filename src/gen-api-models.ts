@@ -363,7 +363,7 @@ export async function generateApi(
             const paramType = param.type;
             if (paramType) {
               const paramName = `${param.name}${
-              param.required === true ? "" : "?"
+                param.required === true ? "" : "?"
               }`;
               extraParameters[paramName] = specTypeToTs(paramType);
             }
