@@ -3,7 +3,7 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 
@@ -103,8 +103,8 @@ export function renderOperation(
   method: string,
   operationId: string,
   operation: OpenAPIV2.OperationObject,
-  specParameters: OpenAPIV2.ParametersDefinitionsObject,
-  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
+  specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
+  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject | undefined,
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
   defaultSuccessType: string,
@@ -115,18 +115,21 @@ export function renderOperation(
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
-    operation.parameters.forEach((param: any) => {
-      if (param.name && param.type) {
+    const parameters = operation.parameters.map(
+      p => p as OpenAPIV2.ParameterObject | OpenAPIV3.ParameterObject
+    );
+    parameters.forEach(param => {
+      if (param.name && (param as any).type) {
         // The parameter description is inline
         const isRequired = param.required === true;
         params[`${param.name}${isRequired ? "" : "?"}`] = specTypeToTs(
-          param.type
+          (param as any).type
         );
         return;
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        param.$ref || (param.schema ? param.schema.$ref : undefined);
+        (param as any).$ref || ((param as any).schema ? (param as any).schema.$ref : undefined);
       if (refInParam === undefined) {
         console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`
         );
@@ -147,7 +150,7 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-            ? specTypeToTs((specParameters[parsedRef.e2] as any).type)
+            ? specTypeToTs((specParameters[parsedRef.e2].type))
             : undefined;
 
       if (paramType === undefined) {
@@ -177,7 +180,7 @@ export function renderOperation(
     ? getAuthHeaders(
       securityDefinitions,
       operation.security
-          .map(_ => Object.keys(_)[0])
+          .map((_: OpenAPIV2.SecurityDefinitionsObject | OpenAPIV3.SecurityRequirementObject) => Object.keys(_)[0])
         .filter(_ => _ !== undefined)
     )
     : [];
@@ -261,7 +264,7 @@ export function renderOperation(
 }
 
 function getAuthHeaders(
-  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject,
+  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject | undefined,
   securityKeys: ReadonlyArray<string>
 ): ReadonlyArray<ITuple2<string, string>> {
   if (securityKeys === undefined && securityDefinitions === undefined) {
@@ -371,14 +374,18 @@ export async function generateApi(
       const pathSpec = api.paths[path];
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
-        pathSpec.parameters.forEach((param: any) => {
-          const paramType: string | undefined = param.type;
-          if (paramType) {
-            const paramName = `${param.name}${
-              param.required === true ? "" : "?"
+        pathSpec.parameters.forEach((param: {
+            name: string;
+            required: boolean;
+            type: string | undefined;
+          }) => {
+            const paramType = param.type;
+            if (paramType) {
+              const paramName = `${param.name}${
+                param.required === true ? "" : "?"
               }`;
-            extraParameters[paramName] = specTypeToTs(paramType);
-          }
+              extraParameters[paramName] = specTypeToTs(paramType);
+            }
         });
       }
       // add global auth parameters to extraParameters
