@@ -303,6 +303,9 @@ export async function generateApi(
 ): Promise<void> {
   const api = await SwaggerParser.bundle(specFilePath);
 
+  if(!api.hasOwnProperty("swagger")){
+    throw "The specification is not of type swagger 2";
+  }
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */
     /* tslint:disable:no-duplicate-string */
