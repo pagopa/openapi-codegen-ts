@@ -3,7 +3,7 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 
@@ -301,7 +301,7 @@ export async function generateApi(
   defaultErrorType: string,
   generateResponseDecoders: boolean
 ): Promise<void> {
-  const api: OpenAPI.Document = await SwaggerParser.bundle(specFilePath);
+  const api = await SwaggerParser.bundle(specFilePath);
 
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */
