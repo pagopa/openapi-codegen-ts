@@ -3,7 +3,7 @@
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import * as nunjucks from "nunjucks";
-import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
+import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 
@@ -277,7 +277,7 @@ function getAuthHeaders(
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
         // security items mapped to their securityDefinitions definitions.
-        securityKeys.map(k => Tuple2(k, securityDefinitions[k as string]))
+        securityKeys.map(k => Tuple2(k, securityDefinitions[k]))
       : securityDefinitions !== undefined
       ? Object.keys(securityDefinitions).map(k =>
           Tuple2(k, securityDefinitions[k])
@@ -331,7 +331,7 @@ export async function generateApi(
     );
   }
 
-  const definitions = (api as OpenAPIV2.Document).definitions;
+  const definitions = api.definitions;
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
     return;
@@ -414,8 +414,8 @@ export async function generateApi(
           method,
           operationId,
           operation,
-          (api as OpenAPIV2.Document).parameters,
-          (api as OpenAPIV2.Document).securityDefinitions,
+          api.parameters,
+          api.securityDefinitions,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
           defaultSuccessType,
