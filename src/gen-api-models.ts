@@ -265,7 +265,7 @@ export function renderOperation(
 }
 
 function getAuthHeaders(
-  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject | undefined,
+  securityDefinitions: OpenAPIV2.Document["securityDefinitions"],
   securityKeys: ReadonlyArray<string>
 ): ReadonlyArray<ITuple2<string, string>> {
   if (securityKeys === undefined && securityDefinitions === undefined) {
