@@ -290,6 +290,10 @@ function getAuthHeaders(
     .map(_ => Tuple2(_.e1, (_.e2 as OpenAPIV2.SecuritySchemeApiKey).name));
 }
 
+export function isOpenAPIV2(specs: OpenAPI.Document): specs is OpenAPIV2.Document {
+  return specs.hasOwnProperty("swagger");
+}
+
 export async function generateApi(
   env: nunjucks.Environment,
   specFilePath: string | OpenAPIV2.Document,
@@ -303,7 +307,7 @@ export async function generateApi(
 ): Promise<void> {
   const api = await SwaggerParser.bundle(specFilePath);
 
-  if(!api.hasOwnProperty("swagger")){
+  if(!isOpenAPIV2(api)){
     throw "The specification is not of type swagger 2";
   }
   const specCode = `
