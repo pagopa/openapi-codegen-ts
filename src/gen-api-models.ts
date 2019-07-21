@@ -127,8 +127,7 @@ export function renderOperation(
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        param.$ref ||
-        (param.schema ? param.schema.$ref : undefined);
+        param.$ref || (param.schema ? param.schema.$ref : undefined);
       if (refInParam === undefined) {
         console.warn(
           `Skipping param without ref in operation [${operationId}] [${
@@ -355,8 +354,10 @@ export async function generateApi(
   if (generateRequestTypes || generateResponseDecoders) {
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
-      ? getAuthHeaders((api as OpenAPIV2.Document).securityDefinitions, api.security
-          .map((_: {}) => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
+      ? getAuthHeaders(api.securityDefinitions, api.security
+          .map((_: {}) =>
+            Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined
+          )
           .filter(_ => _ !== undefined) as ReadonlyArray<string>)
       : [];
 
@@ -364,7 +365,8 @@ export async function generateApi(
       const pathSpec = api.paths[path];
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
-        pathSpec.parameters.forEach((param: {
+        pathSpec.parameters.forEach(
+          (param: {
             name: string;
             required: boolean;
             type: string | undefined;
@@ -376,7 +378,8 @@ export async function generateApi(
               }`;
               extraParameters[paramName] = specTypeToTs(paramType);
             }
-        });
+          }
+        );
       }
       // add global auth parameters to extraParameters
       globalAuthHeaders.forEach(_ => (extraParameters[_.e1] = "string"));
