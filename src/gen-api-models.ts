@@ -102,7 +102,7 @@ export function renderOperation(
   operationId: string,
   operation: OpenAPIV2.OperationObject,
   specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
-  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject | undefined,
+  securityDefinitions: OpenAPIV2.Document["securityDefinitions"],
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
   defaultSuccessType: string,
