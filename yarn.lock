@@ -64,13 +64,6 @@
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-1.16.4.tgz#5e5e97702cb68498aaba7349b941648daaf2385c"
   integrity sha512-MG7ExKBo7AQ5UrL1awyYLNinNM/kyXgE4iP4Ul9fB+T7n768Z5Xem8IZeP6Bna0xze8gkDly49Rgge2HOEw4xA==
 
-"@types/swagger-parser@^7.0.0":
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/@types/swagger-parser/-/swagger-parser-7.0.1.tgz#fe97e499612831a70a46391d9cdcff2d371dc9be"
-  integrity sha512-RWfhw0/AQBuh/+8PA8IHeVhZe2h7YiIQ0nVAjJRByKrHL+BxWxaT056lVX3akfrxdKU5IPxSqPPZYgay3OQfCA==
-  dependencies:
-    swagger-parser "*"
-
 "@types/yargs@^11.1.0":
   version "11.1.2"
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-11.1.2.tgz#fd4b676846fe731a5de5c6d2e5ef6a377262fc30"
@@ -3375,11 +3368,6 @@ openapi-schema-validation@^0.4.2:
     jsonschema-draft4 "^1.0.0"
     swagger-schema-official "2.0.0-bab6bed"
 
-openapi-schemas@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/openapi-schemas/-/openapi-schemas-1.0.0.tgz#c23ae0ae990d867a608e06265cb1ba8c73136a8e"
-  integrity sha512-KYy5vRmutd8ieqZQKWDAFEa7xiLXLkdWZljwLgxJV/5ydJqRIE9hMG5n9jTYtP5+fuZ3NhIYk2wIa+BCDoQpwg==
-
 openapi-types@^1.3.5:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/openapi-types/-/openapi-types-1.3.5.tgz#6718cfbc857fe6c6f1471f65b32bdebb9c10ce40"
@@ -4249,19 +4237,6 @@ swagger-methods@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/swagger-methods/-/swagger-methods-2.0.0.tgz#e1260876e7638b8a5d61ae5735ad9d5e97f4f09d"
   integrity sha512-afMNP6XtF7w4XB2pFuF07JNrHGaKoppwC0O3Zrkv0PWGbMT3KyFYpk4lzdcax7RYV1JgMZeatX8ndYjL2y+0tQ==
-
-swagger-parser@*:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/swagger-parser/-/swagger-parser-8.0.0.tgz#7a714c98a9a7a4ce81331336c1f53bb89f5d4e2f"
-  integrity sha512-zk6ig8J2B4OqCnBSIqO67/Ui96NTjuoX10YGa4YVlIlQzLpHUZbLFZaO+zSubQoqAiJxmpvlbUplEcFIsPCESA==
-  dependencies:
-    call-me-maybe "^1.0.1"
-    json-schema-ref-parser "^7.1.0"
-    ono "^5.0.1"
-    openapi-schemas "^1.0.0"
-    openapi-types "^1.3.5"
-    swagger-methods "^2.0.0"
-    z-schema "^4.1.0"
 
 swagger-parser@^7.0.0:
   version "7.0.1"
