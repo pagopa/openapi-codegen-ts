@@ -13,11 +13,10 @@ function renderAsync(
   definition: OpenAPIV2.DefinitionsObject,
   definitionName: string,
   strictInterfaces: boolean,
-  model: string
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
-      model,
+      "model.ts.njk",
       {
         definition,
         definitionName,
@@ -38,14 +37,12 @@ export async function renderDefinitionCode(
   definitionName: string,
   definition: OpenAPIV2.DefinitionsObject,
   strictInterfaces: boolean,
-  model: string
 ): Promise<string> {
   const code = await renderAsync(
     env,
     definition,
     definitionName,
-    strictInterfaces,
-    model
+    strictInterfaces
   );
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
@@ -180,7 +177,7 @@ export function renderOperation(
     ? getAuthHeaders(
       securityDefinitions,
       operation.security
-          .map((_: OpenAPIV2.SecurityDefinitionsObject | OpenAPIV3.SecurityRequirementObject) => Object.keys(_)[0])
+        .map((_: OpenAPIV2.SecurityDefinitionsObject | OpenAPIV3.SecurityRequirementObject) => Object.keys(_)[0])
         .filter(_ => _ !== undefined)
     )
     : [];
@@ -292,17 +289,17 @@ export function detectVersion(api: any) {
 
   return api.hasOwnProperty("swagger")
     ? {
-      model: "model-swagger.ts.njk",
+      path: "#/definitions/",
       definitions: api.definitions,
       securityDefinitions: api.securityDefinitions
     }
     : api.hasOwnProperty("openapi")
       ? {
-        model: "model-oas3.ts.njk",
+        path: "#/components/schemas/",
         definitions: api.components.schemas,
         securityDefinitions: api.components.securitySchemes
       }
-      : { model: "", definitions: undefined, securityDefinitions: undefined };
+      : { path: "", definitions: undefined, securityDefinitions: undefined };
 }
 
 export async function generateApi(
@@ -337,7 +334,8 @@ export async function generateApi(
       })
     );
   }
-  const { model, definitions, securityDefinitions } = detectedSpecVersion;
+  const { path, definitions, securityDefinitions } = detectedSpecVersion;
+  env.addGlobal("path", path);
 
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
@@ -353,8 +351,7 @@ export async function generateApi(
         env,
         definitionName,
         definition,
-        strictInterfaces,
-        model
+        strictInterfaces
       );
       await fs.writeFile(outPath, code);
     }
@@ -375,17 +372,17 @@ export async function generateApi(
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
         pathSpec.parameters.forEach((param: {
-            name: string;
-            required: boolean;
-            type: string | undefined;
-          }) => {
-            const paramType = param.type;
-            if (paramType) {
-              const paramName = `${param.name}${
-                param.required === true ? "" : "?"
+          name: string;
+          required: boolean;
+          type: string | undefined;
+        }) => {
+          const paramType = param.type;
+          if (paramType) {
+            const paramName = `${param.name}${
+              param.required === true ? "" : "?"
               }`;
-              extraParameters[paramName] = specTypeToTs(paramType);
-            }
+            extraParameters[paramName] = specTypeToTs(paramType);
+          }
         });
       }
       // add global auth parameters to extraParameters
