@@ -17,7 +17,7 @@ beforeAll(
 );
 
 describe("gen-api-models", () => {
-  env.addGlobal("path", "#/components/schemas/");
+  env.addGlobal("schemas_path", "#/components/schemas/");
 
   it("should not generate duplicate imports", async () => {
     expect(spec.components.schemas).toBeDefined();
@@ -31,7 +31,7 @@ describe("gen-api-models", () => {
       env,
       "Profile",
       profileDefinition,
-      false 
+      false
     );
     expect(code).toBeDefined();
     expect(code).toMatchSnapshot("dup-imports");

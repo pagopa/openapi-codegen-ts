@@ -128,7 +128,8 @@ export function renderOperation(
       const refInParam: string | undefined =
         (param as any).$ref || ((param as any).schema ? (param as any).schema.$ref : undefined);
       if (refInParam === undefined) {
-        console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`
+        console.warn(
+          `Skipping param without ref in operation [${operationId}] [${param.name}]`
         );
         return;
       }
@@ -295,13 +296,13 @@ export function detectVersion(api: any) {
 
   return api.hasOwnProperty("swagger")
     ? {
-      path: "#/definitions/",
+      schemasPath: "#/definitions/",
       definitions: api.definitions,
       securityDefinitions: api.securityDefinitions
     }
     : api.hasOwnProperty("openapi")
       ? {
-        path: "#/components/schemas/",
+        schemasPath: "#/components/schemas/",
         definitions: api.components.schemas,
         securityDefinitions: api.components.securitySchemes
       }
@@ -342,8 +343,8 @@ export async function generateApi(
       })
     );
   }
-  const { path, definitions, securityDefinitions } = detectedSpecVersion;
-  env.addGlobal("path", path);
+  const { schemasPath, definitions, securityDefinitions } = detectedSpecVersion;
+  env.addGlobal("schemas_path", schemasPath);
 
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");

@@ -168,7 +168,7 @@
  # defines a $ref property
  #}
 {% macro defineRef(definitionName, definition, inline = false) -%}
-  {% set typedef %}{{ definitionName | replace(path, "") }}{% endset %}
+  {% set typedef %}{{ definitionName | replace(schemas_path, "") }}{% endset %}
   {{ defineConst(definition.default, typedef, typedef, false, inline) }}
 {% endmacro %}
 
@@ -186,7 +186,7 @@
 {% macro defineArray(definitionName, definition, inline = false) -%}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if definition.items.$ref %}
-    {%- set realPropName = definition.items.$ref | replace(path, "") -%}
+    {%- set realPropName = definition.items.$ref | replace(schemas_path, "") -%}
     {{ importLocalProp(realPropName) }}
     {% set typedef %}t.readonlyArray({{ realPropName }}, "array of {{ realPropName }}"){% endset %}
   {% else %}
@@ -229,18 +229,18 @@
   {% set defaultFound = 0 %}
   {% for propName, prop in definition.properties -%}{%
     if prop.$ref -%}{%-
-      set realPropName = prop.$ref | replace(path, "") -%}
+      set realPropName = prop.$ref | replace(schemas_path, "") -%}
       {{ importLocalProp(realPropName) }}{%
     elif prop.items.$ref -%}{%-
-      set realPropName = prop.items.$ref | replace(path, "") -%}
+      set realPropName = prop.items.$ref | replace(schemas_path, "") -%}
       {{ importLocalProp(realPropName) }}{%
     endif %}{%
   endfor %}
   {% if definition.additionalProperties.$ref -%}{%-
-      set realPropName = definition.additionalProperties.$ref | replace(path, "") -%}
+      set realPropName = definition.additionalProperties.$ref | replace(schemas_path, "") -%}
       {{ importLocalProp(realPropName) }}{%
     elif definition.additionalProperties.items.$ref -%}{%-
-      set realPropName = definition.additionalProperties.items.$ref | replace(path, "") -%}
+      set realPropName = definition.additionalProperties.items.$ref | replace(schemas_path, "") -%}
       {{ importLocalProp(realPropName) }}{%
   endif %}
   {% for propName, prop in definition.properties -%}
@@ -321,7 +321,7 @@
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace(path, "") -%}
+        {%- set realPropName = schema.$ref | replace(schemas_path, "") -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -332,7 +332,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace(path, "") }},
+            {{ schema.$ref | replace(schemas_path, "") }},
           {% endif %}
         {% endfor %}
       ],
@@ -352,7 +352,7 @@
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace(path, "") -%}
+        {%- set realPropName = schema.$ref | replace(schemas_path, "") -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -363,7 +363,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace(path, "") }},
+            {{ schema.$ref | replace(schemas_path, "") }},
           {% endif %}
         {% endfor %}
       ],

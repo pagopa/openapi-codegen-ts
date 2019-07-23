@@ -17,8 +17,8 @@ beforeAll(
 );
 
 describe("gen-api-models", () => {
-  env.addGlobal("path", "#/definitions/");
-  
+  env.addGlobal("schemas_path", "#/definitions/");
+
   it("should not generate duplicate imports", async () => {
     expect(spec.definitions).toBeDefined();
     if (spec.definitions === undefined) {
