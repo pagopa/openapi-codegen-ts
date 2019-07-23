@@ -128,7 +128,8 @@ export function renderOperation(
       const refInParam: string | undefined =
         (param as any).$ref || ((param as any).schema ? (param as any).schema.$ref : undefined);
       if (refInParam === undefined) {
-        console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`
+        console.warn(
+          `Skipping param without ref in operation [${operationId}] [${param.name}]`
         );
         return;
       }
@@ -147,7 +148,7 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-            ? specTypeToTs((specParameters[parsedRef.e2].type))
+            ? specTypeToTs(specParameters[parsedRef.e2].type)
             : undefined;
 
       if (paramType === undefined) {
@@ -175,11 +176,17 @@ export function renderOperation(
 
   const authHeadersAndParams = operation.security
     ? getAuthHeaders(
-      securityDefinitions,
-      operation.security
-        .map((_: OpenAPIV2.SecurityDefinitionsObject | OpenAPIV3.SecurityRequirementObject) => Object.keys(_)[0])
-        .filter(_ => _ !== undefined)
-    )
+        securityDefinitions,
+        operation.security
+          .map(
+            (
+              _:
+                | OpenAPIV2.SecurityDefinitionsObject
+                | OpenAPIV3.SecurityRequirementObject
+            ) => Object.keys(_)[0]
+          )
+          .filter(_ => _ !== undefined)
+      )
     : [];
 
   const authParams: { [k: string]: string } = {};
@@ -272,13 +279,12 @@ function getAuthHeaders(
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
       // security items mapped to their securityDefinitions definitions.
-      securityKeys.map(k => Tuple2(k, securityDefinitions[k as string]))
+      securityKeys.map(k => Tuple2(k, securityDefinitions[k]))
       : securityDefinitions !== undefined
-        ? Object.keys(securityDefinitions).map(k =>
+       ? Object.keys(securityDefinitions).map(k =>
           Tuple2(k, securityDefinitions[k])
         )
         : [];
-
   return securityDefs
     .filter(_ => _.e2 !== undefined)
     .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
@@ -289,13 +295,13 @@ export function detectVersion(api: any) {
 
   return api.hasOwnProperty("swagger")
     ? {
-      path: "#/definitions/",
+      schemasPath: "#/definitions/",
       definitions: api.definitions,
       securityDefinitions: api.securityDefinitions
     }
     : api.hasOwnProperty("openapi")
       ? {
-        path: "#/components/schemas/",
+        schemasPath: "#/components/schemas/",
         definitions: api.components.schemas,
         securityDefinitions: api.components.securitySchemes
       }
@@ -334,8 +340,8 @@ export async function generateApi(
       })
     );
   }
-  const { path, definitions, securityDefinitions } = detectedSpecVersion;
-  env.addGlobal("path", path);
+  const { schemasPath, definitions, securityDefinitions } = detectedSpecVersion;
+  env.addGlobal("schemas_path", schemasPath);
 
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
@@ -372,18 +378,19 @@ export async function generateApi(
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
         pathSpec.parameters.forEach((param: {
-          name: string;
-          required: boolean;
-          type: string | undefined;
-        }) => {
-          const paramType = param.type;
-          if (paramType) {
-            const paramName = `${param.name}${
-              param.required === true ? "" : "?"
+            name: string;
+            required: boolean;
+            type: string | undefined;
+          }) => {
+            const paramType = param.type;
+            if (paramType) {
+              const paramName = `${param.name}${
+                param.required === true ? "" : "?"
               }`;
-            extraParameters[paramName] = specTypeToTs(paramType);
+              extraParameters[paramName] = specTypeToTs(paramType);
+            }
           }
-        });
+        );
       }
       // add global auth parameters to extraParameters
       globalAuthHeaders.forEach(_ => (extraParameters[_.e1] = "string"));
