@@ -13,11 +13,10 @@ function renderAsync(
   definition: OpenAPIV2.DefinitionsObject,
   definitionName: string,
   strictInterfaces: boolean,
-  model: string
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
-      model,
+      "model.ts.njk",
       {
         definition,
         definitionName,
@@ -43,8 +42,7 @@ export async function renderDefinitionCode(
     env,
     definition,
     definitionName,
-    strictInterfaces,
-    model
+    strictInterfaces
   );
   const prettifiedCode = prettier.format(code, {
     parser: "typescript"
@@ -297,17 +295,17 @@ export function detectVersion(api: any) {
 
   return api.hasOwnProperty("swagger")
     ? {
-      model: "model-swagger.ts.njk",
+      path: "#/definitions/",
       definitions: api.definitions,
       securityDefinitions: api.securityDefinitions
     }
     : api.hasOwnProperty("openapi")
       ? {
-        model: "model-oas3.ts.njk",
+        path: "#/components/schemas/",
         definitions: api.components.schemas,
         securityDefinitions: api.components.securitySchemes
       }
-      : { model: "", definitions: undefined, securityDefinitions: undefined };
+      : { path: "", definitions: undefined, securityDefinitions: undefined };
 }
 
 export async function generateApi(
@@ -344,7 +342,8 @@ export async function generateApi(
       })
     );
   }
-  const { model, definitions, securityDefinitions } = detectedSpecVersion;
+  const { path, definitions, securityDefinitions } = detectedSpecVersion;
+  env.addGlobal("path", path);
 
   if (!definitions) {
     console.log("No definitions found, skipping generation of model code.");
@@ -360,8 +359,7 @@ export async function generateApi(
         env,
         definitionName,
         definition,
-        strictInterfaces,
-        model
+        strictInterfaces
       );
       await fs.writeFile(outPath, code);
     }
