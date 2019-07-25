@@ -10,7 +10,7 @@
 {{- null | resetTypeAliases -}}
 
 {% set definition %}
-  {{ macro.defineObject(definitionName, definition, strictInterfaces) }}
+  {{ macro.defineObject(definitionName, definition, strictInterfaces, path) }}
 {% endset %}
 
 {{ null | getImports | safe }}
