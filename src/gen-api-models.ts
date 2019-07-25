@@ -10,7 +10,7 @@ import * as SwaggerParser from "swagger-parser";
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 function renderAsync(
   env: nunjucks.Environment,
-  definition: OpenAPIV2.DefinitionsObject,
+  definition: OpenAPIV2.DefinitionsObject | OpenAPIV3.ComponentsObject,
   definitionName: string,
   strictInterfaces: boolean,
 ): Promise<string> {
@@ -99,9 +99,11 @@ function getDecoderForResponse(status: string, type: string): string {
 export function renderOperation(
   method: string,
   operationId: string,
-  operation: OpenAPIV2.OperationObject,
-  specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
-  securityDefinitions: OpenAPIV2.SecurityDefinitionsObject | undefined,
+  operation: OpenAPI.Operation,
+  specParameters: OpenAPI.Parameter | any,
+  securityDefinitions:
+    | OpenAPIV2.SecurityDefinitionsObject
+    | OpenAPIV3.SecurityRequirementObject,
   extraHeaders: ReadonlyArray<string>,
   extraParameters: { [key: string]: string },
   defaultSuccessType: string,
@@ -119,7 +121,7 @@ export function renderOperation(
       if (param.name && param.type) {
         // The parameter description is inline
         const isRequired = param.required === true;
-        params[`${param.name}${isRequired ? "" : "?"}`] = specTypeToTs(
+        params[`${(param as any).name}${isRequired ? "" : "?"}`] = specTypeToTs(
           (param as any).type
         );
         return;
@@ -204,8 +206,8 @@ export function renderOperation(
   const headersCode =
     headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
 
-  const responses = Object.keys(operation.responses).map(responseStatus => {
-    const response = operation.responses[responseStatus];
+  const responses = Object.keys(operation.responses as object).map(responseStatus => {
+    const response = operation.responses![responseStatus];
     const typeRef = response.schema ? response.schema.$ref : undefined;
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
     if (parsedRef !== undefined) {
@@ -282,8 +284,20 @@ function getAuthHeaders(
 
   return securityDefs
     .filter(_ => _.e2 !== undefined)
-    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
-    .map(_ => Tuple2(_.e1, (_.e2 as OpenAPIV2.SecuritySchemeApiKey).name));
+    .filter(
+      _ =>
+        (_.e2 as
+          | OpenAPIV2.SecuritySchemeApiKey
+          | OpenAPIV3.ApiKeySecurityScheme).in === "header"
+    )
+    .map(_ =>
+      Tuple2(
+        _.e1,
+        (_.e2 as
+          | OpenAPIV2.SecuritySchemeApiKey
+          | OpenAPIV3.ApiKeySecurityScheme).name
+      )
+    );
 }
 
 export function isOpenAPIV2(
