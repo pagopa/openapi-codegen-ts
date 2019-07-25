@@ -552,3 +552,4 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
 
   return env;
 }
+
