@@ -12,7 +12,7 @@ function renderAsync(
   env: nunjucks.Environment,
   definition: OpenAPIV2.DefinitionsObject | OpenAPIV3.ComponentsObject,
   definitionName: string,
-  strictInterfaces: boolean,
+  strictInterfaces: boolean
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
@@ -36,7 +36,7 @@ export async function renderDefinitionCode(
   env: nunjucks.Environment,
   definitionName: string,
   definition: OpenAPIV2.DefinitionsObject | OpenAPIV3.ComponentsObject,
-  strictInterfaces: boolean,
+  strictInterfaces: boolean
 ): Promise<string> {
   const code = await renderAsync(
     env,
@@ -100,7 +100,7 @@ export function renderOperation(
   method: string,
   operationId: string,
   operation: OpenAPI.Operation,
-  specParameters: OpenAPI.Parameter | any,
+  specParameters: OpenAPIV3.ParameterObject | OpenAPIV2.ParameterObject | any,
   securityDefinitions:
     | OpenAPIV2.SecurityDefinitionsObject
     | OpenAPIV3.SecurityRequirementObject,
@@ -114,12 +114,14 @@ export function renderOperation(
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
-    const parameters = operation.parameters as (OpenAPIV2.ParameterObject | OpenAPIV3.ParameterObject)[]
+    const parameters = operation.parameters as Array<
+      OpenAPIV2.ParameterObject | OpenAPIV3.ParameterObject
+    >;
     parameters.forEach(param => {
       if (param.name && (param as any).type) {
         // The parameter description is inline
         const isRequired = param.required === true;
-        params[`${(param as any).name}${isRequired ? "" : "?"}`] = specTypeToTs(
+        params[`${param.name}${isRequired ? "" : "?"}`] = specTypeToTs(
           (param as any).type
         );
         return;
@@ -143,7 +145,6 @@ export function renderOperation(
         console.warn(`Unrecognized ref type [${refInParam}]`);
         return;
       }
-
       const paramType: string | undefined =
         refType === "definition"
           ? parsedRef.e2
@@ -223,7 +224,8 @@ export function renderOperation(
         ? defaultSuccessType
         : defaultErrorType;
     return Tuple2(responseStatus, responseType);
-  });
+    }
+  );
 
   const responsesType = responses
     .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
@@ -237,18 +239,18 @@ export function renderOperation(
       ? `
         // Decodes the success response with a custom success type
         export function ${operationId}Decoder<A, O>(type: t.Type<A, O>) { return ` +
-      responses.reduce((acc, r) => {
-        const d = getDecoderForResponse(
-          r.e1,
-          successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
-        );
-        return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
-      }, "") +
-      `; }
+        responses.reduce((acc, r) => {
+          const d = getDecoderForResponse(
+            r.e1,
+            successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
+          );
+          return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
+        }, "") +
+        `; }
 
         // Decodes the success response with the type defined in the specs
         export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(${
-      successType.e2 === "undefined" ? "t.undefined" : successType.e2
+          successType.e2 === "undefined" ? "t.undefined" : successType.e2
       });`
       : "";
 
@@ -309,17 +311,31 @@ export function detectVersion(api: any) {
 
   return api.hasOwnProperty("swagger")
     ? {
+      version: "swagger",
       schemasPath: "#/definitions/",
       definitions: api.definitions,
       securityDefinitions: api.securityDefinitions
     }
     : api.hasOwnProperty("openapi")
       ? {
+        version: "openapi",
         schemasPath: "#/components/schemas/",
         definitions: api.components.schemas,
         securityDefinitions: api.components.securitySchemes
       }
-      : { path: "", definitions: undefined, securityDefinitions: undefined };
+      : {version: "", path: "", definitions: undefined, securityDefinitions: undefined };
+}
+
+export function isOpenAPIV2(
+  specs: OpenAPI.Document
+): specs is OpenAPIV2.Document {
+  return specs.hasOwnProperty("swagger");
+}
+
+export function isOpenAPIV3(
+  specs: OpenAPI.Document
+): specs is OpenAPIV3.Document {
+  return specs.hasOwnProperty("openapi");
 }
 
 export async function generateApi(
@@ -336,6 +352,15 @@ export async function generateApi(
   const api: OpenAPI.Document = await SwaggerParser.bundle(specFilePath);
 
   const detectedSpecVersion = detectVersion(api);
+
+  if (isOpenAPIV2(api)) {
+   
+  } else if (isOpenAPIV3(api)){
+
+  }
+  else{
+    throw new Error("The specification is not correct.");
+  }
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */
     /* tslint:disable:no-duplicate-string */
@@ -354,7 +379,7 @@ export async function generateApi(
       })
     );
   }
-  const { schemasPath, definitions, securityDefinitions } = detectedSpecVersion;
+  const { version, schemasPath, definitions, securityDefinitions } = detectedSpecVersion;
   env.addGlobal("schemas_path", schemasPath);
 
   if (!definitions) {
@@ -438,11 +463,12 @@ export async function generateApi(
           return;
         }
 
+
         return renderOperation(
           method,
           operationId,
           operation,
-          (api as any).parameters,
+          version == "swagger"? (api as any).parameters : (api as any).components.parameters,
           securityDefinitions,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
@@ -552,4 +578,3 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
 
   return env;
 }
-
