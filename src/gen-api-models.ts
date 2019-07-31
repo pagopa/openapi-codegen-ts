@@ -100,7 +100,9 @@ export function renderOperation(
   method: string,
   operationId: string,
   operation: OpenAPI.Operation,
-  specParameters: OpenAPIV3.ParameterObject | OpenAPIV2.ParameterObject | any,
+  specParameters:
+    | OpenAPIV2.ParametersDefinitionsObject
+    | OpenAPIV3.ParameterObject,
   securityDefinitions:
     | OpenAPIV2.SecurityDefinitionsObject
     | OpenAPIV3.SecurityRequirementObject,
@@ -150,7 +152,7 @@ export function renderOperation(
         refType === "definition"
           ? parsedRef.e2
           : specParameters
-          ? specTypeToTs(specParameters[parsedRef.e2].type)
+          ? specTypeToTs((specParameters as any)[parsedRef.e2].type)
           : undefined;
 
       if (paramType === undefined) {
@@ -162,7 +164,7 @@ export function renderOperation(
         refType === "definition"
           ? param.required === true
           : specParameters
-          ? specParameters[parsedRef.e2].required
+          ? (specParameters as any)[parsedRef.e2].required
           : false;
 
       const paramName = `${uncapitalize(parsedRef.e2)}${
