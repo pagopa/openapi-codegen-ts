@@ -315,6 +315,7 @@ export function detectVersion(api: any) {
   return api.hasOwnProperty("swagger")
     ? {
         definitions: api.definitions,
+        parameters : api.parameters,
         schemasPath: "#/definitions/",
         securityDefinitions: api.securityDefinitions,
         version: "swagger"
@@ -322,12 +323,14 @@ export function detectVersion(api: any) {
     : api.hasOwnProperty("openapi")
     ? {
         definitions: api.components.schemas,
+        parameters: api.components.parameters,
         schemasPath: "#/components/schemas/",
         securityDefinitions: api.components.securitySchemes,
         version: "openapi"
       }
     : {
         definitions: undefined,
+        parameters: undefined,
         schemasPath: "",
         securityDefinitions: undefined,
         version: ""
@@ -388,6 +391,7 @@ export async function generateApi(
   }
   const {
     version,
+    parameters,
     schemasPath,
     definitions,
     securityDefinitions
@@ -478,9 +482,7 @@ export async function generateApi(
           method,
           operationId,
           operation,
-          version === "swagger"
-            ? (api as any).parameters
-            : (api as any).components.parameters,
+          parameters,
           securityDefinitions,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
@@ -490,7 +492,6 @@ export async function generateApi(
         );
       });
     });
-
     const operationsImports = new Set<string>();
     const operationTypesCode = operationsTypes
       .map(ops =>
