@@ -30,10 +30,7 @@ The strategy is the following:
 - [x] create a function to detect the spec version (OAS3 or Swagger2):
    all old functions now receive the spec version as an input parameter;
 
-- [x] create two different njk models: one unchanged for Swagger2, so 
-   that we retain compatibility with the previous code, and a new one
-   for OAS3 where we are free to modify anything that is needed to 
-   implement new features;
+- [x] adapt njk model for both specification  (Swagger 2 / OpenAPI 3);
 
 We think that this strategy gives us enough specification agility and
 can be applied iteratively to other specifications, as you just have to:

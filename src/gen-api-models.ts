@@ -130,12 +130,9 @@ export function renderOperation(
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        (param as any).$ref ||
-        ((param as any).schema ? (param as any).schema.$ref : undefined);
+        (param as any).$ref || (param.schema ? param.schema.$ref : undefined);
       if (refInParam === undefined) {
-        console.warn(
-          `Skipping param without ref in operation [${operationId}] [${param.name}]`
-        );
+        console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`);
         return;
       }
       const parsedRef = typeFromRef(refInParam);
@@ -315,7 +312,7 @@ export function detectVersion(api: any) {
   return api.hasOwnProperty("swagger")
     ? {
         definitions: api.definitions,
-        parameters : api.parameters,
+        parameters: api.parameters,
         schemasPath: "#/definitions/",
         securityDefinitions: api.securityDefinitions,
         version: "swagger"
