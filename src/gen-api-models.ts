@@ -318,7 +318,7 @@ export function detectVersion(api: any) {
         parameters: api.parameters,
         schemasPath: "#/definitions/",
         securityDefinitions: api.securityDefinitions,
-        version: "swagger"
+        version: "2.0"
       }
     : api.hasOwnProperty("openapi")
     ? {
@@ -326,7 +326,7 @@ export function detectVersion(api: any) {
         parameters: api.components.parameters,
         schemasPath: "#/components/schemas/",
         securityDefinitions: api.components.securitySchemes,
-        version: "openapi"
+        version: "3.x"
       }
     : {
         definitions: undefined,
