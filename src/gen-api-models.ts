@@ -130,9 +130,12 @@ export function renderOperation(
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        (param as any).$ref || ((param as any).schema ? (param as any).schema.$ref : undefined);
+        (param as any).$ref ||
+        ((param as any).schema ? (param as any).schema.$ref : undefined);
       if (refInParam === undefined) {
-        console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`);
+        console.warn(
+          `Skipping param without ref in operation [${operationId}] [${param.name}]`
+        );
         return;
       }
       const parsedRef = typeFromRef(refInParam);
@@ -457,14 +460,14 @@ export async function generateApi(
           method === "get"
             ? pathSpec.get
             : method === "post"
-              ? pathSpec.post
-              : method === "put"
-                ? pathSpec.put
-                : method === "head"
-                  ? pathSpec.head
-                  : method === "delete"
-                    ? pathSpec.delete
-                    : undefined;
+            ? pathSpec.post
+            : method === "put"
+            ? pathSpec.put
+            : method === "head"
+            ? pathSpec.head
+            : method === "delete"
+            ? pathSpec.delete
+            : undefined;
         if (operation === undefined) {
           console.warn(`Skipping unsupported method [${method}]`);
           return;
