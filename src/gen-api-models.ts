@@ -130,7 +130,7 @@ export function renderOperation(
       }
       // Paratemer is declared as ref, we need to look it up
       const refInParam: string | undefined =
-        (param as any).$ref || (param.schema ? param.schema.$ref : undefined);
+        (param as any).$ref || ((param as any).schema ? (param as any).schema.$ref : undefined);
       if (refInParam === undefined) {
         console.warn(`Skipping param without ref in operation [${operationId}] [${param.name}]`);
         return;
