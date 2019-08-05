@@ -39,7 +39,7 @@ describe("gen-api-models", () => {
 
   it("should handle version of specification", async () => {
     const code = detectVersion(spec);
-    expect(code.version).toEqual("openapi");
+    expect(code.version).toContain("3");
   });
 
   it("should handle WithinRangeStrings", async () => {
