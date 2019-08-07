@@ -434,7 +434,7 @@ export async function generateApi(
           (param: {
             name: string;
             required: boolean;
-            type: string | undefined;
+            type?: string;
           }) => {
             const paramType = param.type;
             if (paramType) {
