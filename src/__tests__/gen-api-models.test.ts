@@ -11,7 +11,7 @@ import {
 
 const env = initNunJucksEnvironment();
 
-let spec: any;
+let spec;
 beforeAll(
   async () => (spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`))
 );
@@ -39,7 +39,7 @@ describe("gen-api-models", () => {
 
   it("should handle version of specification", async () => {
     const code = detectVersion(spec);
-    expect(code.version).toContain("2");
+    expect(code.version).toEqual(expect.stringMatching(/^2\.[0-9.]+/));
   });
 
   it("should handle WithinRangeStrings", async () => {

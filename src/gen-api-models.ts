@@ -326,14 +326,14 @@ export function detectVersion(api: any) {
         parameters: api.components.parameters,
         schemasPath: "#/components/schemas/",
         securityDefinitions: api.components.securitySchemes,
-        version: "3.x"
+        version: api.openapi
       }
     : {
         definitions: undefined,
         parameters: undefined,
         schemasPath: "",
         securityDefinitions: undefined,
-        version: ""
+        version: api.swagger
       };
 }
 
