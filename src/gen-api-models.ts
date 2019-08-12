@@ -117,7 +117,7 @@ export function renderOperation(
   const importedTypes = new Set<string>();
   if (operation.parameters !== undefined) {
     const parameters = operation.parameters as Array<
-      OpenAPIV2.ParameterObject | OpenAPIV3.ParameterObject
+      OpenAPIV2.InBodyParameterObject | OpenAPIV3.ParameterObject
     >;
     parameters.forEach(param => {
       if (param.name && (param as any).type) {
@@ -318,7 +318,7 @@ export function detectVersion(api: any) {
         parameters: api.parameters,
         schemasPath: "#/definitions/",
         securityDefinitions: api.securityDefinitions,
-        version: "2.0"
+        version: api.swagger
       }
     : api.hasOwnProperty("openapi")
     ? {
@@ -333,7 +333,7 @@ export function detectVersion(api: any) {
         parameters: undefined,
         schemasPath: "",
         securityDefinitions: undefined,
-        version: api.swagger
+        version: ""
       };
 }
 
@@ -431,11 +431,7 @@ export async function generateApi(
       const extraParameters: { [key: string]: string } = {};
       if (pathSpec.parameters !== undefined) {
         pathSpec.parameters.forEach(
-          (param: {
-            name: string;
-            required: boolean;
-            type?: string;
-          }) => {
+          (param: { name: string; required: boolean; type?: string }) => {
             const paramType = param.type;
             if (paramType) {
               const paramName = `${param.name}${
