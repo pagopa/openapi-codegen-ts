@@ -317,7 +317,7 @@ export function detectVersion(api: any) {
         definitions: api.definitions,
         parameters: api.parameters,
         schemasPath: "#/definitions/",
-        securityDefinitions: api.securityDefinitions,
+        securityPath: api.securityDefinitions,
         version: api.swagger
       }
     : api.hasOwnProperty("openapi")
@@ -325,14 +325,14 @@ export function detectVersion(api: any) {
         definitions: api.components.schemas,
         parameters: api.components.parameters,
         schemasPath: "#/components/schemas/",
-        securityDefinitions: api.components.securitySchemes,
+        securityPath: api.components.securitySchemes,
         version: api.openapi
       }
     : {
         definitions: undefined,
         parameters: undefined,
         schemasPath: "",
-        securityDefinitions: undefined,
+        securityPath: undefined,
         version: ""
       };
 }
@@ -394,7 +394,7 @@ export async function generateApi(
     parameters,
     schemasPath,
     definitions,
-    securityDefinitions
+    securityPath
   } = detectedSpecVersion;
   env.addGlobal("schemas_path", schemasPath);
 
@@ -421,7 +421,7 @@ export async function generateApi(
   if (generateRequestTypes || generateResponseDecoders) {
     // map global auth headers only if global security is defined
     const globalAuthHeaders = api.security
-      ? getAuthHeaders(securityDefinitions, api.security
+      ? getAuthHeaders(securityPath, api.security
           .map(_ => (Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined))
           .filter(_ => _ !== undefined) as ReadonlyArray<string>)
       : [];
@@ -479,7 +479,7 @@ export async function generateApi(
           operationId,
           operation,
           parameters,
-          securityDefinitions,
+          securityPath,
           globalAuthHeaders.map(_ => _.e2),
           extraParameters,
           defaultSuccessType,
