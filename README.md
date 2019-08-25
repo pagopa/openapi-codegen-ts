@@ -8,6 +8,8 @@ To add the tools to a project:
 ```
 $ yarn add -D italia-utils
 ```
+# specification document (Important)
+we decided that, to keep the references between the generated classes, the specification file must contain all the definitions. This can be achieved through standard OpenAPI tools written in other languages.
 
 ## gen-api-models
 
