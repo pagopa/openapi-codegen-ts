@@ -8,37 +8,34 @@ To add the tools to a project:
 ```
 $ yarn add -D italia-utils
 ```
-## specification document (mportant)
+## important: check your openapi spec
 If you need to keep the references between the generated classes, the specification file must contain all the schema definitions. See example below.
 
 example:
 
-```
-.
-.
-.
-  description: Expected response to a valid request
-  content:
-    application/json:
-      schema:
-        $ref: "#/components/schemas/Pets"
-
-```
-if pets use pet, you must also import pet
-
+if the Pets schema uses the Pet one 
 ```
 components:
   schemas:
-    Pets:
-      type: array
-      items:
-        $ref: "#/components/schemas/Pet"
+        $ref: "animal.yaml#/Pets"
     Pet:
         $ref: "animal.yaml#/Pet"
-.
-.
-.
 ```
+animal.yaml
+```
+Pets:
+  type: array
+  items:
+    $ref: '#/definitions/Pet'
+Pet:
+  type: "object"
+  required:
+    - name
+  properties:
+    name:
+      type: string
+```
+
 
 ## gen-api-models
 
