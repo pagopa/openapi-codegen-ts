@@ -13,7 +13,7 @@ If you need to keep the references between the generated classes, the specificat
 
 example:
 
-if the Pets schema uses the Pet one 
+if the `Pets` schema uses the `Pet`, import both into the main document 
 ```
 components:
   schemas:
