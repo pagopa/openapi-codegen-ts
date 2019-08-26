@@ -17,6 +17,7 @@ if the Pets schema uses the Pet one
 ```
 components:
   schemas:
+    Pets:
         $ref: "animal.yaml#/Pets"
     Pet:
         $ref: "animal.yaml#/Pet"
