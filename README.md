@@ -22,7 +22,7 @@ components:
     Pet:
         $ref: "animal.yaml#/Pet"
 ```
-animal.yaml
+*animal.yaml*
 ```
 Pets:
   type: array
