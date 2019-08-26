@@ -8,7 +8,7 @@ To add the tools to a project:
 ```
 $ yarn add -D italia-utils
 ```
-## specification document (Important)
+## specification document (mportant)
 If you need to keep the references between the generated classes, the specification file must contain all the schema definitions. See example below.
 
 example:
@@ -34,10 +34,7 @@ components:
       items:
         $ref: "#/components/schemas/Pet"
     Pet:
-      type: object
-      required:
-        - id
-        - name
+        $ref: "animal.yaml#/Pet"
 .
 .
 .
