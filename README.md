@@ -8,6 +8,7 @@ To add the tools to a project:
 ```
 $ yarn add -D italia-utils
 ```
+
 ## OpenAPI 3 support
 
 Our goal is to implement support of OAS3 specifications 
@@ -37,6 +38,35 @@ can be applied iteratively to other specifications, as you just have to:
 
 - modify the detect-version function;
 - provide a new njk model for the new spec kind.
+
+## important: check your openapi spec
+If you need to keep the references between the generated classes, the specification file must contain all the schema definitions. See example below.
+
+example:
+
+if the `Pets` schema uses the `Pet`, import both into the main document 
+```
+components:
+  schemas:
+    Pets:
+        $ref: "animal.yaml#/Pets"
+    Pet:
+        $ref: "animal.yaml#/Pet"
+```
+*animal.yaml*
+```
+Pets:
+  type: array
+  items:
+    $ref: '#/definitions/Pet'
+Pet:
+  type: "object"
+  required:
+    - name
+  properties:
+    name:
+      type: string
+```
 
 ## gen-api-models
 
