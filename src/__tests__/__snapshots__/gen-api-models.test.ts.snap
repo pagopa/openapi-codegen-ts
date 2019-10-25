@@ -508,3 +508,19 @@ exports[`gen-api-models should support file uploads 1`] = `
         // Decodes the success response with the type defined in the specs
         export const testFileUploadDefaultDecoder = () => testFileUploadDecoder(t.undefined);"
 `;
+
+exports[`gen-api-models should support generate serializers 1`] = `
+"
+    /****************************************************************
+     * testSerializer
+     */
+
+    // Request type definition
+    export type TestSerializerT = r.IPostApiRequestType<{readonly qo?: string,readonly paginationRequest?: string}, \\"Content-Type\\", never, r.IResponseType<200, Message>|r.IResponseType<403, Problem>>;
+  
+        // Decodes the success response with a custom success type
+        export function testSerializerDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.ioResponseDecoder<403, (typeof Problem)[\\"_A\\"], (typeof Problem)[\\"_O\\"]>(403, Problem)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const testSerializerDefaultDecoder = () => testSerializerDecoder(Message);"
+`;
