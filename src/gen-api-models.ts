@@ -62,13 +62,25 @@ function typeFromRef(
   s: string
 ): ITuple2<"definition" | "parameter" | "other", string> | undefined {
   const parts = s.split("/");
+
+  if (!parts) {
+    return undefined;
+  }
+
+  // If it's an OAS3, remove the "components" part.
+  if (parts[1] === "components") {
+    parts.splice(1,1);
+  }
+
   if (parts && parts.length === 3) {
     const refType: "definition" | "parameter" | "other" =
       parts[1] === "definitions"
         ? "definition"
-        : parts[1] === "parameters"
-        ? "parameter"
-        : "other";
+        : parts[1] === "schemas"
+          ? "definition"
+            : parts[1] === "parameters"
+              ? "parameter"
+              : "other";
     return Tuple2(refType, parts[2]);
   }
   return undefined;
@@ -120,11 +132,12 @@ export function renderOperation(
       OpenAPIV2.InBodyParameterObject | OpenAPIV3.ParameterObject
     >;
     parameters.forEach(param => {
-      if (param.name && (param as any).type) {
+      if (param.name && getParameterType(param)) {
         // The parameter description is inline
+        // and the parameter type is not undefined.
         const isRequired = param.required === true;
         params[`${param.name}${isRequired ? "" : "?"}`] = specTypeToTs(
-          (param as any).type
+          getParameterType(param)!
         );
         return;
       }
@@ -148,11 +161,17 @@ export function renderOperation(
         console.warn(`Unrecognized ref type [${refInParam}]`);
         return;
       }
+      // if the reference type is  "definition"
+      // e2 contains a schema object
+      // otherwise it is the schema name
       const paramType: string | undefined =
         refType === "definition"
           ? parsedRef.e2
-          : specParameters
-          ? specTypeToTs((specParameters as any)[parsedRef.e2].type)
+          // check that specParameters contain a valid declaration too!
+          : specParameters && getParameterType((specParameters as any)[parsedRef.e2])
+          ? specTypeToTs(
+            getParameterType((specParameters as any)[parsedRef.e2])!
+                         )
           : undefined;
 
       if (paramType === undefined) {
@@ -217,7 +236,19 @@ export function renderOperation(
   const responses = Object.keys(operation.responses as object).map(
     responseStatus => {
       const response = operation.responses![responseStatus];
-      const typeRef = response.schema ? response.schema.$ref : undefined;
+      const media_type = "application/json"
+      const typeRef =
+        // get schema from Swagger...
+        response.schema
+          ? response.schema.$ref
+          // ... or try with OAS3
+          : response.content
+            ? response.content[media_type]
+              && response.content[media_type].schema
+              ? response.content[media_type].schema.$ref
+              : undefined
+          // Not OAS2 or missing media-type in response.content
+          : undefined;
       const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
       if (parsedRef !== undefined) {
         importedTypes.add(parsedRef.e2);
@@ -271,6 +302,20 @@ export function renderOperation(
   ` + responsesDecoderCode;
 
   return Tuple2(code, importedTypes);
+}
+
+function getParameterType(
+  parameter:
+    any | undefined
+): string | undefined {
+    if (!parameter) {
+        return undefined;
+    }
+    return parameter.type
+        ? parameter.type
+        : parameter.schema
+          ? parameter.schema.type
+          : undefined;
 }
 
 function getAuthHeaders(
