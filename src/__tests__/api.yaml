@@ -70,7 +70,7 @@ paths:
         - in: body
           name: body
           schema:
-            type: "#/definitions/Problem"
+            "$ref": "#/definitions/Problem"
       responses:
         "204":
           description: No content

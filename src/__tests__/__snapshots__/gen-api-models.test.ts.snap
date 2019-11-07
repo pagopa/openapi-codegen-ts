@@ -516,7 +516,7 @@ exports[`gen-api-models should support generate requestbody 1`] = `
      */
 
     // Request type definition
-    export type TestRequestBodyT = r.IPostApiRequestType<{readonly body?: #/definitions/Problem}, \\"Content-Type\\", never, r.IResponseType<204, undefined>>;
+    export type TestRequestBodyT = r.IPostApiRequestType<{readonly problem?: Problem}, \\"Content-Type\\", never, r.IResponseType<204, undefined>>;
   
         // Decodes the success response with a custom success type
         export function testRequestBodyDecoder<A, O>(type: t.Type<A, O>) { return r.ioResponseDecoder<204, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(204, type); }
