@@ -65,6 +65,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /test-requestbody:
+    post:
+      operationId: "testRequestBody"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Problem"
+      responses:
+        "204":
+          description: No content
 servers:
   - url: https://localhost/api/v1
 components:
