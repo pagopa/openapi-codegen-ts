@@ -45,7 +45,42 @@ paths:
       responses:
         "200":
           description: "File uploaded"
+  /test-serializers:
+    post:
+      operationId: "testSerializer"
+      parameters:
+        - name: "qo"
+          in: "query"
+          required: false
+          type: "string"
+        - $ref: "#/parameters/PaginationRequest"
+      responses:
+        "200":
+          description: "File uploaded"
+          schema:
+            $ref: "#/definitions/Message"
+        "403":
+          description: "Error string"
+          schema:
+            $ref: "#/definitions/Problem"
+  /test-requestbody:
+    post:
+      operationId: "testRequestBody"
+      parameters:
+        - in: body
+          name: body
+          schema:
+            "$ref": "#/definitions/Problem"
+      responses:
+        "204":
+          description: No content
 definitions:
+  Problem:
+    properties:
+      title:
+        type: string
+      type:
+        type: string
   AllOfTest:
     allOf:
       - type: object
