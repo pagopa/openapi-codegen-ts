@@ -63,6 +63,17 @@ paths:
           description: "Error string"
           schema:
             $ref: "#/definitions/Problem"
+  /test-requestbody:
+    post:
+      operationId: "testRequestBody"
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: "#/definitions/Problem"
+      responses:
+        "204":
+          description: No content
 definitions:
   Problem:
     properties:
