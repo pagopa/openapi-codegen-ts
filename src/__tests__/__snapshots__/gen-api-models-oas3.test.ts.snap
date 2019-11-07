@@ -500,8 +500,8 @@ exports[`gen-api-models should support file uploads 1`] = `
      */
 
     // Request type definition
-    export type TestFileUploadT = r.IPostApiRequestType<{}, never, never, r.IResponseType<200, undefined>>;
-  
+    export type TestFileUploadT = r.IPostApiRequestType<{readonly file: { uri: string, name: string, type: string }}, \\"Content-Type\\", never, r.IResponseType<200, undefined>>;
+ 
         // Decodes the success response with a custom success type
         export function testFileUploadDecoder<A, O>(type: t.Type<A, O>) { return r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type); }
 

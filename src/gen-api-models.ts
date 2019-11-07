@@ -108,6 +108,29 @@ function getDecoderForResponse(status: string, type: string): string {
   }
 }
 
+// Get a schema from a request or response body
+function getSchemaFromBody(
+item: any,			// OpenAPIV3.RequestBodyObject | 
+preferred_media_type: string | undefined
+): string | undefined {
+
+    try {
+        const content = item.content;
+        if (preferred_media_type in content) {
+        	return item.content[preferred_media_type].schema.$ref;
+        }
+	// FIXME if there's more than one property then console.warn
+        const first_content = content[Object.keys(content)[0]]
+        if ($ref in first_content.schema) {
+            return first_content.schema.$ref;
+        }
+	return first_content.schema;
+    } catch {
+        console.warn(`f ${media_type } ${ JSON.stringify(item)}`);
+        return undefined;
+    }
+}
+
 export function renderOperation(
   method: string,
   operationId: string,
@@ -127,6 +150,42 @@ export function renderOperation(
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
+
+  // Eventually process requestBody
+  if ((operation as any).requestBody !== undefined) {
+      const item = (operation as any).requestBody;
+      const application_json = "application/json"
+
+      console.warn(`requestBody ${ JSON.stringify(item) }`);
+      const typeRef = getSchemaFromBody(item, application_json); 
+
+      const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
+      console.warn(`requestBody.typeRef ${ JSON.stringify({'1': parsedRef, '2': typeRef}) }`);
+      if (parsedRef) {
+          const refType = parsedRef.e1; // "definition"
+    
+          // TODO implement if required...
+          const isParamRequired = false;
+          const paramName = `${uncapitalize(parsedRef.e2)}${
+            isParamRequired ? "" : "?"
+          }`;
+    
+          console.warn(`requestBody.paramName ${ JSON.stringify(paramName) }`);
+    
+          params[paramName] = parsedRef.e2;
+          if (refType === "definition") {
+            importedTypes.add(parsedRef.e2);
+          }
+    
+
+      } else {
+        console.warn(`Cannot extract type from ref [${typeRef}]`);
+      }
+
+  }
+
+
+  // Process ordinary parameters
   if (operation.parameters !== undefined) {
     const parameters = operation.parameters as Array<
       OpenAPIV2.InBodyParameterObject | OpenAPIV3.ParameterObject
