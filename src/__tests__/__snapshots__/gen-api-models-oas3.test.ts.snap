@@ -501,7 +501,7 @@ exports[`gen-api-models should support file uploads 1`] = `
 
     // Request type definition
     export type TestFileUploadT = r.IPostApiRequestType<{readonly file: { uri: string, name: string, type: string }}, \\"Content-Type\\", never, r.IResponseType<200, undefined>>;
- 
+  
         // Decodes the success response with a custom success type
         export function testFileUploadDecoder<A, O>(type: t.Type<A, O>) { return r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type); }
 
@@ -517,13 +517,12 @@ exports[`gen-api-models should support generate requestbody 1`] = `
 
     // Request type definition
     export type TestRequestBodyT = r.IPostApiRequestType<{readonly problem?: Problem}, \\"Content-Type\\", never, r.IResponseType<204, undefined>>;
-
+  
         // Decodes the success response with a custom success type
         export function testRequestBodyDecoder<A, O>(type: t.Type<A, O>) { return r.ioResponseDecoder<204, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(204, type); }
 
         // Decodes the success response with the type defined in the specs
         export const testRequestBodyDefaultDecoder = () => testRequestBodyDecoder(t.undefined);"
-
 `;
 
 exports[`gen-api-models should support generate serializers 1`] = `

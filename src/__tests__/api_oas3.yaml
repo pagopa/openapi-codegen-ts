@@ -29,6 +29,7 @@ paths:
     post:
       operationId: testFileUpload
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
