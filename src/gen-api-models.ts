@@ -345,7 +345,6 @@ export function renderOperation(
   const responses = Object.keys(operation.responses as object).map(
     responseStatus => {
       const response = operation.responses![responseStatus];
-      const media_type = "application/json"
       const typeRef =
         // get schema from Swagger...
         response.schema
