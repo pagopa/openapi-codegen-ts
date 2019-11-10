@@ -62,13 +62,25 @@ function typeFromRef(
   s: string
 ): ITuple2<"definition" | "parameter" | "other", string> | undefined {
   const parts = s.split("/");
+
+  if (!parts) {
+    return undefined;
+  }
+
+  // If it's an OAS3, remove the "components" part.
+  if (parts[1] === "components") {
+    parts.splice(1,1);
+  }
+
   if (parts && parts.length === 3) {
     const refType: "definition" | "parameter" | "other" =
       parts[1] === "definitions"
         ? "definition"
-        : parts[1] === "parameters"
-        ? "parameter"
-        : "other";
+        : parts[1] === "schemas"
+          ? "definition"
+            : parts[1] === "parameters"
+              ? "parameter"
+              : "other";
     return Tuple2(refType, parts[2]);
   }
   return undefined;
@@ -96,6 +108,74 @@ function getDecoderForResponse(status: string, type: string): string {
   }
 }
 
+/** Get the first schema from an OAS3 request or response body
+ */
+function getSchemaFromBody(
+  item: any,
+): OpenAPIV3.BaseSchemaObject | string | undefined {
+
+    try {
+        const content = item.content;
+        const media_types = Object.keys(content);
+        
+        if (media_types.length == 0) {
+          console.warn(`Missing media-type in ${JSON.stringify(item)}`);
+          return undefined;
+        }
+
+        if (media_types.length > 1) {
+            console.warn(`Multiple media-types in ${JSON.stringify(item)}`);
+            return undefined;
+        }
+
+        const media_type = content[media_types[0]];
+        return "$ref" in media_type.schema ? media_type.schema.$ref : media_type.schema;
+
+    } catch {
+        console.warn(`Cannot get schema from body: ${JSON.stringify(item)}`);
+        return undefined;
+    }
+}
+
+/**
+ * Convert an OAS3 Object to typescript.
+ * This function supports only one level of schema properties:
+ *   for nested schemas define a schema object.
+ */
+function specObjectToTs(
+  item: any
+) : string | undefined {
+
+  if ((item.properties || item.type) == false) {
+    return undefined;
+  }
+
+  if (item.properties) {
+     item = item.properties;
+
+    // File upload implementation used in io-utils.
+    const file_upload_schema = {"file": {"type": "string", "format": "binary"}}
+    if (JSON.stringify(item) == JSON.stringify(file_upload_schema)) {
+      console.log(`Found file upload pattern`);
+      return specTypeToTs("file");
+    }
+
+    for (let p in item) {
+      item[p] = item[p].type;
+    }
+    return JSON.stringify(item).replace(/"/g, " ");
+  }
+
+  if (item.type) {
+    // Support for generic OAS3 binary file upload
+    // see https://swagger.io/docs/specification/describing-request-body/file-upload/
+    if (item.type == "string" && item.format == "binary") {
+      return specTypeToTs("file");
+    }
+    return specTypeToTs(item.type);
+  }
+}
+
 export function renderOperation(
   method: string,
   operationId: string,
@@ -115,16 +195,58 @@ export function renderOperation(
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
   const params: { [key: string]: string } = {};
   const importedTypes = new Set<string>();
+
+  // Eventually process requestBody
+  if (isV3OperationWithBody(operation) && operation.requestBody !== undefined) {
+    const item = operation.requestBody;
+    const typeRefOrSchema = getSchemaFromBody(item);
+    const isParamRequired = (item as OpenAPIV3.RequestBodyObject).required === true;
+    if (typeRefOrSchema) {
+      const inlineRequestBody = specObjectToTs(typeRefOrSchema);
+
+      // parameter is defined inline
+      if (inlineRequestBody){
+        const schema = (typeRefOrSchema as OpenAPIV3.BaseSchemaObject);
+        const parameterName = schema.properties
+          ? schema.properties.file
+            ? "file"
+            : "body"
+          : "body";
+        params[`${parameterName}${isParamRequired ? "" : "?"}`] = inlineRequestBody;
+      } else { // parameter is in $ref
+        const schema = (typeRefOrSchema as string);
+        const parsedRef = typeRefOrSchema ? typeFromRef(schema) : undefined;
+        console.debug(`requestBody.typeRef ${ JSON.stringify({'1': parsedRef, '2': typeRefOrSchema}) }`);
+
+        if (parsedRef) {
+          const refType = parsedRef.e1;
+          const paramName = `${uncapitalize(parsedRef.e2)}${
+            isParamRequired ? "" : "?"
+          }`;
+    
+          params[paramName] = parsedRef.e2;
+          if (refType === "definition") {
+            importedTypes.add(parsedRef.e2);
+          }
+        }
+      }
+    } else {
+      console.warn(`Cannot extract type from ref [${typeRefOrSchema}]`);
+    }
+  }
+
+  // Process ordinary parameters
   if (operation.parameters !== undefined) {
     const parameters = operation.parameters as Array<
       OpenAPIV2.InBodyParameterObject | OpenAPIV3.ParameterObject
     >;
     parameters.forEach(param => {
-      if (param.name && (param as any).type) {
+      if (param.name && getParameterType(param)) {
         // The parameter description is inline
+        // and the parameter type is not undefined.
         const isRequired = param.required === true;
         params[`${param.name}${isRequired ? "" : "?"}`] = specTypeToTs(
-          (param as any).type
+          getParameterType(param)!
         );
         return;
       }
@@ -148,11 +270,17 @@ export function renderOperation(
         console.warn(`Unrecognized ref type [${refInParam}]`);
         return;
       }
+      // if the reference type is  "definition"
+      // e2 contains a schema object
+      // otherwise it is the schema name
       const paramType: string | undefined =
         refType === "definition"
           ? parsedRef.e2
-          : specParameters
-          ? specTypeToTs((specParameters as any)[parsedRef.e2].type)
+          // check that specParameters contain a valid declaration too!
+          : specParameters && getParameterType((specParameters as any)[parsedRef.e2])
+          ? specTypeToTs(
+            getParameterType((specParameters as any)[parsedRef.e2])!
+                         )
           : undefined;
 
       if (paramType === undefined) {
@@ -217,7 +345,13 @@ export function renderOperation(
   const responses = Object.keys(operation.responses as object).map(
     responseStatus => {
       const response = operation.responses![responseStatus];
-      const typeRef = response.schema ? response.schema.$ref : undefined;
+      const typeRef =
+        // get schema from Swagger...
+        response.schema
+          ? response.schema.$ref
+          // ... or try with OAS3
+          : getSchemaFromBody(response);
+
       const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
       if (parsedRef !== undefined) {
         importedTypes.add(parsedRef.e2);
@@ -271,6 +405,20 @@ export function renderOperation(
   ` + responsesDecoderCode;
 
   return Tuple2(code, importedTypes);
+}
+
+function getParameterType(
+  parameter:
+    any | undefined
+): string | undefined {
+    if (!parameter) {
+        return undefined;
+    }
+    return parameter.type
+        ? parameter.type
+        : parameter.schema
+          ? parameter.schema.type
+          : undefined;
 }
 
 function getAuthHeaders(
@@ -347,6 +495,12 @@ export function isOpenAPIV3(
   specs: OpenAPI.Document
 ): specs is OpenAPIV3.Document {
   return specs.hasOwnProperty("openapi");
+}
+
+export function isV3OperationWithBody(
+  item: any
+): item is OpenAPIV3.OperationObject {
+  return item.hasOwnProperty("requestBody");
 }
 
 export async function generateApi(

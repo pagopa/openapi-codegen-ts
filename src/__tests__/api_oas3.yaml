@@ -29,6 +29,7 @@ paths:
     post:
       operationId: testFileUpload
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
@@ -42,6 +43,40 @@ paths:
       responses:
         "200":
           description: File uploaded
+  /test-serializers:
+    post:
+      operationId: "testSerializer"
+      parameters:
+        - name: "qo"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+        - $ref: "#/components/parameters/PaginationRequest"
+      responses:
+        "200":
+          description: "File uploaded"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "403":
+          description: "Error string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /test-requestbody:
+    post:
+      operationId: "testRequestBody"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Problem"
+      responses:
+        "204":
+          description: No content
 servers:
   - url: https://localhost/api/v1
 components:
@@ -79,6 +114,12 @@ components:
             write: Grants write access
             admin: Grants access to admin operations
   schemas:
+    Problem:
+      properties:
+        title:
+          type: string
+        type:
+          type: string
     AllOfTest:
       allOf:
         - type: object
@@ -264,4 +305,3 @@ components:
         - is_email_set
         - name
         - version
-
