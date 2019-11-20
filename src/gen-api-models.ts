@@ -93,7 +93,7 @@ function getDecoderForResponse(status: string, type: string): string {
     case "Error":
       return `r.basicErrorResponseDecoder<${status}>(${status})`;
     default:
-      return `r.ioResponseDecoder<${status}, (typeof ${type})["_A"], (typeof ${type})["_O"]>(${status}, ${type})`;
+      return `r.ioResponseDecoder<${status}, (typeof types[${status}])["_A"], (typeof types[${status}])["_O"]>(${status}, types[${status}])`;
   }
 }
 
@@ -226,27 +226,71 @@ export function renderOperation(
     .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
-  // use the first 2xx type as "success type" that we allow to be overridden
-  const successType = responses.find(_ => _.e1.length === 3 && _.e1[0] === "2");
+  // We need a type like:
+  //
+  // export type ${Prefix}ResponsesT<A0, C0, A1, C1, A2, C2> = {
+  //  200: t.Type<A0, C0>
+  //  202: t.Type<A1, C1>
+  //  400: t.Type<A2, C2>
+  // }
 
-  const responsesDecoderCode =
-    generateResponseDecoders && successType !== undefined
+  // First we create the list of generics:
+  //
+  // A0, C0, A1, C1, A2, C2
+  const responsesTGenerics = responses
+    .map((_, i) => `A${i}, C${i}`)
+    .join(", ");
+
+  // The we create the content:
+  //
+  // 200: t.Type<A1, C1>
+  // 202: t.Type<A2, C2>
+  const responsesTContent = responses.map(
+    (r, i) => `${r.e1}: t.Type<A${i}, C${i}>`
+  );
+
+  // Then we create the whole type definition
+  const responsesT = `
+    export type ${capitalize(operationId)}ResponsesT<${responsesTGenerics}> = {
+      ${responsesTContent}
+    };
+  `;
+
+  // Create an object with the default type for each response code:
+  //
+  // export const ${Prefix}DefaultResponses = {
+  //   200: MyType,
+  //   202: t.undefined,
+  //   400: t.undefined
+  // };
+  const defaultResponses = `
+    export const ${capitalize(operationId)}DefaultResponses = {
+      ${responses
+        .map(r => `${r.e1}: ${r.e2 === "undefined" ? "t.undefined" : r.e2}`)
+        .join(", ")}
+    };
+  `
+
+  const responsesDecoderCode = generateResponseDecoders
       ? `
         // Decodes the success response with a custom success type
-        export function ${operationId}Decoder<A, O>(type: t.Type<A, O>) { return ` +
+        export function ${operationId}Decoder<${responsesTGenerics}>(types: ${capitalize(operationId)}ResponsesT<${responsesTGenerics}>) { return ` +
         responses.reduce((acc, r) => {
           const d = getDecoderForResponse(
             r.e1,
-            successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
+            r.e2
           );
           return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
         }, "") +
         `; }
 
         // Decodes the success response with the type defined in the specs
-        export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(${
-          successType.e2 === "undefined" ? "t.undefined" : successType.e2
-        });`
+        export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(
+          ${capitalize(operationId)}DefaultResponses
+        );
+        
+        
+        `
       : "";
 
   const code =
@@ -259,6 +303,10 @@ export function renderOperation(
     export type ${capitalize(
       operationId
     )}T = ${requestType}<{${paramsCode}}, ${headersCode}, never, ${responsesType}>;
+
+    ${responsesT}
+
+    ${defaultResponses}
   ` + responsesDecoderCode;
 
   return Tuple2(code, importedTypes);
