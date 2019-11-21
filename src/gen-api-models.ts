@@ -86,15 +86,8 @@ function specTypeToTs(t: string): string {
   }
 }
 
-function getDecoderForResponse(status: string, type: string): string {
-  switch (type) {
-    case "undefined":
-      return `r.constantResponseDecoder<undefined, ${status}>(${status}, undefined)`;
-    case "Error":
-      return `r.basicErrorResponseDecoder<${status}>(${status})`;
-    default:
-      return `r.ioResponseDecoder<${status}, (typeof types[${status}])["_A"], (typeof types[${status}])["_O"]>(${status}, types[${status}])`;
-  }
+function getDecoderForResponse(status: string): string {
+  return `r.ioResponseDecoder<${status}, (typeof types[${status}])["_A"], (typeof types[${status}])["_O"]>(${status}, types[${status}])`;
 }
 
 export function renderOperation(
@@ -237,9 +230,7 @@ export function renderOperation(
   // First we create the list of generics:
   //
   // A0, C0, A1, C1, A2, C2
-  const responsesTGenerics = responses
-    .map((_, i) => `A${i}, C${i}`)
-    .join(", ");
+  const responsesTGenerics = responses.map((_, i) => `A${i}, C${i}`).join(", ");
 
   // The we create the content:
   //
@@ -260,29 +251,28 @@ export function renderOperation(
   //
   // export const ${Prefix}DefaultResponses = {
   //   200: MyType,
-  //   202: t.undefined,
-  //   400: t.undefined
+  //   202: t.any,
+  //   400: t.any
   // };
   const defaultResponses = `
     export const ${capitalize(operationId)}DefaultResponses = {
       ${responses
-        .map(r => `${r.e1}: ${r.e2 === "undefined" ? "t.undefined" : r.e2}`)
+        .map(r => `${r.e1}: ${r.e2 === "undefined" ? "t.any" : r.e2}`)
         .join(", ")}
     };
-  `
+  `;
 
   const responsesDecoderCode = generateResponseDecoders
-      ? `
+    ? `
         // Decodes the success response with a custom success type
-        export function ${operationId}Decoder<${responsesTGenerics}>(types: ${capitalize(operationId)}ResponsesT<${responsesTGenerics}>) { return ` +
-        responses.reduce((acc, r) => {
-          const d = getDecoderForResponse(
-            r.e1,
-            r.e2
-          );
-          return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
-        }, "") +
-        `; }
+        export function ${operationId}Decoder<${responsesTGenerics}>(types: ${capitalize(
+        operationId
+      )}ResponsesT<${responsesTGenerics}>) { return ` +
+      responses.reduce((acc, r) => {
+        const d = getDecoderForResponse(r.e1);
+        return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
+      }, "") +
+      `; }
 
         // Decodes the success response with the type defined in the specs
         export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(
@@ -291,7 +281,7 @@ export function renderOperation(
         
         
         `
-      : "";
+    : "";
 
   const code =
     `
