@@ -63,15 +63,15 @@ const argv = yargs
 //
 
 const env = initNunJucksEnvironment();
-generateApi(
+generateApi({
   env,
-  argv["api-spec"],
-  argv["out-dir"],
-  argv["ts-spec-file"],
-  argv.strict,
-  argv["request-types"],
-  argv["default-success-type"],
-  argv["default-error-type"],
-  argv["response-decoders"]
-  // tslint:disable-next-line:no-console
-).then(() => console.log("done"), err => console.log(`Error: ${err}`));
+  specFilePath: argv["api-spec"],
+  definitionsDirPath: argv["out-dir"],
+  tsSpecFilePath: argv["ts-spec-file"],
+  strictInterfaces: argv.strict,
+  generateRequestTypes: argv["request-types"],
+  defaultSuccessType: argv["default-success-type"],
+  defaultErrorType: argv["default-error-type"],
+  generateResponseDecoders: argv["response-decoders"]
+}).then(() => console.log("done"), err => console.log(`Error: ${err}`));
+// tslint:disable-next-line:no-console
