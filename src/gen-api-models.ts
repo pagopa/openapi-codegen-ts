@@ -27,7 +27,7 @@ function renderAsync(
         if (err) {
           return reject(err);
         }
-        accept(res);
+        accept(res || undefined);
       }
     );
   });

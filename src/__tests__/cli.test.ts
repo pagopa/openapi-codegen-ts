@@ -2,13 +2,11 @@
 
 import { spawn } from "child_process";
 import { ensureDir, readFile } from "fs-extra";
-import { ncp } from "ncp";
 import { tmpdir } from "os";
 import rimraf from "rimraf";
-import { promisify } from "util";
 
 const tmpPath = `${tmpdir()}/test_gen-api-models_${Date.now()}`;
-const tscOutDir = `${tmpPath}/dist`;
+const tscOutDir = `${process.cwd()}/dist`;
 const generatedOutDir = `${tmpPath}/generated`;
 const specPath = `${__dirname}/api.yaml`;
 
@@ -32,16 +30,6 @@ const runJob = (prog, args, cwd) => () => {
   });
 };
 
-const tsc = runJob(
-  "node",
-  [
-    `${process.cwd()}/node_modules/typescript/lib/tsc.js`,
-    "--outDir",
-    tscOutDir
-  ],
-  process.cwd()
-);
-
 const genApiModels = runJob(
   "node",
   [
@@ -51,23 +39,11 @@ const genApiModels = runJob(
     "--out-dir",
     generatedOutDir
   ],
-  tmpPath
+  process.cwd()
 );
 
-const npmInstall = runJob("npm", ["install", "--production"], tmpPath);
-
-const copy = promisify(ncp);
-
 beforeAll(async () => {
-  await tsc();
-
-  await Promise.all([
-    tsc(),
-    copy(`${process.cwd()}/package.json`, `${tmpPath}/package.json`),
-    copy(`${process.cwd()}/templates`, `${tmpPath}/templates`),
-    ensureDir(generatedOutDir)
-  ]);
-  await npmInstall();
+  await ensureDir(generatedOutDir);
 });
 
 afterAll(done => {
