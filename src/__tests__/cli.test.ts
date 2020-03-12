@@ -3,10 +3,11 @@
 import { spawn } from "child_process";
 import { ensureDir, readFile } from "fs-extra";
 import { ncp } from "ncp";
+import { tmpdir } from "os";
 import rimraf from "rimraf";
 import { promisify } from "util";
 
-const tmpPath = `/tmp/test_gen-api-models_${Date.now()}`;
+const tmpPath = `${tmpdir()}/test_gen-api-models_${Date.now()}`;
 const tscOutDir = `${tmpPath}/dist`;
 const generatedOutDir = `${tmpPath}/generated`;
 const specPath = `${__dirname}/api.yaml`;
@@ -15,6 +16,7 @@ jest.setTimeout(100000);
 
 const runJob = (prog, args, cwd) => () => {
   // tslint:disable-next-line: no-commented-code
+  // uncomment this line to pritn executed script
   // console.log(`executing "${prog} ${args.join(" ")}" on ${cwd}`);
   return new Promise((resolve, reject) => {
     try {
