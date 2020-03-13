@@ -74,3 +74,7 @@ NotificationChannelStatusValue -> lib/api/definitions/NotificationChannelStatusV
 ...
 done
 ```
+
+### Requirements
+
+* `node` version >= 10.8.0
