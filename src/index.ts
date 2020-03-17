@@ -42,6 +42,11 @@ const argv = yargs
     description:
       "Generate response decoders (experimental, default: false, implies --request-types)"
   })
+  .option("client", {
+    boolean: false,
+    default: false,
+    description: "Generate request client SDK"
+  })
   .option("default-success-type", {
     default: "undefined",
     description:
@@ -70,6 +75,7 @@ generateApi(
   argv["ts-spec-file"],
   argv.strict,
   argv["request-types"],
+  argv["client"],
   argv["default-success-type"],
   argv["default-error-type"],
   argv["response-decoders"]

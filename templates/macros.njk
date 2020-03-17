@@ -397,3 +397,19 @@
 
   {% endif %}
 {% endmacro -%}
+
+{##
+ # The request type derived from operation data
+ #}
+{% macro requestTypeName(operation) -%}{{ operation.operationId | capitalizeFirst }}T{% endmacro %}
+
+{##
+ # The respose decoder name derived from operation data
+ #}
+{% macro responseDecoderName(operation) -%}{{ operation.operationId }}Decoder{% endmacro %}
+
+{##
+ # Given a path with parameters, it returns the path as a string template
+ # example: /pet/{petId} -> `/pet/${petId}`
+ #}
+{% macro pathStringToTemplateString(path) -%}`{{ path | replace("{", "${")}}`{% endmacro %}

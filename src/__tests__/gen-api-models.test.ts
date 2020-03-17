@@ -6,14 +6,16 @@ import { Schema, Spec } from "swagger-schema-official";
 import {
   initNunJucksEnvironment,
   renderDefinitionCode,
-  renderOperation
+  renderOperation,
+  parseOperationSpec
 } from "../gen-api-models";
 
 const env = initNunJucksEnvironment();
 
 let spec;
-beforeAll(async () =>
-  (spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`)));
+beforeAll(
+  async () => (spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`))
+);
 
 describe("gen-api-models", () => {
   it("should not generate duplicate imports", async () => {
@@ -275,5 +277,47 @@ describe("gen-api-models", () => {
     );
 
     expect(code.e1).toMatchSnapshot();
+  });
+
+  it("should parse operations", () => {
+    const path = "/test-auth-bearer";
+    const pathSpec = spec.paths[path];
+    const operationKey = "get";
+    const expected = {
+      path,
+      method: "get",
+      operationId: "testAuthBearer",
+      pathParams: undefined,
+      queryParams: { qo: "string", qr: "string" },
+      bodyParams: undefined,
+      formParams: undefined
+    };
+
+    const operationDefinition = parseOperationSpec(path, pathSpec)(
+      operationKey
+    );
+
+    expect(operationDefinition).toEqual(expected);
+  });
+
+  it("should parse operations with file upload", () => {
+    const path = "/test-file-upload";
+    const pathSpec = spec.paths[path];
+    const operationKey = "post";
+    const expected = {
+      path,
+      method: "post",
+      operationId: "testFileUpload",
+      pathParams: undefined,
+      queryParams: undefined,
+      bodyParams: undefined,
+      formParams: { file: "file" }
+    };
+
+    const operationDefinition = parseOperationSpec(path, pathSpec)(
+      operationKey
+    );
+
+    expect(operationDefinition).toEqual(expected);
   });
 });

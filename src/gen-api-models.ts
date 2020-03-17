@@ -295,6 +295,117 @@ export function isOpenAPIV2(
   return specs.hasOwnProperty("swagger");
 }
 
+interface IParsedOperationSpec {
+  path: string;
+  method: string;
+  operationId: string;
+  queryParams?: Record<string, string>;
+  pathParams?: Record<string, string>;
+  bodyParams?: Record<string, string>;
+  formParams?: Record<string, string>;
+}
+export const parseOperationSpec = (
+  path: string,
+  pathSpec: OpenAPIV2.PathItemObject
+) => (operationKey: string): IParsedOperationSpec | undefined => {
+  const method = operationKey.toLowerCase();
+
+  if (SUPPORTED_SPEC_METHODS.indexOf(method) < 0) {
+    // skip unsupported spec methods
+    return;
+  }
+  const operation =
+    method === "get"
+      ? pathSpec.get
+      : method === "post"
+      ? pathSpec.post
+      : method === "put"
+      ? pathSpec.put
+      : method === "head"
+      ? pathSpec.head
+      : method === "delete"
+      ? pathSpec.delete
+      : undefined;
+  if (operation === undefined) {
+    console.warn(`Skipping unsupported method [${method}]`);
+    return;
+  }
+  const operationId = operation.operationId;
+  if (operationId === undefined) {
+    console.warn(`Skipping method with missing operationId [${method}]`);
+    return;
+  }
+
+  const paramsIn = (where: string, parameters?: OpenAPIV2.Parameters) =>
+    parameters
+      ? parameters.reduce((prev: Record<string, string> | undefined, param) => {
+          if (param.hasOwnProperty("$ref")) {
+            return prev;
+          }
+          const p = param as OpenAPIV2.ParameterObject;
+          if (p.in === where) {
+            return { ...(prev || {}), [p.name]: p.type };
+          }
+          return prev;
+        }, undefined)
+      : undefined;
+
+  const queryParams = paramsIn("query", operation.parameters);
+  const pathParams = paramsIn("path", operation.parameters);
+  const bodyParams = paramsIn("body", operation.parameters);
+  const formParams = paramsIn("formData", operation.parameters);
+
+  return {
+    path,
+    bodyParams,
+    method,
+    operationId,
+    pathParams,
+    queryParams,
+    formParams
+  };
+};
+
+export async function renderClientCode(
+  env: nunjucks.Environment,
+  api: OpenAPIV2.Document
+) {
+  const operations = Object.keys(api.paths).reduce(
+    (prev, path) => {
+      const pathSpec: OpenAPIV2.PathItemObject = api.paths[path];
+      const operationSpecs = Object.keys(pathSpec)
+        .map(parseOperationSpec(path, pathSpec))
+        .filter(e => typeof e !== "undefined") as IParsedOperationSpec[];
+      if (operationSpecs) {
+        return [...prev, ...operationSpecs];
+      }
+      return prev;
+    },
+    [] as IParsedOperationSpec[]
+  );
+
+  const renderP = new Promise<string>((resolve, reject) => {
+    env.render(
+      "client.ts.njk",
+      {
+        operations
+      },
+      (err, res) => {
+        if (err) {
+          console.error("**rejected ->", err);
+          return reject(err);
+        }
+        resolve(res);
+      }
+    );
+  });
+
+  const code = await renderP;
+  return prettier.format(code, {
+    parser: "typescript"
+  });
+}
+
 export async function generateApi(
   env: nunjucks.Environment,
   specFilePath: string | OpenAPIV2.Document,
@@ -302,10 +413,17 @@ export async function generateApi(
   tsSpecFilePath: string | undefined,
   strictInterfaces: boolean,
   generateRequestTypes: boolean,
+  generateClient: boolean,
   defaultSuccessType: string,
   defaultErrorType: string,
   generateResponseDecoders: boolean
 ): Promise<void> {
+  // force requestTypes and Decoders generation if a client is requested
+  if (generateClient) {
+    generateRequestTypes = true;
+    generateResponseDecoders = true;
+  }
+
   const api = await SwaggerParser.bundle(specFilePath);
 
   if (!isOpenAPIV2(api)) {
@@ -469,6 +587,13 @@ export async function generateApi(
     console.log(`Generating request types -> ${requestTypesPath}`);
     await fs.writeFile(requestTypesPath, prettifiedOperationsCode);
   }
+
+  if (generateClient) {
+    const outPath = `${definitionsDirPath}/client.ts`;
+    console.log(`Client -> ${outPath}`);
+    const code = await renderClientCode(env, api);
+    await fs.writeFile(outPath, code);
+  }
 }
 
 //
@@ -524,6 +649,49 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   env.addFilter("getTypeAliases", (item: string) => {
     return Object.keys(typeAliases).join("\n");
   });
+
+  /**
+   * Formats function arguments
+   * example: { arg1: 'foo', arg2: 'bar' } -> ({ arg1, arg2 })
+   * example: "arg1" -> (arg1)
+   * example: ["arg1", "arg2"] -> (arg1, arg2)
+   */
+  env.addFilter("toFnArgs", (item: object | string | string[]) =>
+    Array.isArray(item)
+      ? `(${item.join(", ")})`
+      : typeof item === "string"
+      ? `(${item})`
+      : typeof item === "object"
+      ? `({ ${Object.keys(item).join(", ")} })`
+      : "()"
+  );
+
+  env.addFilter("keys", (item: object) => {
+    return item ? Object.keys(item) : [];
+  });
+
+  env.addFilter("join", (item: Array<any>, sep: string) => {
+    return item.join(sep);
+  });
+
+  env.addFilter("first", (item: Array<any>) => {
+    return item[0];
+  });
+
+  env.addFilter("paramsIn", (parameters: OpenAPIV2.Parameters, where: string) =>
+    parameters
+      ? parameters.reduce((prev: Record<string, string> | undefined, param) => {
+          if (param.hasOwnProperty("$ref")) {
+            return prev;
+          }
+          const p = param as OpenAPIV2.ParameterObject;
+          if (p.in === where) {
+            return { ...(prev || {}), [p.name]: p.type };
+          }
+          return prev;
+        }, undefined)
+      : undefined
+  );
 
   return env;
 }
