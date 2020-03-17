@@ -1,13 +1,13 @@
 /* tslint:disable:no-duplicate-string */
 
 import * as SwaggerParser from "swagger-parser";
-import { Schema, Spec } from "swagger-schema-official";
 
 import {
   initNunJucksEnvironment,
+  parseAllOperations,
+  parseOperation,
   renderDefinitionCode,
-  renderOperation,
-  parseOperationSpec
+  renderOperation
 } from "../gen-api-models";
 
 const env = initNunJucksEnvironment();
@@ -242,82 +242,59 @@ describe("gen-api-models", () => {
   });
 
   it("should generate the operator definition", async () => {
-    const operation = spec.paths["/test-auth-bearer"].get;
-
-    const code = await renderOperation(
-      "get",
-      operation.operationId,
-      operation,
-      spec.parameters,
-      spec.securityDefinitions,
-      [],
+    const operationInfo = parseOperation(
+      spec.paths["/test-auth-bearer"],
+      spec,
       {},
+      [],
       "undefined",
-      "undefined",
-      true
-    );
+      "undefined"
+    )("get");
+    const code = renderOperation(operationInfo, true);
 
     expect(code.e1).toMatchSnapshot();
   });
 
   it("should support file uploads", async () => {
-    const operation = spec.paths["/test-file-upload"].post;
-
-    const code = await renderOperation(
-      "post",
-      operation.operationId,
-      operation,
-      spec.parameters,
-      spec.securityDefinitions,
-      [],
+    const operationInfo = parseOperation(
+      spec.paths["/test-file-upload"],
+      spec,
       {},
+      [],
       "undefined",
-      "undefined",
-      true
-    );
+      "undefined"
+    )("post");
+
+    const code = renderOperation(operationInfo, true);
 
     expect(code.e1).toMatchSnapshot();
   });
 
   it("should parse operations", () => {
-    const path = "/test-auth-bearer";
-    const pathSpec = spec.paths[path];
-    const operationKey = "get";
-    const expected = {
-      path,
-      method: "get",
-      operationId: "testAuthBearer",
-      pathParams: undefined,
-      queryParams: { qo: "string", qr: "string" },
-      bodyParams: undefined,
-      formParams: undefined
-    };
+    const expected = [
+      {
+        headers: ["Authorization"],
+        importedTypes: new Set(),
+        method: "get",
+        operationId: "testAuthBearer",
+        parameters: { bearerToken: "string", "qo?": "string", qr: "string" },
+        responses: [
+          { e1: "200", e2: "undefined" },
+          { e1: "403", e2: "undefined" }
+        ]
+      },
+      {
+        headers: ["Content-Type"],
+        importedTypes: new Set(),
+        method: "post",
+        operationId: "testFileUpload",
+        parameters: { file: "{ uri: string, name: string, type: string }" },
+        responses: [{ e1: "200", e2: "undefined" }]
+      }
+    ];
 
-    const operationDefinition = parseOperationSpec(path, pathSpec)(
-      operationKey
-    );
+    const allOperations = parseAllOperations(spec, "undefined", "undefined");
 
-    expect(operationDefinition).toEqual(expected);
-  });
-
-  it("should parse operations with file upload", () => {
-    const path = "/test-file-upload";
-    const pathSpec = spec.paths[path];
-    const operationKey = "post";
-    const expected = {
-      path,
-      method: "post",
-      operationId: "testFileUpload",
-      pathParams: undefined,
-      queryParams: undefined,
-      bodyParams: undefined,
-      formParams: { file: "file" }
-    };
-
-    const operationDefinition = parseOperationSpec(path, pathSpec)(
-      operationKey
-    );
-
-    expect(operationDefinition).toEqual(expected);
+    expect(allOperations).toEqual(expected);
   });
 });
