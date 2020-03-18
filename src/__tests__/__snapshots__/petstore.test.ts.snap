@@ -1,0 +1,518 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`petstore should generate the operator definition: operation-/pet/{petId}/uploadImage-post 1`] = `
+"
+    /****************************************************************
+     * uploadFile
+     */
+
+    // Request type definition
+    export type UploadFileT = r.IPostApiRequestType<{readonly petId: number,readonly additionalMetadata?: string,readonly file?: { uri: string, name: string, type: string }}, \\"Content-Type\\", never, r.IResponseType<200, ApiResponse>>;
+  
+        // Decodes the success response with a custom success type
+        export function uploadFileDecoder<A, O>(type: t.Type<A, O>) { return r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type); }
+
+        // Decodes the success response with the type defined in the specs
+        export const uploadFileDefaultDecoder = () => uploadFileDecoder(ApiResponse);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/pet/{petId}-delete 1`] = `
+"
+    /****************************************************************
+     * deletePet
+     */
+
+    // Request type definition
+    export type DeletePetT = r.IDeleteApiRequestType<{readonly api_key?: string,readonly petId: number}, never, never, r.IResponseType<400, undefined>|r.IResponseType<404, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function deletePetDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.constantResponseDecoder<undefined, 400>(400, undefined), r.constantResponseDecoder<undefined, 404>(404, undefined)); }
+
+        "
+`;
+
+exports[`petstore should generate the operator definition: operation-/pet/{petId}-get 1`] = `
+"
+    /****************************************************************
+     * getPetById
+     */
+
+    // Request type definition
+    export type GetPetByIdT = r.IGetApiRequestType<{readonly api_key: string,readonly petId: number}, \\"api_key\\", never, r.IResponseType<200, Pet>|r.IResponseType<400, undefined>|r.IResponseType<404, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function getPetByIdDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.constantResponseDecoder<undefined, 400>(400, undefined)), r.constantResponseDecoder<undefined, 404>(404, undefined)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const getPetByIdDefaultDecoder = () => getPetByIdDecoder(Pet);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/pet/{petId}-post 1`] = `
+"
+    /****************************************************************
+     * updatePetWithForm
+     */
+
+    // Request type definition
+    export type UpdatePetWithFormT = r.IPostApiRequestType<{readonly petId: number,readonly name?: string,readonly status?: string}, \\"Content-Type\\", never, r.IResponseType<405, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function updatePetWithFormDecoder<A, O>(type: t.Type<A, O>) { return r.constantResponseDecoder<undefined, 405>(405, undefined); }
+
+        "
+`;
+
+exports[`petstore should generate the operator definition: operation-/pet/findByStatus-get 1`] = `
+"
+    /****************************************************************
+     * findPetsByStatus
+     */
+
+    // Request type definition
+    export type FindPetsByStatusT = r.IGetApiRequestType<{readonly status: array}, never, never, r.IResponseType<200, undefined>|r.IResponseType<400, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function findPetsByStatusDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.constantResponseDecoder<undefined, 400>(400, undefined)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const findPetsByStatusDefaultDecoder = () => findPetsByStatusDecoder(t.undefined);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/pet/findByTags-get 1`] = `
+"
+    /****************************************************************
+     * findPetsByTags
+     */
+
+    // Request type definition
+    export type FindPetsByTagsT = r.IGetApiRequestType<{readonly tags: array}, never, never, r.IResponseType<200, undefined>|r.IResponseType<400, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function findPetsByTagsDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.constantResponseDecoder<undefined, 400>(400, undefined)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const findPetsByTagsDefaultDecoder = () => findPetsByTagsDecoder(t.undefined);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/pet-post 1`] = `
+"
+    /****************************************************************
+     * addPet
+     */
+
+    // Request type definition
+    export type AddPetT = r.IPostApiRequestType<{readonly pet: Pet}, \\"Content-Type\\", never, r.IResponseType<405, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function addPetDecoder<A, O>(type: t.Type<A, O>) { return r.constantResponseDecoder<undefined, 405>(405, undefined); }
+
+        "
+`;
+
+exports[`petstore should generate the operator definition: operation-/pet-put 1`] = `
+"
+    /****************************************************************
+     * updatePet
+     */
+
+    // Request type definition
+    export type UpdatePetT = r.IPutApiRequestType<{readonly pet: Pet}, \\"Content-Type\\", never, r.IResponseType<400, undefined>|r.IResponseType<404, undefined>|r.IResponseType<405, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function updatePetDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.composeResponseDecoders(r.constantResponseDecoder<undefined, 400>(400, undefined), r.constantResponseDecoder<undefined, 404>(404, undefined)), r.constantResponseDecoder<undefined, 405>(405, undefined)); }
+
+        "
+`;
+
+exports[`petstore should generate the operator definition: operation-/store/inventory-get 1`] = `
+"
+    /****************************************************************
+     * getInventory
+     */
+
+    // Request type definition
+    export type GetInventoryT = r.IGetApiRequestType<{readonly api_key: string}, \\"api_key\\", never, r.IResponseType<200, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function getInventoryDecoder<A, O>(type: t.Type<A, O>) { return r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type); }
+
+        // Decodes the success response with the type defined in the specs
+        export const getInventoryDefaultDecoder = () => getInventoryDecoder(t.undefined);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/store/order/{orderId}-delete 1`] = `
+"
+    /****************************************************************
+     * deleteOrder
+     */
+
+    // Request type definition
+    export type DeleteOrderT = r.IDeleteApiRequestType<{readonly orderId: number}, never, never, r.IResponseType<400, undefined>|r.IResponseType<404, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function deleteOrderDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.constantResponseDecoder<undefined, 400>(400, undefined), r.constantResponseDecoder<undefined, 404>(404, undefined)); }
+
+        "
+`;
+
+exports[`petstore should generate the operator definition: operation-/store/order/{orderId}-get 1`] = `
+"
+    /****************************************************************
+     * getOrderById
+     */
+
+    // Request type definition
+    export type GetOrderByIdT = r.IGetApiRequestType<{readonly orderId: number}, never, never, r.IResponseType<200, Order>|r.IResponseType<400, undefined>|r.IResponseType<404, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function getOrderByIdDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.constantResponseDecoder<undefined, 400>(400, undefined)), r.constantResponseDecoder<undefined, 404>(404, undefined)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const getOrderByIdDefaultDecoder = () => getOrderByIdDecoder(Order);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/store/order-post 1`] = `
+"
+    /****************************************************************
+     * placeOrder
+     */
+
+    // Request type definition
+    export type PlaceOrderT = r.IPostApiRequestType<{readonly order: Order}, \\"Content-Type\\", never, r.IResponseType<200, Order>|r.IResponseType<400, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function placeOrderDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.constantResponseDecoder<undefined, 400>(400, undefined)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const placeOrderDefaultDecoder = () => placeOrderDecoder(Order);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/user/{username}-delete 1`] = `
+"
+    /****************************************************************
+     * deleteUser
+     */
+
+    // Request type definition
+    export type DeleteUserT = r.IDeleteApiRequestType<{readonly username: string}, never, never, r.IResponseType<400, undefined>|r.IResponseType<404, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function deleteUserDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.constantResponseDecoder<undefined, 400>(400, undefined), r.constantResponseDecoder<undefined, 404>(404, undefined)); }
+
+        "
+`;
+
+exports[`petstore should generate the operator definition: operation-/user/{username}-get 1`] = `
+"
+    /****************************************************************
+     * getUserByName
+     */
+
+    // Request type definition
+    export type GetUserByNameT = r.IGetApiRequestType<{readonly username: string}, never, never, r.IResponseType<200, User>|r.IResponseType<400, undefined>|r.IResponseType<404, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function getUserByNameDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.constantResponseDecoder<undefined, 400>(400, undefined)), r.constantResponseDecoder<undefined, 404>(404, undefined)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const getUserByNameDefaultDecoder = () => getUserByNameDecoder(User);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/user/{username}-put 1`] = `
+"
+    /****************************************************************
+     * updateUser
+     */
+
+    // Request type definition
+    export type UpdateUserT = r.IPutApiRequestType<{readonly username: string,readonly user: User}, \\"Content-Type\\", never, r.IResponseType<400, undefined>|r.IResponseType<404, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function updateUserDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.constantResponseDecoder<undefined, 400>(400, undefined), r.constantResponseDecoder<undefined, 404>(404, undefined)); }
+
+        "
+`;
+
+exports[`petstore should generate the operator definition: operation-/user/createWithArray-post 1`] = `
+"
+    /****************************************************************
+     * createUsersWithArrayInput
+     */
+
+    // Request type definition
+    export type CreateUsersWithArrayInputT = r.IPostApiRequestType<{}, never, never, r.IResponseType<number, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function createUsersWithArrayInputDecoder<A, O>(type: t.Type<A, O>) { return r.constantResponseDecoder<undefined>(200, undefined); }
+
+        // Decodes the success response with the type defined in the specs
+        export const createUsersWithArrayInputDefaultDecoder = () => createUsersWithArrayInputDecoder(t.undefined);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/user/createWithList-post 1`] = `
+"
+    /****************************************************************
+     * createUsersWithListInput
+     */
+
+    // Request type definition
+    export type CreateUsersWithListInputT = r.IPostApiRequestType<{}, never, never, r.IResponseType<number, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function createUsersWithListInputDecoder<A, O>(type: t.Type<A, O>) { return r.constantResponseDecoder<undefined>(200, undefined); }
+
+        // Decodes the success response with the type defined in the specs
+        export const createUsersWithListInputDefaultDecoder = () => createUsersWithListInputDecoder(t.undefined);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/user/login-get 1`] = `
+"
+    /****************************************************************
+     * loginUser
+     */
+
+    // Request type definition
+    export type LoginUserT = r.IGetApiRequestType<{readonly username: string,readonly password: string}, never, never, r.IResponseType<200, undefined>|r.IResponseType<400, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function loginUserDecoder<A, O>(type: t.Type<A, O>) { return r.composeResponseDecoders(r.ioResponseDecoder<200, (typeof type)[\\"_A\\"], (typeof type)[\\"_O\\"]>(200, type), r.constantResponseDecoder<undefined, 400>(400, undefined)); }
+
+        // Decodes the success response with the type defined in the specs
+        export const loginUserDefaultDecoder = () => loginUserDecoder(t.undefined);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/user/logout-get 1`] = `
+"
+    /****************************************************************
+     * logoutUser
+     */
+
+    // Request type definition
+    export type LogoutUserT = r.IGetApiRequestType<{}, never, never, r.IResponseType<number, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function logoutUserDecoder<A, O>(type: t.Type<A, O>) { return r.constantResponseDecoder<undefined>(200, undefined); }
+
+        // Decodes the success response with the type defined in the specs
+        export const logoutUserDefaultDecoder = () => logoutUserDecoder(t.undefined);"
+`;
+
+exports[`petstore should generate the operator definition: operation-/user-post 1`] = `
+"
+    /****************************************************************
+     * createUser
+     */
+
+    // Request type definition
+    export type CreateUserT = r.IPostApiRequestType<{readonly user: User}, \\"Content-Type\\", never, r.IResponseType<number, undefined>>;
+  
+        // Decodes the success response with a custom success type
+        export function createUserDecoder<A, O>(type: t.Type<A, O>) { return r.constantResponseDecoder<undefined>(200, undefined); }
+
+        // Decodes the success response with the type defined in the specs
+        export const createUserDefaultDecoder = () => createUserDecoder(t.undefined);"
+`;
+
+exports[`petstore should not generate ApiResponse definition: definition-apiresponse 1`] = `
+"/**
+ * Do not edit this file it is auto-generated by italia-utils / gen-api-models.
+ * See https://github.com/teamdigitale/italia-utils
+ */
+/* tslint:disable */
+
+import * as t from \\"io-ts\\";
+
+// required attributes
+const ApiResponseR = t.interface({});
+
+// optional attributes
+const ApiResponseO = t.partial({
+  code: t.Integer,
+
+  type: t.string,
+
+  message: t.string
+});
+
+export const ApiResponse = t.intersection(
+  [ApiResponseR, ApiResponseO],
+  \\"ApiResponse\\"
+);
+
+export type ApiResponse = t.TypeOf<typeof ApiResponse>;
+"
+`;
+
+exports[`petstore should not generate Category definition: definition-category 1`] = `
+"/**
+ * Do not edit this file it is auto-generated by italia-utils / gen-api-models.
+ * See https://github.com/teamdigitale/italia-utils
+ */
+/* tslint:disable */
+
+import * as t from \\"io-ts\\";
+
+// required attributes
+const CategoryR = t.interface({});
+
+// optional attributes
+const CategoryO = t.partial({
+  id: t.Integer,
+
+  name: t.string
+});
+
+export const Category = t.intersection([CategoryR, CategoryO], \\"Category\\");
+
+export type Category = t.TypeOf<typeof Category>;
+"
+`;
+
+exports[`petstore should not generate Order definition: definition-order 1`] = `
+"/**
+ * Do not edit this file it is auto-generated by italia-utils / gen-api-models.
+ * See https://github.com/teamdigitale/italia-utils
+ */
+/* tslint:disable */
+
+import * as t from \\"io-ts\\";
+import { DateFromString } from \\"italia-ts-commons/lib/dates\\";
+import { enumType } from \\"italia-ts-commons/lib/types\\";
+
+export enum StatusEnum {
+  \\"placed\\" = \\"placed\\",
+
+  \\"approved\\" = \\"approved\\",
+
+  \\"delivered\\" = \\"delivered\\"
+}
+
+// required attributes
+const OrderR = t.interface({});
+
+// optional attributes
+const OrderO = t.partial({
+  id: t.Integer,
+
+  petId: t.Integer,
+
+  quantity: t.Integer,
+
+  shipDate: DateFromString,
+
+  status: enumType<StatusEnum>(StatusEnum, \\"status\\"),
+
+  complete: t.boolean
+});
+
+export const Order = t.intersection([OrderR, OrderO], \\"Order\\");
+
+export type Order = t.TypeOf<typeof Order>;
+"
+`;
+
+exports[`petstore should not generate Pet definition: definition-pet 1`] = `
+"/**
+ * Do not edit this file it is auto-generated by italia-utils / gen-api-models.
+ * See https://github.com/teamdigitale/italia-utils
+ */
+/* tslint:disable */
+
+import { Category } from \\"./Category\\";
+import { Tag } from \\"./Tag\\";
+import * as t from \\"io-ts\\";
+import { enumType } from \\"italia-ts-commons/lib/types\\";
+
+export enum StatusEnum {
+  \\"available\\" = \\"available\\",
+
+  \\"pending\\" = \\"pending\\",
+
+  \\"sold\\" = \\"sold\\"
+}
+
+// required attributes
+const PetR = t.interface({
+  name: t.string,
+
+  photoUrls: t.readonlyArray(t.string, \\"array of string\\")
+});
+
+// optional attributes
+const PetO = t.partial({
+  id: t.Integer,
+
+  category: Category,
+
+  tags: t.readonlyArray(Tag, \\"array of Tag\\"),
+
+  status: enumType<StatusEnum>(StatusEnum, \\"status\\")
+});
+
+export const Pet = t.intersection([PetR, PetO], \\"Pet\\");
+
+export type Pet = t.TypeOf<typeof Pet>;
+"
+`;
+
+exports[`petstore should not generate Tag definition: definition-tag 1`] = `
+"/**
+ * Do not edit this file it is auto-generated by italia-utils / gen-api-models.
+ * See https://github.com/teamdigitale/italia-utils
+ */
+/* tslint:disable */
+
+import * as t from \\"io-ts\\";
+
+// required attributes
+const TagR = t.interface({});
+
+// optional attributes
+const TagO = t.partial({
+  id: t.Integer,
+
+  name: t.string
+});
+
+export const Tag = t.intersection([TagR, TagO], \\"Tag\\");
+
+export type Tag = t.TypeOf<typeof Tag>;
+"
+`;
+
+exports[`petstore should not generate User definition: definition-user 1`] = `
+"/**
+ * Do not edit this file it is auto-generated by italia-utils / gen-api-models.
+ * See https://github.com/teamdigitale/italia-utils
+ */
+/* tslint:disable */
+
+import * as t from \\"io-ts\\";
+
+// required attributes
+const UserR = t.interface({});
+
+// optional attributes
+const UserO = t.partial({
+  id: t.Integer,
+
+  username: t.string,
+
+  firstName: t.string,
+
+  lastName: t.string,
+
+  email: t.string,
+
+  password: t.string,
+
+  phone: t.string,
+
+  userStatus: t.Integer
+});
+
+export const User = t.intersection([UserR, UserO], \\"User\\");
+
+export type User = t.TypeOf<typeof User>;
+"
+`;
