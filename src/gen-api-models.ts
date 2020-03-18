@@ -87,14 +87,34 @@ function specTypeToTs(t: string): string {
 }
 
 function getDecoderForResponse(status: string, type: string): string {
-  switch (type) {
-    case "undefined":
-      return `r.constantResponseDecoder<undefined, ${status}>(${status}, undefined)`;
-    case "Error":
-      return `r.basicErrorResponseDecoder<${status}>(${status})`;
-    default:
-      return `r.ioResponseDecoder<${status}, (typeof ${type})["_A"], (typeof ${type})["_O"]>(${status}, ${type})`;
-  }
+  return type === "undefined"
+    ? `r.constantResponseDecoder<undefined, ${status}>(${status}, undefined)`
+    : type === "Error"
+    ? `r.basicErrorResponseDecoder<${status}>(${status})`
+    : status === "default"
+    ? `r.constantResponseDecoder<undefined>(200, undefined)`
+    : `r.ioResponseDecoder<${status}, (typeof ${type})["_A"], (typeof ${type})["_O"]>(${status}, ${type})`;
+}
+
+// Gets the first 2xx type as "success type", otherwise the default response is specified
+function successOrDefault(responses: Array<ITuple2<string, string>>) {
+  const is2xx = (_: ITuple2<string, string>) =>
+    _.e1.length === 3 && _.e1[0] === "2";
+  const isDefault = (_: ITuple2<string, string>) => _.e1 === "default";
+  return responses.reduce(
+    (
+      found: ITuple2<string, string> | undefined,
+      response: ITuple2<string, string>
+    ) =>
+      is2xx(response)
+        ? response
+        : found
+        ? found
+        : isDefault(response)
+        ? response
+        : undefined,
+    undefined
+  );
 }
 
 export function renderOperation(
@@ -223,31 +243,38 @@ export function renderOperation(
   });
 
   const responsesType = responses
-    .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
+    .map(
+      r => `r.IResponseType<${r.e1 === "default" ? "number" : r.e1}, ${r.e2}>`
+    )
     .join("|");
 
-  // use the first 2xx type as "success type" that we allow to be overridden
-  const successType = responses.find(_ => _.e1.length === 3 && _.e1[0] === "2");
+  const successType = successOrDefault(responses);
 
-  const responsesDecoderCode =
-    generateResponseDecoders && successType !== undefined
-      ? `
-        // Decodes the success response with a custom success type
+  const allResponsesDecoder =
+    `// Decodes the success response with a custom success type
         export function ${operationId}Decoder<A, O>(type: t.Type<A, O>) { return ` +
-        responses.reduce((acc, r) => {
-          const d = getDecoderForResponse(
-            r.e1,
-            successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
-          );
-          return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
-        }, "") +
-        `; }
-
-        // Decodes the success response with the type defined in the specs
+    responses.reduce((acc, r) => {
+      const d = getDecoderForResponse(
+        r.e1,
+        successType !== undefined && r.e1 === successType.e1 ? "type" : r.e2
+      );
+      return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
+    }, "") +
+    `; }`;
+  const defaultDecoder =
+    successType !== undefined
+      ? `// Decodes the success response with the type defined in the specs
         export const ${operationId}DefaultDecoder = () => ${operationId}Decoder(${
           successType.e2 === "undefined" ? "t.undefined" : successType.e2
         });`
       : "";
+
+  const responsesDecoderCode = generateResponseDecoders
+    ? `
+        ${allResponsesDecoder}
+
+        ${defaultDecoder}`
+    : "";
 
   const code =
     `
