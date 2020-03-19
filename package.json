@@ -18,8 +18,8 @@
     "build": "rimraf dist && tsc",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
-    "pretest": "npm run build",
-    "test": "jest"
+    "e2e": "npm run build && jest e2e/* ",
+    "test": "jest src/*"
   },
   "dependencies": {
     "fs-extra": "^6.0.0",
