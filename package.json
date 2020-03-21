@@ -18,7 +18,7 @@
     "build": "rimraf dist && tsc",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
-    "e2e": "npm run build && jest e2e/* ",
+    "e2e": "./e2e/run.sh",
     "test": "jest src/*"
   },
   "dependencies": {

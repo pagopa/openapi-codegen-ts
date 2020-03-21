@@ -1,0 +1,48 @@
+{
+  "name": "TODO",
+  "version": "0.0.1",
+  "description": "TODO",
+  "repository": "https://github.com/teamdigitale/TODO",
+  "author": "https://teamdigitale.governo.it",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "postversion": "git push && git push --tags",
+    "test": "jest",
+    "lint": "tslint --project ."
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.13",
+    "@types/node": "10.14.1",
+    "danger": "^8.0.0",
+    "danger-plugin-digitalcitizenship": "*",
+    "italia-tslint-rules": "*",
+    "jest": "^24.8.0",
+    "prettier": "^1.12.1",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.1.0",
+    "typescript": "^3.5.0"
+  },
+  "dependencies": {
+    "fp-ts": "1.12.0",
+    "io-ts": "1.8.5",
+    "italia-ts-commons": "^5.1.13"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "jsx",
+      "node",
+      "ts",
+      "tsx"
+    ],
+    "preset": "ts-jest",
+    "testMatch": null
+  }
+}

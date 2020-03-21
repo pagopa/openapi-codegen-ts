@@ -1,0 +1,9 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+      "italia-tslint-rules/strong"
+    ],
+    "jsRules": {},
+    "rules": {},
+    "rulesDirectory": []
+}
