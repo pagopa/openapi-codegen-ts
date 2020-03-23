@@ -1,0 +1,168 @@
+# Azure DevOps pipeline to build, check source codes, run tests, and publish
+# package in NPM registry.
+#
+# To enable the check of source code with Danger JS you need to configure a valid
+# GitHub token (with scope "public_repo") by setting the following variable: 
+# - DANGER_GITHUB_API_TOKEN
+#
+# The deployment can only be triggered by a manual run of the pipeline and consists 
+# in publishing a new version of the package 'io-functions-commons' to the NPM 
+# registry and create a corresponding release and tag in GitHub. To enable the deployment 
+# you need to set to true the following variable otherwise the job to release the 
+# package will be skipped:
+# - ENABLE_MANUAL_DEPLOY = true
+#
+# The following variable needs to be used for specifying the increment "major", "minor", 
+# "patch" (DEFAULT), or "pre*" version of the package to be published (you could also  
+# directly specify the version; e.g. "4.2.1"):
+# - PACKAGE_VERSION
+# 
+# To publish a Release to the GitHub repository is required to specify in the following 
+# variable a personal access token (with scope "public_repo") for a GitHub user who 
+# is a 'collaborator' of the repository "pagopa/io-utils":
+# - GITHUB_TOKEN
+#
+# To publish the package to the NPM registry you also need to set an auth token (with 
+# "read and publish" access level) for a NPM user who is 'collaborator' of the public  
+# package "italia-utils": 
+# - NPM_TOKEN
+#
+# WARNING. Only the following values are allowed when selecting parameters to manually 
+# run the pipeline using Azure DevOps UI:
+# - Branch/tag: you need to select a branch (a tag name cannot be specified)
+# - Commit:     leave empty (otherwise the updates are rejected because the tip of your 
+#               current branch would be behind its remote counterpart)
+#
+
+variables:
+  NODE_VERSION: '10.14.1'
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+
+# This pipeline can be manually run or is automatically triggered whenever one 
+# of the following conditions is true:
+# - a push is made to any branch in the repository (not only 'master')
+# - a pull request is created
+trigger:
+  branches:
+    include:
+      - '*'
+
+# This pipeline has been implemented to be run on hosted agent pools based both
+# on 'windows' and 'ubuntu' virtual machine images and using the scripts defined
+# in the package.json file. Since we are deploying on Azure Web app on Windows
+# runtime, the pipeline is currently configured to use a Windows hosted image for
+# verifying the build, and Linux OS for all other jobs for faster execution.
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  # A) Build and code validation (always run)
+  - stage: Build
+    dependsOn: []
+    jobs:
+      # A1) Checkout, install module and build code (use Windows OS)
+      - job: make_build
+        pool:
+          vmImage: 'windows-2019'
+        steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: build
+            
+      # A2) Analyze source code to find errors with lint
+      - job: lint
+        steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
+
+          - script: |
+              yarn lint
+            displayName: 'Lint'
+
+      # A3) Check source code with danger (ignore when master)
+      - job: danger
+        condition: and(succeeded(),
+            and(
+              variables['DANGER_GITHUB_API_TOKEN'], 
+              ne(variables['Build.SourceBranch'], 'refs/heads/master')
+            )
+          )
+        steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
+
+          - bash: |
+              yarn danger ci
+            displayName: 'Danger CI'
+
+
+  # B) Run unit tests (use Linux OS, also required to generate certificates)
+  - stage: Test
+    dependsOn: []
+    jobs:
+      - job: unit_tests
+        steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: build
+
+          - script: |
+              yarn test
+            displayName: 'Unit tests exec'
+
+          - bash: |
+              bash <(curl -s https://codecov.io/bash)
+            displayName: 'Code coverage'
+
+
+  # C) Publish a new version of the package 'italia-utils' to the NPM 
+  # registry and a release in GitHub if all the following conditions apply:
+  #    - $ENABLE_MANUAL_DEPLOY == true 
+  #    - it is a manual trigger
+  #    - Build / Test stages succeeded (if selected)
+  - stage: Deploy_production
+    pool:
+      vmImage: 'windows-2019'
+    condition: 
+      and(
+        succeeded(),
+        and (
+          eq(variables['ENABLE_MANUAL_DEPLOY'], true),
+          eq(variables['Build.Reason'], 'Manual')
+        )
+      )
+    dependsOn:
+      - Build
+      - Test
+    jobs:
+      - job: publish_package
+        steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: build
+            
+            # The NPM auth token must be set in a local .npmrc file
+          - bash: |
+              echo registry=https://registry.npmjs.com/ >> .npmrc
+              echo \//registry.npmjs.org/:_authToken=$NPM_TOKEN >> .npmrc
+            env:
+              NPM_TOKEN: '$(NPM_TOKEN)'
+            displayName: 'Init .npmrc file'
+          
+            # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
+            # Note. The git commands are run only to set the appropriate missing configurations
+            # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+          - bash: |
+              git checkout $GIT_SOURCE_BRANCH_NAME
+              git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
+              git config user.name "devops-pipeline"
+              git config --global user.email "devops-pipeline@noreply.github.com"
+              yarn release-it $PACKAGE_VERSION --ci
+            env:
+              GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
+              GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
+              GITHUB_TOKEN: '$(GITHUB_TOKEN)'
+              PACKAGE_VERSION: '$(PACKAGE_VERSION)'
+            displayName: 'release-it'
