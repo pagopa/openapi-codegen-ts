@@ -11,11 +11,10 @@ import {
   RequestParams,
   TypeofApiCall,
   composeHeaderProducers,
-  createFetchRequestForApi
+  createFetchRequestForApi,
+  RequestHeaderProducer,
+  RequestHeaderKey
 } from "italia-ts-commons/lib/requests";
-
-
-import nodeFetch from "node-fetch";
 
 {% if operations | length %}
 import {
@@ -31,8 +30,8 @@ import {
 export function {{ moduleName }}(
   baseUrl: string,
   // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch = (nodeFetch as any) as typeof fetch,
-  customHeaderProducer: () => {}
+  fetchApi: typeof fetch,
+  customHeaderProducer?: RequestHeaderProducer<any, RequestHeaderKey>
 ): {
   {% for operation in operations %} readonly {{ operation.operationId }}: TypeofApiCall<typeof {{ operation.operationId }}T>;{% endfor %}
 } {
@@ -44,7 +43,7 @@ export function {{ moduleName }}(
   {% for operation in operations %}
   const {{ operation.operationId }}T: RequestParams<{{ macro.requestTypeName(operation) }}> = {
     method: "{{ operation.method }}",
-    headers: composeHeaderProducers(customHeaderProducer, ApiHeaderJson),
+    headers: customHeaderProducer ? composeHeaderProducers(ApiHeaderJson, customHeaderProducer) : ApiHeaderJson,
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
     url: {{ operation.pathParams | toFnArgs }} => {{ macro.pathStringToTemplateString(operation.path) }},
     {% if operation.bodyParams | keys | length %}

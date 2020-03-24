@@ -406,7 +406,7 @@
 {##
  # The respose decoder name derived from operation data
  #}
-{% macro responseDecoderName(operation) -%}{{ operation.operationId }}Decoder{% endmacro %}
+{% macro responseDecoderName(operation) -%}{{ operation.operationId }}DefaultDecoder{% endmacro %}
 
 {##
  # Given a path with parameters, it returns the path as a string template
