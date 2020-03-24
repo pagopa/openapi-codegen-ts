@@ -6,9 +6,9 @@
 # - DANGER_GITHUB_API_TOKEN
 #
 # The deployment can only be triggered by a manual run of the pipeline and consists 
-# in publishing a new version of the package 'io-functions-commons' to the NPM 
-# registry and create a corresponding release and tag in GitHub. To enable the deployment 
-# you need to set to true the following variable otherwise the job to release the 
+# in publishing a new version of the package 'italia-utils' to the NPM registry and 
+# create a corresponding release and tag in GitHub. To enable the deployment you 
+# need to set to true the following variable otherwise the job to release the 
 # package will be skipped:
 # - ENABLE_MANUAL_DEPLOY = true
 #
@@ -98,7 +98,7 @@ stages:
             displayName: 'Danger CI'
 
 
-  # B) Run unit tests (use Linux OS, also required to generate certificates)
+  # B) Run unit tests (use Linux OS)
   - stage: Test
     dependsOn: []
     jobs:
@@ -109,7 +109,7 @@ stages:
               make: build
 
           - script: |
-              yarn test
+              yarn test:coverage
             displayName: 'Unit tests exec'
 
           - bash: |

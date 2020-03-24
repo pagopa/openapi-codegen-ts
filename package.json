@@ -19,7 +19,8 @@
     "version": "npm run build",
     "postversion": "git push && git push --tags",
     "lint": "tslint --project .",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "fs-extra": "^6.0.0",
