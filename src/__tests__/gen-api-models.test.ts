@@ -1,20 +1,25 @@
 /* tslint:disable:no-duplicate-string */
 
 import * as SwaggerParser from "swagger-parser";
+import { OpenAPIV2 } from "openapi-types";
 
 import {
   initNunJucksEnvironment,
   parseAllOperations,
   parseOperation,
   renderDefinitionCode,
-  renderOperation
+  renderOperation,
+  getAuthHeaders
 } from "../gen-api-models";
 
 const env = initNunJucksEnvironment();
 
-let spec;
+let spec: OpenAPIV2.Document;
 beforeAll(
-  async () => (spec = await SwaggerParser.bundle(`${__dirname}/api.yaml`))
+  async () =>
+    (spec = (await SwaggerParser.bundle(
+      `${__dirname}/api.yaml`
+    )) as OpenAPIV2.Document)
 );
 
 describe("gen-api-models", () => {
@@ -243,9 +248,8 @@ describe("gen-api-models", () => {
 
   it("should generate the operator definition", async () => {
     const operationInfo = parseOperation(
-      spec.paths["/test-auth-bearer"],
       spec,
-      {},
+      "/test-auth-bearer",
       [],
       "undefined",
       "undefined"
@@ -257,9 +261,8 @@ describe("gen-api-models", () => {
 
   it("should support file uploads", async () => {
     const operationInfo = parseOperation(
-      spec.paths["/test-file-upload"],
       spec,
-      {},
+      "/test-file-upload",
       [],
       "undefined",
       "undefined"
@@ -273,22 +276,48 @@ describe("gen-api-models", () => {
   it("should parse operations", () => {
     const expected = [
       {
+        path: "/api/v1/test-auth-bearer",
         headers: ["Authorization"],
         importedTypes: new Set(),
         method: "get",
         operationId: "testAuthBearer",
-        parameters: { bearerToken: "string", "qo?": "string", qr: "string" },
+        parameters: [
+          {
+            name: "bearerToken",
+            type: "string",
+            in: "header",
+            headerName: "Authorization",
+            tokenType: "apiKey"
+          },
+          {
+            name: "qo?",
+            type: "string",
+            in: "query"
+          },
+          {
+            name: "qr",
+            type: "string",
+            in: "query"
+          }
+        ],
         responses: [
           { e1: "200", e2: "undefined" },
           { e1: "403", e2: "undefined" }
         ]
       },
       {
+        path: "/api/v1/test-file-upload",
         headers: ["Content-Type"],
         importedTypes: new Set(),
         method: "post",
         operationId: "testFileUpload",
-        parameters: { file: "{ uri: string, name: string, type: string }" },
+        parameters: [
+          {
+            name: "file",
+            type: "{ uri: string, name: string, type: string }",
+            in: "formData"
+          }
+        ],
         responses: [{ e1: "200", e2: "undefined" }]
       }
     ];

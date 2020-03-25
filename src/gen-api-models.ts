@@ -112,75 +112,84 @@ const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
   return typeFromRef(refInParam);
 };
 
-const parseParams = (
+const parseParameter = (
   specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
   operationId: string
-) => (parameters: OpenAPIV2.ParameterObject[]): IParsedParams => {
-  return parameters.reduce(
-    (prev: IParsedParams, param: OpenAPIV2.ParameterObject) => {
-      if (param.name && param.type) {
-        // The parameter description is inline
-        const isRequired = param.required === true;
-        const paramName = `${param.name}${isRequired ? "" : "?"}`;
-        return {
-          ...prev,
-          [paramName]: specTypeToTs(param.type)
-        };
-      }
-      // Paratemer is declared as ref, we need to look it up
-      const refInParam: string | undefined =
-        param.$ref || (param.schema ? param.schema.$ref : undefined);
+) => (param: OpenAPIV2.ParameterObject): IParameterInfo | undefined => {
+  if (param.name && param.type && param.in !== "header") {
+    return {
+      name: `${param.name}${param.required ? "" : "?"}`,
+      in: param.in,
+      type: specTypeToTs(param.type)
+    };
+  }
+  // Paratemer is declared as ref, we need to look it up
+  const refInParam: string | undefined =
+    param.$ref || (param.schema ? param.schema.$ref : undefined);
 
-      if (refInParam === undefined) {
-        console.warn(
-          `Skipping param without ref in operation [${operationId}] [${
-            param.name
-          }]`
-        );
-        return prev;
-      }
-      const parsedRef = typeFromRef(refInParam);
-      if (parsedRef === undefined) {
-        console.warn(`Cannot extract type from ref [${refInParam}]`);
-        return prev;
-      }
-      const refType = parsedRef.e1;
-      if (refType === "other") {
-        console.warn(`Unrecognized ref type [${refInParam}]`);
-        return prev;
-      }
+  if (refInParam === undefined) {
+    console.warn(
+      `Skipping param without ref in operation [${operationId}] [${param.name}]`
+    );
+    return undefined;
+  }
+  const parsedRef = typeFromRef(refInParam);
+  if (parsedRef === undefined) {
+    console.warn(`Cannot extract type from ref [${refInParam}]`);
+    return undefined;
+  }
+  const refType = parsedRef.e1;
+  if (refType === "other") {
+    console.warn(`Unrecognized ref type [${refInParam}]`);
+    return undefined;
+  }
 
-      const paramType: string | undefined =
-        refType === "definition"
-          ? parsedRef.e2
-          : specParameters
-          ? specTypeToTs(specParameters[parsedRef.e2].type)
-          : undefined;
+  const paramType: string | undefined =
+    refType === "definition"
+      ? parsedRef.e2
+      : specParameters
+      ? specTypeToTs(specParameters[parsedRef.e2].type)
+      : undefined;
 
-      if (paramType === undefined) {
-        console.warn(`Cannot resolve parameter ${parsedRef.e2}`);
-        return prev;
-      }
+  if (paramType === undefined) {
+    console.warn(`Cannot resolve parameter ${parsedRef.e2}`);
+    return undefined;
+  }
 
-      const isParamRequired =
-        refType === "definition"
-          ? param.required === true
-          : specParameters
-          ? specParameters[parsedRef.e2].required
-          : false;
+  const isParamRequired =
+    refType === "definition"
+      ? param.required === true
+      : specParameters
+      ? specParameters[parsedRef.e2].required
+      : false;
 
-      const paramName = `${uncapitalize(parsedRef.e2)}${
-        isParamRequired ? "" : "?"
-      }`;
+  const paramName = `${uncapitalize(parsedRef.e2)}${
+    isParamRequired ? "" : "?"
+  }`;
 
-      return {
-        ...prev,
-        [paramName]: paramType
-      };
-    },
-    {} as IParsedParams
-  );
+  return {
+    name: paramName,
+    type: paramType,
+    in: param.in
+  };
 };
+
+const reduceToRecord = <K extends string, T extends Record<K, any>, Q>(
+  field: K
+) => (prev: Record<string, Q>, elem: T | undefined) => {
+  if (elem) {
+    const key = elem[field];
+    return {
+      ...prev,
+      [key]: elem
+    };
+  }
+  return prev;
+};
+
+const pick = <K extends string, T extends Record<K, any>>(field: K) => (
+  elem: T
+) => elem[field];
 
 const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
   new Set(
@@ -229,8 +238,8 @@ export const renderOperation = (
     .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
-  const paramsCode = Object.keys(parameters)
-    .map(paramKey => `readonly ${paramKey}: ${parameters[paramKey]}`)
+  const paramsCode = parameters
+    .map(param => `readonly ${param.name}: ${param.type}`)
     .join(",");
 
   // use the first 2xx type as "success type" that we allow to be overridden
@@ -271,13 +280,26 @@ export const renderOperation = (
   return Tuple2(code, importedTypes);
 };
 
-function getAuthHeaders(
+/**
+ * Parses security along with security definitions to obtain a collection of tuples in the form (keyName, headerName).
+ * It works with security object both global and operation-specific.
+ * see: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityRequirementObject
+ * https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject
+ * @param securityDefinitions global security definition objects
+ * @param security global or specific security requirements
+ *
+ * @returns Array of tuples in the form (keyName, headerName). Example: [{ e1: 'token', e2: 'Authorization'}]
+ */
+export function getAuthHeaders(
   securityDefinitions: OpenAPIV2.Document["securityDefinitions"],
-  securityKeys: ReadonlyArray<string>
-): ReadonlyArray<ITuple2<string, string>> {
-  if (securityKeys === undefined && securityDefinitions === undefined) {
-    return [];
-  }
+  security?: OpenAPIV2.SecurityRequirementObject[]
+): Array<IAuthHeaderParameterInfo> {
+  const securityKeys: ReadonlyArray<string> | undefined =
+    security && security.length
+      ? security
+          .map((_: OpenAPIV2.SecurityRequirementObject) => Object.keys(_)[0])
+          .filter(_ => _ !== undefined)
+      : undefined;
 
   const securityDefs =
     securityKeys !== undefined && securityDefinitions !== undefined
@@ -293,35 +315,53 @@ function getAuthHeaders(
   return securityDefs
     .filter(_ => _.e2 !== undefined)
     .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
-    .map(_ => Tuple2(_.e1, (_.e2 as OpenAPIV2.SecuritySchemeApiKey).name));
+    .map(_ => {
+      const {
+        name: headerName,
+        type: tokenType
+      } = _.e2 as OpenAPIV2.SecuritySchemeApiKey;
+      return {
+        headerName,
+        // tslint:disable-next-line: no-useless-cast
+        in: "header" as "header", // this cast is needed otherwise "in" property will be recognize as string
+        name: _.e1,
+        type: "string",
+        tokenType
+      } as IAuthHeaderParameterInfo;
+    });
 }
 
-const parseExtraParameters = (
-  pathSpec: OpenAPIV2.PathsObject,
-  globalAuthHeaders: ReadonlyArray<ITuple2<string, string>>
-) => {
-  const extraParameters: { [key: string]: string } = {};
-  if (pathSpec.parameters !== undefined) {
-    pathSpec.parameters.forEach(
-      (param: {
-        name: string;
-        required: boolean;
-        type: string | undefined;
-      }) => {
-        const paramType = param.type;
-        if (paramType) {
-          const paramName = `${param.name}${
-            param.required === true ? "" : "?"
-          }`;
-          extraParameters[paramName] = specTypeToTs(paramType);
-        }
-      }
-    );
-  }
-
-  // add global auth parameters to extraParameters
-  globalAuthHeaders.forEach(({ e1 }) => (extraParameters[e1] = "string"));
-  return extraParameters;
+const parseExtraParameters = (pathSpec: OpenAPIV2.PathsObject) => {
+  return typeof pathSpec.parameters !== "undefined"
+    ? pathSpec.parameters.reduce(
+        (
+          prev: Array<IParameterInfo | IHeaderParameterInfo>,
+          param: {
+            name: string;
+            type: string | undefined;
+            required: boolean;
+            in: string;
+          }
+        ) => {
+          if (param && param.type) {
+            const paramName = `${param.name}${
+              param.required === true ? "" : "?"
+            }`;
+            return [
+              ...prev,
+              {
+                headerName: param.in === "header" ? paramName : undefined,
+                in: param.in,
+                name: paramName,
+                type: specTypeToTs(param.type)
+              }
+            ];
+          }
+          return prev;
+        },
+        [] as Array<IParameterInfo | IHeaderParameterInfo>
+      )
+    : [];
 };
 
 const assertNever = (x: never) => {
@@ -332,23 +372,42 @@ const assertNever = (x: never) => {
 };
 
 type SupportedMethod = "get" | "post" | "put" | "delete";
+interface IParameterInfo {
+  name: string;
+  type: string;
+  in: string;
+  headerName?: string;
+}
+interface IHeaderParameterInfo extends IParameterInfo {
+  in: "header";
+  headerName: string;
+}
+
+interface IAuthHeaderParameterInfo extends IHeaderParameterInfo {
+  tokenType: "basic" | "apiKey" | "oauth2";
+}
+
+/* & (
+  | { in: "query" | "body" | "formData" }
+  | { in: "header"; headerName: string }) */
 export interface IOperationInfo {
   method: SupportedMethod;
   operationId: string;
-  parameters: Record<string, string>;
+  parameters: IParameterInfo[];
   responses: Array<ITuple2<string, string>>;
   headers: string[];
   importedTypes: Set<string>;
+  path: string;
 }
 export const parseOperation = (
-  pathSpec: OpenAPIV2.PathsObject,
   api: OpenAPIV2.Document,
-  extraParameters: { [key: string]: string },
-  extraHeaders: ReadonlyArray<string>,
+  path: string,
+  extraParameters: Array<IParameterInfo | IHeaderParameterInfo>,
   defaultSuccessType: string,
   defaultErrorType: string
 ) => (operationKey: string): IOperationInfo | undefined => {
   const { parameters: specParameters, securityDefinitions } = api;
+  const pathSpec: OpenAPIV2.PathsObject = api.paths[path];
 
   const method = operationKey.toLowerCase() as SupportedMethod;
   const operation: OpenAPIV2.OperationObject =
@@ -374,31 +433,20 @@ export const parseOperation = (
 
   const importedTypes = getImportedTypes(operation.parameters);
 
-  const operationParams: { [key: string]: string } =
+  const operationParams =
     typeof operation.parameters !== "undefined"
-      ? parseParams(specParameters, operationId)(
-          operation.parameters as OpenAPIV2.ParameterObject[]
-        )
-      : {};
+      ? (operation.parameters as OpenAPIV2.ParameterObject[])
+          .map(parseParameter(specParameters, operationId))
+          .filter((e): e is IParameterInfo => typeof e !== "undefined")
+      : [];
 
   const authHeadersAndParams = operation.security
-    ? getAuthHeaders(
-        securityDefinitions,
-        operation.security
-          .map((_: OpenAPIV2.SecurityRequirementObject) => Object.keys(_)[0])
-          .filter(_ => _ !== undefined)
-      )
+    ? getAuthHeaders(securityDefinitions, operation.security)
     : [];
 
-  const authParams: { [k: string]: string } = authHeadersAndParams.reduce(
-    (prev, { e1 }) => ({
-      ...prev,
-      [e1]: "string"
-    }),
-    {} as { [k: string]: string }
-  );
+  const authParams = authHeadersAndParams;
 
-  const parameters = { ...extraParameters, ...authParams, ...operationParams };
+  const parameters = [...extraParameters, ...authParams, ...operationParams];
 
   const contentTypeHeaders =
     (method === "post" || method === "put") &&
@@ -406,7 +454,11 @@ export const parseOperation = (
       ? ["Content-Type"]
       : [];
 
-  const authHeaders = authHeadersAndParams.map(_ => _.e2);
+  const authHeaders = authHeadersAndParams.map(pick("headerName"));
+
+  const extraHeaders = extraParameters
+    .filter((p): p is IHeaderParameterInfo => p.in === "header")
+    .map(pick("headerName"));
 
   const headers = [...contentTypeHeaders, ...authHeaders, ...extraHeaders];
 
@@ -431,7 +483,8 @@ export const parseOperation = (
     headers,
     parameters,
     responses,
-    importedTypes
+    importedTypes,
+    path: `${api.basePath}${path}`
   };
 };
 
@@ -474,25 +527,22 @@ export function parseAllOperations(
 ) {
   // map global auth headers only if global security is defined
   const globalAuthHeaders = api.security
-    ? getAuthHeaders(api.securityDefinitions, api.security
-        .map((_: {}) =>
-          Object.keys(_).length > 0 ? Object.keys(_)[0] : undefined
-        )
-        .filter(_ => _ !== undefined) as ReadonlyArray<string>)
+    ? getAuthHeaders(api.securityDefinitions, api.security)
     : [];
 
   return Object.keys(api.paths)
     .map(path => {
       const pathSpec = api.paths[path];
-      const extraParameters = parseExtraParameters(pathSpec, globalAuthHeaders);
-      const extraHeaders = globalAuthHeaders.map(({ e2 }) => e2);
+      const extraParameters = [
+        ...parseExtraParameters(pathSpec),
+        ...globalAuthHeaders
+      ];
       return Object.keys(pathSpec)
         .map(
           parseOperation(
-            pathSpec,
             api,
+            path,
             extraParameters,
-            extraHeaders,
             defaultSuccessType,
             defaultErrorType
           )
@@ -525,6 +575,7 @@ export async function generateApi(
   if (!isOpenAPIV2(api)) {
     throw new Error("The specification is not of type swagger 2");
   }
+
   const specCode = `
     /* tslint:disable:object-literal-sort-keys */
     /* tslint:disable:no-duplicate-string */
@@ -696,14 +747,10 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
    * example: "arg1" -> (arg1)
    * example: ["arg1", "arg2"] -> (arg1, arg2)
    */
-  env.addFilter("toFnArgs", (item: object | string | string[]) =>
-    Array.isArray(item)
-      ? `(${item.join(", ")})`
-      : typeof item === "string"
-      ? `(${item})`
-      : typeof item === "object"
-      ? `({ ${Object.keys(item).join(", ")} })`
-      : "()"
+  env.addFilter("toFnArgs", (item: IParameterInfo[] | undefined) =>
+    typeof item === "undefined"
+      ? "()"
+      : `({${item.map(pick("name")).join(", ")}})`
   );
 
   env.addFilter("keys", (item: object) => {
@@ -718,19 +765,29 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
     return item ? item[0] : undefined;
   });
 
-  env.addFilter("paramsIn", (parameters: OpenAPIV2.Parameters, where: string) =>
-    parameters
-      ? parameters.reduce((prev: Record<string, string> | undefined, param) => {
-          if (param.hasOwnProperty("$ref")) {
-            return prev;
-          }
-          const p = param as OpenAPIV2.ParameterObject;
-          if (p.in === where) {
-            return { ...(prev || {}), [p.name]: p.type };
-          }
-          return prev;
-        }, undefined)
-      : undefined
+  env.addFilter("tail", (item: any[]) =>
+    item && item.length ? item.slice(1) : []
+  );
+
+  env.addFilter("pick", (item: any, key: string) =>
+    !item ? [] : Array.isArray(item) ? item.map(pick(key)) : pick(key)(item)
+  );
+
+  env.addFilter("strip", (item: any) => {
+    const strip = (str: string) =>
+      str[str.length - 1] === "?" ? str.substring(0, str.length - 1) : str;
+    return !item
+      ? undefined
+      : Array.isArray(item)
+      ? item.map(strip)
+      : strip(item);
+  });
+
+  env.addFilter(
+    "paramIn",
+    (item: IParameterInfo[] | undefined, where: string) => {
+      return item ? item.filter(e => e.in === where) : [];
+    }
   );
 
   return env;
