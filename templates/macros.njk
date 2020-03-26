@@ -414,8 +414,11 @@
  #}
 {% macro pathStringToTemplateString(path) -%}`{{ path | replace("{", "${")}}`{% endmacro %}
 
-
-{% macro expr(str) -%}{% raw %}${{% endraw %}{{str}}{% raw %}}{% endraw %}{% endmacro %}
+{##
+ # Wraps an expression into "${" and "}" in string template literals. It is needed to escape the brackets usage in nunjucks
+ # example: "foo" -> ${foo}
+#}
+{% macro $(str) -%}{% raw %}${{% endraw %}{{str}}{% raw %}}{% endraw %}{% endmacro %}
 
 
 {##
@@ -426,11 +429,11 @@
  #}
 {% macro tokenize(headerParam) -%}
 {% if headerParam.tokenType === "apiKey" %}
-`Bearer {{ expr(headerParam.name) }}`
+`Bearer {{ $(headerParam.name) }}`
 {% elif headerParam.tokenType === "oauth" %}
-`Bearer {{ expr(headerParam.name) }}`
+`Bearer {{ $(headerParam.name) }}`
 {% elif headerParam.tokenType === "basic" %}
-`Basic {{ expr(headerParam.name) }}
+`Basic {{ $(headerParam.name) }}
 `{% else %}
 {{ headerParam.name }}
 {% endif %}
@@ -452,6 +455,7 @@
 
 {##
  # Given an array of IHeaderParamenterInfo, it renders the composition of each header producer
+ # It also takes an optional "consumes" parameter, which is a MIME type for which eventualy generate a header producer
  # example: 
  # [ { name: 'token', headerName: 'Authorization' },
  #   { name: 'limit', headerName: 'x-page-limit' },
@@ -461,6 +465,17 @@
  #        composeHeaderProducers(
  #          ({ limit }) => ({ "x-page-limit": limit })),
  #          ({ offset }) => ({ "x-page-offset": offset }))
+ #        )
+ #      )
+ # example: 
+ # [ { name: 'token', headerName: 'Authorization' }, 
+ #   { name: 'limit', headerName: 'x-page-limit' }],
+ # "application/json"
+ #    -> composeHeaderProducers(
+ #        ({ token }) => ({ "Authorization": token })),
+ #        composeHeaderProducers(
+ #          ({ limit }) => ({ "x-page-limit": limit })),
+ #          () => ({ "Content-Type": "application/json" }))
  #        )
  #      )
  #}
