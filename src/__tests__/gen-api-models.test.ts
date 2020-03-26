@@ -304,7 +304,6 @@ describe("gen-api-models", () => {
           { e1: "200", e2: "undefined" },
           { e1: "403", e2: "undefined" }
         ],
-        consumes: "application/json",
         produces: "application/json"
       },
       {

@@ -50,8 +50,8 @@ export function {{ moduleName }}(
 
   const {{ operation.operationId }}T: ReplaceRequestParams<{{ macro.requestTypeName(operation) }},RequestParams<{{ macro.requestTypeName(operation) }}>> = {
     method: "{{ operation.method }}",
-    {% if headerParams | length %}
-    headers: {{ macro.composedHeaderProducers(headerParams) }},
+    {% if headerParams | length or operation.consumes %}
+    headers: {{ macro.composedHeaderProducers(headerParams, operation.consumes) }},
     {% endif %}
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
     url: {{ pathParams | toFnArgs }} => {{ macro.pathStringToTemplateString(operation.path) }},

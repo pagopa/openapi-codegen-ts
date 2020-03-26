@@ -480,13 +480,13 @@ export const parseOperation = (
   });
 
   const consumes =
-    operation.consumes && operation.consumes.length
+    method === "get"
+      ? undefined // get doesn't need content type as it does not ships a body
+      : operation.consumes && operation.consumes.length
       ? operation.consumes[0]
       : api.consumes && api.consumes.length
       ? api.consumes[0]
-      : ["post", "put", "patch"].includes(method)
-      ? "application/json" // use json as default for methods that requires a Content-Type header
-      : undefined;
+      : "application/json"; // use json as default for methods that requires a Content-Type header
 
   const produces =
     operation.produces && operation.produces.length
@@ -787,6 +787,10 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
 
   env.addFilter("tail", (item: any[]) =>
     item && item.length ? item.slice(1) : []
+  );
+
+  env.addFilter("push", (item: any[], toPush: any) =>
+    item && item.length ? [...item, toPush] : [toPush]
   );
 
   env.addFilter("pick", (item: any, key: string) =>

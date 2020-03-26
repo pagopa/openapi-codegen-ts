@@ -437,6 +437,13 @@
 {% endmacro %}
 
 
+
+{##
+ # Given a MIME type, it renders an header producer that sets the Content-Type header
+ # example: "application/json" -> () => ({ "Content-Type": "application/json" })
+ #}
+{% macro contentTypeProducer(mimeType) -%}() => ({ "Content-Type": "{{ mimeType }}" }){% endmacro %}
+
 {##
  # Given an IHeaderParamenterInfo, it renders an header producer that links the parameter name with expected header
  # example: { name: 'token', headerName: 'Authorization' } -> ({ token }) => ({ "Authorization": token })
@@ -457,20 +464,35 @@
  #        )
  #      )
  #}
-{% macro composedHeaderProducers(headerParams) -%}
+{% macro composedHeaderProducers(headerParams, consumes) -%}
   {% set param = headerParams | first %}
   {% set rest = headerParams | tail %}
-  {% if rest | length === 0 %}
+
+  {% if not rest.length and param and consumes %}
+  composeHeaderProducers(
+    {{ headerProducer(param) }},
+    {{ contentTypeProducer(consumes) }}
+  )
+  {% elif rest.length and param and consumes %}
+  composeHeaderProducers(
+    {{ headerProducer(param) }},
+    {{ composedHeaderProducers(rest, consumes) }}
+  )
+  {% elif not rest.length and not param and consumes %}
+  {{ contentTypeProducer(consumes) }}
+  {% elif not rest.length and param and not consumes %}
   {{ headerProducer(param) }}
-  {% elif rest | length === 1 %}
+  {% elif rest.length === 1 and param and not consumes %}
   composeHeaderProducers(
     {{ headerProducer(param) }},
     {{ headerProducer(rest[0]) }}
   )
+  {% elif rest.length > 1 and param and not consumes %}
+  composeHeaderProducers(
+    {{ headerProducer(param) }},
+    {{ composedHeaderProducers(rest, consumes) }}
+  )
   {% else %}
-    composeHeaderProducers(
-      {{ headerProducer(param) }},
-      {{ composedHeaderProducers(rest) }}
-    )
+  () => ({})
   {% endif %}
 {% endmacro %}

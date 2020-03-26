@@ -14,7 +14,7 @@ yarn build
 # generate files from api spec
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
-node "$DIST_ROOT/index.js" --api-spec "$E2E_TEST_API_SPEC" --out-dir "$OUTPUT_DIR" --request-types  --response-decoders
+node "$DIST_ROOT/index.js" --api-spec "$E2E_TEST_API_SPEC" --out-dir "$OUTPUT_DIR" --client
 
 # execute e2e suite
 cd "$E2E_ROOT"
