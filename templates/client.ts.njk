@@ -13,7 +13,8 @@ import {
   composeHeaderProducers,
   createFetchRequestForApi,
   RequestHeaderProducer,
-  RequestHeaderKey
+  RequestHeaderKey,
+  ReplaceRequestParams
 } from "italia-ts-commons/lib/requests";
 
 {% if operations | length %}
@@ -30,8 +31,7 @@ import {
 export function {{ moduleName }}(
   baseUrl: string,
   // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch,
-  customHeaderProducer?: RequestHeaderProducer<any, RequestHeaderKey>
+  fetchApi: typeof fetch
 ): {
   {% for operation in operations %} readonly {{ operation.operationId }}: TypeofApiCall<typeof {{ operation.operationId }}T>;{% endfor %}
 } {
@@ -40,20 +40,31 @@ export function {{ moduleName }}(
     fetchApi
   };
 
+
   {% for operation in operations %}
-  const {{ operation.operationId }}T: RequestParams<{{ macro.requestTypeName(operation) }}> = {
+  {% set headerParams = operation.parameters | paramIn("header") %}
+  {% set bodyParams = operation.parameters | paramIn("body") %}
+  {% set queryParams = operation.parameters | paramIn("query") %}
+  {% set pathParams = operation.parameters | paramIn("path") %}
+  {% set formParams = operation.parameters | paramIn("formData") %}
+
+  const {{ operation.operationId }}T: ReplaceRequestParams<{{ macro.requestTypeName(operation) }},RequestParams<{{ macro.requestTypeName(operation) }}>> = {
     method: "{{ operation.method }}",
-    headers: customHeaderProducer ? composeHeaderProducers(ApiHeaderJson, customHeaderProducer) : ApiHeaderJson,
+    {% if headerParams | length %}
+    headers: {{ macro.composedHeaderProducers(headerParams) }},
+    {% endif %}
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
-    url: {{ operation.pathParams | toFnArgs }} => {{ macro.pathStringToTemplateString(operation.path) }},
-    {% if operation.bodyParams | keys | length %}
-    body: {{ operation.bodyParams | toFnArgs }} => JSON.stringify({{ operation.bodyParams | keys | first }}),
+    url: {{ pathParams | toFnArgs }} => {{ macro.pathStringToTemplateString(operation.path) }},
+    {% if bodyParams | length %}
+    body: {{ bodyParams | toFnArgs }} => JSON.stringify({{ bodyParams | first }}),
     {% endif %}
-    {% if operation.queryParams | keys | length %}
-    query: {{ operation.queryParams | toFnArgs }} => ({ {{ operation.queryParams | keys | join(", ") }} }),
+    {% if queryParams | length %}
+    query: ({ {{  queryParams | pick("name") | strip | join(", ") }} }) => ({ {{ queryParams | pick("name") | strip | join(", ") }} }),
+    {% else %}
+    query: () => ({}),
     {% endif %}
-    {% if operation.formParams | keys | length %}
-    formData: {{ operation.formParams | toFnArgs }} => ({ {{ operation.formParams | keys | join(", ") }} }),
+    {% if formParams | length %}
+    body: {{ formParams | toFnArgs }} => {{ formParams | pick("name") | first }}.uri,
     {% endif %}
   };
   const {{ operation.operationId }} = createFetchRequestForApi({{ operation.operationId }}T, options);

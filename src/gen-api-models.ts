@@ -398,6 +398,8 @@ export interface IOperationInfo {
   headers: string[];
   importedTypes: Set<string>;
   path: string;
+  consumes?: string;
+  produces?: string;
 }
 export const parseOperation = (
   api: OpenAPIV2.Document,
@@ -477,6 +479,22 @@ export const parseOperation = (
     return Tuple2(responseStatus, responseType);
   });
 
+  const consumes =
+    operation.consumes && operation.consumes.length
+      ? operation.consumes[0]
+      : api.consumes && api.consumes.length
+      ? api.consumes[0]
+      : ["post", "put", "patch"].includes(method)
+      ? "application/json" // use json as default for methods that requires a Content-Type header
+      : undefined;
+
+  const produces =
+    operation.produces && operation.produces.length
+      ? operation.produces[0]
+      : api.produces && api.produces.length
+      ? api.produces[0]
+      : undefined;
+
   return {
     method,
     operationId,
@@ -484,7 +502,9 @@ export const parseOperation = (
     parameters,
     responses,
     importedTypes,
-    path: `${api.basePath}${path}`
+    path: `${api.basePath}${path}`,
+    consumes,
+    produces
   };
 };
 

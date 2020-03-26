@@ -303,7 +303,9 @@ describe("gen-api-models", () => {
         responses: [
           { e1: "200", e2: "undefined" },
           { e1: "403", e2: "undefined" }
-        ]
+        ],
+        consumes: "application/json",
+        produces: "application/json"
       },
       {
         path: "/api/v1/test-file-upload",
@@ -318,7 +320,9 @@ describe("gen-api-models", () => {
             in: "formData"
           }
         ],
-        responses: [{ e1: "200", e2: "undefined" }]
+        responses: [{ e1: "200", e2: "undefined" }],
+        consumes: "multipart/form-data",
+        produces: "application/json"
       }
     ];
 
