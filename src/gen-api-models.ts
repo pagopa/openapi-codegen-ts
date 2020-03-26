@@ -97,9 +97,6 @@ function getDecoderForResponse(status: string, type: string): string {
   }
 }
 
-interface IParsedParams {
-  [key: string]: string;
-}
 const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
   if (typeof param === "undefined") {
     return undefined;
