@@ -290,7 +290,7 @@ export const renderOperation = (
 export function getAuthHeaders(
   securityDefinitions: OpenAPIV2.Document["securityDefinitions"],
   security?: OpenAPIV2.SecurityRequirementObject[]
-): Array<IAuthHeaderParameterInfo> {
+): IAuthHeaderParameterInfo[] {
   const securityKeys: ReadonlyArray<string> | undefined =
     security && security.length
       ? security
@@ -316,7 +316,7 @@ export function getAuthHeaders(
       const {
         name: headerName,
         type: tokenType
-      } = _.e2 as OpenAPIV2.SecuritySchemeApiKey;
+      } = _.e2 as OpenAPIV2.SecuritySchemeApiKey; // Because _.e2 is of type OpenAPIV2.SecuritySchemeObject which is the super type of OpenAPIV2.SecuritySchemeApiKey. In the previous step of the chain we filtered so we're pretty sure _.e2 is of type OpenAPIV2.SecuritySchemeApiKey, but the compiler fails at it. I can add an explicit guard to the filter above, but I think the result is the same.
       return {
         headerName,
         // tslint:disable-next-line: no-useless-cast
@@ -324,11 +324,19 @@ export function getAuthHeaders(
         name: _.e1,
         type: "string",
         tokenType
-      } as IAuthHeaderParameterInfo;
+      };
     });
 }
 
-const parseExtraParameters = (pathSpec: OpenAPIV2.PathsObject) => {
+/**
+ * It extracts global parameters from a path definition. Parameters in body, path, query and form are of type IParameterInfo, while header parameters are of type IHeaderParameterInfo
+ * @param pathSpec a pat definition
+ * 
+ * @returns a list of parameters that applies to all methods of a path. Header parameters ship a more complete structure.
+ */
+const parseExtraParameters = (
+  pathSpec: OpenAPIV2.PathsObject
+): Array<IParameterInfo | IHeaderParameterInfo> => {
   return typeof pathSpec.parameters !== "undefined"
     ? pathSpec.parameters.reduce(
         (
@@ -356,16 +364,9 @@ const parseExtraParameters = (pathSpec: OpenAPIV2.PathsObject) => {
           }
           return prev;
         },
-        [] as Array<IParameterInfo | IHeaderParameterInfo>
+        []
       )
     : [];
-};
-
-const assertNever = (x: never) => {
-  console.error("assertNever", x);
-  throw new Error(
-    "Something went wrong - unexpected execution of this code branch"
-  );
 };
 
 type SupportedMethod = "get" | "post" | "put" | "delete";

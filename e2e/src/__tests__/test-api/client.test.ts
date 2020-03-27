@@ -1,4 +1,4 @@
-describe("Test API request types", () => {
+describe("Http client generated from Test API spec", () => {
   const MODULE_PATH = `${process.cwd()}/generated/test-api`;
   const loadModule = () =>
     import(`${MODULE_PATH}/client.ts`).then(mod => {

@@ -1,4 +1,4 @@
-describe("TestAPI definitions", () => {
+describe("Decoders generated from Test API spec defintions", () => {
   const MODULE_PATH = `${process.cwd()}/generated/test-api`;
   const loadModule = (name: string) =>
     import(`${MODULE_PATH}/${name}.ts`).then(mod => {

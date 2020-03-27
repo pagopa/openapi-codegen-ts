@@ -6,7 +6,7 @@ const mockResponse = (status: number, body?: any, headers?: any) => ({
   headers
 });
 
-describe("Test API request types", () => {
+describe("Request types generated from Test API spec", () => {
   const MODULE_PATH = `${process.cwd()}/generated/test-api`;
   const loadModule = () =>
     import(`${MODULE_PATH}/requestTypes.ts`).then(mod => {
