@@ -8,7 +8,7 @@ describe("TestAPI definitions", () => {
       return mod;
     });
 
-  describe("FiscalCode defintion", () => {
+  describe("FiscalCode definition", () => {
     it("should expose FiscalCode decoder", async () => {
       const { FiscalCode } = await loadModule("FiscalCode");
       expect(FiscalCode).toBeDefined();
