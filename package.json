@@ -18,7 +18,9 @@
     "build": "rimraf dist && tsc",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
-    "test": "jest"
+    "lint": "tslint --project .",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "fs-extra": "^6.0.0",
@@ -40,6 +42,7 @@
     "danger-plugin-digitalcitizenship": "^0.3.1",
     "io-ts": "1.8.5",
     "jest": "^22.4.3",
+    "release-it": "^13.3.0",
     "rimraf": "^2.6.2",
     "ts-jest": "^22.4.5",
     "ts-node": "^6.1.0",
@@ -62,5 +65,8 @@
     "testMatch": [
       "**/__tests__/*.ts"
     ]
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   }
 }
