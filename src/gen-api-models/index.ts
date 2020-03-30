@@ -571,7 +571,6 @@ export function parseAllOperations(
 }
 
 export async function generateApi(
-  env: nunjucks.Environment,
   specFilePath: string | OpenAPIV2.Document,
   definitionsDirPath: string,
   tsSpecFilePath: string | undefined,
@@ -588,6 +587,7 @@ export async function generateApi(
     generateResponseDecoders = true;
   }
 
+  const env = initNunJucksEnvironment();
   const api = await SwaggerParser.bundle(specFilePath);
 
   if (!isOpenAPIV2(api)) {
@@ -714,7 +714,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
     trimBlocks: true
   });
   const env = new nunjucks.Environment(
-    new nunjucks.FileSystemLoader(`${__dirname}/../templates`)
+    new nunjucks.FileSystemLoader(`${__dirname}/../../templates`)
   );
 
   env.addFilter("contains", <T>(a: ReadonlyArray<T>, item: T) => {
