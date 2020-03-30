@@ -1,6 +1,6 @@
 
 describe("Decoders generated from Test API spec defintions", () => {
-  const MODULE_PATH = process.env.OUTPUT_DIR;
+  const MODULE_PATH = `${__dirname}/../../../generated`;
   const loadModule = (name: string) =>
     import(`${MODULE_PATH}/${name}.ts`).then(mod => {
       if (!mod) {

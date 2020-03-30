@@ -7,7 +7,7 @@ const mockResponse = (status: number, body?: any, headers?: any) => ({
 });
 
 describe("Request types generated from Test API spec", () => {
-  const MODULE_PATH = process.env.OUTPUT_DIR;
+  const MODULE_PATH = `${__dirname}/../../../generated`;
   const loadModule = () =>
     import(`${MODULE_PATH}/requestTypes.ts`).then(mod => {
       if (!mod) {

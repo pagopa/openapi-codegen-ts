@@ -1,5 +1,5 @@
 describe("Http client generated from Test API spec", () => {
-  const MODULE_PATH = process.env.OUTPUT_DIR;
+  const MODULE_PATH = `${__dirname}/../../../generated`;
   const loadModule = () =>
     import(`${MODULE_PATH}/client.ts`).then(mod => {
       if (!mod) {

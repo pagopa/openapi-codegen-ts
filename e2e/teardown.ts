@@ -1,7 +1,7 @@
 import { remove } from "fs-extra";
 
+const OUTPUT_DIR = `${__dirname}/generated`;
+
 export default async () => {
-  if (process.env.OUTPUT_DIR) {
-    await remove(process.env.OUTPUT_DIR);
-  }
+  await remove(OUTPUT_DIR);
 };
