@@ -5,16 +5,16 @@
   "repository": "https://github.com/teamdigitale/italia-utils",
   "author": "https://teamdigitale.governo.it",
   "license": "MIT",
+  "main": "dist/index.js",
   "bin": {
-    "gen-api-models": "dist/index.js"
+    "gen-api-models": "dist/gen-api-models/cli.js"
   },
   "files": [
     "dist/",
     "templates/"
   ],
   "scripts": {
-    "prepublishOnly": "crlf --set=LF dist/*",
-    "prepublish": "npm run build",
+    "prepublishOnly": "crlf --set=LF dist/* && npm run build",
     "build": "rimraf dist && tsc",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
