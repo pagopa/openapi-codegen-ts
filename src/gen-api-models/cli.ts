@@ -67,15 +67,14 @@ const argv = yargs
 // Generate APIs
 //
 
-generateApi(
-  argv["api-spec"],
-  argv["out-dir"],
-  argv["ts-spec-file"],
-  argv.strict,
-  argv["request-types"],
-  argv["client"],
-  argv["default-success-type"],
-  argv["default-error-type"],
-  argv["response-decoders"]
-  // tslint:disable-next-line:no-console
-).then(() => console.log("done"), err => console.log(`Error: ${err}`));
+generateApi({
+  defaultErrorType: argv["default-error-type"],
+  defaultSuccessType: argv["default-success-type"],
+  definitionsDirPath: argv["out-dir"],
+  generateClient: argv["client"],
+  generateRequestTypes: argv["request-types"],
+  generateResponseDecoders: argv["response-decoders"],
+  specFilePath: argv["api-spec"],
+  strictInterfaces: argv.strict,
+  tsSpecFilePath: argv["ts-spec-file"]
+}).then(() => console.log("done"), err => console.log(`Error: ${err}`));
