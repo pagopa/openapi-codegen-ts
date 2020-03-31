@@ -1,16 +1,39 @@
+import { array } from "fp-ts/lib/Array";
+import { taskEither, tryCatch } from "fp-ts/lib/TaskEither";
 import { ensureDir } from "fs-extra";
 import { generateApi } from "italia-utils";
+import config from "./src/config";
 
-const OUTPUT_DIR = `${__dirname}/generated`;
-
-console.log("OUTPUT_DIR set as ", OUTPUT_DIR);
+const tsEnsureDir = (dir: string) =>
+  tryCatch(() => ensureDir(dir), () => new Error(`cannot create dir ${dir}`));
+const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
+  tryCatch(
+    () => generateApi(...p),
+    reason => {
+      console.error(reason);
+      return new Error(`cannot create api `);
+    }
+  );
 
 export default async () => {
-  await ensureDir(OUTPUT_DIR);
-  await generateApi({
-    specFilePath: `${process.cwd()}/api.yaml`,
-    definitionsDirPath: OUTPUT_DIR,
-    strictInterfaces: true,
-    generateClient: true
-  });
+  const { specs } = config;
+
+  const tasks = Object.values(specs).map(
+    ({ url, mockPort, generatedFilesDir }) =>
+      tsEnsureDir(generatedFilesDir).chain(() =>
+        tsGenerateApi({
+          definitionsDirPath: generatedFilesDir,
+          generateClient: true,
+          specFilePath: url,
+          strictInterfaces: true
+        })
+      )
+  );
+
+  return array
+    .sequence(taskEither)(tasks)
+    .orElse((e: Error) => {
+      throw e;
+    })
+    .run();
 };

@@ -1,4 +1,5 @@
 import * as t from "io-ts";
+import config from "../../config";
 
 const mockResponse = (status: number, body?: any, headers?: any) => ({
   status,
@@ -7,7 +8,7 @@ const mockResponse = (status: number, body?: any, headers?: any) => ({
 });
 
 describe("Request types generated from Test API spec", () => {
-  const MODULE_PATH = `${__dirname}/../../../generated`;
+  const MODULE_PATH = config.specs.testapi.generatedFilesDir;
   const loadModule = () =>
     import(`${MODULE_PATH}/requestTypes.ts`).then(mod => {
       if (!mod) {

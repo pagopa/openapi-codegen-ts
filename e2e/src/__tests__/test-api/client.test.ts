@@ -1,5 +1,7 @@
+import config from "../../config";
+
 describe("Http client generated from Test API spec", () => {
-  const MODULE_PATH = `${__dirname}/../../../generated`;
+  const MODULE_PATH = config.specs.testapi.generatedFilesDir;
   const loadModule = () =>
     import(`${MODULE_PATH}/client.ts`).then(mod => {
       if (!mod) {

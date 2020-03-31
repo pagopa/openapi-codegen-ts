@@ -1,6 +1,7 @@
+import config from "../../config";
 
 describe("Decoders generated from Test API spec defintions", () => {
-  const MODULE_PATH = `${__dirname}/../../../generated`;
+  const MODULE_PATH = config.specs.testapi.generatedFilesDir;
   const loadModule = (name: string) =>
     import(`${MODULE_PATH}/${name}.ts`).then(mod => {
       if (!mod) {
