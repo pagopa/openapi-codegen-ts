@@ -9,7 +9,9 @@
     "noImplicitAny": true,
     "declaration": true,
     "sourceMap": true,
-    "lib": ["es2017", "dom"]
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true
   },
+  "include": ["src/**/*", "generated/**/*"],
   "exclude": ["node_modules", "src/**/__tests__/*"]
 }

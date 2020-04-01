@@ -1,5 +1,5 @@
 const ROOT = `${process.cwd()}`;
-const GENERATED_BASE_DIR = `${ROOT}/generated`;
+const GENERATED_BASE_DIR = `${ROOT}/src/generated`;
 export default {
   generatedFilesBaseDir: GENERATED_BASE_DIR,
   specs: {
