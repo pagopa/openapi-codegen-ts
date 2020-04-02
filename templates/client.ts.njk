@@ -31,7 +31,8 @@ import {
 export function {{ moduleName }}(
   baseUrl: string,
   // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch
+  fetchApi: typeof fetch,
+  basePath: string = "{{ spec.basePath }}"
 ): {
   {% for operation in operations %} readonly {{ operation.operationId }}: TypeofApiCall<typeof {{ operation.operationId }}T>;{% endfor %}
 } {
@@ -54,17 +55,18 @@ export function {{ moduleName }}(
     headers: {{ macro.composedHeaderProducers(headerParams, operation.consumes) }},
     {% endif %}
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
-    url: {{ pathParams | toFnArgs }} => {{ macro.pathStringToTemplateString(operation.path) }},
+    url: ({ {{ pathParams | pick("name") | strip | join(', ') }} }) => `{{ macro.$("basePath") }}{{ macro.pathStringToTemplateString(operation.path) }}`,
     {% if bodyParams | length %}
-    body: {{ bodyParams | toFnArgs }} => JSON.stringify({{ bodyParams | first }}),
+    body: ({ {{ bodyParams | pick("name") | strip | join(", ") }} }) => JSON.stringify({{ bodyParams | pick("name") | strip | join(", ") }}),
+    {% elif formParams | length %}
+    body: ({ {{ formParams | pick("name") | strip | join(", ") }} }) => {{ formParams | pick("name") | first }}.uri,
+    {% elif operation.method === "post" %}
+    body: () => "{}",
     {% endif %}
     {% if queryParams | length %}
-    query: ({ {{  queryParams | pick("name") | strip | join(", ") }} }) => ({ {{ queryParams | pick("name") | strip | join(", ") }} }),
+    query: ({ {{ queryParams | pick("name") | strip | join(', ') }} }) => ({ {{ queryParams | pick("name") | strip | join(", ") }} }),
     {% else %}
     query: () => ({}),
-    {% endif %}
-    {% if formParams | length %}
-    body: {{ formParams | toFnArgs }} => {{ formParams | pick("name") | first }}.uri,
     {% endif %}
   };
   const {{ operation.operationId }} = createFetchRequestForApi({{ operation.operationId }}T, options);

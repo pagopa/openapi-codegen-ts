@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "prepublishOnly": "crlf --set=LF dist/* && npm run build",
-    "build": "rimraf dist && tsc",
+    "clean": "rimraf dist",
+    "build": "yarn clean && tsc",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
     "e2e": "./e2e/run.sh",

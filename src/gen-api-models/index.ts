@@ -500,7 +500,7 @@ export const parseOperation = (
     parameters,
     responses,
     importedTypes,
-    path: `${api.basePath}${path}`,
+    path,
     consumes,
     produces
   };
@@ -514,13 +514,15 @@ export function isOpenAPIV2(
 
 export async function renderClientCode(
   env: nunjucks.Environment,
+  spec: OpenAPIV2.Document,
   operations: Array<IOperationInfo | undefined>
 ) {
   return new Promise((resolve, reject) => {
     env.render(
       "client.ts.njk",
       {
-        operations
+        operations,
+        spec
       },
       (err, code) => {
         if (err) {
@@ -708,7 +710,7 @@ added this line
     if (generateClient) {
       const outPath = `${definitionsDirPath}/client.ts`;
       console.log(`Client -> ${outPath}`);
-      const code = await renderClientCode(env, allOperationInfos);
+      const code = await renderClientCode(env, api, allOperationInfos);
       await fs.writeFile(outPath, code);
     }
   }
@@ -774,7 +776,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
    * example: "arg1" -> (arg1)
    * example: ["arg1", "arg2"] -> (arg1, arg2)
    */
-  env.addFilter("toFnArgs", (item: IParameterInfo[] | undefined) =>
+  env.addFilter("toFnArgs", (item: IParameterInfo[] | undefined) => 
     typeof item === "undefined"
       ? "()"
       : `({${item.map(pick("name")).join(", ")}})`

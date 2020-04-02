@@ -276,7 +276,7 @@ describe("gen-api-models", () => {
   it("should parse operations", () => {
     const expected = [
       {
-        path: "/api/v1/test-auth-bearer",
+        path: "/test-auth-bearer",
         headers: ["Authorization"],
         importedTypes: new Set(),
         method: "get",
@@ -307,7 +307,7 @@ describe("gen-api-models", () => {
         produces: "application/json"
       },
       {
-        path: "/api/v1/test-file-upload",
+        path: "/test-file-upload",
         headers: ["Content-Type"],
         importedTypes: new Set(),
         method: "post",
