@@ -1,11 +1,14 @@
 import config from "../../config";
 
-describe("Decoders generated from Test API spec defintions", () => {
-  const MODULE_PATH = config.specs.testapi.generatedFilesDir;
+const { generatedFilesDir, enabled } = config.specs.testapi;
+
+const describeSuite = enabled ? describe : describe.skip;
+
+describeSuite("Decoders generated from Test API spec defintions", () => {
   const loadModule = (name: string) =>
-    import(`${MODULE_PATH}/${name}.ts`).then(mod => {
+    import(`${generatedFilesDir}/${name}.ts`).then(mod => {
       if (!mod) {
-        fail(`Cannot load module ${MODULE_PATH}/${name}.ts`);
+        fail(`Cannot load module ${generatedFilesDir}/${name}.ts`);
       }
       return mod;
     });

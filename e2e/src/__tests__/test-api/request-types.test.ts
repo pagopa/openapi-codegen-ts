@@ -7,12 +7,15 @@ const mockResponse = (status: number, body?: any, headers?: any) => ({
   headers
 });
 
-describe("Request types generated from Test API spec", () => {
-  const MODULE_PATH = config.specs.testapi.generatedFilesDir;
+const { generatedFilesDir, enabled } = config.specs.testapi;
+
+const describeSuite = enabled ? describe : describe.skip;
+
+describeSuite("Request types generated from Test API spec", () => {
   const loadModule = () =>
-    import(`${MODULE_PATH}/requestTypes.ts`).then(mod => {
+    import(`${generatedFilesDir}/requestTypes.ts`).then(mod => {
       if (!mod) {
-        fail(`Cannot load module ${MODULE_PATH}/requestTypes.ts`);
+        fail(`Cannot load module ${generatedFilesDir}/requestTypes.ts`);
       }
       return mod;
     });

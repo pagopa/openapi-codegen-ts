@@ -1,9 +1,12 @@
 import { array } from "fp-ts/lib/Array";
-import { taskEither, tryCatch } from "fp-ts/lib/TaskEither";
+import { task } from "fp-ts/lib/Task";
+import { taskEither, tryCatch, right } from "fp-ts/lib/TaskEither";
 import { ensureDir } from "fs-extra";
 import { generateApi } from "italia-utils";
 import config from "./config";
 import { startMockServer } from "./server";
+
+const noopTE = right<Error, undefined>(task.of(undefined));
 
 const tsEnsureDir = (dir: string) =>
   tryCatch(() => ensureDir(dir), () => new Error(`cannot create dir ${dir}`));
@@ -26,26 +29,33 @@ const tsStartServer = (...p: Parameters<typeof startMockServer>) =>
   );
 
 export default async () => {
-  const { specs } = config;
+  const { specs, skipClient, skipGeneration } = config;
 
-  const tasks = Object.values(specs).map(
-    ({ url, mockPort, generatedFilesDir }) =>
+  const tasks = Object.values(specs)
+    .filter(({ enabled }) => enabled)
+    .map(({ url, mockPort, generatedFilesDir }) =>
       tsEnsureDir(generatedFilesDir)
         .chain(() =>
-          tsGenerateApi({
-            definitionsDirPath: generatedFilesDir,
-            generateClient: true,
-            specFilePath: url,
-            strictInterfaces: true
-          })
+          skipGeneration
+            ? noopTE
+            : tsGenerateApi({
+                definitionsDirPath: generatedFilesDir,
+                generateClient: true,
+                specFilePath: url,
+                strictInterfaces: true
+              })
         )
-        .chain(() => tsStartServer(url, mockPort))
-  );
+        .chain(() => (skipClient ? noopTE : tsStartServer(url, mockPort)))
+    );
 
+  const startedAt = Date.now();
   return array
     .sequence(taskEither)(tasks)
     .orElse((e: Error) => {
       throw e;
     })
-    .run();
+    .run()
+    .then(() =>
+      console.log(`setup completed after ${Date.now() - startedAt}ms`)
+    );
 };

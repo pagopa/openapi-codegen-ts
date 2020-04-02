@@ -5,9 +5,9 @@
  * https://github.com/stoplightio/prism/issues/1070
  * https://github.com/balanza/didactic-waffle/pull/1
  * https://github.com/stoplightio/prism/pull/1072
- * 
+ *
  * As for now, I implemented the feature by executing npx on separate processes. This is suboptimal in terms of resource consumption and execution time, and should be avoided as soon as Prims solves its issues.
- * 
+ *
  * As soon as we can, we should refactor this module to call Prism as a module, ideally keeping this module public interface.
  */
 
@@ -28,6 +28,7 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
   ];
 
   console.log(`executing ${cmd} ${args.join(" ")}`);
+  const startedAt = Date.now();
 
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
@@ -39,6 +40,7 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
       // wait for the server to be effectively listening
       if (~chunk.toString().indexOf("listening on")) {
         servers.set(port, proc);
+        console.log(`server started on port ${port} after ${Date.now() - startedAt}ms`);
         resolve();
       }
     });

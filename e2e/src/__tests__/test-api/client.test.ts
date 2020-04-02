@@ -1,4 +1,4 @@
-import { isLeft } from "fp-ts/lib/Either";
+import { isLeft, Either } from "fp-ts/lib/Either";
 import fetch from "node-fetch";
 import config from "../../config";
 
@@ -7,14 +7,16 @@ import * as leaked from "leaked-handles";
 
 leaked.set({ debugSockets: true });
 
-const { generatedFilesDir, mockPort } = config.specs.testapi;
+const { skipClient } = config;
+const { generatedFilesDir, mockPort, enabled } = config.specs.testapi;
 
-describe("Http client generated from Test API spec", () => {
-  const MODULE_PATH = generatedFilesDir;
+const describeSuite = skipClient || !enabled ? describe.skip : describe;
+
+describeSuite("Http client generated from Test API spec", () => {
   const loadModule = () =>
-    import(`${MODULE_PATH}/client.ts`).then(mod => {
+    import(`${generatedFilesDir}/client.ts`).then(mod => {
       if (!mod) {
-        fail(`Cannot load module ${MODULE_PATH}/client.ts`);
+        fail(`Cannot load module ${generatedFilesDir}/client.ts`);
       }
       return mod;
     });
@@ -33,5 +35,18 @@ describe("Http client generated from Test API spec", () => {
     expect(client.testAuthBearer).toEqual(expect.any(Function));
     const result = await client.testAuthBearer({});
     expect(isLeft(result)).toBe(true);
+  });
+
+  it("should make a call", async () => {
+    const { Client } = await loadModule();
+    const client = Client(`http://localhost:${mockPort}`, fetch, "");
+
+    expect(client.testAuthBearer).toEqual(expect.any(Function));
+    const result: Either<Error, any> = await client.testAuthBearer({
+      bearerToken: "Bearer 123",
+      qr: "any"
+    });
+    expect(isLeft(result)).toBe(true);
+    result.fold(e => expect(e).not.toBeDefined(), e => fail("unexpected"));
   });
 });
