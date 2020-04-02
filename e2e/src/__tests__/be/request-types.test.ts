@@ -20,5 +20,7 @@ describeSuite("Request types generated from BE API spec", () => {
       return mod;
     });
 
-
+  it("should just pass", () => {
+    expect(1).toBe(1);
+  });
 });

@@ -652,7 +652,11 @@ definitions:
   BlockedInboxOrChannels:
     $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/BlockedInboxOrChannels"
   DepartmentName:
-    $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/DepartmentName"
+    type: string
+    description: |-
+      The department inside the organization that runs the service. Will
+      be added to the content of sent messages.
+    minLength: 1
   EmailAddress:
     $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/EmailAddress"
   Profile:
@@ -684,7 +688,11 @@ definitions:
   MessageSubject:
     $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/MessageSubject"
   OrganizationName:
-    $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/OrganizationName"
+    type: string
+    description: |-
+      The organization that runs the service. Will be added to the content
+      of sent messages to identify the sender.
+    minLength: 1
   PaginationResponse:
     $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/PaginationResponse"
   PreferredLanguage:
@@ -694,11 +702,95 @@ definitions:
   ProblemJson:
     $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/ProblemJson"
   ServiceId:
-    $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/ServiceId"
+    type: string
+    description: |-
+      The ID of the Service. Equals the subscriptionId of a registered
+      API user.
+    minLength: 1
   ServiceName:
-    $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/ServiceName"
+    type: string
+    description: The name of the service. Will be added to the content of sent messages.
+    minLength: 1
   ServicePublic:
-    $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/ServicePublic"
+    title: Service (public)
+    description: A Service associated to an user's subscription.
+    type: object
+    properties:
+      service_id:
+        $ref: "#/definitions/ServiceId"
+      service_name:
+        $ref: "#/definitions/ServiceName"
+      organization_name:
+        $ref: "#/definitions/OrganizationName"
+      department_name:
+        $ref: "#/definitions/DepartmentName"
+      organization_fiscal_code:
+        $ref: "#/definitions/OrganizationFiscalCode"
+      available_notification_channels:
+        $ref: "#/definitions/AvailableNotificationChannels"
+      version:
+        type: integer
+      service_metadata:
+        $ref: "#/definitions/ServiceMetadata"
+    required:
+      - service_id
+      - service_name
+      - organization_name
+      - department_name
+      - organization_fiscal_code
+      - version
+  AvailableNotificationChannels:
+    description: |-
+        All the notification channels available for a service.
+    type: array
+    items:
+      $ref: "#/definitions/NotificationChannel"
+  ServiceMetadata:
+    type: object
+    properties:
+      description:
+        type: string
+        minLength: 1
+      web_url:
+        type: string
+        minLength: 1
+      app_ios:
+        type: string
+        minLength: 1
+      app_android:
+        type: string
+        minLength: 1
+      tos_url:
+        type: string
+        minLength: 1
+      privacy_url:
+        type: string
+        minLength: 1
+      address:
+        type: string
+        minLength: 1
+      phone:
+        type: string
+        minLength: 1
+      email:
+        type: string
+        minLength: 1
+      pec:
+        type: string
+        minLength: 1
+      scope:
+        type: string
+        x-extensible-enum:
+          - NATIONAL
+          - LOCAL
+    required:
+      - scope
+  OrganizationFiscalCode:
+    type: string
+    description: Organization fiscal code.
+    format: OrganizationFiscalCode
+    x-import: italia-ts-commons/lib/strings
+    example: "12345678901"
   ServiceTuple:
     $ref: "https://raw.githubusercontent.com/pagopa/io-functions-commons/v1.8.0/openapi/definitions.yaml#/ServiceTuple"
   PaginatedServiceTupleCollection:

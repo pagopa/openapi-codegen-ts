@@ -1,4 +1,4 @@
-import { isLeft, Either } from "fp-ts/lib/Either";
+import { isRight, Either } from "fp-ts/lib/Either";
 import fetch from "node-fetch";
 import config from "../../config";
 
@@ -45,7 +45,6 @@ describeSuite("Http client generated from Test API spec", () => {
       bearerToken: "Bearer 123",
       qr: "any"
     });
-    expect(isLeft(result)).toBe(true);
-    result.fold(e => expect(e).not.toBeDefined(), e => fail("unexpected"));
+    expect(isRight(result)).toBe(true);
   });
 });
