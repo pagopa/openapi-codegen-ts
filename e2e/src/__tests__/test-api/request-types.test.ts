@@ -1,6 +1,10 @@
 import * as t from "io-ts";
 import config from "../../config";
 
+// @ts-ignore
+import * as leaked from "leaked-handles";
+leaked.set({ debugSockets: true });
+
 const mockResponse = (status: number, body?: any, headers?: any) => ({
   status,
   json: async () => body,

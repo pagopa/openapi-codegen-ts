@@ -4,7 +4,6 @@ import config from "../../config";
 
 // @ts-ignore
 import * as leaked from "leaked-handles";
-
 leaked.set({ debugSockets: true });
 
 const { skipClient } = config;

@@ -13,6 +13,12 @@ export default {
   skipClient: truthy(process.env.SKIP_CLIENT),
   skipGeneration: truthy(process.env.SKIP_GENERATION),
   specs: {
+    be: {
+      enabled: include(process.env.INCLUDE_SPECS, "be"),
+      generatedFilesDir: `${GENERATED_BASE_DIR}/be`,
+      mockPort: 4102,
+      url: `${ROOT}/be.yaml`
+    },
     testapi: {
       enabled: include(process.env.INCLUDE_SPECS, "testapi"),
       generatedFilesDir: `${GENERATED_BASE_DIR}/testapi`,
