@@ -33,7 +33,7 @@ describeSuite("Http client generated from Test API spec", () => {
 
     expect(client.testAuthBearer).toEqual(expect.any(Function));
     const result = await client.testAuthBearer({});
-    expect(isLeft(result)).toBe(true);
+    expect(isRight(result)).toBe(false);
   });
 
   it("should make a call", async () => {

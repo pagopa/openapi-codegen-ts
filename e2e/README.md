@@ -9,18 +9,7 @@ $ yarn start
 $ yarn start --verbose # for a detailed list of executed test cases
 ```
 
-Please be sure that the `italia-utils` module has been compiled first. Otherwise you can use the `run.sh` script that does everything for you.
-
-```sh
-$ cd .. # io-utils source root
-$ ./run.sh
-```
-
-or you can specify source root as a parameter
-
-```sh
-$ ./run.sh /path/to/source
-```
+Please be sure that the `italia-utils` module has been compiled first.
 
 ## Env Variables
 

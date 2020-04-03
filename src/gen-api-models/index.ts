@@ -9,6 +9,13 @@ import * as SwaggerParser from "swagger-parser";
 
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 
+/**
+ * Wraps model template rendering 
+ * @param env 
+ * @param definition 
+ * @param definitionName 
+ * @param strictInterfaces 
+ */
 function renderAsync(
   env: nunjucks.Environment,
   definition: OpenAPIV2.DefinitionsObject,
@@ -33,6 +40,13 @@ function renderAsync(
   });
 }
 
+/**
+ * Definition code rendering. Include code formatting
+ * @param env 
+ * @param definitionName 
+ * @param definition 
+ * @param strictInterfaces 
+ */
 export async function renderDefinitionCode(
   env: nunjucks.Environment,
   definitionName: string,
@@ -51,14 +65,28 @@ export async function renderDefinitionCode(
   return prettifiedCode;
 }
 
+/**
+ * Uppercase on first letter of a string
+ * @param s string to be capitalized
+ */
 function capitalize(s: string): string {
   return `${s[0].toUpperCase()}${s.slice(1)}`;
 }
 
+/**
+ * Lowercase on first letter of a string
+ * @param s string to be uncapitalized
+ */
 function uncapitalize(s: string): string {
   return `${s[0].toLowerCase()}${s.slice(1)}`;
 }
 
+/**
+ * Given a string in the form "#/<refType>/<refName>/, it returns a tuple in the form (refType, refName)"
+ * @param s 
+ * 
+ * @returns an ITuple object with { e1: refType, e2: refName }, undefined if the string is not the the correct form
+ */
 function typeFromRef(
   s: string
 ): ITuple2<"definition" | "parameter" | "other", string> | undefined {
@@ -75,6 +103,12 @@ function typeFromRef(
   return undefined;
 }
 
+/**
+ * Given an OpenAPI param type, it returns its Typescript correspondent
+ * @param t 
+ * 
+ * @returns a Typescript type
+ */
 function specTypeToTs(t: string): string {
   switch (t) {
     case "integer":
@@ -86,6 +120,15 @@ function specTypeToTs(t: string): string {
   }
 }
 
+
+/**
+ * Renders the responde decoder associated to the given type.
+ * Response types refer to io-ts-commons (https://github.com/pagopa/io-ts-commons/blob/master/src/requests.ts)
+ * @param status http status code the decoder is associated with
+ * @param type type to be decoded
+ * 
+ * @returns a string which represents a decoder declaration
+ */
 function getDecoderForResponse(status: string, type: string): string {
   switch (type) {
     case "undefined":
@@ -97,6 +140,12 @@ function getDecoderForResponse(status: string, type: string): string {
   }
 }
 
+/**
+ * Given a request param, parses its schema reference, if any
+ * @param param a requeste parameter
+ * 
+ * @returns an ITuple<refType, refName> if the paramenter has a reference, undefined otherwise
+ */
 const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
   if (typeof param === "undefined") {
     return undefined;
@@ -109,6 +158,15 @@ const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
   return typeFromRef(refInParam);
 };
 
+/**
+ * Parse a request parameter into an IParameterInfo structure.
+ * The function has the curried form (specParameters, operationId) -> (param) -> IParameterInfo
+ * @param specParameters spec's global parameters
+ * @param operationId the identifier for the operation
+ * @param param the request parameter to parse
+ * 
+ * @returns a struct describing the parameter
+ */
 const parseParameter = (
   specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
   operationId: string
@@ -171,23 +229,22 @@ const parseParameter = (
   };
 };
 
-const reduceToRecord = <K extends string, T extends Record<K, any>, Q>(
-  field: K
-) => (prev: Record<string, Q>, elem: T | undefined) => {
-  if (elem) {
-    const key = elem[field];
-    return {
-      ...prev,
-      [key]: elem
-    };
-  }
-  return prev;
-};
-
+/**
+ * Pich a field from an object
+ * @param field field to pick
+ * @param elem the base object 
+ */
 const pick = <K extends string, T extends Record<K, any>>(field: K) => (
   elem: T
 ) => elem[field];
 
+/**
+ * Takes an array of parameters and collect each definition referenced.
+ * Those will correspond to types to be imported in typescript
+ * @param parameters 
+ * 
+ * @returns a set of definitions to be imported
+ */
 const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
   new Set(
     typeof parameters !== "undefined"
@@ -213,6 +270,13 @@ const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
       : []
   );
 
+/**
+ * Renders the code of decoders and request types of a single operation
+ * @param operationInfo 
+ * @param generateResponseDecoders true if decoders have to be added
+ * 
+ * @returns the code for a single operation description
+ */
 export const renderOperation = (
   operationInfo: IOperationInfo,
   generateResponseDecoders: boolean
@@ -399,6 +463,20 @@ export interface IOperationInfo {
   consumes?: string;
   produces?: string;
 }
+
+/**
+ * Extracts all the info referring to a single operation and returns a IOperationInfo struct.
+ * It may return undefined in case of unhandled specification or bad specification format
+ * 
+ * @param api the whole spec 
+ * @param path the path of the current operation
+ * @param extraParameters global parameters specified ad api-level
+ * @param defaultSuccessType 
+ * @param defaultErrorType 
+ * @param operationKey identifies the operation for a path, correspond to a http method
+ * 
+ * @returns a IOperationInfo struct if correct, undefined otherwise
+ */
 export const parseOperation = (
   api: OpenAPIV2.Document,
   path: string,
@@ -506,12 +584,25 @@ export const parseOperation = (
   };
 };
 
+/**
+ * Checks if a parsed spec is in OA2 format
+ * @param specs a parsed spec
+ * 
+ * @returns true or false
+ */
 export function isOpenAPIV2(
   specs: OpenAPI.Document
 ): specs is OpenAPIV2.Document {
   return specs.hasOwnProperty("swagger");
 }
 
+/**
+ * Given a list of operation descriptions, it renders a http client
+ * @param env 
+ * @param operations 
+ * 
+ * @returns the code of a http client
+ */
 export async function renderClientCode(
   env: nunjucks.Environment,
   spec: OpenAPIV2.Document,
@@ -540,6 +631,15 @@ export async function renderClientCode(
   });
 }
 
+/**
+ * Iterates over all operations in the specifications and returns a list of IOperationInfo struct describing them.
+ * It also flattens global parameters and definitions by place them in each operation
+ * @param api 
+ * @param defaultSuccessType 
+ * @param defaultErrorType 
+ * 
+ * @returns a list with all operation parsed
+ */
 export function parseAllOperations(
   api: OpenAPIV2.Document,
   defaultSuccessType: string,
@@ -584,6 +684,12 @@ interface IGenerateApiOptions {
   defaultErrorType?: string;
 }
 
+/**
+ * Module's main method. It generates files based on a given specification url
+ * @param options 
+ * 
+ * 
+ */
 export async function generateApi(options: IGenerateApiOptions): Promise<void> {
   const {
     specFilePath,
