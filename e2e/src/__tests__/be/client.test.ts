@@ -86,7 +86,7 @@ describeSuite("Http client generated from BE API spec", () => {
       );
     });
 
-    it("should fail on invalid token", async () => {
+    it.only("should fail on invalid token", async () => {
       const { getVisibleServices } = Client(
         `http://localhost:${mockPort}`,
         (nodeFetch as any) as typeof fetch,
@@ -95,12 +95,12 @@ describeSuite("Http client generated from BE API spec", () => {
 
       const result = await getVisibleServices({
         // @ts-ignore
-        Bearer: INVALID_TOKEN
+        Bearer: undefined
       });
 
       result.fold(
         (e: any) => fail(e),
-        response => {
+        (response: any) => {
           expect(response.status).toBe(403);
           expect(response.value).toEqual(expect.any(Object));
           // @ts-ignore
