@@ -2,8 +2,8 @@
   "name": "italia-utils",
   "version": "5.0.0",
   "description": "Tools and utilities for the Digital Citizenship project",
-  "repository": "https://github.com/teamdigitale/italia-utils",
-  "author": "https://teamdigitale.governo.it",
+  "repository": "https://github.com/pagopa/io-utils",
+  "author": "https://www.pagopa.gov.it/",
   "license": "MIT",
   "bin": {
     "gen-api-models": "dist/index.js"
