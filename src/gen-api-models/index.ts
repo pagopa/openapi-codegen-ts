@@ -10,11 +10,11 @@ import * as SwaggerParser from "swagger-parser";
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 
 /**
- * Wraps model template rendering 
- * @param env 
- * @param definition 
- * @param definitionName 
- * @param strictInterfaces 
+ * Wraps model template rendering
+ * @param env
+ * @param definition
+ * @param definitionName
+ * @param strictInterfaces
  */
 function renderAsync(
   env: nunjucks.Environment,
@@ -28,7 +28,7 @@ function renderAsync(
       {
         definition,
         definitionName,
-        strictInterfaces
+        strictInterfaces,
       },
       (err, res) => {
         if (err) {
@@ -42,10 +42,10 @@ function renderAsync(
 
 /**
  * Definition code rendering. Include code formatting
- * @param env 
- * @param definitionName 
- * @param definition 
- * @param strictInterfaces 
+ * @param env
+ * @param definitionName
+ * @param definition
+ * @param strictInterfaces
  */
 export async function renderDefinitionCode(
   env: nunjucks.Environment,
@@ -60,7 +60,7 @@ export async function renderDefinitionCode(
     strictInterfaces
   );
   const prettifiedCode = prettier.format(code, {
-    parser: "typescript"
+    parser: "typescript",
   });
   return prettifiedCode;
 }
@@ -83,8 +83,8 @@ function uncapitalize(s: string): string {
 
 /**
  * Given a string in the form "#/<refType>/<refName>/, it returns a tuple in the form (refType, refName)"
- * @param s 
- * 
+ * @param s
+ *
  * @returns an ITuple object with { e1: refType, e2: refName }, undefined if the string is not the the correct form
  */
 function typeFromRef(
@@ -105,8 +105,8 @@ function typeFromRef(
 
 /**
  * Given an OpenAPI param type, it returns its Typescript correspondent
- * @param t 
- * 
+ * @param t
+ *
  * @returns a Typescript type
  */
 function specTypeToTs(t: string): string {
@@ -120,13 +120,12 @@ function specTypeToTs(t: string): string {
   }
 }
 
-
 /**
  * Renders the responde decoder associated to the given type.
  * Response types refer to io-ts-commons (https://github.com/pagopa/io-ts-commons/blob/master/src/requests.ts)
  * @param status http status code the decoder is associated with
  * @param type type to be decoded
- * 
+ *
  * @returns a string which represents a decoder declaration
  */
 function getDecoderForResponse(status: string, type: string): string {
@@ -143,7 +142,7 @@ function getDecoderForResponse(status: string, type: string): string {
 /**
  * Given a request param, parses its schema reference, if any
  * @param param a requeste parameter
- * 
+ *
  * @returns an ITuple<refType, refName> if the paramenter has a reference, undefined otherwise
  */
 const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
@@ -164,7 +163,7 @@ const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
  * @param specParameters spec's global parameters
  * @param operationId the identifier for the operation
  * @param param the request parameter to parse
- * 
+ *
  * @returns a struct describing the parameter
  */
 const parseParameter = (
@@ -175,7 +174,7 @@ const parseParameter = (
     return {
       name: `${param.name}${param.required ? "" : "?"}`,
       in: param.in,
-      type: specTypeToTs(param.type)
+      type: specTypeToTs(param.type),
     };
   }
   // Paratemer is declared as ref, we need to look it up
@@ -218,21 +217,28 @@ const parseParameter = (
       ? specParameters[parsedRef.e2].required
       : false;
 
-  const paramName = `${uncapitalize(parsedRef.e2)}${
-    isParamRequired ? "" : "?"
-  }`;
+  const paramName = `${uncapitalize(
+    specParameters && specParameters[parsedRef.e2]
+      ? specParameters[parsedRef.e2].name
+      : parsedRef.e2
+  )}${isParamRequired ? "" : "?"}`;
+
+  const paramIn =
+    specParameters && specParameters[parsedRef.e2]
+      ? specParameters[parsedRef.e2].in
+      : param.in;
 
   return {
     name: paramName,
     type: paramType,
-    in: param.in
+    in: paramIn,
   };
 };
 
 /**
  * Pich a field from an object
  * @param field field to pick
- * @param elem the base object 
+ * @param elem the base object
  */
 const pick = <K extends string, T extends Record<K, any>>(field: K) => (
   elem: T
@@ -241,8 +247,8 @@ const pick = <K extends string, T extends Record<K, any>>(field: K) => (
 /**
  * Takes an array of parameters and collect each definition referenced.
  * Those will correspond to types to be imported in typescript
- * @param parameters 
- * 
+ * @param parameters
+ *
  * @returns a set of definitions to be imported
  */
 const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
@@ -272,9 +278,9 @@ const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
 
 /**
  * Renders the code of decoders and request types of a single operation
- * @param operationInfo 
+ * @param operationInfo
  * @param generateResponseDecoders true if decoders have to be added
- * 
+ *
  * @returns the code for a single operation description
  */
 export const renderOperation = (
@@ -287,24 +293,26 @@ export const renderOperation = (
     headers,
     responses,
     importedTypes,
-    parameters
+    parameters,
   } = operationInfo;
 
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
 
   const headersCode =
-    headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
+    headers.length > 0 ? headers.map((_) => `"${_}"`).join("|") : "never";
 
   const responsesType = responses
-    .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
+    .map((r) => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
   const paramsCode = parameters
-    .map(param => `readonly ${param.name}: ${param.type}`)
+    .map((param) => `readonly ${param.name}: ${param.type}`)
     .join(",");
 
   // use the first 2xx type as "success type" that we allow to be overridden
-  const successType = responses.find(_ => _.e1.length === 3 && _.e1[0] === "2");
+  const successType = responses.find(
+    (_) => _.e1.length === 3 && _.e1[0] === "2"
+  );
 
   const responsesDecoderCode =
     generateResponseDecoders && successType !== undefined
@@ -359,27 +367,27 @@ export function getAuthHeaders(
     security && security.length
       ? security
           .map((_: OpenAPIV2.SecurityRequirementObject) => Object.keys(_)[0])
-          .filter(_ => _ !== undefined)
+          .filter((_) => _ !== undefined)
       : undefined;
 
   const securityDefs =
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
         // security items mapped to their securityDefinitions definitions.
-        securityKeys.map(k => Tuple2(k, securityDefinitions[k]))
+        securityKeys.map((k) => Tuple2(k, securityDefinitions[k]))
       : securityDefinitions !== undefined
-      ? Object.keys(securityDefinitions).map(k =>
+      ? Object.keys(securityDefinitions).map((k) =>
           Tuple2(k, securityDefinitions[k])
         )
       : [];
 
   return securityDefs
-    .filter(_ => _.e2 !== undefined)
-    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
-    .map(_ => {
+    .filter((_) => _.e2 !== undefined)
+    .filter((_) => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
+    .map((_) => {
       const {
         name: headerName,
-        type: tokenType
+        type: tokenType,
       } = _.e2 as OpenAPIV2.SecuritySchemeApiKey; // Because _.e2 is of type OpenAPIV2.SecuritySchemeObject which is the super type of OpenAPIV2.SecuritySchemeApiKey. In the previous step of the chain we filtered so we're pretty sure _.e2 is of type OpenAPIV2.SecuritySchemeApiKey, but the compiler fails at it. I can add an explicit guard to the filter above, but I think the result is the same.
       return {
         headerName,
@@ -387,7 +395,7 @@ export function getAuthHeaders(
         in: "header" as "header", // this cast is needed otherwise "in" property will be recognize as string
         name: _.e1,
         type: "string",
-        tokenType
+        tokenType,
       };
     });
 }
@@ -422,8 +430,8 @@ const parseExtraParameters = (
                 headerName: param.in === "header" ? paramName : undefined,
                 in: param.in,
                 name: paramName,
-                type: specTypeToTs(param.type)
-              }
+                type: specTypeToTs(param.type),
+              },
             ];
           }
           return prev;
@@ -467,14 +475,14 @@ export interface IOperationInfo {
 /**
  * Extracts all the info referring to a single operation and returns a IOperationInfo struct.
  * It may return undefined in case of unhandled specification or bad specification format
- * 
- * @param api the whole spec 
+ *
+ * @param api the whole spec
  * @param path the path of the current operation
  * @param extraParameters global parameters specified ad api-level
- * @param defaultSuccessType 
- * @param defaultErrorType 
+ * @param defaultSuccessType
+ * @param defaultErrorType
  * @param operationKey identifies the operation for a path, correspond to a http method
- * 
+ *
  * @returns a IOperationInfo struct if correct, undefined otherwise
  */
 export const parseOperation = (
@@ -540,7 +548,7 @@ export const parseOperation = (
 
   const headers = [...contentTypeHeaders, ...authHeaders, ...extraHeaders];
 
-  const responses = Object.keys(operation.responses).map(responseStatus => {
+  const responses = Object.keys(operation.responses).map((responseStatus) => {
     const response = operation.responses[responseStatus];
     const typeRef = response.schema ? response.schema.$ref : undefined;
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
@@ -580,14 +588,14 @@ export const parseOperation = (
     importedTypes,
     path: `${api.basePath}${path}`,
     consumes,
-    produces
+    produces,
   };
 };
 
 /**
  * Checks if a parsed spec is in OA2 format
  * @param specs a parsed spec
- * 
+ *
  * @returns true or false
  */
 export function isOpenAPIV2(
@@ -598,9 +606,9 @@ export function isOpenAPIV2(
 
 /**
  * Given a list of operation descriptions, it renders a http client
- * @param env 
- * @param operations 
- * 
+ * @param env
+ * @param operations
+ *
  * @returns the code of a http client
  */
 export async function renderClientCode(
@@ -620,7 +628,7 @@ export async function renderClientCode(
         } else {
           resolve(
             prettier.format(code, {
-              parser: "typescript"
+              parser: "typescript",
             })
           );
         }
@@ -632,10 +640,10 @@ export async function renderClientCode(
 /**
  * Iterates over all operations in the specifications and returns a list of IOperationInfo struct describing them.
  * It also flattens global parameters and definitions by place them in each operation
- * @param api 
- * @param defaultSuccessType 
- * @param defaultErrorType 
- * 
+ * @param api
+ * @param defaultSuccessType
+ * @param defaultErrorType
+ *
  * @returns a list with all operation parsed
  */
 export function parseAllOperations(
@@ -649,11 +657,11 @@ export function parseAllOperations(
     : [];
 
   return Object.keys(api.paths)
-    .map(path => {
+    .map((path) => {
       const pathSpec = api.paths[path];
       const extraParameters = [
         ...parseExtraParameters(pathSpec),
-        ...globalAuthHeaders
+        ...globalAuthHeaders,
       ];
       return Object.keys(pathSpec)
         .map(
@@ -684,9 +692,9 @@ interface IGenerateApiOptions {
 
 /**
  * Module's main method. It generates files based on a given specification url
- * @param options 
- * 
- * 
+ * @param options
+ *
+ *
  */
 export async function generateApi(options: IGenerateApiOptions): Promise<void> {
   const {
@@ -696,12 +704,12 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     definitionsDirPath,
     strictInterfaces = false,
     defaultSuccessType = "undefined",
-    defaultErrorType = "undefined"
+    defaultErrorType = "undefined",
   } = options;
 
   const {
     generateRequestTypes = generateClient,
-    generateResponseDecoders = generateClient
+    generateResponseDecoders = generateClient,
   } = options;
 
   const env = initNunJucksEnvironment();
@@ -725,7 +733,7 @@ added this line
     await fs.writeFile(
       tsSpecFilePath,
       prettier.format(specCode, {
-        parser: "typescript"
+        parser: "typescript",
       })
     );
   }
@@ -796,14 +804,14 @@ added this line
           import * as r from "italia-ts-commons/lib/requests";
     
           ${Array.from(operationsImports.values())
-            .map(i => `import { ${i} } from "./${i}";`)
+            .map((i) => `import { ${i} } from "./${i}";`)
             .join("\n\n")}
     
           ${operationTypesCode}
         `;
 
     const prettifiedOperationsCode = prettier.format(operationsCode, {
-      parser: "typescript"
+      parser: "typescript",
     });
 
     const requestTypesPath = `${definitionsDirPath}/requestTypes.ts`;
@@ -826,7 +834,7 @@ added this line
 
 export function initNunJucksEnvironment(): nunjucks.Environment {
   nunjucks.configure({
-    trimBlocks: true
+    trimBlocks: true,
   });
   const env = new nunjucks.Environment(
     new nunjucks.FileSystemLoader(`${__dirname}/../../templates`)
@@ -923,7 +931,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   env.addFilter(
     "paramIn",
     (item: IParameterInfo[] | undefined, where: string) => {
-      return item ? item.filter(e => e.in === where) : [];
+      return item ? item.filter((e) => e.in === where) : [];
     }
   );
 
