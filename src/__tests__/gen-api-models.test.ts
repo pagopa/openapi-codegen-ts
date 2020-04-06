@@ -10,7 +10,7 @@ import {
   renderDefinitionCode,
   renderOperation,
   renderClientCode,
-} from "../gen-api-models";
+} from "../gen-api-models/index";
 
 const env = initNunJucksEnvironment();
 
@@ -337,7 +337,7 @@ describe("gen-api-models", () => {
 
   it("should render a client", async () => {
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
-    const code = await renderClientCode(env, spec, allOperations);
+    const code = await renderClientCode(env, allOperations);
 
     expect(code).toMatchSnapshot();
   });

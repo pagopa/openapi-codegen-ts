@@ -492,8 +492,7 @@ import {
 export function Client(
   baseUrl: string,
   // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch,
-  basePath: string = \\"/api/v1\\"
+  fetchApi: typeof fetch
 ): {
   readonly testAuthBearer: TypeofApiCall<typeof testAuthBearerT>;
   readonly testFileUpload: TypeofApiCall<typeof testFileUploadT>;
@@ -514,7 +513,7 @@ export function Client(
     }),
 
     response_decoder: testAuthBearerDefaultDecoder(),
-    url: ({}) => \`\${basePath}/test-auth-bearer\`,
+    url: ({}) => \`/api/v1/test-auth-bearer\`,
 
     query: ({ qo, qr, cursor }) => ({ qo, qr, cursor })
   };
@@ -529,11 +528,11 @@ export function Client(
     headers: () => ({ \\"Content-Type\\": \\"multipart/form-data\\" }),
 
     response_decoder: testFileUploadDefaultDecoder(),
-    url: ({}) => \`\${basePath}/test-file-upload\`,
+    url: ({}) => \`/api/v1/test-file-upload\`,
 
-    body: ({ file }) => file.uri,
+    query: () => ({}),
 
-    query: () => ({})
+    body: ({ file }) => file.uri
   };
   const testFileUpload = createFetchRequestForApi(testFileUploadT, options);
 
