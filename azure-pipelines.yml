@@ -7,7 +7,7 @@
 # - DANGER_GITHUB_API_TOKEN
 #
 # The deployment can only be triggered by a manual run of the pipeline and consists 
-# in publishing a new version of the package 'italia-utils' to the NPM registry and 
+# in publishing a new version of the package 'io-utils' to the NPM registry and 
 # create a corresponding release and tag in GitHub. To enable the deployment you 
 # need to set to true the following variable otherwise the job to release the 
 # package will be skipped:
@@ -25,7 +25,7 @@
 #
 # To publish the package to the NPM registry you also need to set an auth token (with 
 # "read and publish" access level) for a NPM user who is 'collaborator' of the public  
-# package "italia-utils": 
+# package "io-utils": 
 # - NPM_TOKEN
 #
 # WARNING. Only the following values are allowed when selecting parameters to manually 
@@ -122,7 +122,7 @@ stages:
             displayName: 'Code coverage'
 
 
-  # C) Publish a new version of the package 'italia-utils' to the NPM 
+  # C) Publish a new version of the package 'io-utils' to the NPM 
   # registry and a release in GitHub if all the following conditions apply:
   #    - $ENABLE_MANUAL_DEPLOY == true 
   #    - it is a manual trigger
