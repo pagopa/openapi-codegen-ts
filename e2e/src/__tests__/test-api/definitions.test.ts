@@ -9,7 +9,7 @@ describe("Decoders generated from Test API spec defintions", () => {
     });
 
   describe("FiscalCode definition", () => {
-    it("should expose FiscalCode decoder", async () => {
+    it("should generate FiscalCode decoder", async () => {
       const { FiscalCode } = await loadModule("FiscalCode");
       expect(FiscalCode).toBeDefined();
     });
@@ -27,7 +27,7 @@ describe("Decoders generated from Test API spec defintions", () => {
   });
 
   describe("Profile defintion", () => {
-    it("should expose Profile decoder", async () => {
+    it("should generate Profile decoder", async () => {
       const { Profile } = await loadModule("Profile");
       expect(Profile).toBeDefined();
     });
