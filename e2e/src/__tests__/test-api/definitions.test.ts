@@ -14,7 +14,7 @@ describe("Decoders generated from Test API spec defintions", () => {
       expect(FiscalCode).toBeDefined();
     });
 
-    test.each`
+    it.each`
       title                                | example               | expected
       ${"should fail decoding empty"}      | ${""}                 | ${false}
       ${"should decode valid cf"}          | ${"RSSMRA80A01F205X"} | ${true}
@@ -59,7 +59,7 @@ describe("Decoders generated from Test API spec defintions", () => {
       payload: { foo: "bar" }
     };
 
-    test.each`
+    it.each`
       title                                   | example               | expected
       ${"should fail decoding empty"}         | ${""}                 | ${false}
       ${"should fail decoding non-object"}    | ${"value"}            | ${false}
