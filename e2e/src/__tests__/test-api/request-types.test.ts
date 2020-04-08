@@ -75,7 +75,9 @@ describe("Request types generated from Test API spec", () => {
             expect(result).not.toBeDefined();
           } else {
             result.fold(
+              // in case the decoding gives a left, it checks the result against the expected value
               (l: any) => expect(l).toEqual(expectedLeft),
+              // in case the decoding gives a right, it checks the result against the expected value
               (r: any) => expect(r).toEqual(expectedRight)
             );
             expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
@@ -120,7 +122,9 @@ describe("Request types generated from Test API spec", () => {
         const result = await decoder(response);
         if (expectedRight || expectedLeft) {
           result.fold(
+            // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
+            // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
           );
           expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
@@ -186,7 +190,9 @@ describe("Request types generated from Test API spec", () => {
             expect(result).not.toBeDefined();
           } else {
             result.fold(
+              // in case the decoding gives a left, it checks the result against the expected value
               (l: any) => expect(l).toEqual(expectedLeft),
+              // in case the decoding gives a right, it checks the result against the expected value
               (r: any) => expect(r).toEqual(expectedRight)
             );
             expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
@@ -227,7 +233,9 @@ describe("Request types generated from Test API spec", () => {
         const result = await decoder(response);
         if (expectedRight || expectedLeft) {
           result.fold(
+            // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
+            // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
           );
           expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
