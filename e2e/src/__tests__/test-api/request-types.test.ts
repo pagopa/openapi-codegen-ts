@@ -1,10 +1,5 @@
 import * as t from "io-ts";
-
-const mockResponse = (status: number, body?: any, headers?: any) => ({
-  status,
-  json: async () => body,
-  headers
-});
+import mockResponse from '../../__mocks__/response';
 
 describe("Request types generated from Test API spec", () => {
   const MODULE_PATH = `${__dirname}/../../../generated`;
