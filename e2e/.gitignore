@@ -1,0 +1,8 @@
+node_modules/
+**/node_modules/
+**/generated/
+npm-debug.log
+yarn-error.log
+local*
+.vscode
+package-lock.json
