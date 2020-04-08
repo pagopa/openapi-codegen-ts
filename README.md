@@ -74,3 +74,24 @@ NotificationChannelStatusValue -> lib/api/definitions/NotificationChannelStatusV
 ...
 done
 ```
+
+### Requirements
+
+* `node` version >= 10.8.0
+
+
+## TEST
+
+### Unit test
+Run test over utils' implementation
+
+```sh
+yarn test
+```
+
+### End-to-end test
+Run test over generated files
+
+```sh
+yarn e2e
+```
