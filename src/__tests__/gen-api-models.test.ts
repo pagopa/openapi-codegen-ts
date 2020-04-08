@@ -1,9 +1,10 @@
 /* tslint:disable:no-duplicate-string */
 
-import * as SwaggerParser from "swagger-parser";
 import { OpenAPIV2 } from "openapi-types";
+import * as SwaggerParser from "swagger-parser";
 
 import {
+  getAuthHeaders,
   initNunJucksEnvironment,
   parseAllOperations,
   parseOperation,
@@ -24,9 +25,8 @@ beforeAll(
 
 describe("gen-api-models", () => {
   it("should not generate duplicate imports", async () => {
-    expect(spec.definitions).toBeDefined();
-    if (spec.definitions === undefined) {
-      fail("unexpected specs");
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
       return;
     }
     const profileDefinition = spec.definitions.Profile;
@@ -42,6 +42,11 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeStrings", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
     const definition = spec.definitions.WithinRangeStringTest;
     const code = await renderDefinitionCode(
       env,
@@ -54,6 +59,11 @@ describe("gen-api-models", () => {
   });
 
   it("should handle NonNegativeNumbers", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
     const definition = spec.definitions.NonNegativeNumberTest;
     const code = await renderDefinitionCode(
       env,
@@ -66,6 +76,11 @@ describe("gen-api-models", () => {
   });
 
   it("should handle NonNegativeIntegers", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
     const definition = spec.definitions.NonNegativeIntegerTest;
     const code = await renderDefinitionCode(
       env,
@@ -78,6 +93,10 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeNumbers", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.WithinRangeNumberTest;
     const code = await renderDefinitionCode(
       env,
@@ -90,6 +109,14 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeIntegers", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.WithinRangeIntegerTest;
     const code = await renderDefinitionCode(
       env,
@@ -102,6 +129,10 @@ describe("gen-api-models", () => {
   });
 
   it("should handle CustomStringFormats", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.CustomStringFormatTest;
     const code = await renderDefinitionCode(
       env,
@@ -116,12 +147,20 @@ describe("gen-api-models", () => {
   });
 
   it("should handle enums", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.EnumTest;
     const code = await renderDefinitionCode(env, "EnumTest", definition, false);
     expect(code).toMatchSnapshot("enum-simple");
   });
 
   it("should generate a dictionary from additionalProperties", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.AdditionalPropsTest;
     const code = await renderDefinitionCode(
       env,
@@ -134,6 +173,10 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a dictionary from additionalProperties: true", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.AdditionalPropsTrueTest;
     const code = await renderDefinitionCode(
       env,
@@ -147,6 +190,10 @@ describe("gen-api-models", () => {
   });
 
   it("should support additionalProperties default value", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.AdditionalpropsDefault;
     const code = await renderDefinitionCode(
       env,
@@ -160,6 +207,10 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type intersection from allOf", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.AllOfTest;
     const code = await renderDefinitionCode(
       env,
@@ -173,6 +224,10 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type union from oneOf", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.OneOfTest;
     const code = await renderDefinitionCode(
       env,
@@ -185,6 +240,10 @@ describe("gen-api-models", () => {
   });
 
   it("should generate a type union from allOf when x-one-of is used", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.AllOfOneOfTest;
     const code = await renderDefinitionCode(
       env,
@@ -198,6 +257,10 @@ describe("gen-api-models", () => {
   });
 
   it("should parse custom inline properties", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.InlinePropertyTest;
     const code = await renderDefinitionCode(
       env,
@@ -210,6 +273,10 @@ describe("gen-api-models", () => {
   });
 
   it("should parse nested objects", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.NestedObjectTest;
     const code = await renderDefinitionCode(
       env,
@@ -222,6 +289,10 @@ describe("gen-api-models", () => {
   });
 
   it("should include aliases for types already defined elsewhere if they have the same name", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.OrganizationFiscalCode;
     const code = await renderDefinitionCode(
       env,
@@ -235,6 +306,10 @@ describe("gen-api-models", () => {
   });
 
   it("should include aliases for types already defined elsewhere if they have a different name", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
     const definition = spec.definitions.OrganizationFiscalCodeTest;
     const code = await renderDefinitionCode(
       env,
@@ -254,9 +329,13 @@ describe("gen-api-models", () => {
       "undefined",
       "undefined"
     )("get");
-    const code = renderOperation(operationInfo, true);
 
-    expect(code.e1).toMatchSnapshot();
+    if (operationInfo) {
+      const code = renderOperation(operationInfo, true);
+      expect(code.e1).toMatchSnapshot();
+    } else {
+      fail("failed to parse operation");
+    }
   });
 
   it("should support file uploads", async () => {
@@ -268,9 +347,12 @@ describe("gen-api-models", () => {
       "undefined"
     )("post");
 
-    const code = renderOperation(operationInfo, true);
-
-    expect(code.e1).toMatchSnapshot();
+    if (operationInfo) {
+      const code = renderOperation(operationInfo, true);
+      expect(code.e1).toMatchSnapshot();
+    } else {
+      fail("failed to parse operation");
+    }
   });
 
   it("should parse operations", () => {
