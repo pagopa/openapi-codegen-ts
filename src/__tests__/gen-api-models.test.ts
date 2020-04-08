@@ -8,9 +8,9 @@ import {
   initNunJucksEnvironment,
   parseAllOperations,
   parseOperation,
-  renderDefinitionCode,
-  renderOperation,
   renderClientCode,
+  renderDefinitionCode,
+  renderOperation
 } from "../gen-api-models/index";
 
 const env = initNunJucksEnvironment();
@@ -369,29 +369,29 @@ describe("gen-api-models", () => {
             type: "string",
             in: "header",
             headerName: "Authorization",
-            tokenType: "apiKey",
+            tokenType: "apiKey"
           },
           {
             name: "qo?",
             type: "string",
-            in: "query",
+            in: "query"
           },
           {
             name: "qr",
             type: "string",
-            in: "query",
+            in: "query"
           },
           {
             name: "cursor?",
             type: "string",
-            in: "query",
-          },
+            in: "query"
+          }
         ],
         responses: [
           { e1: "200", e2: "undefined" },
-          { e1: "403", e2: "undefined" },
+          { e1: "403", e2: "undefined" }
         ],
-        produces: "application/json",
+        produces: "application/json"
       },
       {
         path: "/api/v1/test-file-upload",
@@ -403,13 +403,13 @@ describe("gen-api-models", () => {
           {
             name: "file",
             type: "{ uri: string, name: string, type: string }",
-            in: "formData",
-          },
+            in: "formData"
+          }
         ],
         responses: [{ e1: "200", e2: "undefined" }],
         consumes: "multipart/form-data",
-        produces: "application/json",
-      },
+        produces: "application/json"
+      }
     ];
 
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
