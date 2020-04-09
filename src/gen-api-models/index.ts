@@ -10,11 +10,11 @@ import * as SwaggerParser from "swagger-parser";
 const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
 
 /**
- * Wraps model template rendering 
- * @param env 
- * @param definition 
- * @param definitionName 
- * @param strictInterfaces 
+ * Wraps model template rendering
+ * @param env
+ * @param definition
+ * @param definitionName
+ * @param strictInterfaces
  */
 function renderAsync(
   env: nunjucks.Environment,
@@ -42,10 +42,10 @@ function renderAsync(
 
 /**
  * Definition code rendering. Include code formatting
- * @param env 
- * @param definitionName 
- * @param definition 
- * @param strictInterfaces 
+ * @param env
+ * @param definitionName
+ * @param definition
+ * @param strictInterfaces
  */
 export async function renderDefinitionCode(
   env: nunjucks.Environment,
@@ -83,8 +83,8 @@ function uncapitalize(s: string): string {
 
 /**
  * Given a string in the form "#/<refType>/<refName>/, it returns a tuple in the form (refType, refName)"
- * @param s 
- * 
+ * @param s
+ *
  * @returns an ITuple object with { e1: refType, e2: refName }, undefined if the string is not the the correct form
  */
 function typeFromRef(
@@ -105,8 +105,8 @@ function typeFromRef(
 
 /**
  * Given an OpenAPI param type, it returns its Typescript correspondent
- * @param t 
- * 
+ * @param t
+ *
  * @returns a Typescript type
  */
 function specTypeToTs(t: string): string {
@@ -120,13 +120,12 @@ function specTypeToTs(t: string): string {
   }
 }
 
-
 /**
  * Renders the responde decoder associated to the given type.
  * Response types refer to io-ts-commons (https://github.com/pagopa/io-ts-commons/blob/master/src/requests.ts)
  * @param status http status code the decoder is associated with
  * @param type type to be decoded
- * 
+ *
  * @returns a string which represents a decoder declaration
  */
 function getDecoderForResponse(status: string, type: string): string {
@@ -143,7 +142,7 @@ function getDecoderForResponse(status: string, type: string): string {
 /**
  * Given a request param, parses its schema reference, if any
  * @param param a requeste parameter
- * 
+ *
  * @returns an ITuple<refType, refName> if the paramenter has a reference, undefined otherwise
  */
 const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
@@ -164,7 +163,7 @@ const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
  * @param specParameters spec's global parameters
  * @param operationId the identifier for the operation
  * @param param the request parameter to parse
- * 
+ *
  * @returns a struct describing the parameter
  */
 const parseParameter = (
@@ -232,7 +231,7 @@ const parseParameter = (
 /**
  * Pich a field from an object
  * @param field field to pick
- * @param elem the base object 
+ * @param elem the base object
  */
 const pick = <K extends string, T extends Record<K, any>>(field: K) => (
   elem: T
@@ -241,8 +240,8 @@ const pick = <K extends string, T extends Record<K, any>>(field: K) => (
 /**
  * Takes an array of parameters and collect each definition referenced.
  * Those will correspond to types to be imported in typescript
- * @param parameters 
- * 
+ * @param parameters
+ *
  * @returns a set of definitions to be imported
  */
 const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
@@ -272,9 +271,9 @@ const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
 
 /**
  * Renders the code of decoders and request types of a single operation
- * @param operationInfo 
+ * @param operationInfo
  * @param generateResponseDecoders true if decoders have to be added
- * 
+ *
  * @returns the code for a single operation description
  */
 export const renderOperation = (
@@ -467,14 +466,14 @@ export interface IOperationInfo {
 /**
  * Extracts all the info referring to a single operation and returns a IOperationInfo struct.
  * It may return undefined in case of unhandled specification or bad specification format
- * 
- * @param api the whole spec 
+ *
+ * @param api the whole spec
  * @param path the path of the current operation
  * @param extraParameters global parameters specified ad api-level
- * @param defaultSuccessType 
- * @param defaultErrorType 
+ * @param defaultSuccessType
+ * @param defaultErrorType
  * @param operationKey identifies the operation for a path, correspond to a http method
- * 
+ *
  * @returns a IOperationInfo struct if correct, undefined otherwise
  */
 export const parseOperation = (
@@ -587,7 +586,7 @@ export const parseOperation = (
 /**
  * Checks if a parsed spec is in OA2 format
  * @param specs a parsed spec
- * 
+ *
  * @returns true or false
  */
 export function isOpenAPIV2(
@@ -598,9 +597,9 @@ export function isOpenAPIV2(
 
 /**
  * Given a list of operation descriptions, it renders a http client
- * @param env 
- * @param operations 
- * 
+ * @param env
+ * @param operations
+ *
  * @returns the code of a http client
  */
 export async function renderClientCode(
@@ -621,7 +620,7 @@ export async function renderClientCode(
           reject(err);
         } else {
           resolve(
-            prettier.format(code, {
+            prettier.format(code || "", {
               parser: "typescript"
             })
           );
@@ -634,10 +633,10 @@ export async function renderClientCode(
 /**
  * Iterates over all operations in the specifications and returns a list of IOperationInfo struct describing them.
  * It also flattens global parameters and definitions by place them in each operation
- * @param api 
- * @param defaultSuccessType 
- * @param defaultErrorType 
- * 
+ * @param api
+ * @param defaultSuccessType
+ * @param defaultErrorType
+ *
  * @returns a list with all operation parsed
  */
 export function parseAllOperations(
@@ -686,9 +685,9 @@ interface IGenerateApiOptions {
 
 /**
  * Module's main method. It generates files based on a given specification url
- * @param options 
- * 
- * 
+ * @param options
+ *
+ *
  */
 export async function generateApi(options: IGenerateApiOptions): Promise<void> {
   const {
@@ -882,7 +881,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
    * example: "arg1" -> (arg1)
    * example: ["arg1", "arg2"] -> (arg1, arg2)
    */
-  env.addFilter("toFnArgs", (item: IParameterInfo[] | undefined) => 
+  env.addFilter("toFnArgs", (item: IParameterInfo[] | undefined) =>
     typeof item === "undefined"
       ? "()"
       : `({${item.map(pick("name")).join(", ")}})`

@@ -36,60 +36,40 @@ describeSuite("Request types generated from Test API spec", () => {
       expect(testAuthBearerDecoder).toEqual(expect.any(Function));
     });
 
-    [
-      ["just 200", 200],
-      ["just 403", 403],
-      ["any value", "any string"],
-      [
-        "200 with non-empty body",
-        mockResponse(200, { foo: "bar" }),
-        { status: 200, value: { foo: "bar" } }
-      ],
-      [
-        "200 with invalid body",
-        mockResponse(200, { invalid: "bar" }),
-        undefined,
-        expect.any(Object)
-      ],
-      [
-        "200 with empty body",
-        mockResponse(200, undefined),
-        undefined,
-        expect.any(Object)
-      ],
-      ["403 with any value", mockResponse(403, "any value"), { status: 403 }],
-      [
-        "403 with another value",
-        mockResponse(403, { foo: "bar" }),
-        { status: 403 }
-      ],
-      ["unhandled status", mockResponse(418, { foo: "bar" })]
-    ].forEach(
-      (
-        [
-          name,
-          response,
-          expectedRight,
-          expectedLeft,
-          cannotDecode = !expectedRight && !expectedLeft
-        ],
-        i
-      ) =>
-        it(`should decode valid response case ${i + 1}: ${name}`, async () => {
-          const { testAuthBearerDecoder } = await loadModule();
-          const decoder = testAuthBearerDecoder(BodyT);
-          const result = await decoder(response);
-          if (cannotDecode) {
-            expect(result).not.toBeDefined();
-          } else {
-            result.fold(
-              (l: any) => expect(l).toEqual(expectedLeft),
-              (r: any) => expect(r).toEqual(expectedRight)
-            );
-            expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-            expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
-          }
-        })
+    it.each`
+      title                                        | response                                 | expectedRight                             | expectedLeft
+      ${"shoudln't decode scalar value/number"}    | ${200}                                   | ${undefined}                              | ${undefined}
+      ${"shoudln't decode scalar value/string"}    | ${"any value"}                           | ${undefined}                              | ${undefined}
+      ${"should decode 200 with non-empty body"}   | ${mockResponse(200, { foo: "bar" })}     | ${{ status: 200, value: { foo: "bar" } }} | ${undefined}
+      ${"should decode 200 with invalid body"}     | ${mockResponse(200, { invalid: "bar" })} | ${undefined}                              | ${expect.any(Object)}
+      ${"should decode 200 with empty body"}       | ${mockResponse(200 /*, undefined */)}    | ${undefined}                              | ${expect.any(Object)}
+      ${"should decode 403 with any value/string"} | ${mockResponse(403, "any value")}        | ${{ status: 403 }}                        | ${undefined}
+      ${"should decode 403 with any value/object"} | ${mockResponse(403, { foo: "bar" })}     | ${{ status: 403 }}                        | ${undefined}
+      ${"shoudln't decode unhandled http code"}    | ${mockResponse(418, { foo: "bar" })}     | ${undefined}                              | ${undefined}
+    `(
+      "$title",
+      async ({
+        response,
+        expectedRight,
+        expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft,
+      }) => {
+        const { testAuthBearerDecoder } = await loadModule();
+        const decoder = testAuthBearerDecoder(BodyT);
+        const result = await decoder(response);
+        if (cannotDecode) {
+          expect(result).not.toBeDefined();
+        } else {
+          result.fold(
+            // in case the decoding gives a left, it checks the result against the expected value
+            (l: any) => expect(l).toEqual(expectedLeft),
+            // in case the decoding gives a right, it checks the result against the expected value
+            (r: any) => expect(r).toEqual(expectedRight)
+          );
+          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
+          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+        }
+      }
     );
   });
 
@@ -100,43 +80,39 @@ describeSuite("Request types generated from Test API spec", () => {
       expect(testAuthBearerDefaultDecoder).toEqual(expect.any(Function));
     });
 
-    [
-      ["just 200", 200],
-      ["just 403", 403],
-      ["any value", "any string"],
-      [
-        "200 with non-empty body",
-        mockResponse(200, { foo: "bar" }),
-        undefined,
-        expect.any(Object)
-      ],
-      [
-        "200 with empty body",
-        mockResponse(200),
-        { status: 200, value: undefined }
-      ],
-      ["403 with any value", mockResponse(403, "any value"), { status: 403 }],
-      [
-        "403 with another value",
-        mockResponse(403, { foo: "bar" }),
-        { status: 403 }
-      ]
-    ].forEach(([name, response, expectedRight, expectedLeft], i) =>
-      it(`should decode valid response case ${i + 1}: ${name}`, async () => {
+    it.each`
+      title                                        | response                              | expectedRight                        | expectedLeft
+      ${"shoudln't decode scalar value/number"}    | ${200}                                | ${undefined}                         | ${undefined}
+      ${"shoudln't decode scalar value/string"}    | ${"any value"}                        | ${undefined}                         | ${undefined}
+      ${"should decode 200 with non-empty body"}   | ${mockResponse(200, { foo: "bar" })}  | ${undefined}                         | ${expect.any(Object)}
+      ${"should decode 200 with empty body"}       | ${mockResponse(200 /*, undefined */)} | ${{ status: 200, value: undefined }} | ${undefined}
+      ${"should decode 403 with any value/string"} | ${mockResponse(403, "any value")}     | ${{ status: 403 }}                   | ${undefined}
+      ${"should decode 403 with any value/object"} | ${mockResponse(403, { foo: "bar" })}  | ${{ status: 403 }}                   | ${undefined}
+      ${"shoudln't decode unhandled http code"}    | ${mockResponse(418, { foo: "bar" })}  | ${undefined}                         | ${undefined}
+    `(
+      "$title",
+      async ({
+        response,
+        expectedRight,
+        expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft,
+      }) => {
         const { testAuthBearerDefaultDecoder } = await loadModule();
         const decoder = testAuthBearerDefaultDecoder();
         const result = await decoder(response);
-        if (expectedRight || expectedLeft) {
+        if (cannotDecode) {
+          expect(result).not.toBeDefined();
+        } else {
           result.fold(
+            // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
+            // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
           );
           expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
           expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
-        } else {
-          expect(result).not.toBeDefined();
         }
-      })
+      }
     );
   });
 
@@ -152,55 +128,38 @@ describeSuite("Request types generated from Test API spec", () => {
       expect(testFileUploadDecoder).toEqual(expect.any(Function));
     });
 
-    [
-      ["just 200", 200],
-      ["just 403", 403],
-      ["any value", "any string"],
-      [
-        "200 with non-empty body",
-        mockResponse(200, { foo: "bar" }),
-        { status: 200, value: { foo: "bar" } }
-      ],
-      [
-        "200 with invalid body",
-        mockResponse(200, { invalid: "bar" }),
-        undefined,
-        expect.any(Object)
-      ],
-      [
-        "200 with empty body",
-        mockResponse(200, undefined),
-        undefined,
-        expect.any(Object)
-      ],
-      ["unhandled status code with any value", mockResponse(403, "any value")],
-      ["unhandled status code with empty value", mockResponse(403)]
-    ].forEach(
-      (
-        [
-          name,
-          response,
-          expectedRight,
-          expectedLeft,
-          cannotDecode = !expectedRight && !expectedLeft
-        ],
-        i
-      ) =>
-        it(`should decode valid response case ${i + 1}: ${name}`, async () => {
-          const { testFileUploadDecoder } = await loadModule();
-          const decoder = testFileUploadDecoder(BodyT);
-          const result = await decoder(response);
-          if (cannotDecode) {
-            expect(result).not.toBeDefined();
-          } else {
-            result.fold(
-              (l: any) => expect(l).toEqual(expectedLeft),
-              (r: any) => expect(r).toEqual(expectedRight)
-            );
-            expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-            expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
-          }
-        })
+    it.each`
+      title                                      | response                                 | expectedRight                             | expectedLeft
+      ${"shoudln't decode scalar value/number"}  | ${200}                                   | ${undefined}                              | ${undefined}
+      ${"shoudln't decode scalar value/string"}  | ${"any value"}                           | ${undefined}                              | ${undefined}
+      ${"should decode 200 with non-empty body"} | ${mockResponse(200, { foo: "bar" })}     | ${{ status: 200, value: { foo: "bar" } }} | ${undefined}
+      ${"should decode 200 with invalid body"}   | ${mockResponse(200, { invalid: "bar" })} | ${undefined}                              | ${expect.any(Object)}
+      ${"should decode 200 with empty body"}     | ${mockResponse(200 /*, undefined */)}    | ${undefined}                              | ${expect.any(Object)}
+      ${"shoudln't decode unhandled http code"}  | ${mockResponse(418, { foo: "bar" })}     | ${undefined}                              | ${undefined}
+    `(
+      "$title",
+      async ({
+        response,
+        expectedRight,
+        expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft,
+      }) => {
+        const { testFileUploadDecoder } = await loadModule();
+        const decoder = testFileUploadDecoder(BodyT);
+        const result = await decoder(response);
+        if (cannotDecode) {
+          expect(result).not.toBeDefined();
+        } else {
+          result.fold(
+            // in case the decoding gives a left, it checks the result against the expected value
+            (l: any) => expect(l).toEqual(expectedLeft),
+            // in case the decoding gives a right, it checks the result against the expected value
+            (r: any) => expect(r).toEqual(expectedRight)
+          );
+          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
+          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+        }
+      }
     );
   });
 
@@ -211,39 +170,37 @@ describeSuite("Request types generated from Test API spec", () => {
       expect(testFileUploadDefaultDecoder).toEqual(expect.any(Function));
     });
 
-    [
-      ["just 200", 200],
-      ["just 403", 403],
-      ["any value", "any string"],
-      [
-        "200 with non-empty body",
-        mockResponse(200, { foo: "bar" }),
-        undefined,
-        expect.any(Object)
-      ],
-      [
-        "200 with empty body",
-        mockResponse(200),
-        { status: 200, value: undefined }
-      ],
-      ["unhandled status code with any value", mockResponse(403, "any value")],
-      ["unhandled status code with empty value", mockResponse(403)]
-    ].forEach(([name, response, expectedRight, expectedLeft], i) =>
-      it(`should decode valid response case ${i + 1}: ${name}`, async () => {
+    it.each`
+      title                                      | response                              | expectedRight                        | expectedLeft
+      ${"shoudln't decode scalar value/number"}  | ${200}                                | ${undefined}                         | ${undefined}
+      ${"shoudln't decode scalar value/string"}  | ${"any value"}                        | ${undefined}                         | ${undefined}
+      ${"should decode 200 with non-empty body"} | ${mockResponse(200, { foo: "bar" })}  | ${undefined}                         | ${expect.any(Object)}
+      ${"should decode 200 with empty body"}     | ${mockResponse(200 /*, undefined */)} | ${{ status: 200, value: undefined }} | ${undefined}
+      ${"shoudln't decode unhandled http code"}  | ${mockResponse(418, { foo: "bar" })}  | ${undefined}                         | ${undefined}
+    `(
+      "$title",
+      async ({
+        response,
+        expectedRight,
+        expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft,
+      }) => {
         const { testFileUploadDefaultDecoder } = await loadModule();
         const decoder = testFileUploadDefaultDecoder();
         const result = await decoder(response);
-        if (expectedRight || expectedLeft) {
+        if (cannotDecode) {
+          expect(result).not.toBeDefined();
+        } else {
           result.fold(
+            // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
+            // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
           );
           expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
           expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
-        } else {
-          expect(result).not.toBeDefined();
         }
-      })
+      }
     );
   });
 });
