@@ -1,0 +1,41 @@
+{
+  "name": "italia-utils-e2e",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "start": "jest",
+    "lint": "tslint --project ."
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.11.0",
+    "fs-extra": "^9.0.0",
+    "jest": "^25.2.7",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^25.3.1",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "fp-ts": "1.12.0",
+    "io-ts": "1.8.5",
+    "italia-ts-commons": "^5.1.13",
+    "italia-utils": "file:../"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "jsx",
+      "node",
+      "ts",
+      "tsx"
+    ],
+    "preset": "ts-jest",
+    "testMatch": null,
+    "globalSetup": "./setup.ts",
+    "globalTeardown": "./teardown.ts"
+  }
+}
