@@ -29,8 +29,9 @@ const tsStartServer = (...p: Parameters<typeof startMockServer>) =>
   );
 
 export default async () => {
+  console.log('Running e2e tests with config:', config)
+  
   const { specs, skipClient, skipGeneration } = config;
-
   const tasks = Object.values(specs)
     .filter(({ enabled }) => enabled)
     .map(({ url, mockPort, generatedFilesDir }) =>
