@@ -13,7 +13,7 @@ Please be sure that the `italia-utils` module has been compiled first.
 
 ## How it works
 
-This project installs `italia-utils` and try to reproduce user interactions with the module. It ships several OpenApi specifications and for each it performs the relative code generation. At each specification is associated a set of test suites that load generated modules and execute them in their intended scenarios. In order to test generated http clients, a http server for each specification is instantiated, serving a mock representation of the intendend api.
+This project installs `italia-utils` and try to reproduce user interactions with the module. It ships several OpenApi specifications and for each it performs the relative code generation. At each specification is associated a name and a set of test suites that load generated modules and execute them in their intended scenarios. In order to test generated http clients, a http server for each specification is instantiated, serving a mock representation of the intendend api.
 
 ## Global configuration
 
@@ -23,7 +23,7 @@ The `src/config.ts` file contains global values shared over all the suites.
 | name | description
 |-|-|
 | `generatedFilesBaseDir` | directory in which generated files are saved
-| `skipClient` |  if true, test suites regarding generated clients are skipped and mock servers aren't esecuted. Default: `false`
+| `skipClient` |  if true, test suites regarding generated clients are skipped and mock servers aren't executed. Default: `false`
 | `skipGeneration` |  if true, files aren't generated before test suites are executed. Files already in `generatedFilesBaseDir` are considered. Default: `false`
 | `specs` | key-value set of OpenApi specification to test. Pairs are in the form _(specName, specInfo)_. See below for _specInfo_ documentation.
 
@@ -33,6 +33,7 @@ The `src/config.ts` file contains global values shared over all the suites.
 |`generatedFilesDir`| directory in which generated files for this specification are stored. Is subdirectory of `generatedFilesBaseDir` |
 |`isEnabled`| wheater test suites for this specification have to be executed or not. Default: `true`
 |`mockPort`| port the mock server exposing this specification is listening at |
+|`url`| path of the OpenApi spcification, being local or remote |
 
 
 
