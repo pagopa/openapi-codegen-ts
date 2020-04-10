@@ -7,9 +7,10 @@ const mockResponse = (status: number, body?: any, headers?: any) => ({
   headers
 });
 
-const { generatedFilesDir, enabled } = config.specs.be;
+const { generatedFilesDir, isEnabled } = config.specs.be;
 
-const describeSuite = enabled ? describe : describe.skip;
+// if there's no need for this suite in this particular run, just skip it
+const describeSuite = isEnabled ? describe : describe.skip;
 
 describeSuite("Request types generated from BE API spec", () => {
   const loadModule = () =>

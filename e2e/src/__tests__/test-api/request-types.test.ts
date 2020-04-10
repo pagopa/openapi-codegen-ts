@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 import config from "../../config";
 
-// @ts-ignore
+// @ts-ignore because leaked-handles doesn't ship type defintions
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
 
@@ -11,9 +11,10 @@ const mockResponse = (status: number, body?: any, headers?: any) => ({
   headers
 });
 
-const { generatedFilesDir, enabled } = config.specs.testapi;
+const { generatedFilesDir, isEnabled } = config.specs.testapi;
 
-const describeSuite = enabled ? describe : describe.skip;
+// if there's no need for this suite in this particular run, just skip it
+const describeSuite = isEnabled ? describe : describe.skip;
 
 describeSuite("Request types generated from Test API spec", () => {
   const loadModule = () =>

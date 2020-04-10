@@ -3,9 +3,10 @@ import config from "../../config";
 import { Client } from "../../generated/be/client";
 
 const { skipClient } = config;
-const { mockPort, enabled } = config.specs.be;
+const { mockPort, isEnabled } = config.specs.be;
 
-const describeSuite = skipClient || !enabled ? describe.skip : describe;
+// if there's no need for this suite in this particular run, just skip it
+const describeSuite = skipClient || !isEnabled ? describe.skip : describe;
 
 const VALID_TOKEN = "Bearer valid-token";
 const INVALID_TOKEN = undefined;
@@ -55,15 +56,14 @@ describeSuite("Http client generated from BE API spec", () => {
         (e: any) => fail(e),
         response => {
           expect(response.status).toBe(200);
-          expect(response.value).toEqual(expect.any(Object));
-          // @ts-ignore
-          expect(response.value.items).toEqual(expect.any(Array));
-          // @ts-ignore
-          expect(response.value.page_size).toEqual(expect.any(Number));
+          if (response.status === 200) {
+            expect(response.value).toEqual(expect.any(Object));
+            expect(response.value.items).toEqual(expect.any(Array));
+            expect(response.value.page_size).toEqual(expect.any(Number));
+          }
         }
       );
     });
-
 
     // skip for now as it requires a change in how the Authorization header is composed
     // problem: Prism mock server consider the Authorization header invalid if it's empty. Our client prepends "Bearer " to the token either the token is empty or not. Thus an empty token generates a non-empty Authorization header.
@@ -76,7 +76,7 @@ describeSuite("Http client generated from BE API spec", () => {
       );
 
       const result = await getVisibleServices({
-        // @ts-ignore
+        // @ts-ignore because has different signature but still I want to check this behavior
         Bearer: undefined
       });
 
@@ -84,11 +84,11 @@ describeSuite("Http client generated from BE API spec", () => {
         (e: any) => fail(e),
         (response: any) => {
           expect(response.status).toBe(403);
-          expect(response.value).toEqual(expect.any(Object));
-          // @ts-ignore
-          expect(response.value.items).toEqual(expect.any(Array));
-          // @ts-ignore
-          expect(response.value.page_size).toEqual(expect.any(Number));
+          if (response.status === 403) {
+            expect(response.value).toEqual(expect.any(Object));
+            expect(response.value.items).toEqual(expect.any(Array));
+            expect(response.value.page_size).toEqual(expect.any(Number));
+          }
         }
       );
     });
@@ -109,11 +109,11 @@ describeSuite("Http client generated from BE API spec", () => {
         (e: any) => fail(e),
         response => {
           expect(response.status).toBe(200);
-          expect(response.value).toEqual(expect.any(Object));
-          // @ts-ignore
-          expect(response.value.items).toEqual(expect.any(Array));
-          // @ts-ignore
-          expect(response.value.page_size).toEqual(expect.any(Number));
+          if (response.status === 200) {
+            expect(response.value).toEqual(expect.any(Object));
+            expect(response.value.items).toEqual(expect.any(Array));
+            expect(response.value.page_size).toEqual(expect.any(Number));
+          }
         }
       );
     });

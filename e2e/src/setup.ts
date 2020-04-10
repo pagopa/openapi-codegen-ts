@@ -1,3 +1,4 @@
+// this module is used to implement a serial sequence of TaskEither
 import { array } from "fp-ts/lib/Array";
 import { task } from "fp-ts/lib/Task";
 import { taskEither, tryCatch, right } from "fp-ts/lib/TaskEither";
@@ -33,7 +34,7 @@ export default async () => {
   
   const { specs, skipClient, skipGeneration } = config;
   const tasks = Object.values(specs)
-    .filter(({ enabled }) => enabled)
+    .filter(({ isEnabled }) => isEnabled)
     .map(({ url, mockPort, generatedFilesDir }) =>
       tsEnsureDir(generatedFilesDir)
         .chain(() =>

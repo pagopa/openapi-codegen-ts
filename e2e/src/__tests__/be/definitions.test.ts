@@ -1,12 +1,13 @@
 import config from "../../config";
 
-const { generatedFilesDir, enabled } = config.specs.be;
+const { generatedFilesDir, isEnabled } = config.specs.be;
 
-const describeSuite = enabled ? describe : describe.skip;
+// if there's no need for this suite in this particular run, just skip it
+const describeSuite = isEnabled ? describe : describe.skip;
 
 describeSuite("Decoders generated from BE API spec defintions", () => {
   const loadModule = (name: string) =>
-    import(`${generatedFilesDir}/${name}.ts`).then((mod) => {
+    import(`${generatedFilesDir}/${name}.ts`).then(mod => {
       if (!mod) {
         fail(`Cannot load module ${generatedFilesDir}/${name}.ts`);
       }
@@ -25,7 +26,7 @@ describeSuite("Decoders generated from BE API spec defintions", () => {
       organization_name: "my org",
       department_name: "my dep",
       organization_fiscal_code: "12345678901",
-      version: 123,
+      version: 123
     };
     const withInvalidFiscalCode = {
       service_id: "sid1234",
@@ -33,7 +34,7 @@ describeSuite("Decoders generated from BE API spec defintions", () => {
       organization_name: "my org",
       department_name: "my dep",
       organization_fiscal_code: "invalid",
-      version: 123,
+      version: 123
     };
 
     it.each`
