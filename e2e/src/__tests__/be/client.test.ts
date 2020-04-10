@@ -65,34 +65,6 @@ describeSuite("Http client generated from BE API spec", () => {
       );
     });
 
-    // skip for now as it requires a change in how the Authorization header is composed
-    // problem: Prism mock server consider the Authorization header invalid if it's empty. Our client prepends "Bearer " to the token either the token is empty or not. Thus an empty token generates a non-empty Authorization header.
-    // solution: We can solve this by changing our client's header producer. I just don't want to do it now as current changes involve just the e2e framework not the client behavior
-    it.skip("should fail on invalid token", async () => {
-      const { getVisibleServices } = Client(
-        `http://localhost:${mockPort}`,
-        (nodeFetch as any) as typeof fetch,
-        ""
-      );
-
-      const result = await getVisibleServices({
-        // @ts-ignore because has different signature but still I want to check this behavior
-        Bearer: undefined
-      });
-
-      result.fold(
-        (e: any) => fail(e),
-        (response: any) => {
-          expect(response.status).toBe(403);
-          if (response.status === 403) {
-            expect(response.value).toEqual(expect.any(Object));
-            expect(response.value.items).toEqual(expect.any(Array));
-            expect(response.value.page_size).toEqual(expect.any(Number));
-          }
-        }
-      );
-    });
-
     it("should accept pagination", async () => {
       const { getVisibleServices } = Client(
         `http://localhost:${mockPort}`,

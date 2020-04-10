@@ -1,4 +1,9 @@
-// this module is used to implement a serial sequence of TaskEither
+/**
+ * This module is executed once before every test suite. For each specification to test:
+ *  - it generates files
+ *  - it runs mock servers
+ */
+
 import { array } from "fp-ts/lib/Array";
 import { task } from "fp-ts/lib/Task";
 import { taskEither, tryCatch, right } from "fp-ts/lib/TaskEither";
