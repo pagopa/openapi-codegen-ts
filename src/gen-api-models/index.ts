@@ -584,7 +584,7 @@ export const parseOperation = (
     parameters,
     responses,
     importedTypes,
-    path: `${api.basePath}${path}`,
+    path,
     consumes,
     produces
   };
@@ -611,13 +611,15 @@ export function isOpenAPIV2(
  */
 export async function renderClientCode(
   env: nunjucks.Environment,
+  spec: OpenAPIV2.Document,
   operations: Array<IOperationInfo | undefined>
 ) {
   return new Promise((resolve, reject) => {
     env.render(
       "client.ts.njk",
       {
-        operations
+        operations,
+        spec
       },
       (err, code) => {
         if (err) {
@@ -625,7 +627,7 @@ export async function renderClientCode(
           reject(err);
         } else {
           resolve(
-            prettier.format(code, {
+            prettier.format(code || "", {
               parser: "typescript"
             })
           );
@@ -820,7 +822,7 @@ added this line
     if (generateClient) {
       const outPath = `${definitionsDirPath}/client.ts`;
       console.log(`Client -> ${outPath}`);
-      const code = await renderClientCode(env, allOperationInfos);
+      const code = await renderClientCode(env, api, allOperationInfos);
       await fs.writeFile(outPath, code);
     }
   }

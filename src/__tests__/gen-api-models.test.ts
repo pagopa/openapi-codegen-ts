@@ -11,7 +11,7 @@ import {
   renderClientCode,
   renderDefinitionCode,
   renderOperation
-} from "../gen-api-models/index";
+} from "../gen-api-models";
 
 const env = initNunJucksEnvironment();
 
@@ -358,7 +358,7 @@ describe("gen-api-models", () => {
   it("should parse operations", () => {
     const expected = [
       {
-        path: "/api/v1/test-auth-bearer",
+        path: "/test-auth-bearer",
         headers: ["Authorization"],
         importedTypes: new Set(),
         method: "get",
@@ -394,7 +394,69 @@ describe("gen-api-models", () => {
         produces: "application/json"
       },
       {
-        path: "/api/v1/test-file-upload",
+        path: "/test-file-upload",
+        headers: ["Content-Type"],
+        importedTypes: new Set(),
+        method: "post",
+        operationId: "testFileUpload",
+        parameters: [
+          {
+            name: "file",
+            type: "{ uri: string, name: string, type: string }",
+            in: "formData"
+          }
+        ],
+        responses: [{ e1: "200", e2: "undefined" }],
+        consumes: "multipart/form-data",
+        produces: "application/json"
+      }
+    ];
+
+    const allOperations = parseAllOperations(spec, "undefined", "undefined");
+
+    expect(allOperations).toEqual(expected);
+  });
+
+  it("should parse operations", () => {
+    const expected = [
+      {
+        path: "/test-auth-bearer",
+        headers: ["Authorization"],
+        importedTypes: new Set(),
+        method: "get",
+        operationId: "testAuthBearer",
+        parameters: [
+          {
+            name: "bearerToken",
+            type: "string",
+            in: "header",
+            headerName: "Authorization",
+            tokenType: "apiKey"
+          },
+          {
+            name: "qo?",
+            type: "string",
+            in: "query"
+          },
+          {
+            name: "qr",
+            type: "string",
+            in: "query"
+          },
+          {
+            name: "cursor?",
+            type: "string",
+            in: "query"
+          }
+        ],
+        responses: [
+          { e1: "200", e2: "undefined" },
+          { e1: "403", e2: "undefined" }
+        ],
+        produces: "application/json"
+      },
+      {
+        path: "/test-file-upload",
         headers: ["Content-Type"],
         importedTypes: new Set(),
         method: "post",
@@ -419,7 +481,7 @@ describe("gen-api-models", () => {
 
   it("should render a client", async () => {
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
-    const code = await renderClientCode(env, allOperations);
+    const code = await renderClientCode(env, spec, allOperations);
 
     expect(code).toMatchSnapshot();
   });
