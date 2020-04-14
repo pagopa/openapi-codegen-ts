@@ -11,5 +11,6 @@
     "sourceMap": true,
     "lib": ["es2015", "dom"]
   },
+  "include": ["src/**/*", "generated/**/*"],
   "exclude": ["node_modules", "src/**/__tests__/*"]
 }

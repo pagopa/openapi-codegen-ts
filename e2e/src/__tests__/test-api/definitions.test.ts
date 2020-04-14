@@ -1,9 +1,19 @@
-describe("Decoders generated from Test API spec defintions", () => {
-  const MODULE_PATH = `${__dirname}/../../../generated`;
+import config from "../../config";
+
+// @ts-ignore because leaked-handles doesn't ship type defintions
+import * as leaked from "leaked-handles";
+leaked.set({ debugSockets: true });
+
+const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
+
+// if there's no need for this suite in this particular run, just skip it
+const describeSuite = isSpecEnabled ? describe : describe.skip;
+
+describeSuite("Decoders generated from Test API spec defintions", () => {
   const loadModule = (name: string) =>
-    import(`${MODULE_PATH}/${name}.ts`).then(mod => {
+    import(`${generatedFilesDir}/${name}.ts`).then(mod => {
       if (!mod) {
-        fail(`Cannot load module ${MODULE_PATH}/${name}.ts`);
+        fail(`Cannot load module ${generatedFilesDir}/${name}.ts`);
       }
       return mod;
     });
