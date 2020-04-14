@@ -1,19 +1,33 @@
 import * as t from "io-ts";
-import mockResponse from "../../__mocks__/response";
+import config from "../../config";
 
-describe("Request types generated from Test API spec", () => {
-  const MODULE_PATH = `${__dirname}/../../../generated`;
+// @ts-ignore because leaked-handles doesn't ship type defintions
+import * as leaked from "leaked-handles";
+leaked.set({ debugSockets: true });
+
+const mockResponse = (status: number, body?: any, headers?: any) => ({
+  status,
+  json: async () => body,
+  headers
+});
+
+const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
+
+// if there's no need for this suite in this particular run, just skip it
+const describeSuite = isSpecEnabled ? describe : describe.skip;
+
+describeSuite("Request types generated from Test API spec", () => {
   const loadModule = () =>
-    import(`${MODULE_PATH}/requestTypes.ts`).then((mod) => {
+    import(`${generatedFilesDir}/requestTypes.ts`).then(mod => {
       if (!mod) {
-        fail(`Cannot load module ${MODULE_PATH}/requestTypes.ts`);
+        fail(`Cannot load module ${generatedFilesDir}/requestTypes.ts`);
       }
       return mod;
     });
 
   describe("testAuthBearerDecoder", () => {
     const BodyT = t.interface({
-      foo: t.string,
+      foo: t.string
     });
     type BodyT = t.TypeOf<typeof BodyT>;
 
@@ -105,7 +119,7 @@ describe("Request types generated from Test API spec", () => {
 
   describe("testFileUploadDecoder", () => {
     const BodyT = t.interface({
-      foo: t.string,
+      foo: t.string
     });
     type BodyT = t.TypeOf<typeof BodyT>;
 

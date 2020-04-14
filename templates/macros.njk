@@ -417,9 +417,9 @@
 
 {##
  # Given a path with parameters, it returns the path as a string template
- # example: /pet/{petId} -> `/pet/${petId}`
+ # example: /pet/{petId} -> /pet/${petId}
  #}
-{% macro pathStringToTemplateString(path) -%}`{{ path | replace("{", "${")}}`{% endmacro %}
+{% macro pathStringToTemplateString(path) -%}{{ path | replace("{", "${")}}{% endmacro %}
 
 {##
  # Wraps an expression into "${" and "}" in string template literals. It is needed to escape the brackets usage in nunjucks

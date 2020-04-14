@@ -1,0 +1,333 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: Proxy API
+  description: Mobile and web proxy API gateway.
+host: localhost
+basePath: /api/v1
+schemes:
+  - https
+security:
+  - Bearer: []
+paths:
+  "/services/{service_id}":
+    x-swagger-router-controller: ServicesController
+    parameters:
+      - name: service_id
+        in: path
+        type: string
+        required: true
+        description: The ID of an existing Service.
+    get:
+      operationId: getService
+      summary: Get Service
+      description: A previously created service with the provided service ID is returned.
+      responses:
+        '200':
+          description: Service found.
+          schema:
+            "$ref": "#/definitions/ServicePublic"
+          examples:
+            application/json:
+              department_name: "IO"
+              organization_fiscal_code: "00000000000"
+              organization_name: "IO"
+              service_id: "5a563817fcc896087002ea46c49a"
+              service_name: "App IO"
+              version: 1
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "401":
+          description: Bearer token null or expired.
+        "404":
+          description: No service found for the provided ID.
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "429":
+          description: Too many requests
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "500":
+          description: There was an error in retrieving the service.
+          schema:
+            $ref: "#/definitions/ProblemJson"
+      parameters: []
+  "/profile/sender-services":
+    x-swagger-router-controller: ServicesController
+    get:
+      operationId: getServicesByRecipient
+      summary: Get Services by recipient
+      description:  |-
+        Returns the service IDs of all the services that have contacted the recipient,
+        identified by the provided fiscal code, at least once.
+      responses:
+        "200":
+          description: Found.
+          schema:
+            $ref: "#/definitions/PaginatedServiceTupleCollection"
+          examples:
+            application/json:
+              items:
+                - service_id: 2b3e728c1a5d1efa035c
+              page_size: 1
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "401":
+          description: Bearer token null or expired.
+        "429":
+          description: Too many requests
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "500":
+          description: There was an error in retrieving the services.
+          schema:
+            $ref: "#/definitions/ProblemJson"
+      parameters:
+        - $ref: "#/parameters/PaginationRequest"
+  "/services":
+    x-swagger-router-controller: ServicesController
+    get:
+      operationId: getVisibleServices
+      summary: Get all visible services
+      description:  |-
+        Returns the description of all visible services.
+      responses:
+        "200":
+          description: Found.
+          schema:
+            $ref: "#/definitions/PaginatedServiceTupleCollection"
+          examples:
+            application/json:
+              items:
+                - service_id: "AzureDeployc49a"
+                  version: 1
+                - service_id: "5a25abf4fcc89605c082f042c49a"
+                  version: 0
+              page_size: 1
+        "401":
+          description: Bearer token null or expired.
+        "429":
+          description: Too many requests
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "500":
+          description: There was an error in retrieving the services.
+          schema:
+            $ref: "#/definitions/ProblemJson"
+      parameters:
+        - $ref: "#/parameters/PaginationRequest"
+definitions:
+  DepartmentName:
+    type: string
+    description: |-
+      The department inside the organization that runs the service. Will
+      be added to the content of sent messages.
+    minLength: 1
+  OrganizationName:
+    type: string
+    description: |-
+      The organization that runs the service. Will be added to the content
+      of sent messages to identify the sender.
+    minLength: 1
+  PaginationResponse:
+    type: object
+    description: Pagination response parameters.
+    properties:
+      page_size:
+        type: integer
+        minimum: 1
+        description: Number of items returned for each page.
+        example: 2
+      next:
+        type: string
+        description: |-
+          Contains an URL to GET the next results page in the
+          retrieved collection of items.
+        format: uri
+        example: https://example.com/?p=0XXX2
+  ProblemJson:
+    type: object
+    properties:
+      type:
+        type: string
+        format: uri
+        description: |-
+          An absolute URI that identifies the problem type. When dereferenced,
+          it SHOULD provide human-readable documentation for the problem type
+          (e.g., using HTML).
+        default: about:blank
+        example: https://example.com/problem/constraint-violation
+      title:
+        type: string
+        description: |-
+          A short, summary of the problem type. Written in english and readable
+          for engineers (usually not suited for non technical stakeholders and
+          not localized); example: Service Unavailable
+      status:
+        $ref: "#/definitions/HttpStatusCode"
+      detail:
+        type: string
+        description: |-
+          A human readable explanation specific to this occurrence of the
+          problem.
+        example: There was an error processing the request
+      instance:
+        type: string
+        format: uri
+        description: |-
+          An absolute URI that identifies the specific occurrence of the problem.
+          It may or may not yield further information if dereferenced.
+  ServiceId:
+    type: string
+    description: |-
+      The ID of the Service. Equals the subscriptionId of a registered
+      API user.
+    minLength: 1
+  ServiceName:
+    type: string
+    description: The name of the service. Will be added to the content of sent messages.
+    minLength: 1
+  ServicePublic:
+    title: Service (public)
+    description: A Service associated to an user's subscription.
+    type: object
+    properties:
+      service_id:
+        $ref: "#/definitions/ServiceId"
+      service_name:
+        $ref: "#/definitions/ServiceName"
+      organization_name:
+        $ref: "#/definitions/OrganizationName"
+      department_name:
+        $ref: "#/definitions/DepartmentName"
+      organization_fiscal_code:
+        $ref: "#/definitions/OrganizationFiscalCode"
+      available_notification_channels:
+        $ref: "#/definitions/AvailableNotificationChannels"
+      version:
+        type: integer
+      service_metadata:
+        $ref: "#/definitions/ServiceMetadata"
+    required:
+      - service_id
+      - service_name
+      - organization_name
+      - department_name
+      - organization_fiscal_code
+      - version
+  AvailableNotificationChannels:
+    description: |-
+        All the notification channels available for a service.
+    type: array
+    items:
+      $ref: "#/definitions/NotificationChannel"
+  NotificationChannel:
+    type: string
+    description: |-
+      All notification channels.
+    x-extensible-enum:
+      - EMAIL
+      - WEBHOOK
+    example: EMAIL
+  ServiceMetadata:
+    type: object
+    properties:
+      description:
+        type: string
+        minLength: 1
+      web_url:
+        type: string
+        minLength: 1
+      app_ios:
+        type: string
+        minLength: 1
+      app_android:
+        type: string
+        minLength: 1
+      tos_url:
+        type: string
+        minLength: 1
+      privacy_url:
+        type: string
+        minLength: 1
+      address:
+        type: string
+        minLength: 1
+      phone:
+        type: string
+        minLength: 1
+      email:
+        type: string
+        minLength: 1
+      pec:
+        type: string
+        minLength: 1
+      scope:
+        type: string
+        x-extensible-enum:
+          - NATIONAL
+          - LOCAL
+    required:
+      - scope
+  OrganizationFiscalCode:
+    type: string
+    description: Organization fiscal code.
+    format: OrganizationFiscalCode
+    x-import: italia-ts-commons/lib/strings
+    example: "12345678901"
+  ServiceTuple:
+    type: object
+    properties:
+      service_id:
+        $ref: "#/definitions/ServiceId"
+      version:
+        type: integer
+    required:
+      - service_id
+      - version
+  PaginatedServiceTupleCollection:
+    description: A paginated collection of services tuples
+    allOf:
+      - $ref: "#/definitions/ServiceTupleCollection"
+      - $ref: "#/definitions/PaginationResponse"
+  ServiceTupleCollection:
+    description: A collection of services tuples (service and version)
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/ServiceTuple"
+    required:
+      - items
+  HttpStatusCode:
+    type: integer
+    format: int32
+    description: |-
+      The HTTP status code generated by the origin server for this occurrence
+      of the problem.
+    minimum: 100
+    maximum: 600
+    exclusiveMaximum: true
+    example: 200
+responses: {}
+parameters:
+  PaginationRequest:
+    type: string
+    name: cursor
+    in: query
+    minimum: 1
+    description: An opaque identifier that points to the next item in the collection.
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
