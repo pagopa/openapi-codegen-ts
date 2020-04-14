@@ -11,7 +11,7 @@ import {
   renderClientCode,
   renderDefinitionCode,
   renderOperation
-} from "../gen-api-models";
+} from "../gen-api-models/index";
 
 const env = initNunJucksEnvironment();
 
