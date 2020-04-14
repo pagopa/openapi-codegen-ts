@@ -5,7 +5,7 @@ const GENERATED_BASE_DIR = `${ROOT_DIRECTORY_FOR_E2E}/src/generated`;
  * parse a string value into a boolean
  * @param v string value to be parsed
  *
- * @returns truew or false
+ * @returns true or false
  */
 const truthy = (v: string | undefined) =>
   v === "true" || v === "TRUE" || v === "1";
