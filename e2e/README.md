@@ -31,7 +31,7 @@ The `src/config.ts` file contains global values shared over all the suites.
 | name | description
 |-|-|
 |`generatedFilesDir`| directory in which generated files for this specification are stored. Is subdirectory of `generatedFilesBaseDir` |
-|`isEnabled`| wheater test suites for this specification have to be executed or not. Default: `true`
+|`isSpecEnabled`| wheater test suites for this specification have to be executed or not. Default: `true`
 |`mockPort`| port the mock server exposing this specification is listening at |
 |`url`| path of the OpenApi spcification, being local or remote |
 

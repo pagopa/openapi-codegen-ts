@@ -8,10 +8,10 @@ import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
 
 const { skipClient } = config;
-const { generatedFilesDir, mockPort, isEnabled } = config.specs.testapi;
+const { generatedFilesDir, mockPort, isSpecEnabled } = config.specs.testapi;
 
 // if there's no need for this suite in this particular run, just skip it
-const describeSuite = skipClient || !isEnabled ? describe.skip : describe;
+const describeSuite = skipClient || !isSpecEnabled ? describe.skip : describe;
 
 describeSuite("Http client generated from Test API spec", () => {
   

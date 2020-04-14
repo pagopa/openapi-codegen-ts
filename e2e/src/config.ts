@@ -31,13 +31,13 @@ export default {
   specs: {
     be: {
       generatedFilesDir: `${GENERATED_BASE_DIR}/be`,
-      isEnabled: includeInList(process.env.INCLUDE_SPECS, "be"),
+      isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "be"),
       mockPort: 4102,
       url: `${ROOT_DIRECTORY_FOR_E2E}/be.yaml`
     },
     testapi: {
       generatedFilesDir: `${GENERATED_BASE_DIR}/testapi`,
-      isEnabled: includeInList(process.env.INCLUDE_SPECS, "testapi"),
+      isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "testapi"),
       mockPort: 4101,
       url: `${ROOT_DIRECTORY_FOR_E2E}/api.yaml`
     }

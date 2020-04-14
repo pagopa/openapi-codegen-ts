@@ -42,7 +42,7 @@ export default async () => {
 
   const { specs, skipClient, skipGeneration } = config;
   const tasks = Object.values(specs)
-    .filter(({ isEnabled }) => isEnabled)
+    .filter(({ isSpecEnabled }) => isSpecEnabled)
     .map(({ url, mockPort, generatedFilesDir }) =>
       tsEnsureDir(generatedFilesDir)
         .chain(() =>

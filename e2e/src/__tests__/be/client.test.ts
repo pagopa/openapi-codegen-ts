@@ -3,10 +3,10 @@ import config from "../../config";
 import { Client } from "../../generated/be/client";
 
 const { skipClient } = config;
-const { mockPort, isEnabled } = config.specs.be;
+const { mockPort, isSpecEnabled } = config.specs.be;
 
 // if there's no need for this suite in this particular run, just skip it
-const describeSuite = skipClient || !isEnabled ? describe.skip : describe;
+const describeSuite = skipClient || !isSpecEnabled ? describe.skip : describe;
 
 const VALID_TOKEN = "Bearer valid-token";
 const INVALID_TOKEN = undefined;

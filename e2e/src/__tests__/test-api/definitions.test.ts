@@ -4,10 +4,10 @@ import config from "../../config";
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
 
-const { generatedFilesDir, isEnabled } = config.specs.testapi;
+const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
 // if there's no need for this suite in this particular run, just skip it
-const describeSuite = isEnabled ? describe : describe.skip;
+const describeSuite = isSpecEnabled ? describe : describe.skip;
 
 describeSuite("Decoders generated from Test API spec defintions", () => {
   const loadModule = (name: string) =>

@@ -1,9 +1,9 @@
 import config from "../../config";
 
-const { generatedFilesDir, isEnabled } = config.specs.be;
+const { generatedFilesDir, isSpecEnabled } = config.specs.be;
 
 // if there's no need for this suite in this particular run, just skip it
-const describeSuite = isEnabled ? describe : describe.skip;
+const describeSuite = isSpecEnabled ? describe : describe.skip;
 
 describeSuite("Decoders generated from BE API spec defintions", () => {
   const loadModule = (name: string) =>
