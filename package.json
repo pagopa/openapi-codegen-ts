@@ -1,9 +1,9 @@
 {
-  "name": "italia-utils",
+  "name": "@pagopa/io-utils",
   "version": "5.0.0",
-  "description": "Tools and utilities for the Digital Citizenship project",
-  "repository": "https://github.com/teamdigitale/italia-utils",
-  "author": "https://teamdigitale.governo.it",
+  "description": "Tools and utilities for the IO project",
+  "repository": "https://github.com/pagopa/io-utils",
+  "author": "https://www.pagopa.gov.it/",
   "license": "MIT",
   "main": "dist/index.js",
   "bin": {
@@ -67,6 +67,7 @@
     ]
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://npm.pkg.github.com/",
+    "access": "public"
   }
 }
