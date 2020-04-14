@@ -1,5 +1,5 @@
 {
-  "name": "io-utils",
+  "name": "@pagopa/io-utils",
   "version": "5.0.0",
   "description": "Tools and utilities for the Digital Citizenship project",
   "repository": "https://github.com/pagopa/io-utils",
@@ -66,6 +66,7 @@
     ]
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://npm.pkg.github.com/",
+    "access": "public"
   }
 }
