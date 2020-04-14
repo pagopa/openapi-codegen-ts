@@ -1,3 +1,3 @@
 import { stopAllServers } from "./server";
 
-export default stopAllServers();
+export default stopAllServers;

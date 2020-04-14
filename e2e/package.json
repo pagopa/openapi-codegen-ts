@@ -22,7 +22,7 @@
     "fp-ts": "1.12.0",
     "io-ts": "1.8.5",
     "italia-ts-commons": "^5.1.13",
-    "italia-utils": "file:../"
+    "@pagopa/io-utils": "file:../"
   },
   "jest": {
     "testEnvironment": "node",

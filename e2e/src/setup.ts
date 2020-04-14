@@ -4,18 +4,21 @@
  *  - it runs mock servers
  */
 
+import { generateApi } from "@pagopa/io-utils";
 import { array } from "fp-ts/lib/Array";
 import { task } from "fp-ts/lib/Task";
-import { taskEither, tryCatch, right } from "fp-ts/lib/TaskEither";
+import { right, taskEither, tryCatch } from "fp-ts/lib/TaskEither";
 import { ensureDir } from "fs-extra";
-import { generateApi } from "italia-utils";
 import config from "./config";
 import { startMockServer } from "./server";
 
 const noopTE = right<Error, undefined>(task.of(undefined));
 
 const tsEnsureDir = (dir: string) =>
-  tryCatch(() => ensureDir(dir), () => new Error(`cannot create dir ${dir}`));
+  tryCatch(
+    () => ensureDir(dir),
+    () => new Error(`cannot create dir ${dir}`)
+  );
 const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
   tryCatch(
     () => generateApi(...p),
@@ -35,8 +38,8 @@ const tsStartServer = (...p: Parameters<typeof startMockServer>) =>
   );
 
 export default async () => {
-  console.log('Running e2e tests with config:', config)
-  
+  console.log("Running e2e tests with config:", config);
+
   const { specs, skipClient, skipGeneration } = config;
   const tasks = Object.values(specs)
     .filter(({ isEnabled }) => isEnabled)

@@ -436,6 +436,16 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
+"@pagopa/io-utils@file:..":
+  version "5.0.0"
+  dependencies:
+    fs-extra "^6.0.0"
+    italia-ts-commons "^5.0.1"
+    nunjucks "^3.1.2"
+    prettier "^1.12.1"
+    swagger-parser "^7.0.0"
+    yargs "^11.1.0"
+
 "@sinonjs/commons@^1.7.0":
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.7.2.tgz#505f55c74e0272b43f6c52d81946bed7058fc0e2"
@@ -510,9 +520,9 @@
     pretty-format "^25.2.1"
 
 "@types/node-fetch@^2.5.5":
-  version "2.5.5"
-  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.5.5.tgz#cd264e20a81f4600a6c52864d38e7fef72485e92"
-  integrity sha512-IWwjsyYjGw+em3xTvWVQi5MgYKbRs0du57klfTaZkv/B24AEQ/p/IopNeqIYNy3EsfHOpg8ieQSDomPcsYMHpA==
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.5.6.tgz#df8377a66e64ddf75b65b072e37b3c5c5425a96f"
+  integrity sha512-2w0NTwMWF1d3NJMK0Uiq2UNN8htVCyOWOD0jIPjPgC5Ph/YP4dVhs9YxxcMcuLuwAslz0dVEcZQUaqkLs3IzOQ==
   dependencies:
     "@types/node" "*"
     form-data "^3.0.0"
@@ -1938,16 +1948,6 @@ italia-ts-commons@^5.0.1, italia-ts-commons@^5.1.13:
     io-ts "1.8.5"
     json-set-map "^1.0.2"
     validator "^10.1.0"
-
-"italia-utils@file:..":
-  version "5.0.0"
-  dependencies:
-    fs-extra "^6.0.0"
-    italia-ts-commons "^5.0.1"
-    nunjucks "^3.1.2"
-    prettier "^1.12.1"
-    swagger-parser "^7.0.0"
-    yargs "^11.1.0"
 
 jest-changed-files@^25.3.0:
   version "25.3.0"
