@@ -74,7 +74,7 @@ describeSuite("Http client generated from BE API spec", () => {
 
       const result = await getVisibleServices({
         Bearer: VALID_TOKEN,
-        paginationRequest: "my cursor"
+        cursor: "my cursor"
       });
 
       result.fold(
@@ -87,6 +87,31 @@ describeSuite("Http client generated from BE API spec", () => {
             expect(response.value.page_size).toEqual(expect.any(Number));
           }
         }
+      );
+    });
+
+    it("should pass parameters correctly to fetch", async () => {
+      const spiedFetch = jest.fn(() => ({
+        status: 200,
+        json: async () => ({}),
+        headers: {}
+      }));
+      const { getVisibleServices } = Client(
+        `http://localhost:${mockPort}`,
+        (spiedFetch as any) as typeof fetch,
+        ""
+      );
+
+      await getVisibleServices({
+        Bearer: VALID_TOKEN,
+        cursor: "my_cursor"
+      });
+
+      expect(spiedFetch).toBeCalledWith(
+        expect.stringContaining("cursor=my_cursor"),
+        expect.objectContaining({
+          headers: { Authorization: expect.stringContaining(VALID_TOKEN) }
+        })
       );
     });
   });
