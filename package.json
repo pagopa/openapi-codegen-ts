@@ -1,7 +1,7 @@
 {
   "name": "@pagopa/io-utils",
   "version": "5.0.0",
-  "description": "Tools and utilities for the Digital Citizenship project",
+  "description": "Tools and utilities for the IO project",
   "repository": "https://github.com/pagopa/io-utils",
   "author": "https://www.pagopa.gov.it/",
   "license": "MIT",
