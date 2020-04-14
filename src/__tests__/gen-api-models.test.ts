@@ -8,9 +8,10 @@ import {
   initNunJucksEnvironment,
   parseAllOperations,
   parseOperation,
+  renderClientCode,
   renderDefinitionCode,
-  renderOperation,
-} from "../gen-api-models";
+  renderOperation
+} from "../gen-api-models/index";
 
 const env = initNunJucksEnvironment();
 
@@ -379,6 +380,11 @@ describe("gen-api-models", () => {
             name: "qr",
             type: "string",
             in: "query"
+          },
+          {
+            name: "cursor?",
+            type: "string",
+            in: "query"
           }
         ],
         responses: [
@@ -409,5 +415,12 @@ describe("gen-api-models", () => {
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
 
     expect(allOperations).toEqual(expected);
+  });
+
+  it("should render a client", async () => {
+    const allOperations = parseAllOperations(spec, "undefined", "undefined");
+    const code = await renderClientCode(env, allOperations);
+
+    expect(code).toMatchSnapshot();
   });
 });
