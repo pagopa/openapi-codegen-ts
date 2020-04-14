@@ -217,21 +217,14 @@ const parseParameter = (
       ? specParameters[parsedRef.e2].required
       : false;
 
-  const paramName = `${uncapitalize(
-    specParameters && specParameters[parsedRef.e2]
-      ? specParameters[parsedRef.e2].name
-      : parsedRef.e2
-  )}${isParamRequired ? "" : "?"}`;
-
-  const paramIn =
-    specParameters && specParameters[parsedRef.e2]
-      ? specParameters[parsedRef.e2].in
-      : param.in;
+  const paramName = `${uncapitalize(parsedRef.e2)}${
+    isParamRequired ? "" : "?"
+  }`;
 
   return {
     name: paramName,
     type: paramType,
-    in: paramIn
+    in: param.in
   };
 };
 

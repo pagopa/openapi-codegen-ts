@@ -27,7 +27,6 @@ paths:
           in: "query"
           required: true
           type: "string"
-        - $ref: "#/parameters/PaginationRequest"
       responses:
         "200":
           description: "Will send `Authenticated`"
