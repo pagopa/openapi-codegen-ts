@@ -7,22 +7,23 @@
     "lint": "tslint --project ."
   },
   "devDependencies": {
+    "@stoplight/prism-http-server": "^3.3.3",
     "@types/jest": "^25.2.1",
     "@types/node": "^13.11.0",
     "@types/node-fetch": "^2.5.5",
     "fs-extra": "^9.0.0",
+    "jest": "^25.2.7",
     "leaked-handles": "^5.2.0",
     "node-fetch": "^2.6.0",
     "rimraf": "^2.6.2",
-    "jest": "^25.2.7",
     "ts-jest": "^25.3.1",
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@pagopa/io-utils": "file:../",
     "fp-ts": "1.12.0",
     "io-ts": "1.8.5",
-    "italia-ts-commons": "^5.1.13",
-    "@pagopa/io-utils": "file:../"
+    "italia-ts-commons": "^5.1.13"
   },
   "jest": {
     "testEnvironment": "node",
