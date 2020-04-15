@@ -10,7 +10,7 @@ import {
   parseOperation,
   renderClientCode,
   renderDefinitionCode,
-  renderOperation
+  renderOperation,
 } from "../gen-api-models/index";
 
 const env = initNunJucksEnvironment();
@@ -355,66 +355,21 @@ describe("gen-api-models", () => {
     }
   });
 
-  it("should parse operations", () => {
-    const expected = [
-      {
-        path: "/test-auth-bearer",
-        headers: ["Authorization"],
-        importedTypes: new Set(),
-        method: "get",
-        operationId: "testAuthBearer",
-        parameters: [
-          {
-            name: "bearerToken",
-            type: "string",
-            in: "header",
-            headerName: "Authorization",
-            tokenType: "apiKey"
-          },
-          {
-            name: "qo?",
-            type: "string",
-            in: "query"
-          },
-          {
-            name: "qr",
-            type: "string",
-            in: "query"
-          },
-          {
-            name: "cursor?",
-            type: "string",
-            in: "query"
-          }
-        ],
-        responses: [
-          { e1: "200", e2: "undefined" },
-          { e1: "403", e2: "undefined" }
-        ],
-        produces: "application/json"
-      },
-      {
-        path: "/test-file-upload",
-        headers: ["Content-Type"],
-        importedTypes: new Set(),
-        method: "post",
-        operationId: "testFileUpload",
-        parameters: [
-          {
-            name: "file",
-            type: "{ uri: string, name: string, type: string }",
-            in: "formData"
-          }
-        ],
-        responses: [{ e1: "200", e2: "undefined" }],
-        consumes: "multipart/form-data",
-        produces: "application/json"
-      }
-    ];
+  it("should support multiple success cases", async () => {
+    const operationInfo = parseOperation(
+      spec,
+      "/test-multiple-success",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
 
-    const allOperations = parseAllOperations(spec, "undefined", "undefined");
-
-    expect(allOperations).toEqual(expected);
+    if (operationInfo) {
+      const code = renderOperation(operationInfo, true);
+      expect(code.e1).toMatchSnapshot();
+    } else {
+      fail("failed to parse operation");
+    }
   });
 
   it("should parse operations", () => {
@@ -431,29 +386,44 @@ describe("gen-api-models", () => {
             type: "string",
             in: "header",
             headerName: "Authorization",
-            tokenType: "apiKey"
+            tokenType: "apiKey",
           },
           {
             name: "qo?",
             type: "string",
-            in: "query"
+            in: "query",
           },
           {
             name: "qr",
             type: "string",
-            in: "query"
+            in: "query",
           },
           {
             name: "cursor?",
             type: "string",
-            in: "query"
-          }
+            in: "query",
+          },
         ],
         responses: [
           { e1: "200", e2: "undefined" },
-          { e1: "403", e2: "undefined" }
+          { e1: "403", e2: "undefined" },
         ],
-        produces: "application/json"
+        produces: "application/json",
+      },
+      {
+        path: "/test-multiple-success",
+        headers: [],
+        importedTypes: new Set(["Message", "OneOfTest"]),
+        method: "get",
+        operationId: "testMultipleSuccess",
+        parameters: [],
+        responses: [
+          { e1: "200", e2: "Message" },
+          { e1: "202", e2: "undefined" },
+          { e1: "403", e2: "OneOfTest" },
+          { e1: "404", e2: "undefined" },
+        ],
+        produces: "application/json",
       },
       {
         path: "/test-file-upload",
@@ -465,13 +435,13 @@ describe("gen-api-models", () => {
           {
             name: "file",
             type: "{ uri: string, name: string, type: string }",
-            in: "formData"
-          }
+            in: "formData",
+          },
         ],
         responses: [{ e1: "200", e2: "undefined" }],
         consumes: "multipart/form-data",
-        produces: "application/json"
-      }
+        produces: "application/json",
+      },
     ];
 
     const allOperations = parseAllOperations(spec, "undefined", "undefined");

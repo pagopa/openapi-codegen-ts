@@ -28,7 +28,7 @@ function renderAsync(
       {
         definition,
         definitionName,
-        strictInterfaces,
+        strictInterfaces
       },
       (err, res) => {
         if (err) {
@@ -60,7 +60,7 @@ export async function renderDefinitionCode(
     strictInterfaces
   );
   const prettifiedCode = prettier.format(code, {
-    parser: "typescript",
+    parser: "typescript"
   });
   return prettifiedCode;
 }
@@ -125,17 +125,22 @@ function specTypeToTs(t: string): string {
  * Response types refer to io-ts-commons (https://github.com/pagopa/io-ts-commons/blob/master/src/requests.ts)
  * @param status http status code the decoder is associated with
  * @param type type to be decoded
+ * @param varName the name of the variables that holds the type decoder
  *
  * @returns a string which represents a decoder declaration
  */
-function getDecoderForResponse(status: string, type: string): string {
+function getDecoderForResponse(
+  status: string,
+  type: string,
+  varName: string
+): string {
   switch (type) {
     case "undefined":
       return `r.constantResponseDecoder<undefined, ${status}>(${status}, undefined)`;
     case "Error":
       return `r.basicErrorResponseDecoder<${status}>(${status})`;
     default:
-      return `r.ioResponseDecoder<${status}, (typeof ${type})["_A"], (typeof ${type})["_O"]>(${status}, ${type})`;
+      return `r.ioResponseDecoder<${status}, (typeof ${varName}[${status}])["_A"], (typeof ${varName}[${status}])["_O"]>(${status}, ${varName}[${status}])`;
   }
 }
 
@@ -174,7 +179,7 @@ const parseParameter = (
     return {
       name: `${param.name}${param.required ? "" : "?"}`,
       in: param.in,
-      type: specTypeToTs(param.type),
+      type: specTypeToTs(param.type)
     };
   }
   // Paratemer is declared as ref, we need to look it up
@@ -231,7 +236,7 @@ const parseParameter = (
   return {
     name: paramName,
     type: paramType,
-    in: paramIn,
+    in: paramIn
   };
 };
 
@@ -293,42 +298,38 @@ export const renderOperation = (
     headers,
     responses,
     importedTypes,
-    parameters,
+    parameters
   } = operationInfo;
 
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
 
   const headersCode =
-    headers.length > 0 ? headers.map((_) => `"${_}"`).join("|") : "never";
+    headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
 
   const responsesType = responses
-    .map((r) => `r.IResponseType<${r.e1}, ${r.e2}>`)
+    .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
   const paramsCode = parameters
-    .map((param) => `readonly ${param.name}: ${param.type}`)
+    .map(param => `readonly ${param.name}: ${param.type}`)
     .join(",");
-
-  // use the first 2xx type as "success type" that we allow to be overridden
-  const successType = responses.find(
-    (_) => _.e1.length === 3 && _.e1[0] === "2"
-  );
 
   const responsesDecoderCode = generateResponseDecoders
     ? renderDecoderCode(operationInfo)
     : "";
 
-  const code =
-    `
+  const requestTypeDefinition = `export type ${capitalize(
+    operationId
+  )}T = ${requestType}<{${paramsCode}}, ${headersCode}, never, ${responsesType}>;
+  `;
+
+  const code = `
     /****************************************************************
      * ${operationId}
      */
 
     // Request type definition
-    export type ${capitalize(
-      operationId
-    )}T = ${requestType}<{${paramsCode}}, ${headersCode}, never, ${responsesType}>;
-  ` + responsesDecoderCode;
+    ${requestTypeDefinition}${responsesDecoderCode}`;
 
   return Tuple2(code, importedTypes);
 };
@@ -342,46 +343,50 @@ export const renderOperation = (
 function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   // use the first 2xx type as "success type" that we allow to be overridden
   const firstSuccessType = responses.find(
-    (_) => _.e1.length === 3 && _.e1[0] === "2"
+    ({ e1, e2 }) => e1.length === 3 && e1[0] === "2"
   );
   if (!firstSuccessType) {
     return "";
   }
 
-  // We need a type like:
-  //
-  // export type ${Prefix}ResponsesT<A0, C0, A1, C1, A2, C2> = {
-  //  200: t.Type<A0, C0>
-  //  202: t.Type<A1, C1>
-  //  400: t.Type<A2, C2>
-  // }
+  // the name of the var holding the set of decoders
+  const typeVarName = "type";
 
-  // First we create the list of generics:
-  //
-  // A0, C0, A1, C1, A2, C2
+  const decoderFunctionName = `${operationId}Decoder`;
+  const defaultDecoderFunctionName = `${operationId}DefaultDecoder`;
 
   const composedDecoders = responses.reduce((acc, r) => {
-    const d = getDecoderForResponse(r.e1, r.e2);
+    const d = getDecoderForResponse(r.e1, r.e2, typeVarName);
     return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
   }, "");
 
-  const decoderName = `${operationId}Decoder`;
-  const defaultDecoderName = `${operationId}DefaultDecoder`;
-  const defaultResponsesVarName = `${capitalize(operationId)}DefaultResponses`;
-  const responsesTGenerics = responses
-    .reduce(
-      (p, r, i) => (r.e2 === "undefined" ? p : [...p, `A${i}, C${i}`]),
-      [] as string[]
-    )
-    .join(", ");
-  const responsesTypeName = `${capitalize(
-    operationId
-  )}ResponsesT<${responsesTGenerics}>`;
+  const responsesTGenerics = responses.reduce(
+    (p: string[], r, i) =>
+      r.e2 === "undefined" ? p : [...p, `A${i}`, `C${i}`],
+    [] as string[]
+  );
+  const responsesTGenericsWithExtends = responses.reduce(
+    (p: string[], r, i) =>
+      r.e2 === "undefined"
+        ? p
+        : [...p, `A${i} extends ${r.e2}`, `C${i} extends ${r.e2}`],
+    [] as string[]
+  );
+  const responsesTypeName = withGenerics(
+    `${capitalize(operationId)}ResponsesT`,
+    responsesTGenerics
+  );
 
-  // The we create the content:
-  //
-  // 200: t.Type<A1, C1>
-  // 202: t.Type<A2, C2>
+  const responsesTypeNameWithExtends = withGenerics(
+    `${capitalize(operationId)}ResponsesT`,
+    responsesTGenericsWithExtends
+  );
+
+  const decoderDefinitionName = withGenerics(
+    decoderFunctionName,
+    responsesTGenericsWithExtends
+  );
+
   const responsesTContent = responses.map((r, i) =>
     r.e2 === "undefined"
       ? `${r.e1}: t.UndefinedC`
@@ -389,15 +394,34 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   );
 
   // Then we create the whole type definition
+  //
+  // 200: t.Type<A1, C1>
+  // 202: t.UndefinedC
   const responsesT = `
-    export type ${responsesTypeName} = {
-      ${responsesTContent}
+    export type ${responsesTypeNameWithExtends} = {
+      ${responsesTContent.join(", ")}
     };
   `;
 
+  // This is the type of the first success type
+  // We need it to keep retro-compatibility
+  const responsesSuccessTContent = responses.reduce(
+    (p: string, r, i) =>
+      r.e1 !== firstSuccessType.e1
+        ? p
+        : r.e2 === "undefined"
+        ? "t.UndefinedC"
+        : `t.Type<A${i}, C${i}>`,
+    ""
+  );
+
+  const defaultResponsesVarName = `${uncapitalize(
+    operationId
+  )}DefaultResponses`;
+
   // Create an object with the default type for each response code:
   //
-  // export const ${Prefix}DefaultResponses = {
+  // export const ${defaultResponsesVarName} = {
   //   200: MyType,
   //   202: t.undefined,
   //   400: t.undefined
@@ -405,19 +429,62 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   const defaultResponses = `
     export const ${defaultResponsesVarName} = {
       ${responses
-        .map((r) => `${r.e1}: ${r.e2 === "undefined" ? "t.undefined" : r.e2}`)
+        .map(r => `${r.e1}: ${r.e2 === "undefined" ? "t.undefined" : r.e2}`)
         .join(", ")}
     };
   `;
 
-  return `
-        ${defaultResponses}
-        ${responsesT}
-        // Decodes the success response with a custom success type
-        export function ${decoderName}<${responsesTGenerics}>(types: ${responsesTypeName}) { return ${composedDecoders}; }
+  // a type in the form
+  //  r.ResponseDecoder<
+  //    | r.IResponseType<200, A0, never>
+  //    | r.IResponseType<202, undefined, never>
+  //  >;
+  const returnType = `r.ResponseDecoder<
+    ${responses
+      .map(({ e1, e2 }, i) => [
+        e1,
+        e2 === "undefined" ? "undefined" : `A${i}`,
+        "never"
+      ])
+      .map(t => `r.IResponseType<${t.join(", ")}>`)
+      .join("|")}
+  >;`;
 
-        // Decodes the success response with the type defined in the specs
-        export const ${defaultDecoderName} = () => ${decoderName}(${defaultResponsesVarName});`;
+  return `
+      ${defaultResponses}
+      ${responsesT}
+      export function ${decoderDefinitionName}(): ${returnType};
+      export function ${decoderDefinitionName}(overrideTypes: ${responsesSuccessTContent}): ${returnType};
+      export function ${decoderDefinitionName}(overrideTypes: Partial<${responsesTypeName}>): ${returnType};
+      export function ${decoderDefinitionName}(overrideTypes: Partial<${responsesTypeName}> | ${responsesSuccessTContent} = {}) {
+        const isDecoder = (d: any): d is ${responsesSuccessTContent} =>
+          typeof d["_A"] !== "undefined";
+
+        const ${typeVarName} = {
+          ...(${defaultResponsesVarName} as unknown as ${responsesTypeName}),
+          ...(isDecoder(overrideTypes) ? { ${firstSuccessType.e1}: overrideTypes } : overrideTypes)
+        };
+
+        return ${composedDecoders}
+      }
+
+      // Decodes the success response with the type defined in the specs
+      export const ${defaultDecoderFunctionName} = () => ${decoderFunctionName}();`;
+}
+
+/**
+ * Renders a type or variable name extended with its generics, if any
+ * Examples:
+ * ("MyType") -> "MyType"
+ * ("MyType", []) -> "MyType"
+ * ("MyType", ["T1", "T2"]) -> "MyType<T1, T2>"
+ * @param name type or variable to name to render
+ * @param generics list of generics
+ *
+ * @returns rendered name
+ */
+function withGenerics(name: string, generics: string[] = []): string {
+  return generics.length ? `${name}<${generics.join(", ")}>` : name;
 }
 
 /**
@@ -438,27 +505,27 @@ export function getAuthHeaders(
     security && security.length
       ? security
           .map((_: OpenAPIV2.SecurityRequirementObject) => Object.keys(_)[0])
-          .filter((_) => _ !== undefined)
+          .filter(_ => _ !== undefined)
       : undefined;
 
   const securityDefs =
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
         // security items mapped to their securityDefinitions definitions.
-        securityKeys.map((k) => Tuple2(k, securityDefinitions[k]))
+        securityKeys.map(k => Tuple2(k, securityDefinitions[k]))
       : securityDefinitions !== undefined
-      ? Object.keys(securityDefinitions).map((k) =>
+      ? Object.keys(securityDefinitions).map(k =>
           Tuple2(k, securityDefinitions[k])
         )
       : [];
 
   return securityDefs
-    .filter((_) => _.e2 !== undefined)
-    .filter((_) => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
-    .map((_) => {
+    .filter(_ => _.e2 !== undefined)
+    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
+    .map(_ => {
       const {
         name: headerName,
-        type: tokenType,
+        type: tokenType
       } = _.e2 as OpenAPIV2.SecuritySchemeApiKey; // Because _.e2 is of type OpenAPIV2.SecuritySchemeObject which is the super type of OpenAPIV2.SecuritySchemeApiKey. In the previous step of the chain we filtered so we're pretty sure _.e2 is of type OpenAPIV2.SecuritySchemeApiKey, but the compiler fails at it. I can add an explicit guard to the filter above, but I think the result is the same.
       return {
         headerName,
@@ -466,7 +533,7 @@ export function getAuthHeaders(
         in: "header" as "header", // this cast is needed otherwise "in" property will be recognize as string
         name: _.e1,
         type: "string",
-        tokenType,
+        tokenType
       };
     });
 }
@@ -501,8 +568,8 @@ const parseExtraParameters = (
                 headerName: param.in === "header" ? paramName : undefined,
                 in: param.in,
                 name: paramName,
-                type: specTypeToTs(param.type),
-              },
+                type: specTypeToTs(param.type)
+              }
             ];
           }
           return prev;
@@ -619,7 +686,7 @@ export const parseOperation = (
 
   const headers = [...contentTypeHeaders, ...authHeaders, ...extraHeaders];
 
-  const responses = Object.keys(operation.responses).map((responseStatus) => {
+  const responses = Object.keys(operation.responses).map(responseStatus => {
     const response = operation.responses[responseStatus];
     const typeRef = response.schema ? response.schema.$ref : undefined;
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
@@ -659,7 +726,7 @@ export const parseOperation = (
     importedTypes,
     path,
     consumes,
-    produces,
+    produces
   };
 };
 
@@ -692,7 +759,7 @@ export async function renderClientCode(
       "client.ts.njk",
       {
         operations,
-        spec,
+        spec
       },
       (err, code) => {
         if (err) {
@@ -701,7 +768,7 @@ export async function renderClientCode(
         } else {
           resolve(
             prettier.format(code || "", {
-              parser: "typescript",
+              parser: "typescript"
             })
           );
         }
@@ -730,11 +797,11 @@ export function parseAllOperations(
     : [];
 
   return Object.keys(api.paths)
-    .map((path) => {
+    .map(path => {
       const pathSpec = api.paths[path];
       const extraParameters = [
         ...parseExtraParameters(pathSpec),
-        ...globalAuthHeaders,
+        ...globalAuthHeaders
       ];
       return Object.keys(pathSpec)
         .map(
@@ -777,12 +844,12 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     definitionsDirPath,
     strictInterfaces = false,
     defaultSuccessType = "undefined",
-    defaultErrorType = "undefined",
+    defaultErrorType = "undefined"
   } = options;
 
   const {
     generateRequestTypes = generateClient,
-    generateResponseDecoders = generateClient,
+    generateResponseDecoders = generateClient
   } = options;
 
   const env = initNunJucksEnvironment();
@@ -806,7 +873,7 @@ added this line
     await fs.writeFile(
       tsSpecFilePath,
       prettier.format(specCode, {
-        parser: "typescript",
+        parser: "typescript"
       })
     );
   }
@@ -877,14 +944,14 @@ added this line
           import * as r from "italia-ts-commons/lib/requests";
     
           ${Array.from(operationsImports.values())
-            .map((i) => `import { ${i} } from "./${i}";`)
+            .map(i => `import { ${i} } from "./${i}";`)
             .join("\n\n")}
     
           ${operationTypesCode}
         `;
 
     const prettifiedOperationsCode = prettier.format(operationsCode, {
-      parser: "typescript",
+      parser: "typescript"
     });
 
     const requestTypesPath = `${definitionsDirPath}/requestTypes.ts`;
@@ -907,7 +974,7 @@ added this line
 
 export function initNunJucksEnvironment(): nunjucks.Environment {
   nunjucks.configure({
-    trimBlocks: true,
+    trimBlocks: true
   });
   const env = new nunjucks.Environment(
     new nunjucks.FileSystemLoader(`${__dirname}/../../templates`)
@@ -1004,7 +1071,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   env.addFilter(
     "paramIn",
     (item: IParameterInfo[] | undefined, where: string) => {
-      return item ? item.filter((e) => e.in === where) : [];
+      return item ? item.filter(e => e.in === where) : [];
     }
   );
 
