@@ -557,6 +557,8 @@ export function Client(
   > = {
     method: \\"get\\",
 
+    headers: () => ({}),
+
     response_decoder: testMultipleSuccessDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-multiple-success\`,
 
