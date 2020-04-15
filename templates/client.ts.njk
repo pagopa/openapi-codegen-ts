@@ -53,6 +53,8 @@ export function {{ moduleName }}(
     method: "{{ operation.method }}",
     {% if headerParams | length or operation.consumes %}
     headers: {{ macro.composedHeaderProducers(headerParams, operation.consumes) }},
+    {% else %}
+    headers: () => ({}),
     {% endif %}
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
     url: ({ {{ pathParams | pick("name") | strip | join(', ') }} }) => `{{ macro.$("basePath") }}{{ macro.pathStringToTemplateString(operation.path) }}`,
