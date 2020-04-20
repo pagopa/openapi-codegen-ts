@@ -120,7 +120,66 @@ paths:
             $ref: "#/definitions/ProblemJson"
       parameters:
         - $ref: "#/parameters/PaginationRequest"
+  "/email-validation-process":
+    x-swagger-router-controller: ProfileController
+    post:
+      operationId: startEmailValidationProcess
+      summary: Start the Email Validation Process
+      description: |-
+        Start the email validation process that create the validation token
+        and send the validation email
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "401":
+          description: Bearer token null or expired.
+        "404":
+          description: Profile not found
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "429":
+          description: Too many requests
+          schema:
+            $ref: "#/definitions/ProblemJson"
+        "500":
+          description: There was an error in retrieving the user profile.
+          schema:
+            $ref: "#/definitions/ProblemJson"
+  "/user-metadata":
+    x-swagger-router-controller: userMetadataController
+    get:
+      operationId: getUserMetadata
+      summary: Get user's metadata
+      description: Returns metadata for the current authenticated user.
+      responses:
+        "200":
+          description: Found.
+          schema:
+            $ref: "#/definitions/UserMetadata"
+        "204":
+          description: No Content.
+        "401":
+          description: Bearer token null or expired.
+        "500":
+          description: There was an error in retrieving the user metadata.
+          schema:
+            $ref: "#/definitions/ProblemJson"
 definitions:
+  UserMetadata:
+    type: object
+    title: User Metadata information
+    properties:
+      version:
+        type: number
+      metadata:
+        type: string
+    required:
+      - version
+      - metadata
   DepartmentName:
     type: string
     description: |-

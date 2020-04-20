@@ -49,4 +49,32 @@ describeSuite("Decoders generated from BE API spec defintions", () => {
       expect(result).toEqual(expectedRight);
     });
   });
+
+  describe("PaginatedServiceTupleCollection definition", () => {
+    it("should expose PaginatedServiceTupleCollection decoder", async () => {
+      const { PaginatedServiceTupleCollection } = await loadModule(
+        "PaginatedServiceTupleCollection"
+      );
+      expect(PaginatedServiceTupleCollection).toBeDefined();
+    });
+
+    const paginatedServices = {
+      items: [{ service_id: "foo123", version: 789 }],
+      next: "http://example.com/next",
+      page_size: 1
+    };
+
+    it.each`
+      title                                           | example              | expectedRight
+      ${"should fail decoding empty"}                 | ${undefined}         | ${false}
+      ${"should fail decoding non-object"}            | ${"INVALID"}         | ${false}
+      ${"should decode valid paginated service list"} | ${paginatedServices} | ${true}
+    `("$title", async ({ example, expectedRight }) => {
+      const { PaginatedServiceTupleCollection } = await loadModule(
+        "PaginatedServiceTupleCollection"
+      );
+      const result = PaginatedServiceTupleCollection.decode(example).isRight();
+      expect(result).toEqual(expectedRight);
+    });
+  });
 });

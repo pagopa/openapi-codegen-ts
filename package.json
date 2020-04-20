@@ -20,6 +20,7 @@
     "version": "npm run build",
     "postversion": "git push && git push --tags",
     "e2e": "yarn build && cd ./e2e && yarn install --frozen-lockfile && yarn start",
+    "pretest": "jest --clearCache",
     "test": "jest src/*",
     "lint": "tslint --project .",
     "test:coverage": "jest --coverage"
