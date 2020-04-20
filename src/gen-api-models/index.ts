@@ -134,14 +134,12 @@ function getDecoderForResponse(
   type: string,
   varName: string
 ): string {
-  switch (type) {
-    case "undefined":
-      return `r.constantResponseDecoder<undefined, ${status}>(${status}, undefined)`;
-    case "Error":
-      return `r.basicErrorResponseDecoder<${status}>(${status})`;
-    default:
-      return `r.ioResponseDecoder<${status}, (typeof ${varName}[${status}])["_A"], (typeof ${varName}[${status}])["_O"]>(${status}, ${varName}[${status}])`;
-  }
+  return type === "Error"
+    ? `r.basicErrorResponseDecoder<${status}>(${status})`
+    : // checks at runtime if the provided decoder is t.undefined
+      `${varName}[${status}].name === "undefined" 
+        ? r.constantResponseDecoder<undefined, ${status}>(${status}, undefined) 
+        : r.ioResponseDecoder<${status}, (typeof ${varName}[${status}])["_A"], (typeof ${varName}[${status}])["_O"]>(${status}, ${varName}[${status}])`;
 }
 
 /**
@@ -355,21 +353,32 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   const decoderFunctionName = `${operationId}Decoder`;
   const defaultDecoderFunctionName = `${operationId}DefaultDecoder`;
 
-  const composedDecoders = responses.reduce((acc, r) => {
-    const d = getDecoderForResponse(r.e1, r.e2, typeVarName);
-    return acc === "" ? d : `r.composeResponseDecoders(${acc}, ${d})`;
-  }, "");
+  const decoderName = (statusCode: string) => `d${statusCode}`;
+  const decoderDefinitions = responses
+    .map(
+      ({ e1: statusCode, e2: typeName }, i) => `
+    const ${decoderName(statusCode)} = (${getDecoderForResponse(
+        statusCode,
+        typeName,
+        typeVarName
+      )}) as r.ResponseDecoder<r.IResponseType<${statusCode}, A${i}, never>>;
+  `
+    )
+    .join("");
+  const composedDecoders = responses.reduce(
+    (acc, { e1: statusCode }) =>
+      acc === ""
+        ? decoderName(statusCode)
+        : `r.composeResponseDecoders(${acc}, ${decoderName(statusCode)})`,
+    ""
+  );
 
   const responsesTGenerics = responses.reduce(
-    (p: string[], r, i) =>
-      r.e2 === "undefined" ? p : [...p, `A${i}`, `C${i}`],
+    (p: string[], r, i) => [...p, `A${i}`, `C${i}`],
     [] as string[]
   );
-  const responsesTGenericsWithExtends = responses.reduce(
-    (p: string[], r, i) =>
-      r.e2 === "undefined"
-        ? p
-        : [...p, `A${i} extends ${r.e2}`, `C${i} extends ${r.e2}`],
+  const responsesTGenericsWithDefaultTypes = responses.reduce(
+    (p: string[], r, i) => [...p, `A${i} = ${r.e2}`, `C${i} = ${r.e2}`],
     [] as string[]
   );
   const responsesTypeName = withGenerics(
@@ -377,20 +386,18 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
     responsesTGenerics
   );
 
-  const responsesTypeNameWithExtends = withGenerics(
+  const responsesTypeNameWithDefaultTypes = withGenerics(
     `${capitalize(operationId)}ResponsesT`,
-    responsesTGenericsWithExtends
+    responsesTGenericsWithDefaultTypes
   );
 
   const decoderDefinitionName = withGenerics(
     decoderFunctionName,
-    responsesTGenericsWithExtends
+    responsesTGenericsWithDefaultTypes
   );
 
-  const responsesTContent = responses.map((r, i) =>
-    r.e2 === "undefined"
-      ? `${r.e1}: t.UndefinedC`
-      : `${r.e1}: t.Type<A${i}, C${i}>`
+  const responsesTContent = responses.map(
+    ({ e1: statusCode }, i) => `${statusCode}: t.Type<A${i}, C${i}>`
   );
 
   // Then we create the whole type definition
@@ -398,7 +405,7 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   // 200: t.Type<A1, C1>
   // 202: t.UndefinedC
   const responsesT = `
-    export type ${responsesTypeNameWithExtends} = {
+    export type ${responsesTypeNameWithDefaultTypes} = {
       ${responsesTContent.join(", ")}
     };
   `;
@@ -407,11 +414,7 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   // We need it to keep retro-compatibility
   const responsesSuccessTContent = responses.reduce(
     (p: string, r, i) =>
-      r.e1 !== firstSuccessType.e1
-        ? p
-        : r.e2 === "undefined"
-        ? "t.UndefinedC"
-        : `t.Type<A${i}, C${i}>`,
+      r.e1 !== firstSuccessType.e1 ? p : `t.Type<A${i}, C${i}>`,
     ""
   );
 
@@ -437,26 +440,21 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   // a type in the form
   //  r.ResponseDecoder<
   //    | r.IResponseType<200, A0, never>
-  //    | r.IResponseType<202, undefined, never>
+  //    | r.IResponseType<202, A1, never>
   //  >;
   const returnType = `r.ResponseDecoder<
     ${responses
-      .map(({ e1, e2 }, i) => [
-        e1,
-        e2 === "undefined" ? "undefined" : `A${i}`,
-        "never"
-      ])
-      .map(t => `r.IResponseType<${t.join(", ")}>`)
+      .map(
+        ({ e1: statusCode }, i) =>
+          `r.IResponseType<${statusCode}, A${i}, never>`
+      )
       .join("|")}
-  >;`;
+  >`;
 
   return `
       ${defaultResponses}
       ${responsesT}
-      export function ${decoderDefinitionName}(): ${returnType};
-      export function ${decoderDefinitionName}(overrideTypes: ${responsesSuccessTContent}): ${returnType};
-      export function ${decoderDefinitionName}(overrideTypes: Partial<${responsesTypeName}>): ${returnType};
-      export function ${decoderDefinitionName}(overrideTypes: Partial<${responsesTypeName}> | ${responsesSuccessTContent} = {}) {
+      export function ${decoderDefinitionName}(overrideTypes: Partial<${responsesTypeName}> | ${responsesSuccessTContent} | undefined = {}): ${returnType} {
         const isDecoder = (d: any): d is ${responsesSuccessTContent} =>
           typeof d["_A"] !== "undefined";
 
@@ -465,6 +463,7 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
           ...(isDecoder(overrideTypes) ? { ${firstSuccessType.e1}: overrideTypes } : overrideTypes)
         };
 
+        ${decoderDefinitions}
         return ${composedDecoders}
       }
 
