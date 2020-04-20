@@ -33,6 +33,23 @@ paths:
           description: "Will send `Authenticated`"
         "403":
           description: "You do not have necessary permissions for the resource"
+  /test-multiple-success:
+    get:
+      operationId: "testMultipleSuccess"
+      responses:
+        "200":
+          description: "Will return a Message"
+          schema:
+            $ref: "#/definitions/Message"
+        "202":
+          description: "Will return just accepted"
+        "403":
+          description: "You do not have necessary permissions for the resource"
+          schema:
+            $ref: "#/definitions/OneOfTest"
+        "404":
+          description: "Not found"
+
   /test-file-upload:
     post:
       operationId: "testFileUpload"
