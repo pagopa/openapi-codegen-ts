@@ -440,7 +440,7 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   // a type in the form
   //  r.ResponseDecoder<
   //    | r.IResponseType<200, A0, never>
-  //    | r.IResponseType<202, undefined, never>
+  //    | r.IResponseType<202, A1, never>
   //  >;
   const returnType = `r.ResponseDecoder<
     ${responses
