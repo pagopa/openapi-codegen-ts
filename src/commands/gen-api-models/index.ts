@@ -844,6 +844,8 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     throw new Error("The specification is not of type swagger 2");
   }
 
+  await fs.ensureDir(definitionsDirPath);
+
   if (tsSpecFilePath) {
     await writeGeneratedCodeFile(
       "TS Spec",

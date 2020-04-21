@@ -22,7 +22,7 @@ const tsEnsureDir = (dir: string) =>
 const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
   tryCatch(
     () => generateApi(...p),
-    reason => {
+    (reason) => {
       console.error(reason);
       return new Error(`cannot create api `);
     }
@@ -31,7 +31,7 @@ const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
 const tsStartServer = (...p: Parameters<typeof startMockServer>) =>
   tryCatch(
     () => startMockServer(...p),
-    reason => {
+    (reason) => {
       console.error(reason);
       return new Error(`cannot start mock server`);
     }
@@ -44,18 +44,15 @@ export default async () => {
   const tasks = Object.values(specs)
     .filter(({ isSpecEnabled }) => isSpecEnabled)
     .map(({ url, mockPort, generatedFilesDir }) =>
-      tsEnsureDir(generatedFilesDir)
-        .chain(() =>
-          skipGeneration
-            ? noopTE
-            : tsGenerateApi({
-                definitionsDirPath: generatedFilesDir,
-                generateClient: true,
-                specFilePath: url,
-                strictInterfaces: true
-              })
-        )
-        .chain(() => (skipClient ? noopTE : tsStartServer(url, mockPort)))
+      (skipGeneration
+        ? noopTE
+        : tsGenerateApi({
+            definitionsDirPath: generatedFilesDir,
+            generateClient: true,
+            specFilePath: url,
+            strictInterfaces: true,
+          })
+      ).chain(() => (skipClient ? noopTE : tsStartServer(url, mockPort)))
     );
 
   const startedAt = Date.now();
