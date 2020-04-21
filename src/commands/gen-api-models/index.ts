@@ -6,6 +6,14 @@ import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
 import { render } from "../../lib/templating";
+import {
+  IAuthHeaderParameterInfo,
+  IGenerateApiOptions,
+  IHeaderParameterInfo,
+  IOperationInfo,
+  IParameterInfo,
+  SupportedMethod
+} from "./types";
 
 const formatCode = (code: string) =>
   prettier.format(code, {
@@ -543,37 +551,6 @@ const parseExtraParameters = (
     : [];
 };
 
-type SupportedMethod = "get" | "post" | "put" | "delete";
-interface IParameterInfo {
-  name: string;
-  type: string;
-  in: string;
-  headerName?: string;
-}
-interface IHeaderParameterInfo extends IParameterInfo {
-  in: "header";
-  headerName: string;
-}
-
-interface IAuthHeaderParameterInfo extends IHeaderParameterInfo {
-  tokenType: "basic" | "apiKey" | "oauth2";
-}
-
-/* & (
-  | { in: "query" | "body" | "formData" }
-  | { in: "header"; headerName: string }) */
-export interface IOperationInfo {
-  method: SupportedMethod;
-  operationId: string;
-  parameters: IParameterInfo[];
-  responses: Array<ITuple2<string, string>>;
-  headers: string[];
-  importedTypes: Set<string>;
-  path: string;
-  consumes?: string;
-  produces?: string;
-}
-
 /**
  * Extracts all the info referring to a single operation and returns a IOperationInfo struct.
  * It may return undefined in case of unhandled specification or bad specification format
@@ -762,18 +739,6 @@ export function parseAllOperations(
         .filter(Boolean);
     })
     .reduce((flatten, elems) => flatten.concat(elems), []);
-}
-
-interface IGenerateApiOptions {
-  specFilePath: string | OpenAPIV2.Document;
-  definitionsDirPath: string;
-  tsSpecFilePath?: string | undefined;
-  strictInterfaces?: boolean;
-  generateRequestTypes?: boolean;
-  generateResponseDecoders?: boolean;
-  generateClient?: boolean;
-  defaultSuccessType?: string;
-  defaultErrorType?: string;
 }
 
 /**
