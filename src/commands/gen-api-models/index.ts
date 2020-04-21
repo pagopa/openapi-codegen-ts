@@ -2,67 +2,32 @@
 
 import * as fs from "fs-extra";
 import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
-import * as nunjucks from "nunjucks";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
+import { render } from "../../lib/templating";
 
-const SUPPORTED_SPEC_METHODS = ["get", "post", "put", "delete"];
-
-/**
- * Wraps model template rendering
- * @param env
- * @param definition
- * @param definitionName
- * @param strictInterfaces
- */
-function renderAsync(
-  env: nunjucks.Environment,
-  definition: OpenAPIV2.DefinitionsObject,
-  definitionName: string,
-  strictInterfaces: boolean
-): Promise<string> {
-  return new Promise((accept, reject) => {
-    env.render(
-      "model.ts.njk",
-      {
-        definition,
-        definitionName,
-        strictInterfaces
-      },
-      (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        accept(res || undefined);
-      }
-    );
+const formatCode = (code: string) =>
+  prettier.format(code, {
+    parser: "typescript"
   });
-}
 
 /**
  * Definition code rendering. Include code formatting
- * @param env
  * @param definitionName
  * @param definition
  * @param strictInterfaces
  */
 export async function renderDefinitionCode(
-  env: nunjucks.Environment,
   definitionName: string,
   definition: OpenAPIV2.DefinitionsObject,
   strictInterfaces: boolean
 ): Promise<string> {
-  const code = await renderAsync(
-    env,
+  return render("model.ts.njk", {
     definition,
     definitionName,
     strictInterfaces
-  );
-  const prettifiedCode = prettier.format(code, {
-    parser: "typescript"
-  });
-  return prettifiedCode;
+  }).then(formatCode);
 }
 
 /**
@@ -749,30 +714,12 @@ export function isOpenAPIV2(
  * @returns the code of a http client
  */
 export async function renderClientCode(
-  env: nunjucks.Environment,
   spec: OpenAPIV2.Document,
   operations: Array<IOperationInfo | undefined>
 ) {
-  return new Promise((resolve, reject) => {
-    env.render(
-      "client.ts.njk",
-      {
-        operations,
-        spec
-      },
-      (err, code) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          resolve(
-            prettier.format(code || "", {
-              parser: "typescript"
-            })
-          );
-        }
-      }
-    );
+  return render("client.ts.njk", {
+    operations,
+    spec
   });
 }
 
@@ -851,7 +798,6 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     generateResponseDecoders = generateClient
   } = options;
 
-  const env = initNunJucksEnvironment();
   const api = await SwaggerParser.bundle(specFilePath);
 
   if (!isOpenAPIV2(api)) {
@@ -869,12 +815,7 @@ added this line
   `;
   if (tsSpecFilePath) {
     console.log(`Writing TS Specs to ${tsSpecFilePath}`);
-    await fs.writeFile(
-      tsSpecFilePath,
-      prettier.format(specCode, {
-        parser: "typescript"
-      })
-    );
+    await fs.writeFile(tsSpecFilePath, formatCode(specCode));
   }
 
   const definitions = api.definitions;
@@ -889,7 +830,6 @@ added this line
       const outPath = `${definitionsDirPath}/${definitionName}.ts`;
       console.log(`${definitionName} -> ${outPath}`);
       const code = await renderDefinitionCode(
-        env,
         definitionName,
         definition,
         strictInterfaces
@@ -949,9 +889,7 @@ added this line
           ${operationTypesCode}
         `;
 
-    const prettifiedOperationsCode = prettier.format(operationsCode, {
-      parser: "typescript"
-    });
+    const prettifiedOperationsCode = formatCode(operationsCode);
 
     const requestTypesPath = `${definitionsDirPath}/requestTypes.ts`;
 
@@ -961,118 +899,8 @@ added this line
     if (generateClient) {
       const outPath = `${definitionsDirPath}/client.ts`;
       console.log(`Client -> ${outPath}`);
-      const code = await renderClientCode(env, api, allOperationInfos);
+      const code = await renderClientCode(api, allOperationInfos);
       await fs.writeFile(outPath, code);
     }
   }
-}
-
-//
-// Configure nunjucks
-//
-
-export function initNunJucksEnvironment(): nunjucks.Environment {
-  nunjucks.configure({
-    trimBlocks: true
-  });
-  const env = new nunjucks.Environment(
-    new nunjucks.FileSystemLoader(`${__dirname}/../../templates`)
-  );
-
-  env.addFilter("contains", <T>(a: ReadonlyArray<T>, item: T) => {
-    return a.indexOf(item) !== -1;
-  });
-  env.addFilter("startsWith", <T>(a: string, item: string) => {
-    return a.indexOf(item) === 0;
-  });
-  env.addFilter("capitalizeFirst", (item: string) => {
-    return `${item[0].toUpperCase()}${item.slice(1)}`;
-  });
-
-  env.addFilter("comment", (item: string) => {
-    return "/**\n * " + item.split("\n").join("\n * ") + "\n */";
-  });
-
-  env.addFilter("camelCase", (item: string) => {
-    return item.replace(/(\_\w)/g, (m: string) => {
-      return m[1].toUpperCase();
-    });
-  });
-
-  let imports: { [key: string]: true } = {};
-  env.addFilter("resetImports", (item: string) => {
-    imports = {};
-  });
-  env.addFilter("addImport", (item: string) => {
-    imports[item] = true;
-  });
-  env.addFilter("getImports", (item: string) => {
-    return Object.keys(imports).join("\n");
-  });
-
-  let typeAliases: { [key: string]: true } = {};
-  env.addFilter("resetTypeAliases", (item: string) => {
-    typeAliases = {};
-  });
-  env.addFilter("addTypeAlias", (item: string) => {
-    typeAliases[item] = true;
-  });
-  env.addFilter("getTypeAliases", (item: string) => {
-    return Object.keys(typeAliases).join("\n");
-  });
-
-  /**
-   * Formats function arguments
-   * example: { arg1: 'foo', arg2: 'bar' } -> ({ arg1, arg2 })
-   * example: "arg1" -> (arg1)
-   * example: ["arg1", "arg2"] -> (arg1, arg2)
-   */
-  env.addFilter("toFnArgs", (item: IParameterInfo[] | undefined) =>
-    typeof item === "undefined"
-      ? "()"
-      : `({${item.map(pick("name")).join(", ")}})`
-  );
-
-  env.addFilter("keys", (item: object) => {
-    return item ? Object.keys(item) : [];
-  });
-
-  env.addFilter("join", (item: any[], sep: string) => {
-    return item.join(sep);
-  });
-
-  env.addFilter("first", (item: any[]) => {
-    return item ? item[0] : undefined;
-  });
-
-  env.addFilter("tail", (item: any[]) =>
-    item && item.length ? item.slice(1) : []
-  );
-
-  env.addFilter("push", (item: any[], toPush: any) =>
-    item && item.length ? [...item, toPush] : [toPush]
-  );
-
-  env.addFilter("pick", (item: any, key: string) =>
-    !item ? [] : Array.isArray(item) ? item.map(pick(key)) : pick(key)(item)
-  );
-
-  env.addFilter("strip", (item: any) => {
-    const strip = (str: string) =>
-      str[str.length - 1] === "?" ? str.substring(0, str.length - 1) : str;
-    return !item
-      ? undefined
-      : Array.isArray(item)
-      ? item.map(strip)
-      : strip(item);
-  });
-
-  env.addFilter(
-    "paramIn",
-    (item: IParameterInfo[] | undefined, where: string) => {
-      return item ? item.filter(e => e.in === where) : [];
-    }
-  );
-
-  return env;
 }

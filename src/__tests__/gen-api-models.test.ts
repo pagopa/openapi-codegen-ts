@@ -3,17 +3,17 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
+import * as t from '../lib/templating';
+
 import {
-  getAuthHeaders,
-  initNunJucksEnvironment,
   parseAllOperations,
   parseOperation,
   renderClientCode,
   renderDefinitionCode,
   renderOperation,
-} from "../gen-api-models/index";
+} from "../commands/gen-api-models/index";
 
-const env = initNunJucksEnvironment();
+const env = t.env;
 
 let spec: OpenAPIV2.Document;
 beforeAll(
