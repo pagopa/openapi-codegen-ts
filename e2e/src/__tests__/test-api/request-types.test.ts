@@ -1,16 +1,11 @@
 import * as t from "io-ts";
+import mockResponse from "../../../../__mocks__/response";
 import config from "../../config";
 import * as requestTypes from "../../generated/testapi/requestTypes";
 
 // @ts-ignore because leaked-handles doesn't ship type defintions
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
-
-const mockResponse = (status: number, body?: any, headers?: any) => ({
-  status,
-  json: async () => body,
-  headers,
-});
 
 const { isSpecEnabled } = config.specs.testapi;
 
@@ -40,7 +35,7 @@ describeSuite("Request types generated from Test API spec", () => {
         response,
         expectedRight,
         expectedLeft,
-        cannotDecode = !expectedRight && !expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft
       }) => {
         const { testAuthBearerDecoder } = requestTypes;
         const decoder = testAuthBearerDecoder();
@@ -85,7 +80,7 @@ describeSuite("Request types generated from Test API spec", () => {
         response,
         expectedRight,
         expectedLeft,
-        cannotDecode = !expectedRight && !expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft
       }) => {
         const { testAuthBearerDefaultDecoder } = requestTypes;
         const decoder = testAuthBearerDefaultDecoder();
@@ -128,7 +123,7 @@ describeSuite("Request types generated from Test API spec", () => {
         response,
         expectedRight,
         expectedLeft,
-        cannotDecode = !expectedRight && !expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft
       }) => {
         const { testFileUploadDecoder } = requestTypes;
         const decoder = testFileUploadDecoder();
@@ -171,7 +166,7 @@ describeSuite("Request types generated from Test API spec", () => {
         response,
         expectedRight,
         expectedLeft,
-        cannotDecode = !expectedRight && !expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft
       }) => {
         const { testFileUploadDefaultDecoder } = requestTypes;
         const decoder = testFileUploadDefaultDecoder();

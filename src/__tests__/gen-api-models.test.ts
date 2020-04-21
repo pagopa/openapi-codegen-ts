@@ -19,7 +19,7 @@ let spec: OpenAPIV2.Document;
 beforeAll(
   async () =>
     (spec = (await SwaggerParser.bundle(
-      `${__dirname}/api.yaml`
+      `${process.cwd()}/__mocks__/api.yaml`
     )) as OpenAPIV2.Document)
 );
 
