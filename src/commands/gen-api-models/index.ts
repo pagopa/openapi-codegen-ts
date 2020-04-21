@@ -12,12 +12,12 @@ import {
   IHeaderParameterInfo,
   IOperationInfo,
   IParameterInfo,
-  SupportedMethod
+  SupportedMethod,
 } from "./types";
 
 const formatCode = (code: string) =>
   prettier.format(code, {
-    parser: "typescript"
+    parser: "typescript",
   });
 
 /**
@@ -34,7 +34,7 @@ export async function renderDefinitionCode(
   return render("model.ts.njk", {
     definition,
     definitionName,
-    strictInterfaces
+    strictInterfaces,
   }).then(formatCode);
 }
 
@@ -150,7 +150,7 @@ const parseParameter = (
     return {
       name: `${param.name}${param.required ? "" : "?"}`,
       in: param.in,
-      type: specTypeToTs(param.type)
+      type: specTypeToTs(param.type),
     };
   }
   // Paratemer is declared as ref, we need to look it up
@@ -207,7 +207,7 @@ const parseParameter = (
   return {
     name: paramName,
     type: paramType,
-    in: paramIn
+    in: paramIn,
   };
 };
 
@@ -269,20 +269,20 @@ export const renderOperation = (
     headers,
     responses,
     importedTypes,
-    parameters
+    parameters,
   } = operationInfo;
 
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
 
   const headersCode =
-    headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
+    headers.length > 0 ? headers.map((_) => `"${_}"`).join("|") : "never";
 
   const responsesType = responses
-    .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
+    .map((r) => `r.IResponseType<${r.e1}, ${r.e2}>`)
     .join("|");
 
   const paramsCode = parameters
-    .map(param => `readonly ${param.name}: ${param.type}`)
+    .map((param) => `readonly ${param.name}: ${param.type}`)
     .join(",");
 
   const responsesDecoderCode = generateResponseDecoders
@@ -405,7 +405,7 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   const defaultResponses = `
     export const ${defaultResponsesVarName} = {
       ${responses
-        .map(r => `${r.e1}: ${r.e2 === "undefined" ? "t.undefined" : r.e2}`)
+        .map((r) => `${r.e1}: ${r.e2 === "undefined" ? "t.undefined" : r.e2}`)
         .join(", ")}
     };
   `;
@@ -477,27 +477,27 @@ export function getAuthHeaders(
     security && security.length
       ? security
           .map((_: OpenAPIV2.SecurityRequirementObject) => Object.keys(_)[0])
-          .filter(_ => _ !== undefined)
+          .filter((_) => _ !== undefined)
       : undefined;
 
   const securityDefs =
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
         // security items mapped to their securityDefinitions definitions.
-        securityKeys.map(k => Tuple2(k, securityDefinitions[k]))
+        securityKeys.map((k) => Tuple2(k, securityDefinitions[k]))
       : securityDefinitions !== undefined
-      ? Object.keys(securityDefinitions).map(k =>
+      ? Object.keys(securityDefinitions).map((k) =>
           Tuple2(k, securityDefinitions[k])
         )
       : [];
 
   return securityDefs
-    .filter(_ => _.e2 !== undefined)
-    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
-    .map(_ => {
+    .filter((_) => _.e2 !== undefined)
+    .filter((_) => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
+    .map((_) => {
       const {
         name: headerName,
-        type: tokenType
+        type: tokenType,
       } = _.e2 as OpenAPIV2.SecuritySchemeApiKey; // Because _.e2 is of type OpenAPIV2.SecuritySchemeObject which is the super type of OpenAPIV2.SecuritySchemeApiKey. In the previous step of the chain we filtered so we're pretty sure _.e2 is of type OpenAPIV2.SecuritySchemeApiKey, but the compiler fails at it. I can add an explicit guard to the filter above, but I think the result is the same.
       return {
         headerName,
@@ -505,7 +505,7 @@ export function getAuthHeaders(
         in: "header" as "header", // this cast is needed otherwise "in" property will be recognize as string
         name: _.e1,
         type: "string",
-        tokenType
+        tokenType,
       };
     });
 }
@@ -540,8 +540,8 @@ const parseExtraParameters = (
                 headerName: param.in === "header" ? paramName : undefined,
                 in: param.in,
                 name: paramName,
-                type: specTypeToTs(param.type)
-              }
+                type: specTypeToTs(param.type),
+              },
             ];
           }
           return prev;
@@ -627,7 +627,7 @@ export const parseOperation = (
 
   const headers = [...contentTypeHeaders, ...authHeaders, ...extraHeaders];
 
-  const responses = Object.keys(operation.responses).map(responseStatus => {
+  const responses = Object.keys(operation.responses).map((responseStatus) => {
     const response = operation.responses[responseStatus];
     const typeRef = response.schema ? response.schema.$ref : undefined;
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
@@ -667,7 +667,7 @@ export const parseOperation = (
     importedTypes,
     path,
     consumes,
-    produces
+    produces,
   };
 };
 
@@ -696,7 +696,7 @@ export async function renderClientCode(
 ) {
   return render("client.ts.njk", {
     operations,
-    spec
+    spec,
   });
 }
 
@@ -720,11 +720,11 @@ export function parseAllOperations(
     : [];
 
   return Object.keys(api.paths)
-    .map(path => {
+    .map((path) => {
       const pathSpec = api.paths[path];
       const extraParameters = [
         ...parseExtraParameters(pathSpec),
-        ...globalAuthHeaders
+        ...globalAuthHeaders,
       ];
       return Object.keys(pathSpec)
         .map(
@@ -741,6 +741,81 @@ export function parseAllOperations(
     .reduce((flatten, elems) => flatten.concat(elems), []);
 }
 
+function renderSpecCode(spec: OpenAPIV2.Document, specFilePath: string) {
+  return `
+  /* tslint:disable:object-literal-sort-keys */
+  /* tslint:disable:no-duplicate-string */
+added this line
+  // DO NOT EDIT
+  // auto-generated by generated_model.ts from ${specFilePath}
+
+  export const specs = ${JSON.stringify(spec)};
+`;
+}
+
+/**
+ * Renders the code that includes every operation definition
+ * @param allOperationInfos collection of parsed operations
+ * @param generateResponseDecoders true to include decoders
+ *
+ * @return the rendered code
+ */
+function renderAllOperations(
+  allOperationInfos: Array<IOperationInfo | undefined>,
+  generateResponseDecoders: boolean
+) {
+  const operationsTypes = allOperationInfos.reduce(
+    (prev: any[], operationInfo) =>
+      typeof operationInfo === "undefined"
+        ? prev
+        : prev.concat(renderOperation(operationInfo, generateResponseDecoders)),
+    [] as Array<ITuple2<string, ReadonlySet<string>>>
+  );
+
+  const operationsImports = new Set<string>();
+  const operationTypesCode = operationsTypes
+    .map((op: { e1: any; e2: any } | undefined) => {
+      if (op === undefined) {
+        return;
+      }
+      const { e1: code, e2: importedTypes } = op;
+      importedTypes.forEach((i: string) => operationsImports.add(i));
+      return code;
+    })
+    .join("\n");
+
+  const operationsCode = `
+        // DO NOT EDIT THIS FILE
+        // This file has been generated by gen-api-models
+        // tslint:disable:max-union-size
+        // tslint:disable:no-identical-functions
+  
+        ${generateResponseDecoders ? 'import * as t from "io-ts";' : ""}
+  
+        import * as r from "italia-ts-commons/lib/requests";
+  
+        ${Array.from(operationsImports.values())
+          .map((i) => `import { ${i} } from "./${i}";`)
+          .join("\n\n")}
+  
+        ${operationTypesCode}
+      `;
+
+  return formatCode(operationsCode);
+}
+
+/**
+ * Wraps file writing to expose a common interface and log consistently
+ * @param name name of the piece of code to render
+ * @param outPath path of the file
+ * @param code code to be saved
+ *
+ */
+function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
+  console.log(`${name} -> ${outPath}`);
+  return fs.writeFile(outPath, code);
+}
+
 /**
  * Module's main method. It generates files based on a given specification url
  * @param options
@@ -755,12 +830,12 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     definitionsDirPath,
     strictInterfaces = false,
     defaultSuccessType = "undefined",
-    defaultErrorType = "undefined"
+    defaultErrorType = "undefined",
   } = options;
 
   const {
     generateRequestTypes = generateClient,
-    generateResponseDecoders = generateClient
+    generateResponseDecoders = generateClient,
   } = options;
 
   const api = await SwaggerParser.bundle(specFilePath);
@@ -769,18 +844,12 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     throw new Error("The specification is not of type swagger 2");
   }
 
-  const specCode = `
-    /* tslint:disable:object-literal-sort-keys */
-    /* tslint:disable:no-duplicate-string */
-added this line
-    // DO NOT EDIT
-    // auto-generated by generated_model.ts from ${specFilePath}
-
-    export const specs = ${JSON.stringify(api)};
-  `;
   if (tsSpecFilePath) {
-    console.log(`Writing TS Specs to ${tsSpecFilePath}`);
-    await fs.writeFile(tsSpecFilePath, formatCode(specCode));
+    await writeGeneratedCodeFile(
+      "TS Spec",
+      tsSpecFilePath,
+      formatCode(renderSpecCode(api, tsSpecFilePath))
+    );
   }
 
   const definitions = api.definitions;
@@ -789,83 +858,46 @@ added this line
     return;
   }
 
-  for (const definitionName in definitions) {
-    if (definitions.hasOwnProperty(definitionName)) {
-      const definition = definitions[definitionName];
-      const outPath = `${definitionsDirPath}/${definitionName}.ts`;
-      console.log(`${definitionName} -> ${outPath}`);
-      const code = await renderDefinitionCode(
+  await Promise.all(
+    Object.keys(definitions).map((definitionName: string) =>
+      renderDefinitionCode(
         definitionName,
-        definition,
+        definitions[definitionName],
         strictInterfaces
-      );
-      await fs.writeFile(outPath, code);
-    }
-  }
+      ).then((code: string) =>
+        writeGeneratedCodeFile(
+          definitionName,
+          `${definitionsDirPath}/${definitionName}.ts`,
+          code
+        )
+      )
+    )
+  );
 
-  const renderSomeCode =
-    generateClient || generateRequestTypes || generateResponseDecoders;
+  const needToParseOperations = generateClient || generateRequestTypes;
 
-  if (renderSomeCode) {
+  if (needToParseOperations) {
     const allOperationInfos = parseAllOperations(
       api,
       defaultSuccessType,
       defaultErrorType
     );
 
-    const operationsTypes = allOperationInfos.reduce(
-      (prev: any[], operationInfo) => {
-        if (typeof operationInfo === "undefined") {
-          return prev;
-        }
-        return prev.concat(
-          renderOperation(operationInfo, generateResponseDecoders)
-        );
-      },
-      [] as Array<ITuple2<string, ReadonlySet<string>>>
-    );
-
-    const operationsImports = new Set<string>();
-    const operationTypesCode = operationsTypes
-      .map((op: { e1: any; e2: any } | undefined) => {
-        if (op === undefined) {
-          return;
-        }
-        const { e1: code, e2: importedTypes } = op;
-        importedTypes.forEach((i: string) => operationsImports.add(i));
-        return code;
-      })
-      .join("\n");
-
-    const operationsCode = `
-          // DO NOT EDIT THIS FILE
-          // This file has been generated by gen-api-models
-          // tslint:disable:max-union-size
-          // tslint:disable:no-identical-functions
-    
-          ${generateResponseDecoders ? 'import * as t from "io-ts";' : ""}
-    
-          import * as r from "italia-ts-commons/lib/requests";
-    
-          ${Array.from(operationsImports.values())
-            .map(i => `import { ${i} } from "./${i}";`)
-            .join("\n\n")}
-    
-          ${operationTypesCode}
-        `;
-
-    const prettifiedOperationsCode = formatCode(operationsCode);
-
-    const requestTypesPath = `${definitionsDirPath}/requestTypes.ts`;
-
-    console.log(`Generating request types -> ${requestTypesPath}`);
-    await fs.writeFile(requestTypesPath, prettifiedOperationsCode);
+    if (generateRequestTypes) {
+      await writeGeneratedCodeFile(
+        "request types",
+        `${definitionsDirPath}/requestTypes.ts`,
+        renderAllOperations(allOperationInfos, generateResponseDecoders)
+      );
+    }
 
     if (generateClient) {
-      const outPath = `${definitionsDirPath}/client.ts`;
-      console.log(`Client -> ${outPath}`);
       const code = await renderClientCode(api, allOperationInfos);
-      await fs.writeFile(outPath, code);
+      await writeGeneratedCodeFile(
+        "client",
+        `${definitionsDirPath}/client.ts`,
+        code
+      );
     }
   }
 }
