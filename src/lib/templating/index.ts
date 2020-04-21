@@ -2,7 +2,7 @@ import * as nunjucks from "nunjucks";
 import * as customFilters from "./filters";
 
 export const initNunJucksEnvironment = (
-  templateDir: string = `${process.cwd()}/templates`
+  templateDir: string = `${__dirname}/../../../templates`
 ) => {
   nunjucks.configure({
     trimBlocks: true
