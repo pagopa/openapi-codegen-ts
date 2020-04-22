@@ -1,3 +1,6 @@
+/**
+ * This module is a collection of custom filters to be used in Nunjucks templates
+ */
 
 /**
  * Wheater or not an array contains an item
@@ -116,80 +119,3 @@ export const pick = <T extends Record<string, any>>(
     : Array.isArray(subject)
     ? subject.map(({ [key]: value }) => value)
     : subject[key];
-
-/**
- * Removes decorator character from a variable name
- * TODO: provide better naming for this function
- * example: "arg?" -> "arg"
- * example: "arg" -> "arg"
- * example: ["arg1?", "arg2"] -> ["arg1", "arg2"]
- * @param subject
- *
- * @returns
- */
-export const strip = (subject: ReadonlyArray<string> | string) => {
-  const strip_base = (str: string) =>
-    str[str.length - 1] === "?" ? str.substring(0, str.length - 1) : str;
-  return !subject
-    ? undefined
-    : typeof subject === "string"
-    ? strip_base(subject)
-    : subject.map(strip_base);
-};
-
-/**
- * Given an array of parameter in the form { name: "value" }, it renders a function argument declaration with destructuring
- * example: [{ name: 'foo' }, { name: 'bar' }] -> '({ foo, bar })'
- * @param subject the array of parameters
- *
- * @return the function argument declaration
- */
-export const toFnArgs = (subject: Array<{ name: string }> | undefined) =>
-  typeof subject === "undefined"
-    ? "()"
-    : `({${subject.map(({ name }) => name).join(", ")}})`;
-
-/**
- * Given an array of parameter in the form { in: "value" }, filter the items based on the provided value
- * @param item
- * @param where
- *
- * @return filtered items
- */
-export const paramIn = (
-  item: Array<{ in: string }> | undefined,
-  where: string
-) => {
-  return item ? item.filter((e: { in: string }) => e.in === where) : [];
-};
-
-/**
- * Factory method to create a set of filters bound to a common storage.
- * The storage is in the form (key, true) where the presence of a kye indicates the flag is true
- */
-const createFlagStorageFilters = () => {
-  let store: { [key: string]: true } = {};
-  return {
-    reset() {
-      store = {};
-    },
-    add(subject: string) {
-      store[subject] = true;
-    },
-    get() {
-      return Object.keys(store).join("\n");
-    },
-  };
-};
-
-export const {
-  reset: resetImports,
-  add: addImport,
-  get: getImports,
-} = createFlagStorageFilters();
-
-export const {
-  reset: resetTypeAliases,
-  add: addTypeAlias,
-  get: getTypeAliases,
-} = createFlagStorageFilters();

@@ -5,7 +5,7 @@ import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
-import { render } from "../../lib/templating";
+import templateEnvironment from "./templateEnvironment";
 import {
   IAuthHeaderParameterInfo,
   IGenerateApiOptions,
@@ -14,6 +14,8 @@ import {
   IParameterInfo,
   SupportedMethod
 } from "./types";
+
+const { render } = templateEnvironment;
 
 const formatCode = (code: string) =>
   prettier.format(code, {
@@ -685,7 +687,7 @@ export function isOpenAPIV2(
 
 /**
  * Given a list of operation descriptions, it renders a http client
- * @param env
+ * @param spec
  * @param operations
  *
  * @returns the code of a http client
