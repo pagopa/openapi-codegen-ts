@@ -9,7 +9,7 @@ export interface IGenerateSdkOptions {
   registry: string;
   access: string;
   specFilePath: string | OpenAPIV2.Document;
-  definitionsDirPath: string;
+  outPath: string;
   strictInterfaces?: boolean;
   defaultSuccessType?: string;
   defaultErrorType?: string;

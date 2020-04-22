@@ -7,7 +7,8 @@
   "license": "MIT",
   "main": "dist/index.js",
   "bin": {
-    "gen-api-models": "dist/gen-api-models/cli.js"
+    "gen-api-models": "dist/commands/gen-api-models/cli.js",
+    "gen-api-sdk": "dist/gen-api-sdk/cli.js"
   },
   "files": [
     "dist/",
@@ -17,6 +18,7 @@
     "prepublishOnly": "crlf --set=LF dist/* && npm run build",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc",
+    "postbuild": "ls $npm_package_main && ls $npm_package_bin_gen_api_models",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
     "e2e": "yarn build && cd ./e2e && yarn install --frozen-lockfile && yarn start",
