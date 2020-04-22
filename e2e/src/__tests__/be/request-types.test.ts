@@ -1,14 +1,9 @@
 import * as t from "io-ts";
+import mockResponse from "../../../../__mocks__/response";
 import config from "../../config";
 import * as requestTypes from "../../generated/be/requestTypes";
 
-const mockResponse = (status: number, body?: any, headers?: any) => ({
-  status,
-  json: async () => body,
-  headers,
-});
-
-const { generatedFilesDir, isSpecEnabled } = config.specs.be;
+const { isSpecEnabled } = config.specs.be;
 
 // if there's no need for this suite in this particular run, just skip it
 const describeSuite = isSpecEnabled ? describe : describe.skip;
@@ -24,7 +19,7 @@ describeSuite("Request types generated from BE API spec", () => {
     const paginatedServices = {
       items: [{ service_id: "foo123", version: 789 }],
       next: "http://example.com/next",
-      page_size: 1,
+      page_size: 1
     };
 
     it.each`
@@ -43,7 +38,7 @@ describeSuite("Request types generated from BE API spec", () => {
         response,
         expectedRight,
         expectedLeft,
-        cannotDecode = !expectedRight && !expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft
       }) => {
         const { getServicesByRecipientDecoder } = requestTypes;
         const decoder = getServicesByRecipientDecoder();
@@ -86,7 +81,7 @@ describeSuite("Request types generated from BE API spec", () => {
         response,
         expectedRight,
         expectedLeft,
-        cannotDecode = !expectedRight && !expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft
       }) => {
         const { startEmailValidationProcessDecoder } = requestTypes;
         const decoder = startEmailValidationProcessDecoder();
@@ -135,7 +130,7 @@ describeSuite("Request types generated from BE API spec", () => {
         response,
         expectedRight,
         expectedLeft,
-        cannotDecode = !expectedRight && !expectedLeft,
+        cannotDecode = !expectedRight && !expectedLeft
       }) => {
         const { getUserMetadataDecoder } = requestTypes;
         const decoder = getUserMetadataDecoder();
