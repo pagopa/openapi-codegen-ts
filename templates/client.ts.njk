@@ -57,16 +57,16 @@ export function {{ moduleName }}(
     headers: () => ({}),
     {% endif %}
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
-    url: ({ {{ pathParams | pick("name") | strip | join(', ') }} }) => `{{ macro.$("basePath") }}{{ macro.pathStringToTemplateString(operation.path) }}`,
+    url: ({ {{ pathParams | pick("name") | stripQuestionMark | join(', ') }} }) => `{{ macro.$("basePath") }}{{ macro.pathStringToTemplateString(operation.path) }}`,
     {% if bodyParams | length %}
-    body: ({ {{ bodyParams | pick("name") | strip | join(", ") }} }) => JSON.stringify({{ bodyParams | pick("name") | strip | join(", ") }}),
+    body: ({ {{ bodyParams | pick("name") | stripQuestionMark | join(", ") }} }) => JSON.stringify({{ bodyParams | pick("name") | stripQuestionMark | join(", ") }}),
     {% elif formParams | length %}
-    body: ({ {{ formParams | pick("name") | strip | join(", ") }} }) => {{ formParams | pick("name") | first }}.uri,
+    body: ({ {{ formParams | pick("name") | stripQuestionMark | join(", ") }} }) => {{ formParams | pick("name") | first }}.uri,
     {% elif operation.method === "post" %}
     body: () => "{}",
     {% endif %}
     {% if queryParams | length %}
-    query: ({ {{ queryParams | pick("name") | strip | join(', ') }} }) => ({ {{ queryParams | pick("name") | strip | join(", ") }} }),
+    query: ({ {{ queryParams | pick("name") | stripQuestionMark | join(', ') }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | join(", ") }} }),
     {% else %}
     query: () => ({}),
     {% endif %}
