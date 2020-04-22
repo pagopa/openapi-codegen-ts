@@ -1,3 +1,3 @@
-import { generateApi } from "./gen-api-models";
+import { generateApi } from "./commands/gen-api-models";
 
 export { generateApi };
