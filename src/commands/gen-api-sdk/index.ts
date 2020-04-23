@@ -10,9 +10,6 @@ const { render } = createTemplateEnvironment({
   templateDir: `${DEFAULT_TEMPLATE_DIR}/sdk`
 });
 
-type FilePath = string;
-type Code = string;
-
 /**
  * Generate models as well as package scaffolding for a sdk that talks to a provided api spec
  * @param options 
@@ -31,7 +28,7 @@ export async function generateSdk(options: IGenerateSdkOptions) {
   });
 }
 
-async function listTemplates(): Promise<FilePath[]> {
+async function listTemplates(): Promise<string[]> {
   return ["package.json.njk", "tsconfig.json.njk", "index.ts.njk"];
 }
 
@@ -40,14 +37,14 @@ async function listTemplates(): Promise<FilePath[]> {
  * @param options
  */
 export async function renderAll(
-  files: ReadonlyArray<FilePath>,
+  files: ReadonlyArray<string>,
   options?: object
-): Promise<Record<FilePath, Code>> {
+): Promise<Record<string, string>> {
   const allContent = await Promise.all(
     files.map(file => render(file, options))
   );
   return allContent.reduce(
-    (p: Record<FilePath, Code>, rendered: Code, i) => ({
+    (p: Record<string, string>, rendered: string, i) => ({
       ...p,
       [files[i]]: rendered
     }),
@@ -62,17 +59,17 @@ export async function renderAll(
  * @param code code to be saved
  *
  */
-function writeGeneratedCodeFile(name: string, outPath: string, code: Code) {
+function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
   console.log(`${name} -> ${outPath}`);
   return fs.writeFile(outPath, code);
 }
 
 function writeAllGeneratedCodeFiles(
   outPath: string,
-  files: Record<FilePath, Code>
+  files: Record<string, string>
 ) {
   return Promise.all(
-    Object.keys(files).map((filepath: FilePath) =>
+    Object.keys(files).map((filepath: string) =>
       writeGeneratedCodeFile(
         filepath,
         `${outPath}/${filepath}`.replace(".njk", ""),
