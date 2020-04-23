@@ -13,8 +13,12 @@ const { render } = createTemplateEnvironment({
 type FilePath = string;
 type Code = string;
 
+/**
+ * Generate models as well as package scaffolding for a sdk that talks to a provided api spec
+ * @param options 
+ */
 export async function generateSdk(options: IGenerateSdkOptions) {
-  const files = await listTemplates(`${DEFAULT_TEMPLATE_DIR}/sdk`);
+  const files = await listTemplates();
   const renderedFiles = await renderAll(files, options);
   await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
   await generateApi({
@@ -27,7 +31,7 @@ export async function generateSdk(options: IGenerateSdkOptions) {
   });
 }
 
-async function listTemplates(dir: string): Promise<FilePath[]> {
+async function listTemplates(): Promise<FilePath[]> {
   return ["package.json.njk", "tsconfig.json.njk", "index.ts.njk"];
 }
 
