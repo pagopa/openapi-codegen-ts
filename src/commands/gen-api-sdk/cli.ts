@@ -7,77 +7,116 @@ import { generateSdk } from ".";
 // parse command line
 //
 
+const PACKAGE_GROUP = "Package options:";
+const CODE_GROUP = "Code generation options:";
+
 const argv = yargs
-  .option("name", {
+  .option("package-name", {
+    alias: ["n", "name"],
     demandOption: true,
     description: "Name of the generated package",
     normalize: true,
-    string: true
+    string: true,
+    group: PACKAGE_GROUP
   })
-  .option("version", {
+  .option("package-version", {
+    alias: "V",
     demandOption: true,
     description: "Version of the generated package",
-    normalize: false,
-    string: true
+    string: true,
+    group: PACKAGE_GROUP
   })
-  .option("registry", {
-    demandOption: true,
-    description: "Url of the registry the package is published in",
-    normalize: true,
-    string: true
-  })
-  .option("access", {
+  .option("package-description", {
+    alias: ["d", "desc"],
     demandOption: true,
     description:
       "Either 'public' or 'private', depending of the accessibility of the package in the registry",
-    normalize: true,
-    string: true
+    string: true,
+    group: PACKAGE_GROUP
+  })
+  .option("package-registry", {
+    alias: ["r", "registry"],
+    demandOption: true,
+    description: "Url of the registry the package is published in",
+    string: true,
+    group: PACKAGE_GROUP
+  })
+  .option("package-access", {
+    alias: ["x", "access"],
+    demandOption: true,
+    description:
+      "Either 'public' or 'private', depending of the accessibility of the package in the registry",
+    choices: ["public", "private"],
+    string: true,
+    group: PACKAGE_GROUP
+  })
+  .option("package-author", {
+    alias: ["a", "author"],
+    demandOption: true,
+    description:
+      "Either 'public' or 'private', depending of the accessibility of the package in the registry",
+    string: true,
+    group: PACKAGE_GROUP
+  })
+  .option("package-license", {
+    alias: ["L", "license"],
+    demandOption: true,
+    description:
+      "Either 'public' or 'private', depending of the accessibility of the package in the registry",
+    string: true,
+    group: PACKAGE_GROUP
   })
   .option("api-spec", {
+    alias: "i",
     demandOption: true,
     description: "Path to input OpenAPI spec file",
     normalize: true,
-    string: true
+    string: true,
+    group: CODE_GROUP
   })
   .option("strict", {
     boolean: false,
     default: true,
-    description: "Generate strict interfaces (default: true)"
+    description: "Generate strict interfaces (default: true)",
+    group: CODE_GROUP
   })
   .option("out-dir", {
+    alias: "o",
     demandOption: true,
     description: "Output directory to store generated definition files",
     normalize: true,
-    string: true
+    string: true,
+    group: CODE_GROUP
   })
   .option("default-success-type", {
     default: "undefined",
     description:
       "Default type for success responses (experimental, default: 'undefined')",
     normalize: true,
-    string: true
+    string: true,
+    group: CODE_GROUP
   })
   .option("default-error-type", {
     default: "undefined",
     description:
       "Default type for error responses (experimental, default: 'undefined')",
     normalize: true,
-    string: true
+    string: true,
+    group: CODE_GROUP
   })
   .help().argv;
 
 //
 // Generate APIs
 //
-
 generateSdk({
-  name: argv.name,
-  version: argv.version,
-  description: argv.description,
-  author: argv.author,
-  license: argv.license,
-  registry: argv.registry,
-  access: argv.access,
+  name: argv["package-name"],
+  version: argv["package-version"],
+  description: argv["package-description"],
+  author: argv["package-author"],
+  license: argv["package-license"],
+  registry: argv["package-registry"],
+  access: argv["package-access"],
   defaultErrorType: argv["default-error-type"],
   defaultSuccessType: argv["default-success-type"],
   outPath: argv["out-dir"],
