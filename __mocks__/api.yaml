@@ -133,15 +133,15 @@ definitions:
         pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
   CustomStringFormatTest:
     type: string
-    x-import: italia-ts-commons/lib/string
+    x-import: italia-ts-commons/lib/strings
     format: SomeCustomStringType
   OrganizationFiscalCode:
     type: string
-    x-import: italia-ts-commons/lib/string
+    x-import: italia-ts-commons/lib/strings
     format: OrganizationFiscalCode
   OrganizationFiscalCodeTest:
     type: string
-    x-import: italia-ts-commons/lib/string
+    x-import: italia-ts-commons/lib/strings
     format: OrganizationFiscalCode
   NonNegativeIntegerTest:
     title: NonNegativeIntegerTest
