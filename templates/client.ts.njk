@@ -34,7 +34,7 @@ export function {{ moduleName }}(
   fetchApi: typeof fetch,
   basePath: string = "{{ spec.basePath }}"
 ): {
-  {% for operation in operations %} readonly {{ operation.operationId }}: TypeofApiCall<typeof {{ operation.operationId }}T>;{% endfor %}
+  {% for operation in operations %} readonly {{ operation.operationId }}: TypeofApiCall<{{ macro.requestParamsType(operation) }}>;{% endfor %}
 } {
   const options = {
     baseUrl,
@@ -49,7 +49,7 @@ export function {{ moduleName }}(
   {% set pathParams = operation.parameters | paramIn("path") %}
   {% set formParams = operation.parameters | paramIn("formData") %}
 
-  const {{ operation.operationId }}T: ReplaceRequestParams<{{ macro.requestTypeName(operation) }},RequestParams<{{ macro.requestTypeName(operation) }}>> = {
+  const {{ operation.operationId }}T: {{ macro.requestParamsType(operation) }} = {
     method: "{{ operation.method }}",
     {% if headerParams | length or operation.consumes %}
     headers: {{ macro.composedHeaderProducers(headerParams, operation.consumes) }},

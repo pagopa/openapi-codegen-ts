@@ -406,6 +406,12 @@
 {% endmacro -%}
 
 {##
+ # The composed request param type associated to an operation
+ # example: { operationId: "myOp", ...rest } -> ReplaceRequestParams<MyOp,RequestParams<MyOp>>
+ #}
+{% macro requestParamsType(operation) -%}ReplaceRequestParams<{{ requestTypeName(operation) }},RequestParams<{{ requestTypeName(operation) }}>>{% endmacro %}
+
+{##
  # The request type derived from operation data
  #}
 {% macro requestTypeName(operation) -%}{{ operation.operationId | capitalizeFirst }}T{% endmacro %}
@@ -518,3 +524,9 @@
   () => ({})
   {% endif %}
 {% endmacro %}
+
+{##
+ # Given an IHeaderParamenterInfo, it renders an header producer that links the parameter name with expected header
+ # example: { name: 'token', headerName: 'Authorization' } -> ({ token }) => ({ "Authorization": token })
+ #}
+{% macro requestParamsType(operation) -%}ReplaceRequestParams<{{ requestTypeName(operation) }},RequestParams<{{ requestTypeName(operation) }}>>{% endmacro %}
