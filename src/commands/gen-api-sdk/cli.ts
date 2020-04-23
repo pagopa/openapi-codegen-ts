@@ -30,7 +30,7 @@ const argv = yargs
     alias: ["d", "desc"],
     demandOption: true,
     description:
-      "Either 'public' or 'private', depending of the accessibility of the package in the registry",
+      "Description of the package",
     string: true,
     group: PACKAGE_GROUP
   })
@@ -54,7 +54,7 @@ const argv = yargs
     alias: ["a", "author"],
     demandOption: true,
     description:
-      "Either 'public' or 'private', depending of the accessibility of the package in the registry",
+      "The author of the API exposed",
     string: true,
     group: PACKAGE_GROUP
   })
@@ -62,7 +62,7 @@ const argv = yargs
     alias: ["L", "license"],
     demandOption: true,
     description:
-      "Either 'public' or 'private', depending of the accessibility of the package in the registry",
+      "The license of the API Exposed",
     string: true,
     group: PACKAGE_GROUP
   })
