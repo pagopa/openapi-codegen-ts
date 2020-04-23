@@ -29,40 +29,36 @@ const argv = yargs
   .option("package-description", {
     alias: ["d", "desc"],
     demandOption: true,
-    description:
-      "Description of the package",
+    description: "Description of the package",
     string: true,
     group: PACKAGE_GROUP
   })
   .option("package-registry", {
     alias: ["r", "registry"],
-    demandOption: true,
     description: "Url of the registry the package is published in",
     string: true,
     group: PACKAGE_GROUP
   })
   .option("package-access", {
     alias: ["x", "access"],
-    demandOption: true,
     description:
       "Either 'public' or 'private', depending of the accessibility of the package in the registry",
     choices: ["public", "private"],
     string: true,
     group: PACKAGE_GROUP
   })
+  .implies("package-registry", "package-access")
   .option("package-author", {
     alias: ["a", "author"],
     demandOption: true,
-    description:
-      "The author of the API exposed",
+    description: "The author of the API exposed",
     string: true,
     group: PACKAGE_GROUP
   })
   .option("package-license", {
     alias: ["L", "license"],
     demandOption: true,
-    description:
-      "The license of the API Exposed",
+    description: "The license of the API Exposed",
     string: true,
     group: PACKAGE_GROUP
   })

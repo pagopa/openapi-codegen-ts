@@ -6,8 +6,8 @@ export interface IGenerateSdkOptions {
   description: string;
   author: string;
   license: string;
-  registry: string;
-  access: string;
+  registry?: string;
+  access?: string;
   specFilePath: string | OpenAPIV2.Document;
   outPath: string;
   strictInterfaces?: boolean;
