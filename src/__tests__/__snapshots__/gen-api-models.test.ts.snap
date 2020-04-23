@@ -527,9 +527,18 @@ export function Client(
   fetchApi: typeof fetch,
   basePath: string = \\"/api/v1\\"
 ): {
-  readonly testAuthBearer: TypeofApiCall<typeof testAuthBearerT>;
-  readonly testMultipleSuccess: TypeofApiCall<typeof testMultipleSuccessT>;
-  readonly testFileUpload: TypeofApiCall<typeof testFileUploadT>;
+  readonly testAuthBearer: TypeofApiCall<
+    ReplaceRequestParams<TestAuthBearerT, RequestParams<TestAuthBearerT>>
+  >;
+  readonly testMultipleSuccess: TypeofApiCall<
+    ReplaceRequestParams<
+      TestMultipleSuccessT,
+      RequestParams<TestMultipleSuccessT>
+    >
+  >;
+  readonly testFileUpload: TypeofApiCall<
+    ReplaceRequestParams<TestFileUploadT, RequestParams<TestFileUploadT>>
+  >;
 } {
   const options = {
     baseUrl,
