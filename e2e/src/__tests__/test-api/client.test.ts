@@ -1,4 +1,4 @@
-import { Client } from "../../generated/testapi/client";
+import { createClient } from "../../generated/testapi/client";
 import { isRight, Either } from "fp-ts/lib/Either";
 import nodeFetch from "node-fetch";
 import config from "../../config";
@@ -16,15 +16,15 @@ const describeSuite = skipClient || !isSpecEnabled ? describe.skip : describe;
 describeSuite("Http client generated from Test API spec", () => {
   
   it("should be a valid module", async () => {
-    expect(Client).toBeDefined();
-    expect(Client).toEqual(expect.any(Function));
+    expect(createClient).toBeDefined();
+    expect(createClient).toEqual(expect.any(Function));
   });
 
   it("should make a call", async () => {
-    const client = Client(
-      `http://localhost:${mockPort}`,
-      (nodeFetch as any) as typeof fetch
-    );
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+    });
 
     expect(client.testAuthBearer).toEqual(expect.any(Function));
     // @ts-ignore because testAuthBearer has different signature but still I want to check this behavior

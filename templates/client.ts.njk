@@ -26,21 +26,70 @@ import {
 } from "./requestTypes";
 {% endif%}
 
-{% set moduleName = "Client" %}
 
-export function {{ moduleName }}(
-  baseUrl: string,
-  // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch,
-  basePath: string = "{{ spec.basePath }}"
-): {
-  {% for operation in operations %} readonly {{ operation.operationId }}: TypeofApiCall<typeof {{ operation.operationId }}T>;{% endfor %}
-} {
+interface PreOp<K = undefined> {
+  {% for operation in operations %}
+    (op: TypeofApiCall<{{ macro.requestTypeName(operation) }}>): K extends string
+      ? TypeofApiCall<
+          ReplaceRequestParams<{{ macro.requestTypeName(operation) }}, Omit<RequestParams<{{ macro.requestTypeName(operation) }}>, K>>
+        > 
+      : TypeofApiCall<{{ macro.requestTypeName(operation) }}>;
+  {% endfor %}
+}
+
+{% for operation in operations %}
+    function noOp(op: TypeofApiCall<{{ macro.requestTypeName(operation) }}>): TypeofApiCall<{{ macro.requestTypeName(operation) }}>;
+{% endfor %}
+function noOp(
+  op: 
+  {% for operation in operations %}
+    {{ "|" if loop.index0 else "" }} TypeofApiCall<{{ macro.requestTypeName(operation) }}>
+  {% endfor %}
+) {
+  return op;
+}
+
+export type Client<K = undefined> = K extends string
+  ? {
+    {% for operation in operations %}
+    {{ operation.operationId }}: TypeofApiCall<
+        ReplaceRequestParams<{{ macro.requestTypeName(operation) }}, Omit<RequestParams<{{ macro.requestTypeName(operation) }}>, K>>
+      >;
+    {% endfor %}
+    }
+  : {
+    {% for operation in operations %}
+    {{ operation.operationId }}: TypeofApiCall<{{ macro.requestTypeName(operation) }}>;
+    {% endfor %}
+  };
+
+export function createClient(params: {
+  baseUrl: string;
+  fetchApi: typeof fetch;
+  basePath?: string;
+}): Client;
+export function createClient<K>(params: {
+  baseUrl: string;
+  fetchApi: typeof fetch;
+  basePath?: string;
+  preOp: PreOp<K>;
+}): Client<K>;
+export function createClient<K>({
+  baseUrl,
+  preOp,
+  fetchApi,
+  basePath = "/api/v1",
+}: {
+  baseUrl: string;
+  fetchApi: typeof fetch;
+  basePath?: string;
+  preOp?: PreOp<K>;
+}) {
+
   const options = {
     baseUrl,
     fetchApi
   };
-
 
   {% for operation in operations %}
   {% set headerParams = operation.parameters | paramIn("header") %}
@@ -75,9 +124,8 @@ export function {{ moduleName }}(
   {% endfor %}
 
   return {
-    {% for operation in operations %}{{ operation.operationId }},{% endfor %}
+    {% for operation in operations %}{{ operation.operationId }}: (preOp || noOp)({{ operation.operationId }}),{% endfor %}
   };
 }
 
-export type {{ moduleName }} = typeof {{ moduleName }};
   

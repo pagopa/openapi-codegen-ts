@@ -521,16 +521,109 @@ import {
   testFileUploadDefaultDecoder
 } from \\"./requestTypes\\";
 
-export function Client(
-  baseUrl: string,
-  // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch,
-  basePath: string = \\"/api/v1\\"
-): {
-  readonly testAuthBearer: TypeofApiCall<typeof testAuthBearerT>;
-  readonly testMultipleSuccess: TypeofApiCall<typeof testMultipleSuccessT>;
-  readonly testFileUpload: TypeofApiCall<typeof testFileUploadT>;
-} {
+interface PreOp<K = undefined> {
+  (op: TypeofApiCall<TestAuthBearerT>): K extends string
+    ? TypeofApiCall<
+        ReplaceRequestParams<
+          TestAuthBearerT,
+          Omit<RequestParams<TestAuthBearerT>, K>
+        >
+      >
+    : TypeofApiCall<TestAuthBearerT>;
+
+  (op: TypeofApiCall<TestMultipleSuccessT>): K extends string
+    ? TypeofApiCall<
+        ReplaceRequestParams<
+          TestMultipleSuccessT,
+          Omit<RequestParams<TestMultipleSuccessT>, K>
+        >
+      >
+    : TypeofApiCall<TestMultipleSuccessT>;
+
+  (op: TypeofApiCall<TestFileUploadT>): K extends string
+    ? TypeofApiCall<
+        ReplaceRequestParams<
+          TestFileUploadT,
+          Omit<RequestParams<TestFileUploadT>, K>
+        >
+      >
+    : TypeofApiCall<TestFileUploadT>;
+}
+
+function noOp(
+  op: TypeofApiCall<TestAuthBearerT>
+): TypeofApiCall<TestAuthBearerT>;
+
+function noOp(
+  op: TypeofApiCall<TestMultipleSuccessT>
+): TypeofApiCall<TestMultipleSuccessT>;
+
+function noOp(
+  op: TypeofApiCall<TestFileUploadT>
+): TypeofApiCall<TestFileUploadT>;
+
+function noOp(
+  op:
+    | TypeofApiCall<TestAuthBearerT>
+    | TypeofApiCall<TestMultipleSuccessT>
+    | TypeofApiCall<TestFileUploadT>
+) {
+  return op;
+}
+
+export type Client<K = undefined> = K extends string
+  ? {
+      testAuthBearer: TypeofApiCall<
+        ReplaceRequestParams<
+          TestAuthBearerT,
+          Omit<RequestParams<TestAuthBearerT>, K>
+        >
+      >;
+
+      testMultipleSuccess: TypeofApiCall<
+        ReplaceRequestParams<
+          TestMultipleSuccessT,
+          Omit<RequestParams<TestMultipleSuccessT>, K>
+        >
+      >;
+
+      testFileUpload: TypeofApiCall<
+        ReplaceRequestParams<
+          TestFileUploadT,
+          Omit<RequestParams<TestFileUploadT>, K>
+        >
+      >;
+    }
+  : {
+      testAuthBearer: TypeofApiCall<TestAuthBearerT>;
+
+      testMultipleSuccess: TypeofApiCall<TestMultipleSuccessT>;
+
+      testFileUpload: TypeofApiCall<TestFileUploadT>;
+    };
+
+export function createClient(params: {
+  baseUrl: string;
+  fetchApi: typeof fetch;
+  basePath?: string;
+}): Client;
+export function createClient<K>(params: {
+  baseUrl: string;
+  fetchApi: typeof fetch;
+  basePath?: string;
+  preOp: PreOp<K>;
+}): Client<K>;
+export function createClient<K>({
+  baseUrl,
+  preOp,
+  fetchApi,
+  basePath = \\"/api/v1\\"
+}: {
+  baseUrl: string;
+  fetchApi: typeof fetch;
+  basePath?: string;
+  preOp?: PreOp<K>;
+}) {
   const options = {
     baseUrl,
     fetchApi
@@ -589,13 +682,11 @@ export function Client(
   const testFileUpload = createFetchRequestForApi(testFileUploadT, options);
 
   return {
-    testAuthBearer,
-    testMultipleSuccess,
-    testFileUpload
+    testAuthBearer: (preOp || noOp)(testAuthBearer),
+    testMultipleSuccess: (preOp || noOp)(testMultipleSuccess),
+    testFileUpload: (preOp || noOp)(testFileUpload)
   };
 }
-
-export type Client = typeof Client;
 "
 `;
 

@@ -1,6 +1,18 @@
 import nodeFetch from "node-fetch";
+import {
+  ReplaceRequestParams,
+  RequestParams,
+  TypeofApiCall
+} from "italia-ts-commons/lib/requests";
 import config from "../../config";
-import { Client } from "../../generated/be/client";
+import { createClient } from "../../generated/be/client";
+import {
+  GetServicesByRecipientT,
+  GetServiceT,
+  GetUserMetadataT,
+  GetVisibleServicesT,
+  StartEmailValidationProcessT
+} from "../../generated/be/requestTypes";
 
 const { skipClient } = config;
 const { mockPort, isSpecEnabled } = config.specs.be;
@@ -13,20 +25,101 @@ const INVALID_TOKEN = undefined;
 
 describeSuite("Http client generated from BE API spec", () => {
   it("should be a valid module", () => {
-    expect(Client).toBeDefined();
-    expect(Client).toEqual(expect.any(Function));
+    expect(createClient).toBeDefined();
+    expect(createClient).toEqual(expect.any(Function));
   });
 
   describe("getService", () => {
     it("should retrieve a single service", async () => {
-      const { getService } = Client(
-        `http://localhost:${mockPort}`,
-        (nodeFetch as any) as typeof fetch,
-        ""
-      );
+      const { getService } = createClient({
+        baseUrl: `http://localhost:${mockPort}`,
+        basePath: "",
+        fetchApi: (nodeFetch as any) as typeof fetch
+      });
 
       const result = await getService({
         Bearer: VALID_TOKEN,
+        service_id: "service123"
+      });
+
+      result.fold(
+        (e: any) => fail(e),
+        response => {
+          expect(response.status).toBe(200);
+          expect(response.value).toEqual(expect.any(Object));
+        }
+      );
+    });
+
+    it("should use a common token", async () => {
+      function withBearer(
+        op: TypeofApiCall<GetServiceT>
+      ): TypeofApiCall<
+        ReplaceRequestParams<
+          GetServiceT,
+          Omit<RequestParams<GetServiceT>, "Bearer">
+        >
+      >;
+      function withBearer(
+        op: TypeofApiCall<GetServicesByRecipientT>
+      ): TypeofApiCall<
+        ReplaceRequestParams<
+          GetServicesByRecipientT,
+          Omit<RequestParams<GetServicesByRecipientT>, "Bearer">
+        >
+      >;
+      function withBearer(
+        op: TypeofApiCall<GetUserMetadataT>
+      ): TypeofApiCall<
+        ReplaceRequestParams<
+          GetUserMetadataT,
+          Omit<RequestParams<GetUserMetadataT>, "Bearer">
+        >
+      >;
+      function withBearer(
+        op: TypeofApiCall<StartEmailValidationProcessT>
+      ): TypeofApiCall<
+        ReplaceRequestParams<
+          StartEmailValidationProcessT,
+          Omit<RequestParams<StartEmailValidationProcessT>, "Bearer">
+        >
+      >;
+      function withBearer(
+        op: TypeofApiCall<GetVisibleServicesT>
+      ): TypeofApiCall<
+        ReplaceRequestParams<
+          GetVisibleServicesT,
+          Omit<RequestParams<GetVisibleServicesT>, "Bearer">
+        >
+      >;
+      function withBearer(
+        op: // tslint:disable-next-line: max-union-size
+        | TypeofApiCall<GetServiceT>
+          | TypeofApiCall<GetServicesByRecipientT>
+          | TypeofApiCall<GetVisibleServicesT>
+          | TypeofApiCall<GetUserMetadataT>
+          | TypeofApiCall<StartEmailValidationProcessT>
+      ) {
+        return (
+          params: Omit<
+            RequestParams<GetServiceT> &
+              RequestParams<GetServicesByRecipientT> &
+              RequestParams<GetUserMetadataT> &
+              RequestParams<StartEmailValidationProcessT> &
+              RequestParams<GetVisibleServicesT>,
+            "Bearer"
+          >
+        ) => op({ ...params, Bearer: "456" });
+      }
+
+      const { getService } = createClient<"Bearer">({
+        baseUrl: `http://localhost:${mockPort}`,
+        basePath: "",
+        fetchApi: (nodeFetch as any) as typeof fetch,
+        preOp: withBearer
+      });
+
+      const result = await getService({
         service_id: "service123"
       });
 
@@ -42,11 +135,11 @@ describeSuite("Http client generated from BE API spec", () => {
 
   describe("getVisibleServices", () => {
     it("should retrieve a list of visible services", async () => {
-      const { getVisibleServices } = Client(
-        `http://localhost:${mockPort}`,
-        (nodeFetch as any) as typeof fetch,
-        ""
-      );
+      const { getVisibleServices } = createClient({
+        baseUrl: `http://localhost:${mockPort}`,
+        basePath: "",
+        fetchApi: (nodeFetch as any) as typeof fetch
+      });
 
       const result = await getVisibleServices({
         Bearer: VALID_TOKEN
@@ -66,11 +159,11 @@ describeSuite("Http client generated from BE API spec", () => {
     });
 
     it("should accept pagination", async () => {
-      const { getVisibleServices } = Client(
-        `http://localhost:${mockPort}`,
-        (nodeFetch as any) as typeof fetch,
-        ""
-      );
+      const { getVisibleServices } = createClient({
+        baseUrl: `http://localhost:${mockPort}`,
+        basePath: "",
+        fetchApi: (nodeFetch as any) as typeof fetch
+      });
 
       const result = await getVisibleServices({
         Bearer: VALID_TOKEN,
@@ -96,11 +189,11 @@ describeSuite("Http client generated from BE API spec", () => {
         json: async () => ({}),
         headers: {}
       }));
-      const { getVisibleServices } = Client(
-        `http://localhost:${mockPort}`,
-        (spiedFetch as any) as typeof fetch,
-        ""
-      );
+      const { getVisibleServices } = createClient({
+        baseUrl: `http://localhost:${mockPort}`,
+        basePath: "",
+        fetchApi: (spiedFetch as any) as typeof fetch
+      });
 
       await getVisibleServices({
         Bearer: VALID_TOKEN,
