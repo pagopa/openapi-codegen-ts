@@ -98,7 +98,7 @@ export function createClient<K>({
   {% set pathParams = operation.parameters | paramIn("path") %}
   {% set formParams = operation.parameters | paramIn("formData") %}
 
-  const {{ operation.operationId }}T: ReplaceRequestParams<{{ macro.requestTypeName(operation) }},RequestParams<{{ macro.requestTypeName(operation) }}>> = {
+  const {{ operation.operationId }}T: {{ macro.requestParamsType(operation) }} = {
     method: "{{ operation.method }}",
     {% if headerParams | length or operation.consumes %}
     headers: {{ macro.composedHeaderProducers(headerParams, operation.consumes) }},

@@ -216,7 +216,7 @@ exports[`gen-api-models should handle CustomStringFormats: custom-string-format 
  */
 /* tslint:disable */
 
-import { SomeCustomStringType as SomeCustomStringTypeT } from \\"italia-ts-commons/lib/string\\";
+import { SomeCustomStringType as SomeCustomStringTypeT } from \\"italia-ts-commons/lib/strings\\";
 import * as t from \\"io-ts\\";
 
 export type CustomStringFormatTest = t.TypeOf<typeof CustomStringFormatTest>;
@@ -338,7 +338,7 @@ exports[`gen-api-models should include aliases for types already defined elsewhe
  */
 /* tslint:disable */
 
-import { OrganizationFiscalCode as OrganizationFiscalCodeT } from \\"italia-ts-commons/lib/string\\";
+import { OrganizationFiscalCode as OrganizationFiscalCodeT } from \\"italia-ts-commons/lib/strings\\";
 import * as t from \\"io-ts\\";
 
 export type OrganizationFiscalCodeTest = t.TypeOf<
@@ -521,7 +521,6 @@ import {
   testFileUploadDefaultDecoder
 } from \\"./requestTypes\\";
 
-interface PreOp<K = undefined> {
   (op: TypeofApiCall<TestAuthBearerT>): K extends string
     ? TypeofApiCall<
         ReplaceRequestParams<
@@ -625,27 +624,6 @@ export function createClient<K>({
   preOp?: PreOp<K>;
 }) {
   const options = {
-    baseUrl,
-    fetchApi
-  };
-
-  const testAuthBearerT: ReplaceRequestParams<
-    TestAuthBearerT,
-    RequestParams<TestAuthBearerT>
-  > = {
-    method: \\"get\\",
-
-    headers: ({ bearerToken }: { bearerToken: string }) => ({
-      Authorization: \`Bearer \${bearerToken}\`
-    }),
-
-    response_decoder: testAuthBearerDefaultDecoder(),
-    url: ({}) => \`\${basePath}/test-auth-bearer\`,
-
-    query: ({ qo, qr, cursor }) => ({ qo, qr, cursor })
-  };
-  const testAuthBearer = createFetchRequestForApi(testAuthBearerT, options);
-
   const testMultipleSuccessT: ReplaceRequestParams<
     TestMultipleSuccessT,
     RequestParams<TestMultipleSuccessT>
