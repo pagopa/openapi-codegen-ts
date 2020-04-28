@@ -72,18 +72,18 @@ export function createClient<K>(params: {
   baseUrl: string;
   fetchApi: typeof fetch;
   basePath?: string;
-  preOp: PreOp<K>;
+  transformEach: PreOp<K>;
 }): Client<K>;
 export function createClient<K>({
   baseUrl,
-  preOp,
+  transformEach,
   fetchApi,
   basePath = "/api/v1",
 }: {
   baseUrl: string;
   fetchApi: typeof fetch;
   basePath?: string;
-  preOp?: PreOp<K>;
+  transformEach?: PreOp<K>;
 }) {
 
   const options = {
@@ -124,7 +124,7 @@ export function createClient<K>({
   {% endfor %}
 
   return {
-    {% for operation in operations %}{{ operation.operationId }}: (preOp || noOp)({{ operation.operationId }}),{% endfor %}
+    {% for operation in operations %}{{ operation.operationId }}: (transformEach || noOp)({{ operation.operationId }}),{% endfor %}
   };
 }
 

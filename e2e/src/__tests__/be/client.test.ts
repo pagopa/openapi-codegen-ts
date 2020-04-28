@@ -116,7 +116,7 @@ describeSuite("Http client generated from BE API spec", () => {
         baseUrl: `http://localhost:${mockPort}`,
         basePath: "",
         fetchApi: (nodeFetch as any) as typeof fetch,
-        preOp: withBearer
+        transformEach: withBearer
       });
 
       const result = await getService({
