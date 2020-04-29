@@ -1,13 +1,6 @@
 import nodeFetch from "node-fetch";
 import config from "../../config";
-import { createClient, OmitApiCallParams } from "../../generated/be/client";
-import {
-  GetServiceT,
-  GetServicesByRecipientT,
-  GetVisibleServicesT,
-  StartEmailValidationProcessT,
-  GetUserMetadataT
-} from "../../generated/be/requestTypes";
+import { createClient, DefaultTransformEach } from "../../generated/be/client";
 
 const { skipClient } = config;
 const { mockPort, isSpecEnabled } = config.specs.be;
@@ -47,15 +40,7 @@ describeSuite("Http client generated from BE API spec", () => {
     });
 
     it("should use a common token", async () => {
-      const withBearer: OmitApiCallParams<
-        // tslint:disable-next-line: max-union-size
-        | GetServiceT
-        | GetServicesByRecipientT
-        | GetVisibleServicesT
-        | StartEmailValidationProcessT
-        | GetUserMetadataT,
-        "Bearer"
-      > = op => params => {
+      const withBearer: DefaultTransformEach<"Bearer"> = op => params => {
         return op({
           ...params,
           Bearer: VALID_TOKEN
@@ -166,15 +151,7 @@ describeSuite("Http client generated from BE API spec", () => {
         headers: {}
       }));
 
-      const withBearer: OmitApiCallParams<
-        // tslint:disable-next-line: max-union-size
-        | GetServiceT
-        | GetServicesByRecipientT
-        | GetVisibleServicesT
-        | StartEmailValidationProcessT
-        | GetUserMetadataT,
-        "Bearer"
-      > = op => params => {
+      const withBearer: DefaultTransformEach<"Bearer"> = op => params => {
         return op({
           ...params,
           Bearer: VALID_TOKEN

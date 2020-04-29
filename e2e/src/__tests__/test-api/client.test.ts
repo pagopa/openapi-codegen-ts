@@ -41,7 +41,7 @@ describeSuite("Http client generated from Test API spec", () => {
       baseUrl: `http://localhost:${mockPort}`,
       fetchApi: (nodeFetch as any) as typeof fetch,
       basePath: "",
-      trasnformEach: (op: any) => (params: any) => op({ ...params, bearerToken: 'abc123'})
+      transformEach: (op: any) => (params: any) => op({ ...params, bearerToken: 'abc123'})
     });
 
     expect(client.testAuthBearer).toEqual(expect.any(Function));

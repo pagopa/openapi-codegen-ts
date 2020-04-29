@@ -39,6 +39,13 @@ export type OmitApiCallParams<ApiT, K = undefined> = (
   : TypeofApiCall<ApiT>;
 
 /**
+ * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
+ * @param ApiT the type which defines the operation to expose
+ * @param K the parameter to omit. undefined means no parameters will be omitted
+ */
+export type DefaultTransformEach<K = undefined> = OmitApiCallParams<{% for operation in operations %}{{ " | " if loop.index0 else "" }}{{ macro.requestTypeName(operation) }}{% endfor %}, K>
+
+/**
  * Defines a collection of api operations 
  * @param K name of the parameters that the Clients masks from the operations
  */
@@ -55,7 +62,7 @@ export type Client<K extends string = ""> = {
  * Identity function for OmitApiCallParams.
  * @param op the operation to be wrapped
  */
-const noTransform: OmitApiCallParams<{% for operation in operations %}{{ " | " if loop.index0 else "" }}{{ macro.requestTypeName(operation) }}{% endfor %}> = (
+const noTransform: DefaultTransformEach = (
   operation: {% for operation in operations %}{% if loop.index0 %}{% raw %} & {% endraw %}{% endif %}TypeofApiCall<{{ macro.requestTypeName(operation) }}>{% endfor %}
 ) => operation;
 
