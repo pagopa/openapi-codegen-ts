@@ -533,6 +533,16 @@ export type OmitApiCallParams<ApiT, K = undefined> = (
   : TypeofApiCall<ApiT>;
 
 /**
+ * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
+ * @param ApiT the type which defines the operation to expose
+ * @param K the parameter to omit. undefined means no parameters will be omitted
+ */
+export type DefaultTransformEach<K = undefined> = OmitApiCallParams<
+  TestAuthBearerT | TestMultipleSuccessT | TestFileUploadT,
+  K
+>;
+
+/**
  * Defines a collection of api operations
  * @param K name of the parameters that the Clients masks from the operations
  */
@@ -563,9 +573,7 @@ export type Client<K extends string = \\"\\"> = {
  * Identity function for OmitApiCallParams.
  * @param op the operation to be wrapped
  */
-const noTransform: OmitApiCallParams<
-  TestAuthBearerT | TestMultipleSuccessT | TestFileUploadT
-> = (
+const noTransform: DefaultTransformEach = (
   operation: TypeofApiCall<TestAuthBearerT> &
     TypeofApiCall<TestMultipleSuccessT> &
     TypeofApiCall<TestFileUploadT>
