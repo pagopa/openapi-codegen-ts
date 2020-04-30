@@ -35,13 +35,13 @@ describeSuite("Http client generated from Test API spec", () => {
     expect(isRight(result)).toBe(false);
   });
 
-  it("should make a call, with transformEach", async () => {
+  it("should make a call, with default parameters", async () => {
   
     const client = createClient<"bearerToken">({
       baseUrl: `http://localhost:${mockPort}`,
       fetchApi: (nodeFetch as any) as typeof fetch,
       basePath: "",
-      transformEach: (op: any) => (params: any) => op({ ...params, bearerToken: 'abc123'})
+      withDefaults: (op: any) => (params: any) => op({ ...params, bearerToken: 'abc123'})
     });
 
     expect(client.testAuthBearer).toEqual(expect.any(Function));

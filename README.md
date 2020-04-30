@@ -64,14 +64,14 @@ Options:
                                                              [string] [required]
   --ts-spec-file          If defined, converts the OpenAPI specs to TypeScript
                           source and writes it to this file             [string]
-  --request-types         Generate request types (experimental, default: false)
+  --request-types         Generate request types (default: false)
                                                                 [default: false]
-  --response-decoders     Generate response decoders (experimental, default:
+  --response-decoders     Generate response decoders (default:
                           false, implies --request-types)       [default: false]
   --client                Generate request client SDK           [default: false]
-  --default-success-type  Default type for success responses (experimental,
+  --default-success-type  Default type for success responses (
                           default: 'undefined')  [string] [default: "undefined"]
-  --default-error-type    Default type for error responses (experimental,
+  --default-error-type    Default type for error responses (
                           default: 'undefined')  [string] [default: "undefined"]
   --help                  Show help                                    [boolean]
 ```
@@ -96,8 +96,8 @@ The http client is defined in `client.ts` module file. It exports the following:
 * * `baseUrl` the base hostname of the api, including protocol and port
 * * `fetchApi` an implementation of the [fetch-api](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) as defined in your platform (for example: `node-fetch` if you are in node)
 * * `basePath` (optional) if defined, is appended to `baseUrl` for every operations. Its default is the basePath value defined in the specification
-* * `transformEach` (optional) an adapter function that wraps every operations. It may shadow some parameters to the wrapped operations. The use case is: you have a parameter which is common to many operations and you want it to be fixed (example: a session token). 
-* a type `DefaultTransformEach<K>` that defines an adapter function to be used as `transformEach`
+* * `withDefaults` (optional) an adapter function that wraps every operations. It may shadow some parameters to the wrapped operations. The use case is: you have a parameter which is common to many operations and you want it to be fixed (example: a session token). 
+* a type `WithDefaultsT<K>` that defines an adapter function to be used as `withDefaults`
 * * `K` the set of parameters that the adapter will shadow
 
 #### Example
@@ -106,7 +106,7 @@ import { createClient, DefaultTransformEach } from "my-api/client";
 
 
 // Without transformEach
-const simpleClient = createClient({
+const simpleClient: Client = createClient({
     baseUrl: `http://localhost:8080`,
     fetchApi: (nodeFetch as any) as typeof fetch
 });
@@ -119,7 +119,7 @@ const result = await simpleClient.myOperation({
 
 
 // with transformEach
-const withBearer: DefaultTransformEach<"Bearer"> = 
+const withBearer: WithDefaultsT<"Bearer"> = 
     wrappedOperation => 
         params => { // wrappedOperation and params are correctly inferred
             return wrappedOperation({
@@ -128,10 +128,10 @@ const withBearer: DefaultTransformEach<"Bearer"> =
             });
           };
 //  this is the same of using createClient<"Bearer">. K type is being inferred from withBearer
-const clientWithGlobalToken = createClient({
+const clientWithGlobalToken: Client<"Bearer"> = createClient({
     baseUrl: `http://localhost:8080`,
     fetchApi: (nodeFetch as any) as typeof fetch,
-    transformEach: withBearer
+    withDefaults: withBearer
 });
 
 // myOperation doesn't require "Bearer" anymore, as it's defined in "withBearer" adapter 
@@ -171,9 +171,9 @@ Code generation options:
                                                                  [default: true]
   --out-dir, -o           Output directory to store generated definition files
                                                              [string] [required]
-  --default-success-type  Default type for success responses (experimental,
+  --default-success-type  Default type for success responses (
                           default: 'undefined')  [string] [default: "undefined"]
-  --default-error-type    Default type for error responses (experimental,
+  --default-error-type    Default type for error responses (
                           default: 'undefined')  [string] [default: "undefined"]
 
 Options:

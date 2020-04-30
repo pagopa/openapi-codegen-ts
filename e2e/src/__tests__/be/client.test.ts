@@ -1,6 +1,6 @@
 import nodeFetch from "node-fetch";
 import config from "../../config";
-import { createClient, DefaultTransformEach } from "../../generated/be/client";
+import { createClient, WithDefaultsT } from "../../generated/be/client";
 
 const { skipClient } = config;
 const { mockPort, isSpecEnabled } = config.specs.be;
@@ -40,7 +40,7 @@ describeSuite("Http client generated from BE API spec", () => {
     });
 
     it("should use a common token", async () => {
-      const withBearer: DefaultTransformEach<"Bearer"> = op => params => {
+      const withBearer: WithDefaultsT<"Bearer"> = op => params => {
         return op({
           ...params,
           Bearer: VALID_TOKEN
@@ -51,7 +51,7 @@ describeSuite("Http client generated from BE API spec", () => {
         baseUrl: `http://localhost:${mockPort}`,
         basePath: "",
         fetchApi: (nodeFetch as any) as typeof fetch,
-        transformEach: withBearer
+        withDefaults: withBearer
       });
 
       // please not we're not passing Bearer
@@ -144,14 +144,14 @@ describeSuite("Http client generated from BE API spec", () => {
       );
     });
 
-    it("should pass parameters correctly to fetch (with trasformEach)", async () => {
+    it("should pass parameters correctly to fetch (using dafault parameters adapter)", async () => {
       const spiedFetch = jest.fn(() => ({
         status: 200,
         json: async () => ({}),
         headers: {}
       }));
 
-      const withBearer: DefaultTransformEach<"Bearer"> = op => params => {
+      const withBearer: WithDefaultsT<"Bearer"> = op => params => {
         return op({
           ...params,
           Bearer: VALID_TOKEN
@@ -164,7 +164,7 @@ describeSuite("Http client generated from BE API spec", () => {
         // tslint:disable-next-line: no-any
         fetchApi: (spiedFetch as any) as typeof fetch,
         basePath: "",
-        transformEach: withBearer
+        withDefaults: withBearer
       });
 
       await getVisibleServices({

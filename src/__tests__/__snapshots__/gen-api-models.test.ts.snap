@@ -537,7 +537,7 @@ export type OmitApiCallParams<ApiT, K = undefined> = (
  * @param ApiT the type which defines the operation to expose
  * @param K the parameter to omit. undefined means no parameters will be omitted
  */
-export type DefaultTransformEach<K = undefined> = OmitApiCallParams<
+export type WithDefaultsT<K = undefined> = OmitApiCallParams<
   TestAuthBearerT | TestMultipleSuccessT | TestFileUploadT,
   K
 >;
@@ -573,7 +573,7 @@ export type Client<K extends string = \\"\\"> = {
  * Identity function for OmitApiCallParams.
  * @param op the operation to be wrapped
  */
-const noTransform: DefaultTransformEach = (
+const noDefaults: WithDefaultsT = (
   operation: TypeofApiCall<TestAuthBearerT> &
     TypeofApiCall<TestMultipleSuccessT> &
     TypeofApiCall<TestFileUploadT>
@@ -585,14 +585,14 @@ const noTransform: DefaultTransformEach = (
  *  - baseUrl: the base url for every api call (required)
  *  - fetchApi: an implementation of the fetch() web API, depending on the platform (required)
  *  - basePath: optional path to be appended to the baseUrl
- *  - transformEach: optional adapter to be applied to every operation, to omit some paramenters
+ *  - withDefaults: optional adapter to be applied to every operation, to omit some paramenters
  * @returns a collection of api operations
  */
 export function createClient<K extends string>(params: {
   baseUrl: string;
   // tslint:disable-next-line:no-any
   fetchApi: typeof fetch;
-  transformEach: OmitApiCallParams<TestAuthBearerT, K> &
+  withDefaults: OmitApiCallParams<TestAuthBearerT, K> &
     OmitApiCallParams<TestMultipleSuccessT, K> &
     OmitApiCallParams<TestFileUploadT, K>;
   basePath?: string;
@@ -601,20 +601,20 @@ export function createClient(params: {
   baseUrl: string;
   // tslint:disable-next-line:no-any
   fetchApi: typeof fetch;
-  transformEach?: undefined;
+  withDefaults?: undefined;
   basePath?: string;
 }): Client;
 export function createClient<K extends string>({
   baseUrl,
   // tslint:disable-next-line:no-any
   fetchApi,
-  transformEach,
+  withDefaults,
   basePath = \\"/api/v1\\"
 }: {
   baseUrl: string;
   // tslint:disable-next-line:no-any
   fetchApi: typeof fetch;
-  transformEach?: K extends \\"\\"
+  withDefaults?: K extends \\"\\"
     ? undefined
     : OmitApiCallParams<TestAuthBearerT, K> &
         OmitApiCallParams<TestMultipleSuccessT, K> &
@@ -642,7 +642,7 @@ export function createClient<K extends string>({
 
     query: ({ qo, qr, cursor }) => ({ qo, qr, cursor })
   };
-  const testAuthBearer = (transformEach || noTransform)(
+  const testAuthBearer = (withDefaults || noDefaults)(
     createFetchRequestForApi(testAuthBearerT, options)
   );
 
@@ -659,7 +659,7 @@ export function createClient<K extends string>({
 
     query: () => ({})
   };
-  const testMultipleSuccess = (transformEach || noTransform)(
+  const testMultipleSuccess = (withDefaults || noDefaults)(
     createFetchRequestForApi(testMultipleSuccessT, options)
   );
 
@@ -678,7 +678,7 @@ export function createClient<K extends string>({
 
     query: () => ({})
   };
-  const testFileUpload = (transformEach || noTransform)(
+  const testFileUpload = (withDefaults || noDefaults)(
     createFetchRequestForApi(testFileUploadT, options)
   );
 
