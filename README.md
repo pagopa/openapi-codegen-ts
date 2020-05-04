@@ -91,7 +91,7 @@ done
 ### Generated client
 The http client is defined in `client.ts` module file. It exports the following:
 * a type `Client<K>` which define the set of operations
-* * `K` a union of keys that represent the parameters omitted by the operations (see `transformEach` below)
+* * `K` a union of keys that represent the parameters omitted by the operations (see `withDefaults` below)
 * a function `createClient<K>(parameters): Client<K>` accepting the following parameters:
 * * `baseUrl` the base hostname of the api, including protocol and port
 * * `fetchApi` an implementation of the [fetch-api](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) as defined in your platform (for example: `node-fetch` if you are in node)
@@ -102,10 +102,10 @@ The http client is defined in `client.ts` module file. It exports the following:
 
 #### Example
 ```typescript
-import { createClient, DefaultTransformEach } from "my-api/client";
+import { createClient, WithDefaultsT } from "my-api/client";
 
 
-// Without transformEach
+// Without withDefaults
 const simpleClient: Client = createClient({
     baseUrl: `http://localhost:8080`,
     fetchApi: (nodeFetch as any) as typeof fetch
@@ -118,7 +118,7 @@ const result = await simpleClient.myOperation({
 });
 
 
-// with transformEach
+// with withDefaults
 const withBearer: WithDefaultsT<"Bearer"> = 
     wrappedOperation => 
         params => { // wrappedOperation and params are correctly inferred
