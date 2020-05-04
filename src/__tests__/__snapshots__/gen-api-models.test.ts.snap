@@ -521,25 +521,107 @@ import {
   testFileUploadDefaultDecoder
 } from \\"./requestTypes\\";
 
-export function Client(
-  baseUrl: string,
-  // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch,
-  basePath: string = \\"/api/v1\\"
-): {
+/**
+ * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
+ * @param ApiT the type which defines the operation to expose
+ * @param K the parameter to omit. undefined means no parameters will be omitted
+ */
+export type OmitApiCallParams<ApiT, K = undefined> = (
+  op: TypeofApiCall<ApiT>
+) => K extends string
+  ? TypeofApiCall<ReplaceRequestParams<ApiT, Omit<RequestParams<ApiT>, K>>>
+  : TypeofApiCall<ApiT>;
+
+/**
+ * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
+ * @param ApiT the type which defines the operation to expose
+ * @param K the parameter to omit. undefined means no parameters will be omitted
+ */
+export type WithDefaultsT<K = undefined> = OmitApiCallParams<
+  TestAuthBearerT | TestMultipleSuccessT | TestFileUploadT,
+  K
+>;
+
+/**
+ * Defines a collection of api operations
+ * @param K name of the parameters that the Clients masks from the operations
+ */
+export type Client<K extends string = \\"\\"> = {
   readonly testAuthBearer: TypeofApiCall<
-    ReplaceRequestParams<TestAuthBearerT, RequestParams<TestAuthBearerT>>
+    ReplaceRequestParams<
+      TestAuthBearerT,
+      Omit<RequestParams<TestAuthBearerT>, K>
+    >
   >;
+
   readonly testMultipleSuccess: TypeofApiCall<
     ReplaceRequestParams<
       TestMultipleSuccessT,
-      RequestParams<TestMultipleSuccessT>
+      Omit<RequestParams<TestMultipleSuccessT>, K>
     >
   >;
+
   readonly testFileUpload: TypeofApiCall<
-    ReplaceRequestParams<TestFileUploadT, RequestParams<TestFileUploadT>>
+    ReplaceRequestParams<
+      TestFileUploadT,
+      Omit<RequestParams<TestFileUploadT>, K>
+    >
   >;
-} {
+};
+
+/**
+ * Identity function for OmitApiCallParams.
+ * @param op the operation to be wrapped
+ */
+const noDefaults: WithDefaultsT = (
+  operation: TypeofApiCall<TestAuthBearerT> &
+    TypeofApiCall<TestMultipleSuccessT> &
+    TypeofApiCall<TestFileUploadT>
+) => operation;
+
+/**
+ * Create an instance of a client
+ * @param params hash map of parameters thata define the client:
+ *  - baseUrl: the base url for every api call (required)
+ *  - fetchApi: an implementation of the fetch() web API, depending on the platform (required)
+ *  - basePath: optional path to be appended to the baseUrl
+ *  - withDefaults: optional adapter to be applied to every operation, to omit some paramenters
+ * @returns a collection of api operations
+ */
+export function createClient<K extends string>(params: {
+  baseUrl: string;
+  // tslint:disable-next-line:no-any
+  fetchApi: typeof fetch;
+  withDefaults: OmitApiCallParams<TestAuthBearerT, K> &
+    OmitApiCallParams<TestMultipleSuccessT, K> &
+    OmitApiCallParams<TestFileUploadT, K>;
+  basePath?: string;
+}): Client<K>;
+export function createClient(params: {
+  baseUrl: string;
+  // tslint:disable-next-line:no-any
+  fetchApi: typeof fetch;
+  withDefaults?: undefined;
+  basePath?: string;
+}): Client;
+export function createClient<K extends string>({
+  baseUrl,
+  // tslint:disable-next-line:no-any
+  fetchApi,
+  withDefaults,
+  basePath = \\"/api/v1\\"
+}: {
+  baseUrl: string;
+  // tslint:disable-next-line:no-any
+  fetchApi: typeof fetch;
+  withDefaults?: K extends \\"\\"
+    ? undefined
+    : OmitApiCallParams<TestAuthBearerT, K> &
+        OmitApiCallParams<TestMultipleSuccessT, K> &
+        OmitApiCallParams<TestFileUploadT, K>;
+
+  basePath?: string;
+}) {
   const options = {
     baseUrl,
     fetchApi
@@ -560,7 +642,9 @@ export function Client(
 
     query: ({ qo, qr, cursor }) => ({ qo, qr, cursor })
   };
-  const testAuthBearer = createFetchRequestForApi(testAuthBearerT, options);
+  const testAuthBearer = (withDefaults || noDefaults)(
+    createFetchRequestForApi(testAuthBearerT, options)
+  );
 
   const testMultipleSuccessT: ReplaceRequestParams<
     TestMultipleSuccessT,
@@ -575,9 +659,8 @@ export function Client(
 
     query: () => ({})
   };
-  const testMultipleSuccess = createFetchRequestForApi(
-    testMultipleSuccessT,
-    options
+  const testMultipleSuccess = (withDefaults || noDefaults)(
+    createFetchRequestForApi(testMultipleSuccessT, options)
   );
 
   const testFileUploadT: ReplaceRequestParams<
@@ -595,7 +678,9 @@ export function Client(
 
     query: () => ({})
   };
-  const testFileUpload = createFetchRequestForApi(testFileUploadT, options);
+  const testFileUpload = (withDefaults || noDefaults)(
+    createFetchRequestForApi(testFileUploadT, options)
+  );
 
   return {
     testAuthBearer,
@@ -603,8 +688,6 @@ export function Client(
     testFileUpload
   };
 }
-
-export type Client = typeof Client;
 "
 `;
 

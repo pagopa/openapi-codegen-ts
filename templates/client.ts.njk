@@ -26,19 +26,90 @@ import {
 } from "./requestTypes";
 {% endif%}
 
-{% set moduleName = "Client" %}
 
-export function {{ moduleName }}(
-  baseUrl: string,
+/**
+ * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
+ * @param ApiT the type which defines the operation to expose
+ * @param K the parameter to omit. undefined means no parameters will be omitted
+ */
+export type OmitApiCallParams<ApiT, K = undefined> = (
+  op: TypeofApiCall<ApiT>
+) => K extends string
+  ? TypeofApiCall<ReplaceRequestParams<ApiT, Omit<RequestParams<ApiT>, K>>>
+  : TypeofApiCall<ApiT>;
+
+/**
+ * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
+ * @param ApiT the type which defines the operation to expose
+ * @param K the parameter to omit. undefined means no parameters will be omitted
+ */
+export type WithDefaultsT<K = undefined> = OmitApiCallParams<{% for operation in operations %}{{ " | " if loop.index0 else "" }}{{ macro.requestTypeName(operation) }}{% endfor %}, K>
+
+/**
+ * Defines a collection of api operations 
+ * @param K name of the parameters that the Clients masks from the operations
+ */
+export type Client<K extends string = ""> = {
+{% for operation in operations %}
+  readonly {{ operation.operationId}}: TypeofApiCall<
+    ReplaceRequestParams<{{ macro.requestTypeName(operation) }}, Omit<RequestParams<{{ macro.requestTypeName(operation) }}>, K>>
+  >;
+{% endfor %}
+};
+
+
+/**
+ * Identity function for OmitApiCallParams.
+ * @param op the operation to be wrapped
+ */
+const noDefaults: WithDefaultsT = (
+  operation: {% for operation in operations %}{% if loop.index0 %}{% raw %} & {% endraw %}{% endif %}TypeofApiCall<{{ macro.requestTypeName(operation) }}>{% endfor %}
+) => operation;
+
+
+
+/**
+ * Create an instance of a client
+ * @param params hash map of parameters thata define the client:
+ *  - baseUrl: the base url for every api call (required)
+ *  - fetchApi: an implementation of the fetch() web API, depending on the platform (required)
+ *  - basePath: optional path to be appended to the baseUrl
+ *  - withDefaults: optional adapter to be applied to every operation, to omit some paramenters
+ * @returns a collection of api operations
+ */
+export function createClient<K extends string>(params: {
+  baseUrl: string;
   // tslint:disable-next-line:no-any
-  fetchApi: typeof fetch,
-  basePath: string = "{{ spec.basePath }}"
-): {
-  {% for operation in operations %} readonly {{ operation.operationId }}: TypeofApiCall<{{ macro.requestParamsType(operation) }}>;{% endfor %}
-} {
+  fetchApi: typeof fetch;
+  withDefaults: {% for operation in operations %}{% if loop.index0 %}{% raw %} & {% endraw %}{% endif %}OmitApiCallParams<{{ macro.requestTypeName(operation) }}, K>{% endfor %}
+  basePath?: string;
+}): Client<K>;
+export function createClient(params: {
+  baseUrl: string;
+  // tslint:disable-next-line:no-any
+  fetchApi: typeof fetch;
+  withDefaults?: undefined;
+  basePath?: string;
+}): Client;
+export function createClient<K extends string>({
+  baseUrl,
+  // tslint:disable-next-line:no-any
+  fetchApi,
+  withDefaults,
+  basePath = "/api/v1",
+}: {
+  baseUrl: string;
+  // tslint:disable-next-line:no-any
+  fetchApi: typeof fetch;
+  withDefaults?: K extends ""
+    ? undefined
+    : {% for operation in operations %}{% if loop.index0 %}{% raw %} & {% endraw %}{% endif %}OmitApiCallParams<{{ macro.requestTypeName(operation) }}, K>{% endfor %}
+
+  basePath?: string;
+}) {
   const options = {
     baseUrl,
-    fetchApi
+    fetchApi,
   };
 
 
@@ -71,7 +142,7 @@ export function {{ moduleName }}(
     query: () => ({}),
     {% endif %}
   };
-  const {{ operation.operationId }} = createFetchRequestForApi({{ operation.operationId }}T, options);
+  const {{ operation.operationId }} = (withDefaults || noDefaults)(createFetchRequestForApi({{ operation.operationId }}T, options));
   {% endfor %}
 
   return {
@@ -79,5 +150,4 @@ export function {{ moduleName }}(
   };
 }
 
-export type {{ moduleName }} = typeof {{ moduleName }};
   
