@@ -59,7 +59,7 @@ const argv = yargs
   .option("camel-cased", {
     boolean: false,
     default: false,
-    description: "Generate camelCased properties name (default: false)"
+    description: "Generate camelCased properties names (default: false)"
   })
   .help().argv;
 

@@ -494,7 +494,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   env.addFilter("contains", <T>(a: ReadonlyArray<T>, item: T) => {
     return a.indexOf(item) !== -1;
   });
-  env.addFilter("startsWith", <T>(a: string, item: string) => {
+  env.addFilter("startsWith", (a: string, item: string) => {
     return a.indexOf(item) === 0;
   });
   env.addFilter("capitalizeFirst", (item: string) => {
@@ -518,18 +518,18 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   env.addFilter("addImport", (item: string) => {
     imports[item] = true;
   });
-  env.addFilter("getImports", (item: string) => {
+  env.addFilter("getImports", (_: string) => {
     return Object.keys(imports).join("\n");
   });
 
   let typeAliases: { [key: string]: true } = {};
-  env.addFilter("resetTypeAliases", (item: string) => {
+  env.addFilter("resetTypeAliases", (_: string) => {
     typeAliases = {};
   });
   env.addFilter("addTypeAlias", (item: string) => {
     typeAliases[item] = true;
   });
-  env.addFilter("getTypeAliases", (item: string) => {
+  env.addFilter("getTypeAliases", (_: string) => {
     return Object.keys(typeAliases).join("\n");
   });
 
