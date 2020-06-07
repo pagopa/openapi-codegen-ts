@@ -13,12 +13,14 @@ function renderAsync(
   env: nunjucks.Environment,
   definition: OpenAPIV2.DefinitionsObject,
   definitionName: string,
-  strictInterfaces: boolean
+  strictInterfaces: boolean,
+  camelCasedPropNames: boolean
 ): Promise<string> {
   return new Promise((accept, reject) => {
     env.render(
       "model.ts.njk",
       {
+        camelCasedPropNames,
         definition,
         definitionName,
         strictInterfaces
@@ -37,18 +39,19 @@ export async function renderDefinitionCode(
   env: nunjucks.Environment,
   definitionName: string,
   definition: OpenAPIV2.DefinitionsObject,
-  strictInterfaces: boolean
+  strictInterfaces: boolean,
+  camelCasedPropNames: boolean
 ): Promise<string> {
   const code = await renderAsync(
     env,
     definition,
     definitionName,
-    strictInterfaces
+    strictInterfaces,
+    camelCasedPropNames
   );
-  const prettifiedCode = prettier.format(code, {
+  return prettier.format(code, {
     parser: "typescript"
   });
-  return prettifiedCode;
 }
 
 function capitalize(s: string): string {
@@ -97,6 +100,7 @@ function getDecoderForResponse(status: string, type: string): string {
   }
 }
 
+// tslint:disable-next-line: parameters-max-number cognitive-complexity
 export function renderOperation(
   method: string,
   operationId: string,
@@ -295,6 +299,7 @@ export function isOpenAPIV2(
   return specs.hasOwnProperty("swagger");
 }
 
+// tslint:disable-next-line: parameters-max-number cognitive-complexity
 export async function generateApi(
   env: nunjucks.Environment,
   specFilePath: string | OpenAPIV2.Document,
@@ -304,7 +309,8 @@ export async function generateApi(
   generateRequestTypes: boolean,
   defaultSuccessType: string,
   defaultErrorType: string,
-  generateResponseDecoders: boolean
+  generateResponseDecoders: boolean,
+  camelCasedPropNames: boolean
 ): Promise<void> {
   const api = await SwaggerParser.bundle(specFilePath);
 
@@ -345,7 +351,8 @@ export async function generateApi(
         env,
         definitionName,
         definition,
-        strictInterfaces
+        strictInterfaces,
+        camelCasedPropNames
       );
       await fs.writeFile(outPath, code);
     }
@@ -454,6 +461,7 @@ export async function generateApi(
       import * as r from "italia-ts-commons/lib/requests";
 
       ${Array.from(operationsImports.values())
+        // tslint:disable-next-line: no-nested-template-literals
         .map(i => `import { ${i} } from "./${i}";`)
         .join("\n\n")}
 
@@ -504,7 +512,7 @@ export function initNunJucksEnvironment(): nunjucks.Environment {
   });
 
   let imports: { [key: string]: true } = {};
-  env.addFilter("resetImports", (item: string) => {
+  env.addFilter("resetImports", (_: string) => {
     imports = {};
   });
   env.addFilter("addImport", (item: string) => {
