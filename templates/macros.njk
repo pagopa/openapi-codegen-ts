@@ -114,9 +114,12 @@
     {% elif definition.format == "email" %}
       {{- 'import { EmailString } from "italia-ts-commons/lib/strings";' | addImport -}}
       {% set typedef %}EmailString{% endset %}
-    {% elif definition.format == "date-time" %}
+    {% elif definition.format == "date" %}
       {{- 'import { DateFromString } from "italia-ts-commons/lib/dates";' | addImport -}}
       {% set typedef %}DateFromString{% endset %}
+    {% elif definition.format == "date-time" %}
+      {{- 'import { UTCISODateFromString } from "italia-ts-commons/lib/dates";' | addImport -}}
+      {% set typedef %}UTCISODateFromString{% endset %}
     {% elif definition.format != undefined and definition["x-import"] %}
       {% set typedef %}{{ definition.format }}T{% endset %}
       {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
