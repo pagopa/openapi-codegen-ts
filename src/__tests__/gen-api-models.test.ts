@@ -276,4 +276,24 @@ describe("gen-api-models", () => {
 
     expect(code.e1).toMatchSnapshot();
   });
+
+  it("should support generate serializers", async () => {
+    const operation = spec.paths["/test-serializers"].post;
+
+    const code = await renderOperation(
+      "post",
+      operation.operationId,
+      operation,
+      spec.parameters,
+      spec.securityDefinitions,
+      [],
+      {},
+      "undefined",
+      "undefined",
+      true
+    );
+
+    expect(code.e1).toMatchSnapshot();
+  });
+
 });
