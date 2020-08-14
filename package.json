@@ -8,7 +8,8 @@
   "main": "dist/index.js",
   "bin": {
     "gen-api-models": "dist/commands/gen-api-models/cli.js",
-    "gen-api-sdk": "dist/commands/gen-api-sdk/cli.js"
+    "gen-api-sdk": "dist/commands/gen-api-sdk/cli.js",
+    "bundle-api-spec": "dist/commands/bundle-api-spec/cli.js"
   },
   "files": [
     "dist/",
@@ -32,6 +33,7 @@
     "nunjucks": "^3.1.2",
     "prettier": "^1.12.1",
     "swagger-parser": "^7.0.0",
+    "write-yaml-file": "^4.1.0",
     "yargs": "^11.1.0"
   },
   "devDependencies": {
