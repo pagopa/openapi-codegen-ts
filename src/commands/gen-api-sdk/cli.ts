@@ -100,12 +100,19 @@ const argv = yargs
     string: true,
     group: CODE_GROUP
   })
+  .option("camel-cased", {
+    boolean: false,
+    default: false,
+    description: "Generate camelCased properties name (default: false)",
+    group: CODE_GROUP
+  })
   .help().argv;
 
 //
 // Generate APIs
 //
 generateSdk({
+  camelCasedPropNames: argv["camel-cased"],
   name: argv["package-name"],
   version: argv["package-version"],
   description: argv["package-description"],

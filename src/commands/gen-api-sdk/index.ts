@@ -19,6 +19,7 @@ export async function generateSdk(options: IGenerateSdkOptions) {
   const renderedFiles = await renderAll(files, options);
   await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
   await generateApi({
+    camelCasedPropNames: options.camelCasedPropNames,
     defaultErrorType: options.defaultErrorType,
     defaultSuccessType: options.defaultSuccessType,
     definitionsDirPath: options.outPath,

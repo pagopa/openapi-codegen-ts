@@ -265,7 +265,7 @@ import { WithinRangeInteger } from \\"italia-ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeIntegerTest = t.TypeOf<typeof WithinRangeIntegerTest>;
-export const WithinRangeIntegerTest = WithinRangeInteger(0, 10);
+export const WithinRangeIntegerTest = WithinRangeInteger(0, 11);
 "
 `;
 
