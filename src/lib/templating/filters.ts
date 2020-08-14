@@ -47,10 +47,9 @@ export const comment = (subject: string) =>
  *
  */
 export const camelCase = (subject: string) =>
-  subject.replace(/(\_\w)/g, ([firstLetter]: string) =>
+  subject.replace(/(\_\w)/g, ([, firstLetter]: string) =>
     typeof firstLetter === "undefined" ? "" : firstLetter.toUpperCase()
   );
-
 /**
  * Object.keys
  * @param subject provided object
