@@ -30,10 +30,46 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "Profile",
       profileDefinition,
+      false,
       false
     );
     expect(code).toBeDefined();
     expect(code).toMatchSnapshot("dup-imports");
+  });
+
+  it("should not camel-case properties by default", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.PaginationResponse;
+    expect(definition).toBeDefined();
+    const code = await renderDefinitionCode(
+      "PaginationResponse",
+      definition,
+      false
+    );
+    expect(code).toContain("page_size");
+    expect(code).not.toContain("pageSize");
+  });
+
+  it("should handle camel-cased props", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.PaginationResponse;
+    expect(definition).toBeDefined();
+    const code = await renderDefinitionCode(
+      "PaginationResponse",
+      definition,
+      false,
+      true
+    );
+    expect(code).toContain("pageSize");
+    expect(code).not.toContain("page_size");
   });
 
   it("should handle WithinRangeStrings", async () => {

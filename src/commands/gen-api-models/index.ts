@@ -5,6 +5,7 @@ import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
+import { camelCase } from "../../lib/templating/filters";
 import templateEnvironment from "./templateEnvironment";
 import {
   IAuthHeaderParameterInfo,
@@ -31,9 +32,11 @@ const formatCode = (code: string) =>
 export async function renderDefinitionCode(
   definitionName: string,
   definition: OpenAPIV2.DefinitionsObject,
-  strictInterfaces: boolean
+  strictInterfaces: boolean,
+  camelCasedPropNames: boolean = false
 ): Promise<string> {
   return render("model.ts.njk", {
+    camelCasedPropNames,
     definition,
     definitionName,
     strictInterfaces
@@ -832,7 +835,8 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     definitionsDirPath,
     strictInterfaces = false,
     defaultSuccessType = "undefined",
-    defaultErrorType = "undefined"
+    defaultErrorType = "undefined",
+    camelCasedPropNames = false
   } = options;
 
   const {
@@ -867,7 +871,8 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
       renderDefinitionCode(
         definitionName,
         definitions[definitionName],
-        strictInterfaces
+        strictInterfaces,
+        camelCasedPropNames
       ).then((code: string) =>
         writeGeneratedCodeFile(
           definitionName,

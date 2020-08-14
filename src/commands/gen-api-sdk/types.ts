@@ -13,4 +13,5 @@ export interface IGenerateSdkOptions {
   strictInterfaces?: boolean;
   defaultSuccessType?: string;
   defaultErrorType?: string;
+  camelCasedPropNames: boolean;
 }

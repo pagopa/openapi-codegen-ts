@@ -61,6 +61,11 @@ const argv = yargs
     normalize: true,
     string: true
   })
+  .option("camel-cased", {
+    boolean: false,
+    default: false,
+    description: "Generate camelCased properties name (default: false)"
+  })
   .help().argv;
 
 //
@@ -68,13 +73,17 @@ const argv = yargs
 //
 
 generateApi({
+  camelCasedPropNames: argv["camel-cased"],
   defaultErrorType: argv["default-error-type"],
   defaultSuccessType: argv["default-success-type"],
   definitionsDirPath: argv["out-dir"],
-  generateClient: argv["client"],
+  generateClient: argv.client,
   generateRequestTypes: argv["request-types"],
   generateResponseDecoders: argv["response-decoders"],
   specFilePath: argv["api-spec"],
   strictInterfaces: argv.strict,
   tsSpecFilePath: argv["ts-spec-file"]
-}).then(() => console.log("done"), err => console.log(`Error: ${err}`));
+}).then(
+  () => console.log("done"),
+  err => console.log(`Error: ${err}`)
+);
