@@ -11,6 +11,7 @@ export interface IGenerateApiOptions {
   generateClient?: boolean;
   defaultSuccessType?: string;
   defaultErrorType?: string;
+  camelCasedPropNames: boolean;
 }
 
 export type SupportedMethod = "get" | "post" | "put" | "delete";

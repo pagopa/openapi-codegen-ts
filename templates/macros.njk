@@ -198,9 +198,13 @@
 {##
  # defines an object property of some prop.type
  #}
-{% macro defineObjectProperty(propName, prop, parentPropName) -%}
+{% macro defineObjectProperty(propName, prop, parentPropName, camelCasedPropNames) -%}
   {% if propName %}
-    "{{ propName }}":
+    {% if camelCasedPropNames %}
+      "{{ propName | camelCase }}":
+    {% else %}
+      "{{ propName }}":
+    {% endif %}
   {% endif %}
   {%- if prop.$ref %}
     {{ defineRef(prop.$ref, prop, true) }}
@@ -253,7 +257,7 @@
  # define object properties recursively,
  # supports additionaProperties, allOf and oneOf.
  #}
-{% macro defineObject(definitionName, definition, strictInterfaces) -%}
+{% macro defineObject(definitionName, definition, strictInterfaces, camelCasedPropNames) -%}
   {{ importLocalProps(definition) }}
   {%- if definition.description %}
     {{ definition.description | comment | safe }}
@@ -266,7 +270,7 @@
     {% for propName, prop in definition.properties -%}
       {% if prop.type == "object" %}
         {% set composedPropName %}{{ definitionName }}{{ propName | capitalizeFirst }}{% endset %}
-        {{ defineObject(composedPropName, prop, strictInterfaces) }}
+        {{ defineObject(composedPropName, prop, strictInterfaces, camelCasedPropNames) }}
       {% endif %}
     {% endfor %}
 
@@ -276,7 +280,7 @@
         {% set typedef %}t.dictionary(t.string, t.any, "{{ definitionName }}"){% endset %}
       {% else %}
         {% set typedef %}t.dictionary(t.string,
-          {{ defineObjectProperty(false, definition.additionalProperties) }} "{{ definitionName }}")
+          {{ defineObjectProperty(false, definition.additionalProperties, camelCasedPropNames) }} "{{ definitionName }}")
         {% endset %}
       {%- endif %}
       {% set defaultValue = definition.default | dump | safe if definition.default else undefined %}
@@ -286,7 +290,7 @@
       const {{ definitionName }}R = t.interface({
       {% for propName, prop in definition.properties -%}
         {% if definition.required and (definition.required | contains(propName)) %}
-          {{ defineObjectProperty(propName, prop, definitionName) }}
+          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames) }}
         {% endif %}
       {% endfor %}
       });
@@ -295,7 +299,7 @@
       const {{ definitionName }}O = t.partial({
       {% for propName, prop in definition.properties -%}
         {% if (not definition.required) or (definition.required and not (definition.required | contains(propName))) %}
-          {{ defineObjectProperty(propName, prop, definitionName) }}
+          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames) }}
         {% endif %}
       {% endfor %}
       });
@@ -318,7 +322,7 @@
 
     {% for schema in definition.allOf -%}
       {% if schema.type == "object" %}
-        {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
+        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
       {% elif schema.$ref %}
         {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
         {{ importLocalProp(realPropName) }}
@@ -349,7 +353,7 @@
 
     {% for schema in oneOfProps -%}
       {% if schema.type == "object" %}
-        {{ defineObject(definitionName + loop.index, schema, strictInterfaces) }}
+        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
       {% elif schema.$ref %}
         {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
         {{ importLocalProp(realPropName) }}
