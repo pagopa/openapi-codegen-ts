@@ -182,6 +182,23 @@ Options:
 ```
 
 
+## bundle-api-spec
+Takes a given api spec file and resolves its esternal references by creating a new file with only internal refereces
+
+```sh
+$ bundle-api-spec --help
+Code generation options:
+  --api-spec, -i     Path to input OpenAPI spec file         [string] [required]
+  --out-path, -o     Output path of the spec file            [string] [required]
+  --api-version, -V  Version of the api. If provided, override the version in
+                     the original spec file                             [string]
+
+Options:
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]
+```
+
+
 ### Requirements
 
 * `node` version >= 10.8.0
