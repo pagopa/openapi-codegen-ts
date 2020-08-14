@@ -4,6 +4,7 @@ import {
   createTemplateEnvironment,
   DEFAULT_TEMPLATE_DIR
 } from "../../lib/templating";
+import { bundleApiSpec } from "../bundle-api-spec";
 import { IGenerateSdkOptions } from "./types";
 
 const { render } = createTemplateEnvironment({
@@ -12,7 +13,7 @@ const { render } = createTemplateEnvironment({
 
 /**
  * Generate models as well as package scaffolding for a sdk that talks to a provided api spec
- * @param options 
+ * @param options
  */
 export async function generateSdk(options: IGenerateSdkOptions) {
   const files = await listTemplates();
@@ -26,6 +27,11 @@ export async function generateSdk(options: IGenerateSdkOptions) {
     generateClient: true,
     specFilePath: options.specFilePath,
     strictInterfaces: options.strictInterfaces
+  });
+  await bundleApiSpec({
+    outPath: `${options.outPath}/openapi.yaml`,
+    specFilePath: options.specFilePath,
+    version: options.version
   });
 }
 
