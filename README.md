@@ -143,27 +143,26 @@ const result = await clientWithGlobalToken.myOperation({
 
 ## gen-api-sdk
 Bundles a generated api models and clients into a node package ready to be published into a registry.
+The script is expected to be executed in the root of an application exposing an API, thus it infers package attributes from the expected `./package.json` file. Values can be still overridden by provinding the respective CLI argument. To avoid this behavior, use `--no-infer-attrs` or `-N`.
 
 ### Usage
 ```sh
 $ gen-api-sdk --help
 Package options:
-  --package-name, -n, --name          Name of the generated package
-                                                             [string] [required]
-  --package-version, -V               Version of the generated package
-                                                             [string] [required]
-  --package-description, -d, --desc   Description of the package
-                                                             [string] [required]
+  --no-infer-attr, -N                 Infer package attributes from a
+                                      package.json file present in the current
+                                      directory       [boolean] [default: false]
+  --package-name, -n, --name          Name of the generated package     [string]
+  --package-version, -V               Version of the generated package  [string]
+  --package-description, -d, --desc   Description of the package        [string]
+  --package-author, -a, --author      The author of the API exposed     [string]
+  --package-license, -L, --license    The license of the API Exposed    [string]
   --package-registry, -r, --registry  Url of the registry the package is
                                       published in                      [string]
   --package-access, -x, --access      Either 'public' or 'private', depending of
                                       the accessibility of the package in the
                                       registry
                                          [string] [choices: "public", "private"]
-  --package-author, -a, --author      The author of the API exposed
-                                                             [string] [required]
-  --package-license, -L, --license    The license of the API Exposed
-                                                             [string] [required]
 
 Code generation options:
   --api-spec, -i          Path to input OpenAPI spec file    [string] [required]
@@ -171,10 +170,12 @@ Code generation options:
                                                                  [default: true]
   --out-dir, -o           Output directory to store generated definition files
                                                              [string] [required]
-  --default-success-type  Default type for success responses (
+  --default-success-type  Default type for success responses (experimental,
                           default: 'undefined')  [string] [default: "undefined"]
-  --default-error-type    Default type for error responses (
+  --default-error-type    Default type for error responses (experimental,
                           default: 'undefined')  [string] [default: "undefined"]
+  --camel-cased           Generate camelCased properties name (default: false)
+                                                                [default: false]
 
 Options:
   --version  Show version number                                       [boolean]
