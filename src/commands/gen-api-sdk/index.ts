@@ -21,9 +21,9 @@ const { render } = createTemplateEnvironment({
  * @param options
  */
 export async function generateSdk(options: IGenerateSdkOptions) {
-  const files = await listTemplates();
-
   const { inferAttr, ...params } = options;
+
+  await fs.ensureDir(params.outPath);
 
   const templateParams: IPackageAttributes &
     IRegistryAttributes &
@@ -31,7 +31,7 @@ export async function generateSdk(options: IGenerateSdkOptions) {
     ? mergeParams(await inferAttributesFromPackage(), params)
     : params;
 
-  const renderedFiles = await renderAll(files, templateParams);
+  const renderedFiles = await renderAll(listTemplates(), templateParams);
   await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
   await generateApi({
     camelCasedPropNames: options.camelCasedPropNames,
@@ -74,7 +74,7 @@ async function inferAttributesFromPackage(): Promise<
 
 function mergeParams<A extends object, B extends object>(a: A, b: B): any {
   return Object.keys({ ...a, ...b }).reduce(
-    (p: any, k: string) => ({
+    (p: object, k: string) => ({
       ...p,
       [k]: b[k as keyof B] || a[k as keyof A]
     }),
@@ -82,7 +82,7 @@ function mergeParams<A extends object, B extends object>(a: A, b: B): any {
   );
 }
 
-async function listTemplates(): Promise<string[]> {
+function listTemplates(): string[] {
   return ["package.json.njk", "tsconfig.json.njk", "index.ts.njk"];
 }
 
