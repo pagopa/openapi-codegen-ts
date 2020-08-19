@@ -1,5 +1,5 @@
-import { ITuple2 } from "italia-ts-commons/lib/tuples";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import { ITuple3 } from "italia-ts-commons/lib/tuples";
+import { OpenAPIV2 } from "openapi-types";
 
 export interface IGenerateApiOptions {
   specFilePath: string | OpenAPIV2.Document;
@@ -34,7 +34,7 @@ export interface IOperationInfo {
   method: SupportedMethod;
   operationId: string;
   parameters: IParameterInfo[];
-  responses: Array<ITuple2<string, string>>;
+  responses: Array<ITuple3<string, string, string[]>>;
   headers: string[];
   importedTypes: Set<string>;
   path: string;

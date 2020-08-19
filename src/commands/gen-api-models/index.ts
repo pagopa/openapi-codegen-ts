@@ -1,7 +1,7 @@
 // tslint:disable:no-console
 
 import * as fs from "fs-extra";
-import { ITuple2, Tuple2 } from "italia-ts-commons/lib/tuples";
+import { ITuple2, Tuple2, Tuple3, ITuple3 } from "italia-ts-commons/lib/tuples";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import * as SwaggerParser from "swagger-parser";
@@ -24,6 +24,36 @@ const formatCode = (code: string) =>
   });
 
 /**
+ * Uppercase on first letter of a string
+ * @param s string to be capitalized
+ */
+function capitalize(s: string): string {
+  return `${s[0].toUpperCase()}${s.slice(1)}`;
+}
+
+/**
+ * Lowercase on first letter of a string
+ * @param s string to be uncapitalized
+ */
+function uncapitalize(s: string): string {
+  return `${s[0].toLowerCase()}${s.slice(1)}`;
+}
+
+/**
+ * Wrap a string in doublequote
+ * @param s string to be wrapped
+ */
+const doubleQuote = (s: string) => `"${s}"`;
+
+/**
+ * Converts an array of terms into a string representing a union of literals
+ * @param arr array of literals to be converted
+ * @param onEmpty what to return in case of empty union
+ */
+const toUnionOfLiterals = (arr: string[], onEmpty = "never"): string =>
+  arr.length ? arr.map(doubleQuote).join(" | ") : onEmpty;
+
+/**
  * Definition code rendering. Include code formatting
  * @param definitionName
  * @param definition
@@ -41,22 +71,6 @@ export async function renderDefinitionCode(
     definitionName,
     strictInterfaces
   }).then(formatCode);
-}
-
-/**
- * Uppercase on first letter of a string
- * @param s string to be capitalized
- */
-function capitalize(s: string): string {
-  return `${s[0].toUpperCase()}${s.slice(1)}`;
-}
-
-/**
- * Lowercase on first letter of a string
- * @param s string to be uncapitalized
- */
-function uncapitalize(s: string): string {
-  return `${s[0].toLowerCase()}${s.slice(1)}`;
 }
 
 /**
@@ -101,23 +115,27 @@ function specTypeToTs(t: string): string {
 /**
  * Renders the responde decoder associated to the given type.
  * Response types refer to io-ts-commons (https://github.com/pagopa/io-ts-commons/blob/master/src/requests.ts)
- * @param status http status code the decoder is associated with
- * @param type type to be decoded
+ * @param param0.status http status code the decoder is associated with
+ * @param param0.type type to be decoded
+ * @param param0.headers headers of the response
  * @param varName the name of the variables that holds the type decoder
  *
  * @returns a string which represents a decoder declaration
  */
 function getDecoderForResponse(
-  status: string,
-  type: string,
+  { e1: status, e2: type, e3: headers }: ITuple3<string, string, string[]>,
   varName: string
 ): string {
   return type === "Error"
     ? `r.basicErrorResponseDecoder<${status}>(${status})`
     : // checks at runtime if the provided decoder is t.undefined
       `${varName}[${status}].name === "undefined" 
-        ? r.constantResponseDecoder<undefined, ${status}>(${status}, undefined) 
-        : r.ioResponseDecoder<${status}, (typeof ${varName}[${status}])["_A"], (typeof ${varName}[${status}])["_O"]>(${status}, ${varName}[${status}])`;
+        ? r.constantResponseDecoder<undefined, ${status}, ${toUnionOfLiterals(
+        headers
+      )}>(${status}, undefined) 
+        : r.ioResponseDecoder<${status}, (typeof ${varName}[${status}])["_A"], (typeof ${varName}[${status}])["_O"], ${toUnionOfLiterals(
+        headers
+      )}>(${status}, ${varName}[${status}])`;
 }
 
 /**
@@ -283,7 +301,12 @@ export const renderOperation = (
     headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
 
   const responsesType = responses
-    .map(r => `r.IResponseType<${r.e1}, ${r.e2}>`)
+    .map(
+      ({ e1: statusCode, e2: typeName, e3: headerNames }) =>
+        `r.IResponseType<${statusCode}, ${typeName}, ${toUnionOfLiterals(
+          headerNames
+        )}>`
+    )
     .join("|");
 
   const paramsCode = parameters
@@ -334,12 +357,13 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   const decoderName = (statusCode: string) => `d${statusCode}`;
   const decoderDefinitions = responses
     .map(
-      ({ e1: statusCode, e2: typeName }, i) => `
+      ({ e1: statusCode, e2: typeName, e3: headerNames }, i) => `
     const ${decoderName(statusCode)} = (${getDecoderForResponse(
-        statusCode,
-        typeName,
+        { e1: statusCode, e2: typeName, e3: headerNames },
         typeVarName
-      )}) as r.ResponseDecoder<r.IResponseType<${statusCode}, A${i}, never>>;
+      )}) as r.ResponseDecoder<r.IResponseType<${statusCode}, A${i}, ${toUnionOfLiterals(
+        headerNames
+      )}>>;
   `
     )
     .join("");
@@ -423,8 +447,11 @@ function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   const returnType = `r.ResponseDecoder<
     ${responses
       .map(
-        ({ e1: statusCode }, i) =>
-          `r.IResponseType<${statusCode}, A${i}, never>`
+        ({ e1: statusCode, e3: headerNames }, i) =>
+          // tslint:disable-next-line: no-nested-template-literals
+          `r.IResponseType<${statusCode}, A${i}, ${toUnionOfLiterals(
+            headerNames
+          )}>`
       )
       .join("|")}
   >`;
@@ -635,6 +662,7 @@ export const parseOperation = (
   const responses = Object.keys(operation.responses).map(responseStatus => {
     const response = operation.responses[responseStatus];
     const typeRef = response.schema ? response.schema.$ref : undefined;
+    const responseHeaders = Object.keys(response.headers || {});
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
     if (parsedRef !== undefined) {
       importedTypes.add(parsedRef.e2);
@@ -644,7 +672,7 @@ export const parseOperation = (
       : responseStatus === "200"
       ? defaultSuccessType
       : defaultErrorType;
-    return Tuple2(responseStatus, responseType);
+    return Tuple3(responseStatus, responseType, responseHeaders);
   });
 
   const consumes =

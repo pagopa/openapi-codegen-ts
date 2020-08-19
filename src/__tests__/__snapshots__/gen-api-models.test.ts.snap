@@ -170,7 +170,7 @@ exports[`gen-api-models should generate the operator definition 1`] = `
      */
 
     // Request type definition
-    export type TestAuthBearerT = r.IGetApiRequestType<{readonly bearerToken: string,readonly qo?: string,readonly qr: string,readonly cursor?: string}, \\"Authorization\\", never, r.IResponseType<200, undefined>|r.IResponseType<403, undefined>>;
+    export type TestAuthBearerT = r.IGetApiRequestType<{readonly bearerToken: string,readonly qo?: string,readonly qr: string,readonly cursor?: string}, \\"Authorization\\", never, r.IResponseType<200, undefined, never>|r.IResponseType<403, undefined, never>>;
   
       
     export const testAuthBearerDefaultResponses = {
@@ -195,12 +195,12 @@ exports[`gen-api-models should generate the operator definition 1`] = `
 
         
     const d200 = (type[200].name === \\"undefined\\" 
-        ? r.constantResponseDecoder<undefined, 200>(200, undefined) 
-        : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"]>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
+        ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
+        : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
   
     const d403 = (type[403].name === \\"undefined\\" 
-        ? r.constantResponseDecoder<undefined, 403>(403, undefined) 
-        : r.ioResponseDecoder<403, (typeof type[403])[\\"_A\\"], (typeof type[403])[\\"_O\\"]>(403, type[403])) as r.ResponseDecoder<r.IResponseType<403, A1, never>>;
+        ? r.constantResponseDecoder<undefined, 403, never>(403, undefined) 
+        : r.ioResponseDecoder<403, (typeof type[403])[\\"_A\\"], (typeof type[403])[\\"_O\\"], never>(403, type[403])) as r.ResponseDecoder<r.IResponseType<403, A1, never>>;
   
         return r.composeResponseDecoders(d200, d403)
       }
@@ -520,7 +520,9 @@ import {
   TestMultipleSuccessT,
   testMultipleSuccessDefaultDecoder,
   TestFileUploadT,
-  testFileUploadDefaultDecoder
+  testFileUploadDefaultDecoder,
+  TestResponseHeaderT,
+  testResponseHeaderDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -531,11 +533,13 @@ type __UNDEFINED_KEY = \\"_____\\";
 
 export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestMultipleSuccessT> &
-  TypeofApiCall<TestFileUploadT>;
+  TypeofApiCall<TestFileUploadT> &
+  TypeofApiCall<TestResponseHeaderT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestMultipleSuccessT> &
-  TypeofApiParams<TestFileUploadT>);
+  TypeofApiParams<TestFileUploadT> &
+  TypeofApiParams<TestResponseHeaderT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -559,7 +563,10 @@ export type OmitApiCallParams<
 export type WithDefaultsT<
   K extends ParamKeys | __UNDEFINED_KEY = __UNDEFINED_KEY
 > = OmitApiCallParams<
-  TestAuthBearerT | TestMultipleSuccessT | TestFileUploadT,
+  | TestAuthBearerT
+  | TestMultipleSuccessT
+  | TestFileUploadT
+  | TestResponseHeaderT,
   K
 >;
 
@@ -576,6 +583,8 @@ export type Client<
       readonly testMultipleSuccess: TypeofApiCall<TestMultipleSuccessT>;
 
       readonly testFileUpload: TypeofApiCall<TestFileUploadT>;
+
+      readonly testResponseHeader: TypeofApiCall<TestResponseHeaderT>;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -596,6 +605,13 @@ export type Client<
         ReplaceRequestParams<
           TestFileUploadT,
           Omit<RequestParams<TestFileUploadT>, K>
+        >
+      >;
+
+      readonly testResponseHeader: TypeofApiCall<
+        ReplaceRequestParams<
+          TestResponseHeaderT,
+          Omit<RequestParams<TestResponseHeaderT>, K>
         >
       >;
     };
@@ -699,10 +715,29 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testResponseHeaderT: ReplaceRequestParams<
+    TestResponseHeaderT,
+    RequestParams<TestResponseHeaderT>
+  > = {
+    method: \\"get\\",
+
+    headers: () => ({}),
+
+    response_decoder: testResponseHeaderDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-response-header\`,
+
+    query: () => ({})
+  };
+  const testResponseHeader: TypeofApiCall<TestResponseHeaderT> = createFetchRequestForApi(
+    testResponseHeaderT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testMultipleSuccess: (withDefaults || identity)(testMultipleSuccess),
-    testFileUpload: (withDefaults || identity)(testFileUpload)
+    testFileUpload: (withDefaults || identity)(testFileUpload),
+    testResponseHeader: (withDefaults || identity)(testResponseHeader)
   };
 }
 "
@@ -744,7 +779,7 @@ exports[`gen-api-models should support file uploads 1`] = `
      */
 
     // Request type definition
-    export type TestFileUploadT = r.IPostApiRequestType<{readonly file: { uri: string, name: string, type: string }}, \\"Content-Type\\", never, r.IResponseType<200, undefined>>;
+    export type TestFileUploadT = r.IPostApiRequestType<{readonly file: { uri: string, name: string, type: string }}, \\"Content-Type\\", never, r.IResponseType<200, undefined, never>>;
   
       
     export const testFileUploadDefaultResponses = {
@@ -769,14 +804,60 @@ exports[`gen-api-models should support file uploads 1`] = `
 
         
     const d200 = (type[200].name === \\"undefined\\" 
-        ? r.constantResponseDecoder<undefined, 200>(200, undefined) 
-        : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"]>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
+        ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
+        : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
   
         return d200
       }
 
       // Decodes the success response with the type defined in the specs
       export const testFileUploadDefaultDecoder = () => testFileUploadDecoder();"
+`;
+
+exports[`gen-api-models should support headers in response 1`] = `
+"
+    /****************************************************************
+     * testResponseHeader
+     */
+
+    // Request type definition
+    export type TestResponseHeaderT = r.IGetApiRequestType<{}, never, never, r.IResponseType<201, Message, \\"Location\\" | \\"Id\\">|r.IResponseType<500, undefined, never>>;
+  
+      
+    export const testResponseHeaderDefaultResponses = {
+      201: Message, 500: t.undefined
+    };
+  
+      
+    export type TestResponseHeaderResponsesT<A0 = Message, C0 = Message, A1 = undefined, C1 = undefined> = {
+      201: t.Type<A0, C0>, 500: t.Type<A1, C1>
+    };
+  
+      export function testResponseHeaderDecoder<A0 = Message, C0 = Message, A1 = undefined, C1 = undefined>(overrideTypes: Partial<TestResponseHeaderResponsesT<A0, C0, A1, C1>> | t.Type<A0, C0> | undefined = {}): r.ResponseDecoder<
+    r.IResponseType<201, A0, \\"Location\\" | \\"Id\\">|r.IResponseType<500, A1, never>
+  > {
+        const isDecoder = (d: any): d is t.Type<A0, C0> =>
+          typeof d[\\"_A\\"] !== \\"undefined\\";
+
+        const type = {
+          ...(testResponseHeaderDefaultResponses as unknown as TestResponseHeaderResponsesT<A0, C0, A1, C1>),
+          ...(isDecoder(overrideTypes) ? { 201: overrideTypes } : overrideTypes)
+        };
+
+        
+    const d201 = (type[201].name === \\"undefined\\" 
+        ? r.constantResponseDecoder<undefined, 201, \\"Location\\" | \\"Id\\">(201, undefined) 
+        : r.ioResponseDecoder<201, (typeof type[201])[\\"_A\\"], (typeof type[201])[\\"_O\\"], \\"Location\\" | \\"Id\\">(201, type[201])) as r.ResponseDecoder<r.IResponseType<201, A0, \\"Location\\" | \\"Id\\">>;
+  
+    const d500 = (type[500].name === \\"undefined\\" 
+        ? r.constantResponseDecoder<undefined, 500, never>(500, undefined) 
+        : r.ioResponseDecoder<500, (typeof type[500])[\\"_A\\"], (typeof type[500])[\\"_O\\"], never>(500, type[500])) as r.ResponseDecoder<r.IResponseType<500, A1, never>>;
+  
+        return r.composeResponseDecoders(d201, d500)
+      }
+
+      // Decodes the success response with the type defined in the specs
+      export const testResponseHeaderDefaultDecoder = () => testResponseHeaderDecoder();"
 `;
 
 exports[`gen-api-models should support multiple success cases 1`] = `
@@ -786,7 +867,7 @@ exports[`gen-api-models should support multiple success cases 1`] = `
      */
 
     // Request type definition
-    export type TestMultipleSuccessT = r.IGetApiRequestType<{}, never, never, r.IResponseType<200, Message>|r.IResponseType<202, undefined>|r.IResponseType<403, OneOfTest>|r.IResponseType<404, undefined>>;
+    export type TestMultipleSuccessT = r.IGetApiRequestType<{}, never, never, r.IResponseType<200, Message, never>|r.IResponseType<202, undefined, never>|r.IResponseType<403, OneOfTest, never>|r.IResponseType<404, undefined, never>>;
   
       
     export const testMultipleSuccessDefaultResponses = {
@@ -811,20 +892,20 @@ exports[`gen-api-models should support multiple success cases 1`] = `
 
         
     const d200 = (type[200].name === \\"undefined\\" 
-        ? r.constantResponseDecoder<undefined, 200>(200, undefined) 
-        : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"]>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
+        ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
+        : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
   
     const d202 = (type[202].name === \\"undefined\\" 
-        ? r.constantResponseDecoder<undefined, 202>(202, undefined) 
-        : r.ioResponseDecoder<202, (typeof type[202])[\\"_A\\"], (typeof type[202])[\\"_O\\"]>(202, type[202])) as r.ResponseDecoder<r.IResponseType<202, A1, never>>;
+        ? r.constantResponseDecoder<undefined, 202, never>(202, undefined) 
+        : r.ioResponseDecoder<202, (typeof type[202])[\\"_A\\"], (typeof type[202])[\\"_O\\"], never>(202, type[202])) as r.ResponseDecoder<r.IResponseType<202, A1, never>>;
   
     const d403 = (type[403].name === \\"undefined\\" 
-        ? r.constantResponseDecoder<undefined, 403>(403, undefined) 
-        : r.ioResponseDecoder<403, (typeof type[403])[\\"_A\\"], (typeof type[403])[\\"_O\\"]>(403, type[403])) as r.ResponseDecoder<r.IResponseType<403, A2, never>>;
+        ? r.constantResponseDecoder<undefined, 403, never>(403, undefined) 
+        : r.ioResponseDecoder<403, (typeof type[403])[\\"_A\\"], (typeof type[403])[\\"_O\\"], never>(403, type[403])) as r.ResponseDecoder<r.IResponseType<403, A2, never>>;
   
     const d404 = (type[404].name === \\"undefined\\" 
-        ? r.constantResponseDecoder<undefined, 404>(404, undefined) 
-        : r.ioResponseDecoder<404, (typeof type[404])[\\"_A\\"], (typeof type[404])[\\"_O\\"]>(404, type[404])) as r.ResponseDecoder<r.IResponseType<404, A3, never>>;
+        ? r.constantResponseDecoder<undefined, 404, never>(404, undefined) 
+        : r.ioResponseDecoder<404, (typeof type[404])[\\"_A\\"], (typeof type[404])[\\"_O\\"], never>(404, type[404])) as r.ResponseDecoder<r.IResponseType<404, A3, never>>;
   
         return r.composeResponseDecoders(r.composeResponseDecoders(r.composeResponseDecoders(d200, d202), d403), d404)
       }

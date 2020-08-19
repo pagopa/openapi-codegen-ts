@@ -379,6 +379,23 @@ describe("gen-api-models", () => {
     }
   });
 
+  it("should support headers in response", async () => {
+    const operationInfo = parseOperation(
+      spec,
+      "/test-response-header",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
+
+    if (operationInfo) {
+      const code = renderOperation(operationInfo, true);
+      expect(code.e1).toMatchSnapshot();
+    } else {
+      fail("failed to parse operation");
+    }
+  });
+
   it("should parse operations", () => {
     const expected = [
       {
@@ -412,8 +429,8 @@ describe("gen-api-models", () => {
           }
         ],
         responses: [
-          { e1: "200", e2: "undefined" },
-          { e1: "403", e2: "undefined" }
+          { e1: "200", e2: "undefined", e3: [] },
+          { e1: "403", e2: "undefined", e3: [] }
         ],
         produces: "application/json"
       },
@@ -425,10 +442,10 @@ describe("gen-api-models", () => {
         operationId: "testMultipleSuccess",
         parameters: [],
         responses: [
-          { e1: "200", e2: "Message" },
-          { e1: "202", e2: "undefined" },
-          { e1: "403", e2: "OneOfTest" },
-          { e1: "404", e2: "undefined" }
+          { e1: "200", e2: "Message", e3: [] },
+          { e1: "202", e2: "undefined", e3: [] },
+          { e1: "403", e2: "OneOfTest", e3: [] },
+          { e1: "404", e2: "undefined", e3: [] }
         ],
         produces: "application/json"
       },
@@ -445,8 +462,21 @@ describe("gen-api-models", () => {
             in: "formData"
           }
         ],
-        responses: [{ e1: "200", e2: "undefined" }],
+        responses: [{ e1: "200", e2: "undefined", e3: [] }],
         consumes: "multipart/form-data",
+        produces: "application/json"
+      },
+      {
+        path: "/test-response-header",
+        headers: [],
+        importedTypes: new Set(["Message"]),
+        method: "get",
+        operationId: "testResponseHeader",
+        parameters: [],
+        responses: [
+          { e1: "201", e2: "Message", e3: ["Location", "Id"] },
+          { e1: "500", e2: "undefined", e3: [] }
+        ],
         produces: "application/json"
       }
     ];
