@@ -63,6 +63,22 @@ paths:
       responses:
         "200":
           description: "File uploaded"
+  /test-response-header:
+    get:
+      operationId: "testResponseHeader"
+      responses:
+        "201":
+          description: "Will create a Message"
+          schema:
+            $ref: "#/definitions/Message"
+          headers:
+            Location:
+              type: string
+            Id:
+              type: string
+        "500":
+          description: "Fatal error"
+
 definitions:
   AllOfTest:
     allOf:
