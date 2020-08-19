@@ -5,7 +5,12 @@ import {
   DEFAULT_TEMPLATE_DIR
 } from "../../lib/templating";
 import { bundleApiSpec } from "../bundle-api-spec";
-import { IGenerateSdkOptions } from "./types";
+import {
+  IGenerateSdkOptions,
+  IGeneratorParams,
+  IPackageAttributes,
+  IRegistryAttributes
+} from "./types";
 
 const { render } = createTemplateEnvironment({
   templateDir: `${DEFAULT_TEMPLATE_DIR}/sdk`
@@ -16,8 +21,17 @@ const { render } = createTemplateEnvironment({
  * @param options
  */
 export async function generateSdk(options: IGenerateSdkOptions) {
-  const files = await listTemplates();
-  const renderedFiles = await renderAll(files, options);
+  const { inferAttr, ...params } = options;
+
+  await fs.ensureDir(params.outPath);
+
+  const templateParams: IPackageAttributes &
+    IRegistryAttributes &
+    IGeneratorParams = inferAttr
+    ? mergeParams(await inferAttributesFromPackage(), params)
+    : params;
+
+  const renderedFiles = await renderAll(listTemplates(), templateParams);
   await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
   await generateApi({
     camelCasedPropNames: options.camelCasedPropNames,
@@ -35,7 +49,40 @@ export async function generateSdk(options: IGenerateSdkOptions) {
   });
 }
 
-async function listTemplates(): Promise<string[]> {
+async function inferAttributesFromPackage(): Promise<
+  IPackageAttributes & IRegistryAttributes
+> {
+  const pkg = await fs
+    .readFile(`${process.cwd()}/package.json`)
+    .then(String)
+    .then(JSON.parse)
+    .catch(ex => {
+      throw new Error(
+        `Failed to read package.json from the current directory: ${ex}`
+      );
+    });
+  return {
+    name: `${pkg.name}-sdk`,
+    version: pkg.version,
+    description: `Generated SDK for ${pkg.name}. ${pkg.description}`,
+    author: pkg.author,
+    license: pkg.license,
+    registry: pkg.publishConfig?.registry,
+    access: pkg.publishConfig?.access
+  };
+}
+
+function mergeParams<A extends object, B extends object>(a: A, b: B): any {
+  return Object.keys({ ...a, ...b }).reduce(
+    (p: object, k: string) => ({
+      ...p,
+      [k]: b[k as keyof B] || a[k as keyof A]
+    }),
+    {}
+  );
+}
+
+function listTemplates(): string[] {
   return ["package.json.njk", "tsconfig.json.njk", "index.ts.njk"];
 }
 
@@ -45,7 +92,7 @@ async function listTemplates(): Promise<string[]> {
  */
 export async function renderAll(
   files: ReadonlyArray<string>,
-  options?: object
+  options: IPackageAttributes & IRegistryAttributes & IGeneratorParams
 ): Promise<Record<string, string>> {
   const allContent = await Promise.all(
     files.map(file => render(file, options))
