@@ -11,9 +11,17 @@ const PACKAGE_GROUP = "Package options:";
 const CODE_GROUP = "Code generation options:";
 
 const argv = yargs
+
+  .option("no-infer-attrs", {
+    alias: ["N"],
+    boolean: true,
+    description:
+      "Infer package attributes from a package.json file present in the current directory",
+    group: PACKAGE_GROUP,
+    default: false
+  })
   .option("package-name", {
     alias: ["n", "name"],
-    demandOption: true,
     description: "Name of the generated package",
     normalize: true,
     string: true,
@@ -21,18 +29,35 @@ const argv = yargs
   })
   .option("package-version", {
     alias: "V",
-    demandOption: true,
     description: "Version of the generated package",
     string: true,
     group: PACKAGE_GROUP
   })
   .option("package-description", {
     alias: ["d", "desc"],
-    demandOption: true,
     description: "Description of the package",
     string: true,
     group: PACKAGE_GROUP
   })
+  .option("package-author", {
+    alias: ["a", "author"],
+    description: "The author of the API exposed",
+    string: true,
+    group: PACKAGE_GROUP
+  })
+  .option("package-license", {
+    alias: ["L", "license"],
+    description: "The license of the API Exposed",
+    string: true,
+    group: PACKAGE_GROUP
+  })
+  .implies("no-infer-attrs", [
+    "package-name",
+    "package-version",
+    "package-description",
+    "package-author",
+    "package-license"
+  ])
   .option("package-registry", {
     alias: ["r", "registry"],
     description: "Url of the registry the package is published in",
@@ -48,20 +73,6 @@ const argv = yargs
     group: PACKAGE_GROUP
   })
   .implies("package-registry", "package-access")
-  .option("package-author", {
-    alias: ["a", "author"],
-    demandOption: true,
-    description: "The author of the API exposed",
-    string: true,
-    group: PACKAGE_GROUP
-  })
-  .option("package-license", {
-    alias: ["L", "license"],
-    demandOption: true,
-    description: "The license of the API Exposed",
-    string: true,
-    group: PACKAGE_GROUP
-  })
   .option("api-spec", {
     alias: "i",
     demandOption: true,
@@ -113,6 +124,7 @@ const argv = yargs
 //
 generateSdk({
   camelCasedPropNames: argv["camel-cased"],
+  inferAttr: !argv["no-infer-attr"],
   name: argv["package-name"],
   version: argv["package-version"],
   description: argv["package-description"],
