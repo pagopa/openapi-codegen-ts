@@ -451,6 +451,7 @@
     nunjucks "^3.1.2"
     prettier "^1.12.1"
     swagger-parser "^7.0.0"
+    write-yaml-file "^4.1.0"
     yargs "^11.1.0"
 
 "@sinonjs/commons@^1.7.0":
@@ -1947,6 +1948,11 @@ globals@^11.1.0:
   version "11.12.0"
   resolved "https://registry.yarnpkg.com/globals/-/globals-11.12.0.tgz#ab8795338868a0babd8525758018c2a7eb95c42e"
   integrity sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==
+
+graceful-fs@^4.1.11:
+  version "4.2.4"
+  resolved "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.4.tgz#2256bde14d3632958c465ebc96dc467ca07a29fb"
+  integrity sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw==
 
 graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.3:
   version "4.2.3"
@@ -4736,6 +4742,15 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
+write-file-atomic@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.npmjs.org/write-file-atomic/-/write-file-atomic-2.4.3.tgz#1fd2e9ae1df3e75b8d8c367443c692d4ca81f481"
+  integrity sha512-GaETH5wwsX+GcnzhPgKcKjJ6M2Cq3/iZp1WyY/X1CSqrW+jVNM9Y7D8EC2sM4ZG/V8wZlSniJnCKWPmBYAucRQ==
+  dependencies:
+    graceful-fs "^4.1.11"
+    imurmurhash "^0.1.4"
+    signal-exit "^3.0.2"
+
 write-file-atomic@^3.0.0:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/write-file-atomic/-/write-file-atomic-3.0.3.tgz#56bd5c5a5c70481cd19c571bd39ab965a5de56e8"
@@ -4745,6 +4760,15 @@ write-file-atomic@^3.0.0:
     is-typedarray "^1.0.0"
     signal-exit "^3.0.2"
     typedarray-to-buffer "^3.1.5"
+
+write-yaml-file@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/write-yaml-file/-/write-yaml-file-4.1.0.tgz#8a8af90b608b0e0a91d7b1fc67d1c5f06d8092f0"
+  integrity sha512-jN421OlwO/MN/EwAykk5ic8AL9QAycpKGaHKFBlcr3aQ6RUX8ZbrreOPUuhoYSxj/o30FhOQLSH36WYldAFrUw==
+  dependencies:
+    graceful-fs "^4.2.3"
+    js-yaml "^3.13.1"
+    write-file-atomic "^2.4.3"
 
 ws@^7.0.0:
   version "7.2.3"
