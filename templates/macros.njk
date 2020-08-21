@@ -452,77 +452,40 @@
 {% endif %}
 {% endmacro %}
 
-
-
 {##
- # Given a MIME type, it renders an header producer that sets the Content-Type header
- # example: "application/json" -> () => ({ "Content-Type": "application/json" })
- #}
-{% macro contentTypeProducer(mimeType) -%}() => ({ "Content-Type": "{{ mimeType }}" }){% endmacro %}
-
-{##
- # Given an IHeaderParamenterInfo, it renders an header producer that links the parameter name with expected header
- # example: { name: 'token', headerName: 'Authorization' } -> ({ token }) => ({ "Authorization": token })
- #}
-{% macro headerProducer(headerParam) -%}({ {{headerParam.name}} }: { {{headerParam.name}}:{{headerParam.type}} }) => ({ "{{headerParam.headerName}}": {{ tokenize(headerParam) }} }){% endmacro %}
-
-{##
- # Given an array of IHeaderParamenterInfo, it renders the composition of each header producer
+ # Given an array of IHeaderParamenterInfo, it renders a header producer that compose params into the desired set of headers
  # It also takes an optional "consumes" parameter, which is a MIME type for which eventualy generate a header producer
  # example: 
  # [ { name: 'token', headerName: 'Authorization' },
  #   { name: 'limit', headerName: 'x-page-limit' },
  #   { name: 'offset', headerName: 'x-page-offset' }]
- #    -> composeHeaderProducers(
- #        ({ token }) => ({ "Authorization": token })),
- #        composeHeaderProducers(
- #          ({ limit }) => ({ "x-page-limit": limit })),
- #          ({ offset }) => ({ "x-page-offset": offset }))
- #        )
- #      )
- # example: 
- # [ { name: 'token', headerName: 'Authorization' }, 
+ #    -> ({ token, limit, offset }) => ({ 
+ #           "Authorization": token,
+ #           "x-page-limit": limit,
+ #           "x-page-offset": offset
+ #       })
+ #
+ # example (with consumes):
+ # [ { name: 'token', headerName: 'Authorization' },
  #   { name: 'limit', headerName: 'x-page-limit' }],
  # "application/json"
- #    -> composeHeaderProducers(
- #        ({ token }) => ({ "Authorization": token })),
- #        composeHeaderProducers(
- #          ({ limit }) => ({ "x-page-limit": limit })),
- #          () => ({ "Content-Type": "application/json" }))
- #        )
- #      )
+ #    -> ({ token, limit, offset }) => ({ 
+ #           "Authorization": token,
+ #           "x-page-limit": limit,
+ #           "Content-Type": "application/json"
+ #       })
+ #
  #}
 {% macro composedHeaderProducers(headerParams, consumes) -%}
-  {% set param = headerParams | first %}
-  {% set rest = headerParams | tail %}
-
-  {% if not rest.length and param and consumes %}
-  composeHeaderProducers(
-    {{ headerProducer(param) }},
-    {{ contentTypeProducer(consumes) }}
-  )
-  {% elif rest.length and param and consumes %}
-  composeHeaderProducers(
-    {{ headerProducer(param) }},
-    {{ composedHeaderProducers(rest, consumes) }}
-  )
-  {% elif not rest.length and not param and consumes %}
-  {{ contentTypeProducer(consumes) }}
-  {% elif not rest.length and param and not consumes %}
-  {{ headerProducer(param) }}
-  {% elif rest.length === 1 and param and not consumes %}
-  composeHeaderProducers(
-    {{ headerProducer(param) }},
-    {{ headerProducer(rest[0]) }}
-  )
-  {% elif rest.length > 1 and param and not consumes %}
-  composeHeaderProducers(
-    {{ headerProducer(param) }},
-    {{ composedHeaderProducers(rest, consumes) }}
-  )
-  {% else %}
-  () => ({})
-  {% endif %}
+  (
+    {% if headerParams.length  %}
+    { {% for p in headerParams %}{{p.name}},{% endfor %} }: 
+    { {% for p in headerParams %}{{p.name}}:{{p.type}};{% endfor %} }
+    {% endif %}
+  ) => ({
+    {% for p in headerParams %}"{{p.headerName}}": {{ tokenize(p) }},{% endfor %}
+    {% if consumes %}"Content-Type": "{{ consumes }}"{% endif %}
+  })
 {% endmacro %}
 
 {##
