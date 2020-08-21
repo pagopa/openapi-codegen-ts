@@ -47,6 +47,7 @@ export default async () => {
       (skipGeneration
         ? noopTE
         : tsGenerateApi({
+            camelCasedPropNames: false,
             definitionsDirPath: generatedFilesDir,
             generateClient: true,
             specFilePath: url,
@@ -58,7 +59,7 @@ export default async () => {
   const startedAt = Date.now();
   return array
     .sequence(taskEither)(tasks)
-    .orElse((e: Error) => {
+    .orElse((e) => {
       throw e;
     })
     .run()
