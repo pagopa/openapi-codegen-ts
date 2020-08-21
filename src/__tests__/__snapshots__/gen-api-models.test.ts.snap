@@ -662,7 +662,6 @@ export function createClient<K extends ParamKeys>({
     headers: ({ bearerToken }: { bearerToken: string }) => ({
       Authorization: \`Bearer \${bearerToken}\`
     }),
-
     response_decoder: testAuthBearerDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-auth-bearer\`,
 
@@ -697,8 +696,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"post\\",
 
-    headers: () => ({ \\"Content-Type\\": \\"multipart/form-data\\" }),
-
+    headers: () => ({
+      \\"Content-Type\\": \\"multipart/form-data\\"
+    }),
     response_decoder: testFileUploadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-file-upload\`,
 
