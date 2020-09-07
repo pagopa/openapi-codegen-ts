@@ -220,3 +220,10 @@ Run test over generated files
 ```sh
 yarn e2e
 ```
+
+## Migration from version 4.x
+Generated code is slightly different from `v4` as it implements some bug fixes that result in breaking changes. Here's a list of what to be aware of:
+* On request type definitions, parameters are named after the `name` field in the spec. This applies to both local and global parameters. In the previous version, this used to be true only for local ones, while global parameters were named after the parameter's definition name. 
+* The above rule doesn't apply to headers: in case of a security definition or a global parameter which has `in: header`, the definition name is considered, as the `name` attribute refers to the actual header name to be used as for OpenApi specification.
+* Attributes with `type: string` and `format: date` used to result in a `String` definition, while now produce `Date`.
+* Generated decoders now support multiple success codes (i.e. 200 and 202), so we don't need to write custom decoders for such case as [we used to do](https://github.com/pagopa/io-backend/compare/174376802-experiment-with-sdk?expand=1#diff-cf7a83babfaf6e5babe84dffe22f64e4L81). 
