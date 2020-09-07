@@ -6,7 +6,7 @@ Digital Citizenship initiative.
 To add the tools to a project:
 
 ```sh
-$ yarn add -D io-utils
+$ yarn add -D italia-utils
 ```
 ## important: check your openapi spec
 If you need to keep the references between the generated classes, the specification file must contain all the schema definitions. See example below.
