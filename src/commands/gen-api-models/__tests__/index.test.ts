@@ -6,10 +6,12 @@ import * as SwaggerParser from "swagger-parser";
 import {
   parseAllOperations,
   parseOperation,
+} from "../parse";
+import {
   renderClientCode,
   renderDefinitionCode,
   renderOperation
-} from "../commands/gen-api-models/index";
+} from "../render";
 
 let spec: OpenAPIV2.Document;
 beforeAll(
@@ -339,7 +341,7 @@ describe("gen-api-models", () => {
 
     if (operationInfo) {
       const code = renderOperation(operationInfo, true);
-      expect(code.e1).toMatchSnapshot();
+      expect(code).toMatchSnapshot();
     } else {
       fail("failed to parse operation");
     }
@@ -356,7 +358,7 @@ describe("gen-api-models", () => {
 
     if (operationInfo) {
       const code = renderOperation(operationInfo, true);
-      expect(code.e1).toMatchSnapshot();
+      expect(code).toMatchSnapshot();
     } else {
       fail("failed to parse operation");
     }
@@ -373,7 +375,7 @@ describe("gen-api-models", () => {
 
     if (operationInfo) {
       const code = renderOperation(operationInfo, true);
-      expect(code.e1).toMatchSnapshot();
+      expect(code).toMatchSnapshot();
     } else {
       fail("failed to parse operation");
     }
@@ -390,7 +392,7 @@ describe("gen-api-models", () => {
 
     if (operationInfo) {
       const code = renderOperation(operationInfo, true);
-      expect(code.e1).toMatchSnapshot();
+      expect(code).toMatchSnapshot();
     } else {
       fail("failed to parse operation");
     }
