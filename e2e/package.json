@@ -20,7 +20,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@pagopa/io-utils": "file:../",
+    "italia-utils": "file:../",
     "fp-ts": "1.12.0",
     "io-ts": "1.8.5",
     "italia-ts-commons": "^5.1.13"
