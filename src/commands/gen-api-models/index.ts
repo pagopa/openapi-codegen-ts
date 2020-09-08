@@ -176,7 +176,7 @@ const parseParameter = (
       type: specTypeToTs(param.type)
     };
   }
-  // Paratemer is declared as ref, we need to look it up
+  // Parameter is declared as ref, we need to look it up
   const refInParam: string | undefined =
     param.$ref || (param.schema ? param.schema.$ref : undefined);
 
