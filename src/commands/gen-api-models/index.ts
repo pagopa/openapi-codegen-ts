@@ -160,10 +160,34 @@ const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
  * Parse a request parameter into an IParameterInfo structure.
  * The function has the curried form (specParameters, operationId) -> (param) -> IParameterInfo
  * @param specParameters spec's global parameters
- * @param operationId the identifier for the operation
+ * @param operationId the identifier for the operation. Used for logging purpose
  * @param param the request parameter to parse
  *
  * @returns a struct describing the parameter
+ * 
+ * @example 
+ * // The param is defined inline in the operation
+ * ({}, 'myOperationId') -> 
+ *   ({ name: 'qo', in: 'query', required: false, type: 'string' }) ->
+ *    { name: 'qo?', in: 'query', type: 'string' }
+ * @example 
+ * // The param is defined as a reference to a global definition
+ * ({}, 'myOperationId') -> 
+ *   ({
+ *     in: 'body',
+ *     name: 'body',
+ *     schema: { '$ref': '#/definitions/MySchema' },
+ *     required: true 
+ *   }) ->
+ *    { name: 'MySchema', type: 'MySchema', in: 'body' }
+ * @example 
+ * // The param is a reference to a global parameter
+ * (
+ *  { PaginationRequest: { name: 'cursor', in: 'query', type: 'string' } },
+ *  'myOperationId'
+ * ) -> 
+ *   ({ '$ref': '#/parameters/PaginationRequest' }) ->
+ *    { name: 'cursor?', type: 'string', in: 'query' }
  */
 const parseParameter = (
   specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
@@ -249,6 +273,12 @@ const pick = <K extends string, T extends Record<K, any>>(field: K) => (
  * @param parameters
  *
  * @returns a set of definitions to be imported
+ * 
+ * @example
+ * ([
+ *  {"in":"body","name":"body","schema":{"$ref":"#/definitions/MySchema"},"required":true},
+ *  {"$ref":"#/parameters/MyParam"}
+ * ]) -> Set { 'MySchema' }
  */
 const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
   new Set(
