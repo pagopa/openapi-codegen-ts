@@ -1,8 +1,8 @@
-import { renderAll } from "../commands/gen-api-sdk/index";
+import { renderAll } from "../index";
 import {
   IGeneratorParams,
   IPackageAttributes
-} from "../commands/gen-api-sdk/types";
+} from "../types";
 
 describe("gen-api-skd", () => {
   it("should render multiple templates", async () => {
