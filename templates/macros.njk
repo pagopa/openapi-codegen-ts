@@ -404,3 +404,92 @@
 
   {% endif %}
 {% endmacro -%}
+
+{##
+ # The composed request param type associated to an operation
+ # example: { operationId: "myOp", ...rest } -> ReplaceRequestParams<MyOp,RequestParams<MyOp>>
+ #}
+{% macro requestParamsType(operation) -%}ReplaceRequestParams<{{ requestTypeName(operation) }},RequestParams<{{ requestTypeName(operation) }}>>{% endmacro %}
+
+{##
+ # The request type derived from operation data
+ #}
+{% macro requestTypeName(operation) -%}{{ operation.operationId | capitalizeFirst }}T{% endmacro %}
+
+{##
+ # The respose decoder name derived from operation data
+ #}
+{% macro responseDecoderName(operation) -%}{{ operation.operationId }}DefaultDecoder{% endmacro %}
+
+{##
+ # Given a path with parameters, it returns the path as a string template
+ # example: /pet/{petId} -> /pet/${petId}
+ #}
+{% macro pathStringToTemplateString(path) -%}{{ path | replace("{", "${")}}{% endmacro %}
+
+{##
+ # Wraps an expression into "${" and "}" in string template literals. It is needed to escape the brackets usage in nunjucks
+ # example: "foo" -> ${foo}
+#}
+{% macro $(str) -%}{% raw %}${{% endraw %}{{str}}{% raw %}}{% endraw %}{% endmacro %}
+
+
+{##
+ # Given an IAuthHeaderParamenterInfo, it renders token in the form expected by its type
+ # example: { name: 'token', headerName: 'Authorization', tokenType: 'apiKey' } -> `Bearer ${token}`
+ # example: { name: 'token', headerName: 'Authorization', tokenType: 'basic' } -> `Basic ${token}`
+ # example: { name: 'token', headerName: 'Authorization' } -> token
+ #}
+{% macro tokenize(headerParam) -%}
+{% if headerParam.tokenType === "apiKey" %}
+`Bearer {{ $(headerParam.name) }}`
+{% elif headerParam.tokenType === "oauth" %}
+`Bearer {{ $(headerParam.name) }}`
+{% elif headerParam.tokenType === "basic" %}
+`Basic {{ $(headerParam.name) }}
+`{% else %}
+{{ headerParam.name }}
+{% endif %}
+{% endmacro %}
+
+{##
+ # Given an array of IHeaderParamenterInfo, it renders a header producer that compose params into the desired set of headers
+ # It also takes an optional "consumes" parameter, which is a MIME type for which eventualy generate a header producer
+ # example: 
+ # [ { name: 'token', headerName: 'Authorization' },
+ #   { name: 'limit', headerName: 'x-page-limit' },
+ #   { name: 'offset', headerName: 'x-page-offset' }]
+ #    -> ({ token, limit, offset }) => ({ 
+ #           "Authorization": token,
+ #           "x-page-limit": limit,
+ #           "x-page-offset": offset
+ #       })
+ #
+ # example (with consumes):
+ # [ { name: 'token', headerName: 'Authorization' },
+ #   { name: 'limit', headerName: 'x-page-limit' }],
+ # "application/json"
+ #    -> ({ token, limit, offset }) => ({ 
+ #           "Authorization": token,
+ #           "x-page-limit": limit,
+ #           "Content-Type": "application/json"
+ #       })
+ #
+ #}
+{% macro composedHeaderProducers(headerParams, consumes) -%}
+  (
+    {% if headerParams.length  %}
+    { {% for p in headerParams %}{{p.name}},{% endfor %} }: 
+    { {% for p in headerParams %}{{p.name}}:{{p.type}};{% endfor %} }
+    {% endif %}
+  ) => ({
+    {% for p in headerParams %}"{{p.headerName}}": {{ tokenize(p) }},{% endfor %}
+    {% if consumes %}"Content-Type": "{{ consumes }}"{% endif %}
+  })
+{% endmacro %}
+
+{##
+ # Given an IHeaderParamenterInfo, it renders an header producer that links the parameter name with expected header
+ # example: { name: 'token', headerName: 'Authorization' } -> ({ token }) => ({ "Authorization": token })
+ #}
+{% macro requestParamsType(operation) -%}ReplaceRequestParams<{{ requestTypeName(operation) }},RequestParams<{{ requestTypeName(operation) }}>>{% endmacro %}
