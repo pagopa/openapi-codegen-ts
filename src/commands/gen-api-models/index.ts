@@ -113,7 +113,7 @@ function specTypeToTs(t: string): string {
 }
 
 /**
- * Renders the responde decoder associated to the given type.
+ * Renders the response decoder associated to the given type.
  * Response types refer to io-ts-commons (https://github.com/pagopa/io-ts-commons/blob/master/src/requests.ts)
  * @param param0.status http status code the decoder is associated with
  * @param param0.type type to be decoded
