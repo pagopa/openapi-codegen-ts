@@ -4,7 +4,7 @@
  *  - it runs mock servers
  */
 
-import { generateApi } from "@pagopa/io-utils";
+import { generateApi } from "italia-utils";
 import { array } from "fp-ts/lib/Array";
 import { task } from "fp-ts/lib/Task";
 import { right, taskEither, tryCatch } from "fp-ts/lib/TaskEither";
@@ -14,11 +14,6 @@ import { startMockServer } from "./server";
 
 const noopTE = right<Error, undefined>(task.of(undefined));
 
-const tsEnsureDir = (dir: string) =>
-  tryCatch(
-    () => ensureDir(dir),
-    () => new Error(`cannot create dir ${dir}`)
-  );
 const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
   tryCatch(
     () => generateApi(...p),
