@@ -235,7 +235,7 @@ const parseParameter = (
 };
 
 /**
- * Pich a field from an object
+ * Pick a field from an object
  * @param field field to pick
  * @param elem the base object
  */
