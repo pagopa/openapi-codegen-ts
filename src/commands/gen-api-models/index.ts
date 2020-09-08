@@ -140,7 +140,7 @@ function getDecoderForResponse(
 
 /**
  * Given a request param, parses its schema reference, if any
- * @param param a requeste parameter
+ * @param param a request parameter
  *
  * @returns an ITuple<refType, refName> if the paramenter has a reference, undefined otherwise
  */
