@@ -142,7 +142,7 @@ function getDecoderForResponse(
  * Given a request param, parses its schema reference, if any
  * @param param a request parameter
  *
- * @returns an ITuple<refType, refName> if the paramenter has a reference, undefined otherwise
+ * @returns an ITuple<refType, refName> if the parameter has a reference, undefined otherwise
  */
 const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
   if (typeof param === "undefined") {
