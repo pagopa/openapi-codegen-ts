@@ -32,7 +32,7 @@ describeSuite("Http client generated from Test API spec", () => {
       bearerToken: "acb123",
       qr: "acb123"
     });
-    expect(isRight(result)).toBe(false);
+    expect(isRight(result)).toBe(true);
   });
 
   it("should make a call, with default parameters", async () => {
@@ -49,6 +49,6 @@ describeSuite("Http client generated from Test API spec", () => {
     const result = await client.testAuthBearer({
       qr: "acb123"
     });
-    expect(isRight(result)).toBe(false);
+    expect(isRight(result)).toBe(true);
   });
 });
