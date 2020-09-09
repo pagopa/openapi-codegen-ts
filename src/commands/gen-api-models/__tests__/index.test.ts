@@ -494,4 +494,75 @@ describe("gen-api-models", () => {
 
     expect(code).toMatchSnapshot();
   });
+
+  it("should parse external definitions and their dependencies when they are NOT referenced in the spec", async () => {
+    // Person is defined in an external defintion file
+    const { Person } = spec.definitions || {};
+    
+    // Person is referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    expect(Person).toEqual({
+      type: "object",
+      properties:  expect.any(Object)
+    });
+
+    // address is defined by Address, which is not referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    // There's no reference to "Address" definition name anymore
+    expect(Person?.properties?.address).toEqual({
+      type: "object",
+      properties: {
+        location: expect.any(Object),
+        city: expect.any(Object),
+        zipCode: expect.any(Object)
+      }
+    });
+
+    // zipCode is defined by ZipCode, which is not referenced by the spec
+    // ZipCode is a dependency of Address and it's local to it in the external definition file
+    // It's resolved by including its properties as literal value of the parsed definition object
+    // There's no reference to "ZipCode" definition name anymore
+    expect(Person?.properties?.address?.properties?.zipCode).toEqual(
+      expect.objectContaining({
+        pattern: expect.any(String),
+        type: "string"
+      })
+    );
+  });
+
+  it("should parse external definitions and their dependencies when they are referenced in the spec", async () => {
+    // Book is defined in an external defintion file
+    const { Book } = spec.definitions || {};
+    
+    // Book is referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    expect(Book).toEqual({
+      type: "object",
+      properties: expect.any(Object)
+    });
+
+    // author is defined by Author which is not referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    // There's no reference to "Author" definition name anymore
+    expect(Book?.properties?.author?.allOf).toEqual(
+      expect.arrayContaining([
+        {
+          type: "object",
+          properties: {
+            isDead: expect.any(Object)
+          }
+        }
+      ])
+    );
+
+    // Person is a dependency of Author which is already referenced by the spec
+    // Its definition name is preserved as its properties can be obtained with spec.definitions.Person
+    expect(Book?.properties?.author?.allOf).toEqual(
+      expect.arrayContaining([
+        {
+          $ref: "#/definitions/Person"
+        }
+      ])
+    );
+  });
 });
