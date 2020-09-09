@@ -496,7 +496,7 @@ describe("gen-api-models", () => {
   });
 
   it("should parse external definitions and their dependencies when they are NOT referenced in the spec", async () => {
-    // Person is defined in an external defintion file
+    // Person, Address and ZipCode are defined in an external defintion file
     const { Person, Address, ZipCode } = spec.definitions || {};
     
     // Person is referenced by the spec
@@ -535,7 +535,7 @@ describe("gen-api-models", () => {
   });
 
   it("should parse external definitions and their dependencies when they are referenced in the spec", async () => {
-    // Book is defined in an external defintion file
+    // Book, Author and Person are defined in an external defintion file
     const { Book, Author, Person } = spec.definitions || {};
     
     // Book is referenced by the spec
