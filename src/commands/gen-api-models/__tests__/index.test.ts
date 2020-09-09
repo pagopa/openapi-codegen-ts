@@ -497,7 +497,7 @@ describe("gen-api-models", () => {
 
   it("should parse external definitions and their dependencies when they are NOT referenced in the spec", async () => {
     // Person is defined in an external defintion file
-    const { Person } = spec.definitions || {};
+    const { Person, Address, ZipCode } = spec.definitions || {};
     
     // Person is referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
@@ -517,6 +517,8 @@ describe("gen-api-models", () => {
         zipCode: expect.any(Object)
       }
     });
+    // there's no definition for Address
+    expect(Address).not.toBeDefined();
 
     // zipCode is defined by ZipCode, which is not referenced by the spec
     // ZipCode is a dependency of Address and it's local to it in the external definition file
@@ -528,11 +530,13 @@ describe("gen-api-models", () => {
         type: "string"
       })
     );
+    // there's no definition for ZipCode
+    expect(ZipCode).not.toBeDefined();
   });
 
   it("should parse external definitions and their dependencies when they are referenced in the spec", async () => {
     // Book is defined in an external defintion file
-    const { Book } = spec.definitions || {};
+    const { Book, Author, Person } = spec.definitions || {};
     
     // Book is referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
@@ -554,6 +558,8 @@ describe("gen-api-models", () => {
         }
       ])
     );
+    // there's no definition for Author
+    expect(Author).not.toBeDefined();
 
     // Person is a dependency of Author which is already referenced by the spec
     // Its definition name is preserved as its properties can be obtained with spec.definitions.Person
@@ -564,5 +570,7 @@ describe("gen-api-models", () => {
         }
       ])
     );
+    // there's a definition for Person
+    expect(Person).toBeDefined();
   });
 });
