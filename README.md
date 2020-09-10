@@ -221,6 +221,10 @@ Run test over generated files
 yarn e2e
 ```
 
+## Known issues, tradeoffs and throubleshooting
+### A model file for a definition is not generated
+When using `gen-api-models` against a specification file which references an external definition file, some of such remote definitions do not result in a dedicated model file. This is somehow intended and the rationale is explained [here](https://github.com/pagopa/io-utils/pull/197). Quick takeaway is that to have a definition to result in a model file, it must be explicitly referenced by the specification file.
+
 ## Migration from version 4.x
 Generated code is slightly different from `v4` as it implements some bug fixes that result in breaking changes. Here's a list of what to be aware of:
 * On request type definitions, parameters are named after the `name` field in the spec. This applies to both local and global parameters. In the previous version, this used to be true only for local ones, while global parameters were named after the parameter's definition name. 
