@@ -665,7 +665,9 @@ import {
   TestFileUploadT,
   testFileUploadDefaultDecoder,
   TestResponseHeaderT,
-  testResponseHeaderDefaultDecoder
+  testResponseHeaderDefaultDecoder,
+  TestParameterWithReferenceT,
+  testParameterWithReferenceDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -677,12 +679,14 @@ type __UNDEFINED_KEY = \\"_____\\";
 export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestMultipleSuccessT> &
   TypeofApiCall<TestFileUploadT> &
-  TypeofApiCall<TestResponseHeaderT>;
+  TypeofApiCall<TestResponseHeaderT> &
+  TypeofApiCall<TestParameterWithReferenceT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestMultipleSuccessT> &
   TypeofApiParams<TestFileUploadT> &
-  TypeofApiParams<TestResponseHeaderT>);
+  TypeofApiParams<TestResponseHeaderT> &
+  TypeofApiParams<TestParameterWithReferenceT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -709,7 +713,8 @@ export type WithDefaultsT<
   | TestAuthBearerT
   | TestMultipleSuccessT
   | TestFileUploadT
-  | TestResponseHeaderT,
+  | TestResponseHeaderT
+  | TestParameterWithReferenceT,
   K
 >;
 
@@ -728,6 +733,10 @@ export type Client<
       readonly testFileUpload: TypeofApiCall<TestFileUploadT>;
 
       readonly testResponseHeader: TypeofApiCall<TestResponseHeaderT>;
+
+      readonly testParameterWithReference: TypeofApiCall<
+        TestParameterWithReferenceT
+      >;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -755,6 +764,13 @@ export type Client<
         ReplaceRequestParams<
           TestResponseHeaderT,
           Omit<RequestParams<TestResponseHeaderT>, K>
+        >
+      >;
+
+      readonly testParameterWithReference: TypeofApiCall<
+        ReplaceRequestParams<
+          TestParameterWithReferenceT,
+          Omit<RequestParams<TestParameterWithReferenceT>, K>
         >
       >;
     };
@@ -876,11 +892,35 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testParameterWithReferenceT: ReplaceRequestParams<
+    TestParameterWithReferenceT,
+    RequestParams<TestParameterWithReferenceT>
+  > = {
+    method: \\"post\\",
+
+    headers: () => ({
+      \\"Content-Type\\": \\"application/json\\"
+    }),
+    response_decoder: testParameterWithReferenceDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-parameter-with-reference\`,
+
+    body: ({ message }) => JSON.stringify(message),
+
+    query: () => ({})
+  };
+  const testParameterWithReference: TypeofApiCall<TestParameterWithReferenceT> = createFetchRequestForApi(
+    testParameterWithReferenceT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testMultipleSuccess: (withDefaults || identity)(testMultipleSuccess),
     testFileUpload: (withDefaults || identity)(testFileUpload),
-    testResponseHeader: (withDefaults || identity)(testResponseHeader)
+    testResponseHeader: (withDefaults || identity)(testResponseHeader),
+    testParameterWithReference: (withDefaults || identity)(
+      testParameterWithReference
+    )
   };
 }
 "
