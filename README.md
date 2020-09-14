@@ -228,6 +228,7 @@ Generated code is slightly different from `v4` as it implements some bug fixes t
 * The above rule doesn't apply to headers: in case of a security definition or a global parameter which has `in: header`, the definition name is considered, as the `name` attribute refers to the actual header name to be used as for OpenApi specification.
 * Generated decoders now support multiple success codes (i.e. 200 and 202), so we don't need to write custom decoders for such case as [we used to do](https://github.com/pagopa/io-backend/compare/174376802-experiment-with-sdk?expand=1#diff-cf7a83babfaf6e5babe84dffe22f64e4L81). 
 * When using `gen-api-models` command, `--request-types` flag must be used explicitly in order to have `requestTypes` file generated.
+* Parameters that has a schema reference (like [this](https://github.com/pagopa/io-utils/blob/491d927ff263863bda9038fffa26442050b788e7/__mocks__/api.yaml#L87)) now use the `name` attribute as the parameter name. It used to be the lower-cased reference's name instead.
 #### from 4.0.0 to 4.3.0
 * Attributes with `type: string` and `format: date` used to result in a `String` definition, while now produce `Date`. [#184](https://github.com/pagopa/io-utils/pull/184)
 * Allow camel-cased prop names. [#183](https://github.com/pagopa/io-utils/pull/183)
