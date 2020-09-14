@@ -1,3 +1,4 @@
+import { object } from "io-ts";
 /* tslint:disable:no-duplicate-string */
 
 import { OpenAPIV2 } from "openapi-types";
@@ -518,5 +519,74 @@ describe("gen-api-models", () => {
     const code = await renderClientCode(spec, allOperations);
 
     expect(code).toMatchSnapshot();
+  });
+
+  it("should parse external definitions and their dependencies when they are NOT referenced in the spec", async () => {
+    // Person, Address and ZipCode are defined in an external defintion file
+    const { Person, Address, ZipCode } = spec.definitions || {};
+    
+    // Person is referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    expect(Person).toEqual({
+      type: "object",
+      properties:  expect.any(Object)
+    });
+
+    // address is defined by Address, which is not referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    // There's no reference to "Address" definition name anymore
+    expect(Person?.properties?.address).toEqual({
+      type: "object",
+      properties: {
+        location: expect.any(Object),
+        city: expect.any(Object),
+        zipCode: expect.any(Object)
+      }
+    });
+    // there's no definition for Address
+    expect(Address).not.toBeDefined();
+
+    // zipCode is defined by ZipCode, which is not referenced by the spec
+    // ZipCode is a dependency of Address and it's local to it in the external definition file
+    // It's resolved by including its properties as literal value of the parsed definition object
+    // There's no reference to "ZipCode" definition name anymore
+    expect(Person?.properties?.address?.properties?.zipCode).toEqual(
+      expect.objectContaining({
+        pattern: expect.any(String),
+        type: "string"
+      })
+    );
+    // there's no definition for ZipCode
+    expect(ZipCode).not.toBeDefined();
+  });
+
+  it("should parse external definitions and their dependencies when they are referenced in the spec", async () => {
+    // Book, Author and Person are defined in an external defintion file
+    const { Book, Author, Person } = spec.definitions || {};
+    
+    // Book is referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    expect(Book).toEqual({
+      type: "object",
+      properties: expect.any(Object)
+    });
+
+    // author is defined by Author which is not referenced by the spec
+    // It's resolved by including its properties as literal value of the parsed definition object
+    // There's no reference to "Author" definition name anymore
+    expect(Book?.properties?.author).toEqual({
+      type: "object",
+      properties: {
+        isDead: expect.any(Object),
+        // Person is a dependency of Author which is already referenced by the spec
+        info: {
+          $ref: "#/definitions/Person"
+        }
+      }
+    });
+    // there's no definition for Author
+    expect(Author).not.toBeDefined();
+    // there's a definition for Person
+    expect(Person).toBeDefined();
   });
 });

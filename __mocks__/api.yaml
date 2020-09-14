@@ -93,6 +93,10 @@ paths:
           description: "Fatal error"          
 
 definitions:
+  Person:
+    $ref: "definitions.yaml#/Person"
+  Book:
+    $ref: "definitions.yaml#/Book"        
   AllOfTest:
     allOf:
       - type: object
