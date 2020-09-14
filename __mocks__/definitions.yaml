@@ -20,12 +20,12 @@ ZipCode:
   type: string
   pattern: '^\d{5}$'
 Author:
-    allOf:
-      - type: object
-        properties:
-          isDead:
-            type: boolean
-      - $ref: "#/Person"
+  type: object
+  properties:
+    isDead:
+      type: boolean
+    info:
+      $ref: "#/Person"
 Book:
   type: object
   properties:

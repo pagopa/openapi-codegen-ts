@@ -50,6 +50,9 @@ export async function renderDefinitionCode(
     definition,
     definitionName,
     strictInterfaces
+  }).then(e => {
+    if(definitionName === "Book") console.log(JSON.stringify(definition))
+    return e
   }).then(formatCode);
 }
 

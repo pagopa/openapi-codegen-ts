@@ -1,3 +1,4 @@
+import { object } from "io-ts";
 /* tslint:disable:no-duplicate-string */
 
 import { OpenAPIV2 } from "openapi-types";
@@ -573,28 +574,18 @@ describe("gen-api-models", () => {
     // author is defined by Author which is not referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
     // There's no reference to "Author" definition name anymore
-    expect(Book?.properties?.author?.allOf).toEqual(
-      expect.arrayContaining([
-        {
-          type: "object",
-          properties: {
-            isDead: expect.any(Object)
-          }
-        }
-      ])
-    );
-    // there's no definition for Author
-    expect(Author).not.toBeDefined();
-
-    // Person is a dependency of Author which is already referenced by the spec
-    // Its definition name is preserved as its properties can be obtained with spec.definitions.Person
-    expect(Book?.properties?.author?.allOf).toEqual(
-      expect.arrayContaining([
-        {
+    expect(Book?.properties?.author).toEqual({
+      type: "object",
+      properties: {
+        isDead: expect.any(Object),
+        // Person is a dependency of Author which is already referenced by the spec
+        info: {
           $ref: "#/definitions/Person"
         }
-      ])
-    );
+      }
+    });
+    // there's no definition for Author
+    expect(Author).not.toBeDefined();
     // there's a definition for Person
     expect(Person).toBeDefined();
   });
