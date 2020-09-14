@@ -109,6 +109,9 @@ stages:
     jobs:
       - job: unit_tests
         steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
           # there is no need to build the package as it is compiled JIT by the test runner
           - script: |
               yarn test:coverage
@@ -124,6 +127,9 @@ stages:
     jobs:
       - job: e2e_tests
         steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
           # e2e script builds the package
           - script: |
               yarn e2e
