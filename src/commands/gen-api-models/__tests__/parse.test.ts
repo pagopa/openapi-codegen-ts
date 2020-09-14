@@ -48,7 +48,7 @@ describe("gen-api-models parse", () => {
         method: "post",
         path: "/test-parameter-with-reference",
         parameters: expect.arrayContaining([
-          { name: "message?", in: "body", type: "Message" }
+          { name: "createdMessage?", in: "body", type: "Message" }
         ])
       })
     );

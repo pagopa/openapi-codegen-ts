@@ -904,7 +904,7 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testParameterWithReferenceDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-parameter-with-reference\`,
 
-    body: ({ message }) => JSON.stringify(message),
+    body: ({ createdMessage }) => JSON.stringify(createdMessage),
 
     query: () => ({})
   };

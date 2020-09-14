@@ -82,7 +82,7 @@ paths:
     post:
       operationId: "testParameterWithReference"
       parameters:
-        - name: message
+        - name: createdMessage
           in: body
           schema:
             $ref: "#/definitions/Message"
