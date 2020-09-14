@@ -511,7 +511,7 @@ describe("gen-api-models", () => {
 
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
 
-    expect(allOperations).toEqual(expected);
+    expect(allOperations).toEqual(expect.arrayContaining(expected));
   });
 
   it("should render a client", async () => {
