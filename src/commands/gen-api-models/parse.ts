@@ -313,7 +313,7 @@ const parseParameter = (
   const paramName = `${uncapitalize(
     specParameters && specParameters[parsedRef.e2]
       ? specParameters[parsedRef.e2].name
-      : parsedRef.e2
+      : param.name
   )}${isParamRequired ? "" : "?"}`;
 
   const paramIn =

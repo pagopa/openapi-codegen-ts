@@ -10,7 +10,8 @@ import {
 import {
   renderClientCode,
   renderDefinitionCode,
-  renderOperation
+  renderOperation,
+  renderAllOperations
 } from "../render";
 
 let spec: OpenAPIV2.Document;
@@ -347,6 +348,30 @@ describe("gen-api-models", () => {
     }
   });
 
+  it("should generate a module with all definitions", async () => {
+    const operationInfo1 = parseOperation(
+      spec,
+      "/test-auth-bearer",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
+    const operationInfo2 = parseOperation(
+      spec,
+      "/test-file-upload",
+      [],
+      "undefined",
+      "undefined"
+    )("post");
+
+    if (operationInfo1 && operationInfo2) {
+      const code = renderAllOperations([operationInfo1, operationInfo2], true)
+      expect(code).toMatchSnapshot();
+    } else {
+      fail("failed to parse operation");
+    }
+  });
+
   it("should support file uploads", async () => {
     const operationInfo = parseOperation(
       spec,
@@ -485,7 +510,7 @@ describe("gen-api-models", () => {
 
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
 
-    expect(allOperations).toEqual(expected);
+    expect(allOperations).toEqual(expect.arrayContaining(expected));
   });
 
   it("should render a client", async () => {
