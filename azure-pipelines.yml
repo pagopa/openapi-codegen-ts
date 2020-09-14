@@ -119,7 +119,7 @@ stages:
             displayName: 'Code coverage'
 
   # C) Run e2e tests (use Linux OS)
-  - stage: Test e2e
+  - stage: Teste_2e
     dependsOn: []
     jobs:
       - job: e2e_tests
