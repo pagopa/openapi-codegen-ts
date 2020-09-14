@@ -111,8 +111,8 @@ stages:
         steps:
           - template: azure-templates/make-build-steps.yml
             parameters:
-              make: build
-
+              make: install_dependencies
+          # there is no need to build the package as it is compiled JIT by the test runner
           - script: |
               yarn test:coverage
             displayName: 'Unit tests exec'
@@ -121,8 +121,22 @@ stages:
               bash <(curl -s https://codecov.io/bash)
             displayName: 'Code coverage'
 
+  # C) Run e2e tests (use Linux OS)
+  - stage: Teste_2e
+    dependsOn: []
+    jobs:
+      - job: e2e_tests
+        steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
+          # e2e script builds the package
+          - script: |
+              yarn e2e
+            displayName: 'e2e tests exec'
 
-  # C) Publish a new version of the package 'io-utils' to the NPM 
+
+  # D) Publish a new version of the package 'io-utils' to the NPM 
   # registry and a release in GitHub if all the following conditions apply:
   #    - $ENABLE_MANUAL_DEPLOY == true 
   #    - it is a manual trigger
