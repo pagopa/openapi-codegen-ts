@@ -78,6 +78,19 @@ paths:
               type: string
         "500":
           description: "Fatal error"
+  /test-parameter-with-reference:
+    post:
+      operationId: "testParameterWithReference"
+      parameters:
+        - name: createdMessage
+          in: body
+          schema:
+            $ref: "#/definitions/Message"
+      responses:
+        "201":
+          description: "Created"
+        "500":
+          description: "Fatal error"          
 
 definitions:
   AllOfTest:
