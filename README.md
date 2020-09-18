@@ -8,37 +8,10 @@ To add the tools to a project:
 ```sh
 $ yarn add -D italia-utils
 ```
-## important: check your openapi spec
-If you need to keep the references between the generated classes, the specification file must contain all the schema definitions. See example below.
 
-example:
+## Commands
 
-if the `Pets` schema uses the `Pet`, import both into the main document 
-```yaml
-components:
-  schemas:
-    Pets:
-        $ref: "animal.yaml#/Pets"
-    Pet:
-        $ref: "animal.yaml#/Pet"
-```
-*animal.yaml*
-```yaml
-Pets:
-  type: array
-  items:
-    $ref: '#/definitions/Pet'
-Pet:
-  type: "object"
-  required:
-    - name
-  properties:
-    name:
-      type: string
-```
-
-
-## gen-api-models
+### gen-api-models
 
 This tool generates TypeScript definitions of OpenAPI specs.
 
@@ -51,7 +24,7 @@ In simple terms it converts an OpenAPI spec like [this one](https://github.com/t
 Note: the generated models requires the runtime dependency `italia-ts-commons`.
 
 
-### Usage
+#### Usage
 
 ```sh
 $ gen-api-models --help
@@ -88,7 +61,7 @@ NotificationChannelStatusValue -> lib/api/definitions/NotificationChannelStatusV
 done
 ```
 
-### Generated client
+#### Generated client
 The http client is defined in `client.ts` module file. It exports the following:
 * a type `Client<K>` which define the set of operations
 * * `K` a union of keys that represent the parameters omitted by the operations (see `withDefaults` below)
@@ -100,7 +73,7 @@ The http client is defined in `client.ts` module file. It exports the following:
 * a type `WithDefaultsT<K>` that defines an adapter function to be used as `withDefaults`
 * * `K` the set of parameters that the adapter will shadow
 
-#### Example
+##### Example
 ```typescript
 import { createClient, WithDefaultsT } from "my-api/client";
 
@@ -141,11 +114,11 @@ const result = await clientWithGlobalToken.myOperation({
 ```
 
 
-## gen-api-sdk
+### gen-api-sdk
 Bundles a generated api models and clients into a node package ready to be published into a registry.
 The script is expected to be executed in the root of an application exposing an API, thus it infers package attributes from the expected `./package.json` file. Values can be still overridden by provinding the respective CLI argument. To avoid this behavior, use `--no-infer-attrs` or `-N`.
 
-### Usage
+#### Usage
 ```sh
 $ gen-api-sdk --help
 Package options:
@@ -183,7 +156,7 @@ Options:
 ```
 
 
-## bundle-api-spec
+### bundle-api-spec
 Takes a given api spec file and resolves its esternal references by creating a new file with only internal refereces
 
 ```sh
@@ -200,7 +173,7 @@ Options:
 ```
 
 
-### Requirements
+## Requirements
 
 * `node` version >= 10.8.0
 
@@ -222,8 +195,34 @@ yarn e2e
 ```
 
 ## Known issues, tradeoffs and throubleshooting
+
 ### A model file for a definition is not generated
 When using `gen-api-models` against a specification file which references an external definition file, some of such remote definitions do not result in a dedicated model file. This is somehow intended and the rationale is explained [here](https://github.com/pagopa/io-utils/pull/197). Quick takeaway is that to have a definition to result in a model file, it must be explicitly referenced by the specification file.
+In short: if you need to keep the references between the generated classes, the specification file must contain all the schema definitions. See example below.
+##### example:
+if the `Pets` schema uses the `Pet`, import both into the main document 
+```yaml
+components:
+  schemas:
+    Pets:
+        $ref: "animal.yaml#/Pets"
+    Pet:
+        $ref: "animal.yaml#/Pet"
+```
+*animal.yaml*
+```yaml
+Pets:
+  type: array
+  items:
+    $ref: '#/definitions/Pet'
+Pet:
+  type: "object"
+  required:
+    - name
+  properties:
+    name:
+      type: string
+```
 
 
 ## Migration from old versions
@@ -234,6 +233,7 @@ Generated code is slightly different from `v4` as it implements some bug fixes t
 * Generated decoders now support multiple success codes (i.e. 200 and 202), so we don't need to write custom decoders for such case as [we used to do](https://github.com/pagopa/io-backend/compare/174376802-experiment-with-sdk?expand=1#diff-cf7a83babfaf6e5babe84dffe22f64e4L81). 
 * When using `gen-api-models` command, `--request-types` flag must be used explicitly in order to have `requestTypes` file generated.
 * Parameters that has a schema reference (like [this](https://github.com/pagopa/io-utils/blob/491d927ff263863bda9038fffa26442050b788e7/__mocks__/api.yaml#L87)) now use the `name` attribute as the parameter name. It used to be the lower-cased reference's name instead.
+* The script creates the destination folder automatically, there is no need to `mkdir` anymore.
 #### from 4.0.0 to 4.3.0
 * Attributes with `type: string` and `format: date` used to result in a `String` definition, while now produce `Date`. [#184](https://github.com/pagopa/io-utils/pull/184)
 * Allow camel-cased prop names. [#183](https://github.com/pagopa/io-utils/pull/183)
