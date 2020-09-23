@@ -2,14 +2,15 @@
  * This module is a collection of custom filters to be used in Nunjucks templates
  */
 
-import { identifier } from 'safe-identifier'
-import { pipe } from "../utils"
+import { identifier } from "safe-identifier";
+import { pipe } from "../utils";
 
 /**
  * Apply a filter function indiscriminately to a single subject or to an array of subjects
  * In most cases nunjucks filters work for both strings or array of strings, so it's worth to handle this mechanism once forever
- * @param subject 
- */ 
+ * @param subject
+ */
+
 const oneOrMany = (filterFn: (str: string) => string) => (
   subject: ReadonlyArray<string> | string
 ) =>
@@ -71,32 +72,30 @@ export const camelCase = (subject: string) =>
 /**
  * Sanitise a string to be used as a javascript identifier
  * see https://developer.mozilla.org/en-US/docs/Glossary/Identifier#:~:text=An%20identifier%20is%20a%20sequence,not%20start%20with%20a%20digit.
- * 
+ *
  * @param subject provided string or array of strings
- * 
+ *
  * @returns Sanitised string or array of sanitised strings
- * 
+ *
  * @example
  * ("9-my invalid_id1") -> "myInvalidId1"
  */
-export const safeIdentifier = oneOrMany(subject => pipe(
-  (v: string) => v.replace(/^[0-9]+/, ""),
-  identifier,
-  camelCase
-)(subject));
+export const safeIdentifier = oneOrMany(subject =>
+  pipe((v: string) => v.replace(/^[0-9]+/, ""), identifier, camelCase)(subject)
+);
 
 /**
  * Sanitise an object field name when destructuring.
  * @param subject provided string or array of strings
- * 
+ *
  * @returns Sanitised string or array of sanitised strings
- * 
+ *
  * @example
  * ("9-my invalid_id1") -> "[\"9-my invalid_id1\"]: myInvalidId1"
  */
 export const safeDestruct = oneOrMany(
-         (subject: string) => `["${subject}"]: ${safeIdentifier(subject)}`
-       );
+  (subject: string) => `["${subject}"]: ${safeIdentifier(subject)}`
+);
 
 /**
  * Object.keys

@@ -23,7 +23,7 @@ export interface IGenerateApiOptions {
 export type SupportedMethod = "get" | "post" | "put" | "delete";
 
 /**
- * Define the shape of a parsed parameter 
+ * Define the shape of a parsed parameter
  */
 export interface IParameterInfo {
   name: string;

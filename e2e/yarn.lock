@@ -2399,13 +2399,26 @@ italia-ts-commons@^5.0.1, italia-ts-commons@^5.1.13:
     json-set-map "^1.0.2"
     validator "^10.1.0"
 
-"italia-utils@file:..":
-  version "5.0.1"
+italia-utils@../:
+  version "5.1.0"
   dependencies:
     fs-extra "^6.0.0"
     italia-ts-commons "^5.0.1"
     nunjucks "^3.1.2"
     prettier "^1.12.1"
+    safe-identifier "^0.4.2"
+    swagger-parser "^7.0.0"
+    write-yaml-file "^4.1.0"
+    yargs "^11.1.0"
+
+"italia-utils@file:..":
+  version "5.1.0"
+  dependencies:
+    fs-extra "^6.0.0"
+    italia-ts-commons "^5.0.1"
+    nunjucks "^3.1.2"
+    prettier "^1.12.1"
+    safe-identifier "^0.4.2"
     swagger-parser "^7.0.0"
     write-yaml-file "^4.1.0"
     yargs "^11.1.0"
@@ -3944,6 +3957,11 @@ safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"
   integrity sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==
+
+safe-identifier@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.npmjs.org/safe-identifier/-/safe-identifier-0.4.2.tgz#cf6bfca31c2897c588092d1750d30ef501d59fcb"
+  integrity sha512-6pNbSMW6OhAi9j+N8V+U715yBQsaWJ7eyEUaOrawX+isg5ZxhUlV1NipNtgaKHmFGiABwt+ZF04Ii+3Xjkg+8w==
 
 safe-regex@^1.1.0:
   version "1.1.0"
