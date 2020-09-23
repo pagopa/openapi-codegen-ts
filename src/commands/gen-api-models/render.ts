@@ -55,7 +55,14 @@ export async function renderDefinitionCode(
     definition,
     definitionName,
     strictInterfaces
-  }).then(formatCode);
+  })
+    .then(e => {
+      if (definitionName === "Book") {
+        console.log(e);
+      }
+      return e;
+    })
+    .then(formatCode);
 }
 
 /**

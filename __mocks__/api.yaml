@@ -455,6 +455,11 @@ definitions:
       - is_email_set
       - name
       - version
+  DefinitionFieldWithDash:
+    type: object
+    properties:
+      id-field:
+        type: string
 responses: {}
 parameters:
   PaginationRequest:
