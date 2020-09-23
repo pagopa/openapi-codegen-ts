@@ -90,7 +90,38 @@ paths:
         "201":
           description: "Created"
         "500":
-          description: "Fatal error"          
+          description: "Fatal error"   
+  /test-parameter-with-dash/{path-param}:
+    get:
+      operationId: "testParameterWithDash"
+      parameters:
+        - name: path-param
+          in: path
+          type: string
+        - name: foo-bar
+          in: query
+          type: string
+        - $ref: "#/parameters/RequestId"
+      responses:
+        "200":
+          description: "Ok"
+        "500":
+          description: "Fatal error"    
+  /test-two-path-params/{first-param}/{second-param}:
+    get:
+      operationId: "testWithTwoParams"
+      parameters:
+        - name: first-param
+          in: path
+          type: string
+        - name: second-param
+          in: path
+          type: string
+      responses:
+        "200":
+          description: "Ok"
+        "500":
+          description: "Fatal error"                    
 
 definitions:
   Person:
@@ -432,6 +463,10 @@ parameters:
     type: string
     minimum: 1
     description: An opaque identifier that points to the next item in the collection.
+  RequestId:
+    name: request-id
+    in: query
+    type: string
 consumes:
   - application/json
 produces:

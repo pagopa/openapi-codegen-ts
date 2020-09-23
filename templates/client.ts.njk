@@ -136,16 +136,16 @@ export function createClient<K extends ParamKeys>({
     headers: () => ({}),
     {% endif %}
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
-    url: ({ {{ pathParams | pick("name") | stripQuestionMark | join(', ') }} }) => `{{ macro.$("basePath") }}{{ macro.pathStringToTemplateString(operation.path) }}`,
+    url: ({ {{ pathParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe  }} }) => `{{ macro.$("basePath") }}{{ macro.applyPathParams(operation.path, pathParams | pick("name") | stripQuestionMark) }}`,
     {% if bodyParams | length %}
-    body: ({ {{ bodyParams | pick("name") | stripQuestionMark | join(", ") }} }) => JSON.stringify({{ bodyParams | pick("name") | stripQuestionMark | join(", ") }}),
+    body: ({ {{ bodyParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => JSON.stringify({{ bodyParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe  }}),
     {% elif formParams | length %}
-    body: ({ {{ formParams | pick("name") | stripQuestionMark | join(", ") }} }) => {{ formParams | pick("name") | first }}.uri,
+    body: ({ {{ formParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => {{ formParams | pick("name") | safeIdentifier | first }}.uri,
     {% elif operation.method === "post" %}
     body: () => "{}",
     {% endif %}
     {% if queryParams | length %}
-    query: ({ {{ queryParams | pick("name") | stripQuestionMark | join(', ') }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | join(", ") }} }),
+    query: ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe  }} }),
     {% else %}
     query: () => ({}),
     {% endif %}

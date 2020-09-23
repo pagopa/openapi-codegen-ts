@@ -425,7 +425,14 @@
  # Given a path with parameters, it returns the path as a string template
  # example: /pet/{petId} -> /pet/${petId}
  #}
-{% macro pathStringToTemplateString(path) -%}{{ path | replace("{", "${")}}{% endmacro %}
+{% macro pathStringToTemplateString(path, cnt) -%}{{ path | replace("{", '${' + cnt + '["') | replace("}", '"]}') | safe }}{% endmacro %}
+
+{##
+ # Given a path with parameters and a list of parameters, it creates a string template
+ # Params are sanitised to prevent the use of invalid identifiers. It is expected that the scope in which the string template will be uses to have such variables declared 
+ # example: (/pet/{pet-id}, ["pet-id"]) -> /pet/${petId}
+ #}
+{% macro applyPathParams(path, pathParams) -%}{% set str = path %}{% for p in  pathParams %}{% set str = str | replace("{" + p + "}", "${" + p | safeIdentifier + "}" ) %}{% endfor %}{{ str }}{% endmacro %}
 
 {##
  # Wraps an expression into "${" and "}" in string template literals. It is needed to escape the brackets usage in nunjucks

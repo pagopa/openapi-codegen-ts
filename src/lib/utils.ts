@@ -42,3 +42,5 @@ export const toUnionOfLiterals = (arr: string[], onEmpty = "never"): string =>
 export function withGenerics(name: string, generics: string[] = []): string {
   return generics.length ? `${name}<${generics.join(", ")}>` : name;
 }
+
+export const pipe = (...fns: ((a: any) => any)[]) => (value: any) => fns.reduce((p, f) => f(p), value)
