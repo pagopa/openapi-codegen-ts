@@ -130,7 +130,7 @@ export function renderAllOperations(
  * @param operationInfo
  * @param generateResponseDecoders true if decoders have to be added
  *
- * @returns a tuple containg the generated code and the
+ * @returns a tuple containing the generated code and the
  */
 export const renderOperation = (
   operationInfo: IOperationInfo,
