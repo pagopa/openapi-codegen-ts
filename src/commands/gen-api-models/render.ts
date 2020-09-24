@@ -159,7 +159,7 @@ export const renderOperation = (
     )
     .join("|");
 
-  const esapeIdentifier = (id: string) =>
+  const escapeIdentifier = (id: string) =>
     ~id.indexOf("?") ? `"${id.replace("?", "")}"?` : `"${id}"`;
 
   const paramsCode = parameters
