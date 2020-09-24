@@ -310,7 +310,7 @@ export type OneOfTest = t.TypeOf<typeof OneOfTest>;
 "
 `;
 
-exports[`gen-api-models should generate decoder defintions for (get, /test-auth-bearer)  1`] = `
+exports[`gen-api-models should generate decoder definitions for (get, /test-auth-bearer)  1`] = `
 "
     /****************************************************************
      * testAuthBearer
@@ -356,7 +356,7 @@ exports[`gen-api-models should generate decoder defintions for (get, /test-auth-
       export const testAuthBearerDefaultDecoder = () => testAuthBearerDecoder();"
 `;
 
-exports[`gen-api-models should generate decoder defintions for (get, /test-parameter-with-dash/{path-param})  1`] = `
+exports[`gen-api-models should generate decoder definitions for (get, /test-parameter-with-dash/{path-param})  1`] = `
 "
     /****************************************************************
      * testParameterWithDash

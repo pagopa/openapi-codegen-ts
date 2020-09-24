@@ -1,5 +1,3 @@
-import { Console } from "console";
-import { object } from "io-ts";
 /* tslint:disable:no-duplicate-string */
 
 import { OpenAPIV2 } from "openapi-types";
