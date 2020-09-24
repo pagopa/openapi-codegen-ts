@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* tslint:disable no-duplicate-string */
+
 import yargs = require("yargs");
 import { generateSdk } from ".";
 

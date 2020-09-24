@@ -152,11 +152,12 @@ export const renderOperation = (
     )
     .join("|");
 
+  // wraps an identifiler with doublequotes
   const escapeIdentifier = (id: string) =>
-    ~id.indexOf("?") ? `"${id.replace("?", "")}"?` : `"${id}"`;
+    id.includes("?") ? `"${id.replace("?", "")}"?` : `"${id}"`;
 
   const paramsCode = parameters
-    .map(param => `readonly ${esapeIdentifier(param.name)}: ${param.type}`)
+    .map(param => `readonly ${escapeIdentifier(param.name)}: ${param.type}`)
     .join(",");
 
   const responsesDecoderCode = generateResponseDecoders

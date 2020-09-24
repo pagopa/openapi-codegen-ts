@@ -85,7 +85,8 @@ export const safeIdentifier = oneOrMany(subject =>
 );
 
 /**
- * Sanitise an object field name when destructuring.
+ * Sanitise a string to be used as an object field name when destructuring.
+ * The use case is when the template is composing a function declaration and the parameter is destructured
  * @param subject provided string or array of strings
  *
  * @returns Sanitised string or array of sanitised strings
