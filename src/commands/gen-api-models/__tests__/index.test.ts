@@ -338,7 +338,7 @@ describe("gen-api-models", () => {
     ${"/test-auth-bearer"}                      | ${"get"}
     ${"/test-parameter-with-dash/{path-param}"} | ${"get"}
   `(
-    "should generate decoder defintions for ($method, $path) ",
+    "should generate decoder definitions for ($method, $path) ",
     async ({ method, path }) => {
       const operationInfo = parseOperation(
         spec,
