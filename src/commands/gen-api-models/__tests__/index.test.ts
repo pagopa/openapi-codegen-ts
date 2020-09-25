@@ -1,4 +1,3 @@
-import { object } from "io-ts";
 /* tslint:disable:no-duplicate-string */
 
 import { OpenAPIV2 } from "openapi-types";
@@ -332,22 +331,29 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("defined-type");
   });
 
-  it("should generate the operator definition", async () => {
-    const operationInfo = parseOperation(
-      spec,
-      "/test-auth-bearer",
-      [],
-      "undefined",
-      "undefined"
-    )("get");
+  it.each`
+    path                                        | method
+    ${"/test-auth-bearer"}                      | ${"get"}
+    ${"/test-parameter-with-dash/{path-param}"} | ${"get"}
+  `(
+    "should generate decoder definitions for ($method, $path) ",
+    async ({ method, path }) => {
+      const operationInfo = parseOperation(
+        spec,
+        path,
+        [],
+        "undefined",
+        "undefined"
+      )(method);
 
-    if (operationInfo) {
-      const code = renderOperation(operationInfo, true);
-      expect(code).toMatchSnapshot();
-    } else {
-      fail("failed to parse operation");
+      if (operationInfo) {
+        const code = renderOperation(operationInfo, true);
+        expect(code).toMatchSnapshot();
+      } else {
+        fail("failed to parse operation");
+      }
     }
-  });
+  );
 
   it("should generate a module with all definitions", async () => {
     const operationInfo1 = parseOperation(
@@ -486,7 +492,7 @@ describe("gen-api-models", () => {
         parameters: [
           {
             name: "file",
-            type: "{ uri: string, name: string, type: string }",
+            type: `{ "uri": string, "name": string, "type": string }`,
             in: "formData"
           }
         ],
@@ -510,7 +516,6 @@ describe("gen-api-models", () => {
     ];
 
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
-
     expect(allOperations).toEqual(expect.arrayContaining(expected));
   });
 

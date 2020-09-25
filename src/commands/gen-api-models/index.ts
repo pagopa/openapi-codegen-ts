@@ -2,9 +2,14 @@
 import * as fs from "fs-extra";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
-import { IGenerateApiOptions } from "./types";
 import { parseAllOperations, parseSpecMeta } from "./parse";
-import { renderAllOperations, renderDefinitionCode, renderClientCode, renderSpecCode } from "./render";
+import {
+  renderAllOperations,
+  renderClientCode,
+  renderDefinitionCode,
+  renderSpecCode
+} from "./render";
+import { IGenerateApiOptions } from "./types";
 
 /**
  * Checks if a parsed spec is in OA2 format

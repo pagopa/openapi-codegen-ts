@@ -51,4 +51,21 @@ describeSuite("Http client generated from Test API spec", () => {
     });
     expect(isRight(result)).toBe(true);
   });
+
+  it("should handle parameter with dashes", async () => {
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+      basePath: ""
+    });
+
+    expect(client.testParameterWithDash).toEqual(expect.any(Function));
+
+    const result = await client.testParameterWithDash({
+      "foo-bar": "value",
+      "path-param": "value",
+      "request-id": "value"
+    });
+    expect(isRight(result)).toBe(true);
+  });
 });

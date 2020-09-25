@@ -23,7 +23,7 @@
     "postversion": "git push && git push --tags",
     "e2e": "yarn build && cd ./e2e && yarn install --frozen-lockfile && yarn start",
     "pretest": "jest --clearCache",
-    "test": "jest src/*",
+    "test": "jest",
     "lint": "tslint --project .",
     "test:coverage": "jest --coverage"
   },
@@ -32,6 +32,7 @@
     "italia-ts-commons": "^5.0.1",
     "nunjucks": "^3.1.2",
     "prettier": "^1.12.1",
+    "safe-identifier": "^0.4.2",
     "swagger-parser": "^7.0.0",
     "write-yaml-file": "^4.1.0",
     "yargs": "^11.1.0"

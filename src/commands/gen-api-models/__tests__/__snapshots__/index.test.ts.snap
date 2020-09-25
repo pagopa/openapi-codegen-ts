@@ -310,14 +310,14 @@ export type OneOfTest = t.TypeOf<typeof OneOfTest>;
 "
 `;
 
-exports[`gen-api-models should generate the operator definition 1`] = `
+exports[`gen-api-models should generate decoder definitions for (get, /test-auth-bearer)  1`] = `
 "
     /****************************************************************
      * testAuthBearer
      */
 
     // Request type definition
-    export type TestAuthBearerT = r.IGetApiRequestType<{readonly bearerToken: string,readonly qo?: string,readonly qr: string,readonly cursor?: string}, \\"Authorization\\", never, r.IResponseType<200, undefined, never>|r.IResponseType<403, undefined, never>>;
+    export type TestAuthBearerT = r.IGetApiRequestType<{readonly \\"bearerToken\\": string,readonly \\"qo\\"?: string,readonly \\"qr\\": string,readonly \\"cursor\\"?: string}, \\"Authorization\\", never, r.IResponseType<200, undefined, never>|r.IResponseType<403, undefined, never>>;
   
       
     export const testAuthBearerDefaultResponses = {
@@ -354,6 +354,52 @@ exports[`gen-api-models should generate the operator definition 1`] = `
 
       // Decodes the success response with the type defined in the specs
       export const testAuthBearerDefaultDecoder = () => testAuthBearerDecoder();"
+`;
+
+exports[`gen-api-models should generate decoder definitions for (get, /test-parameter-with-dash/{path-param})  1`] = `
+"
+    /****************************************************************
+     * testParameterWithDash
+     */
+
+    // Request type definition
+    export type TestParameterWithDashT = r.IGetApiRequestType<{readonly \\"path-param\\"?: string,readonly \\"foo-bar\\"?: string,readonly \\"request-id\\"?: string}, never, never, r.IResponseType<200, undefined, never>|r.IResponseType<500, undefined, never>>;
+  
+      
+    export const testParameterWithDashDefaultResponses = {
+      200: t.undefined, 500: t.undefined
+    };
+  
+      
+    export type TestParameterWithDashResponsesT<A0 = undefined, C0 = undefined, A1 = undefined, C1 = undefined> = {
+      200: t.Type<A0, C0>, 500: t.Type<A1, C1>
+    };
+  
+      export function testParameterWithDashDecoder<A0 = undefined, C0 = undefined, A1 = undefined, C1 = undefined>(overrideTypes: Partial<TestParameterWithDashResponsesT<A0, C0, A1, C1>> | t.Type<A0, C0> | undefined = {}): r.ResponseDecoder<
+    r.IResponseType<200, A0, never>|r.IResponseType<500, A1, never>
+  > {
+        const isDecoder = (d: any): d is t.Type<A0, C0> =>
+          typeof d[\\"_A\\"] !== \\"undefined\\";
+
+        const type = {
+          ...(testParameterWithDashDefaultResponses as unknown as TestParameterWithDashResponsesT<A0, C0, A1, C1>),
+          ...(isDecoder(overrideTypes) ? { 200: overrideTypes } : overrideTypes)
+        };
+
+        
+    const d200 = (type[200].name === \\"undefined\\" 
+        ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
+        : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
+  
+    const d500 = (type[500].name === \\"undefined\\" 
+        ? r.constantResponseDecoder<undefined, 500, never>(500, undefined) 
+        : r.ioResponseDecoder<500, (typeof type[500])[\\"_A\\"], (typeof type[500])[\\"_O\\"], never>(500, type[500])) as r.ResponseDecoder<r.IResponseType<500, A1, never>>;
+  
+        return r.composeResponseDecoders(d200, d500)
+      }
+
+      // Decodes the success response with the type defined in the specs
+      export const testParameterWithDashDefaultDecoder = () => testParameterWithDashDecoder();"
 `;
 
 exports[`gen-api-models should handle CustomStringFormats: custom-string-format 1`] = `
@@ -667,7 +713,11 @@ import {
   TestResponseHeaderT,
   testResponseHeaderDefaultDecoder,
   TestParameterWithReferenceT,
-  testParameterWithReferenceDefaultDecoder
+  testParameterWithReferenceDefaultDecoder,
+  TestParameterWithDashT,
+  testParameterWithDashDefaultDecoder,
+  TestWithTwoParamsT,
+  testWithTwoParamsDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -680,13 +730,17 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestMultipleSuccessT> &
   TypeofApiCall<TestFileUploadT> &
   TypeofApiCall<TestResponseHeaderT> &
-  TypeofApiCall<TestParameterWithReferenceT>;
+  TypeofApiCall<TestParameterWithReferenceT> &
+  TypeofApiCall<TestParameterWithDashT> &
+  TypeofApiCall<TestWithTwoParamsT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestMultipleSuccessT> &
   TypeofApiParams<TestFileUploadT> &
   TypeofApiParams<TestResponseHeaderT> &
-  TypeofApiParams<TestParameterWithReferenceT>);
+  TypeofApiParams<TestParameterWithReferenceT> &
+  TypeofApiParams<TestParameterWithDashT> &
+  TypeofApiParams<TestWithTwoParamsT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -714,7 +768,9 @@ export type WithDefaultsT<
   | TestMultipleSuccessT
   | TestFileUploadT
   | TestResponseHeaderT
-  | TestParameterWithReferenceT,
+  | TestParameterWithReferenceT
+  | TestParameterWithDashT
+  | TestWithTwoParamsT,
   K
 >;
 
@@ -737,6 +793,10 @@ export type Client<
       readonly testParameterWithReference: TypeofApiCall<
         TestParameterWithReferenceT
       >;
+
+      readonly testParameterWithDash: TypeofApiCall<TestParameterWithDashT>;
+
+      readonly testWithTwoParams: TypeofApiCall<TestWithTwoParamsT>;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -771,6 +831,20 @@ export type Client<
         ReplaceRequestParams<
           TestParameterWithReferenceT,
           Omit<RequestParams<TestParameterWithReferenceT>, K>
+        >
+      >;
+
+      readonly testParameterWithDash: TypeofApiCall<
+        ReplaceRequestParams<
+          TestParameterWithDashT,
+          Omit<RequestParams<TestParameterWithDashT>, K>
+        >
+      >;
+
+      readonly testWithTwoParams: TypeofApiCall<
+        ReplaceRequestParams<
+          TestWithTwoParamsT,
+          Omit<RequestParams<TestWithTwoParamsT>, K>
         >
       >;
     };
@@ -828,7 +902,11 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testAuthBearerDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-auth-bearer\`,
 
-    query: ({ qo, qr, cursor }) => ({ qo, qr, cursor })
+    query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) => ({
+      qo,
+      qr,
+      cursor
+    })
   };
   const testAuthBearer: TypeofApiCall<TestAuthBearerT> = createFetchRequestForApi(
     testAuthBearerT,
@@ -865,7 +943,7 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testFileUploadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-file-upload\`,
 
-    body: ({ file }) => file.uri,
+    body: ({ [\\"file\\"]: file }) => file.uri,
 
     query: () => ({})
   };
@@ -904,12 +982,54 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testParameterWithReferenceDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-parameter-with-reference\`,
 
-    body: ({ createdMessage }) => JSON.stringify(createdMessage),
+    body: ({ [\\"createdMessage\\"]: createdMessage }) =>
+      JSON.stringify(createdMessage),
 
     query: () => ({})
   };
   const testParameterWithReference: TypeofApiCall<TestParameterWithReferenceT> = createFetchRequestForApi(
     testParameterWithReferenceT,
+    options
+  );
+
+  const testParameterWithDashT: ReplaceRequestParams<
+    TestParameterWithDashT,
+    RequestParams<TestParameterWithDashT>
+  > = {
+    method: \\"get\\",
+
+    headers: () => ({}),
+
+    response_decoder: testParameterWithDashDefaultDecoder(),
+    url: ({ [\\"path-param\\"]: pathParam }) =>
+      \`\${basePath}/test-parameter-with-dash/\${pathParam}\`,
+
+    query: ({ [\\"foo-bar\\"]: fooBar, [\\"request-id\\"]: requestId }) => ({
+      fooBar,
+      requestId
+    })
+  };
+  const testParameterWithDash: TypeofApiCall<TestParameterWithDashT> = createFetchRequestForApi(
+    testParameterWithDashT,
+    options
+  );
+
+  const testWithTwoParamsT: ReplaceRequestParams<
+    TestWithTwoParamsT,
+    RequestParams<TestWithTwoParamsT>
+  > = {
+    method: \\"get\\",
+
+    headers: () => ({}),
+
+    response_decoder: testWithTwoParamsDefaultDecoder(),
+    url: ({ [\\"first-param\\"]: firstParam, [\\"second-param\\"]: secondParam }) =>
+      \`\${basePath}/test-two-path-params/\${firstParam}/\${secondParam}\`,
+
+    query: () => ({})
+  };
+  const testWithTwoParams: TypeofApiCall<TestWithTwoParamsT> = createFetchRequestForApi(
+    testWithTwoParamsT,
     options
   );
 
@@ -920,7 +1040,9 @@ export function createClient<K extends ParamKeys>({
     testResponseHeader: (withDefaults || identity)(testResponseHeader),
     testParameterWithReference: (withDefaults || identity)(
       testParameterWithReference
-    )
+    ),
+    testParameterWithDash: (withDefaults || identity)(testParameterWithDash),
+    testWithTwoParams: (withDefaults || identity)(testWithTwoParams)
   };
 }
 "
@@ -962,7 +1084,7 @@ exports[`gen-api-models should support file uploads 1`] = `
      */
 
     // Request type definition
-    export type TestFileUploadT = r.IPostApiRequestType<{readonly file: { uri: string, name: string, type: string }}, \\"Content-Type\\", never, r.IResponseType<200, undefined, never>>;
+    export type TestFileUploadT = r.IPostApiRequestType<{readonly \\"file\\": { \\"uri\\": string, \\"name\\": string, \\"type\\": string }}, \\"Content-Type\\", never, r.IResponseType<200, undefined, never>>;
   
       
     export const testFileUploadDefaultResponses = {

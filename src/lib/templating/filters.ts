@@ -2,6 +2,24 @@
  * This module is a collection of custom filters to be used in Nunjucks templates
  */
 
+import { identifier } from "safe-identifier";
+import { pipe } from "../utils";
+
+/**
+ * Apply a filter function indiscriminately to a single subject or to an array of subjects
+ * In most cases nunjucks filters work for both strings or array of strings, so it's worth to handle this mechanism once forever
+ * @param subject
+ */
+
+const oneOrMany = (filterFn: (str: string) => string) => (
+  subject: ReadonlyArray<string> | string
+) =>
+  !subject
+    ? undefined
+    : typeof subject === "string"
+    ? filterFn(subject)
+    : subject.map(filterFn);
+
 /**
  * Wheater or not an array contains an item
  * @param subject the provided array
@@ -50,6 +68,36 @@ export const camelCase = (subject: string) =>
   subject.replace(/(\_\w)/g, ([, firstLetter]: string) =>
     typeof firstLetter === "undefined" ? "" : firstLetter.toUpperCase()
   );
+
+/**
+ * Sanitise a string to be used as a javascript identifier
+ * see https://developer.mozilla.org/en-US/docs/Glossary/Identifier#:~:text=An%20identifier%20is%20a%20sequence,not%20start%20with%20a%20digit.
+ *
+ * @param subject provided string or array of strings
+ *
+ * @returns Sanitised string or array of sanitised strings
+ *
+ * @example
+ * ("9-my invalid_id1") -> "myInvalidId1"
+ */
+export const safeIdentifier = oneOrMany(subject =>
+  pipe((v: string) => v.replace(/^[0-9]+/, ""), identifier, camelCase)(subject)
+);
+
+/**
+ * Sanitise a string to be used as an object field name when destructuring.
+ * The use case is when the template is composing a function declaration and the parameter is destructured
+ * @param subject provided string or array of strings
+ *
+ * @returns Sanitised string or array of sanitised strings
+ *
+ * @example
+ * ("9-my invalid_id1") -> "[\"9-my invalid_id1\"]: myInvalidId1"
+ */
+export const safeDestruct = oneOrMany(
+  (subject: string) => `["${subject}"]: ${safeIdentifier(subject)}`
+);
+
 /**
  * Object.keys
  * @param subject provided object

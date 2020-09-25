@@ -2,22 +2,27 @@
  * This module collects pure utility functions that convert a OpenAPI specification object into a shape which is convenient for code generation
  */
 
+import { ITuple2, Tuple2, Tuple3 } from "italia-ts-commons/lib/tuples";
 import { OpenAPIV2 } from "openapi-types";
-import { IParameterInfo, IHeaderParameterInfo, IAuthHeaderParameterInfo, IOperationInfo, SupportedMethod, ISpecMetaInfo } from "./types";
-import { Tuple3, Tuple2, ITuple2 } from "italia-ts-commons/lib/tuples";
 import { uncapitalize } from "../../lib/utils";
-
-
+import {
+  IAuthHeaderParameterInfo,
+  IHeaderParameterInfo,
+  IOperationInfo,
+  IParameterInfo,
+  ISpecMetaInfo,
+  SupportedMethod
+} from "./types";
 /**
  * Extracts meta info in a convenient object
- * @param api 
+ * @param api
  */
 export function parseSpecMeta(api: OpenAPIV2.Document): ISpecMetaInfo {
-  return { 
+  return {
     basePath: api.basePath,
     version: api.info?.version,
     title: api.info?.title
-  }; 
+  };
 }
 
 /**
@@ -60,7 +65,6 @@ export function parseAllOperations(
     })
     .reduce((flatten, elems) => flatten.concat(elems), []);
 }
-
 
 /**
  * It extracts global parameters from a path definition. Parameters in body, path, query and form are of type IParameterInfo, while header parameters are of type IHeaderParameterInfo
@@ -224,8 +228,6 @@ export const parseOperation = (
   };
 };
 
-
-
 /**
  * Parse a request parameter into an IParameterInfo structure.
  * The function has the curried form (specParameters, operationId) -> (param) -> IParameterInfo
@@ -234,28 +236,28 @@ export const parseOperation = (
  * @param param the request parameter to parse
  *
  * @returns a struct describing the parameter
- * 
- * @example 
+ *
+ * @example
  * // The param is defined inline in the operation
- * ({}, 'myOperationId') -> 
+ * ({}, 'myOperationId') ->
  *   ({ name: 'qo', in: 'query', required: false, type: 'string' }) ->
  *    { name: 'qo?', in: 'query', type: 'string' }
- * @example 
+ * @example
  * // The param is defined as a reference to a global definition
- * ({}, 'myOperationId') -> 
+ * ({}, 'myOperationId') ->
  *   ({
  *     in: 'body',
  *     name: 'body',
  *     schema: { '$ref': '#/definitions/MySchema' },
- *     required: true 
+ *     required: true
  *   }) ->
  *    { name: 'MySchema', type: 'MySchema', in: 'body' }
- * @example 
+ * @example
  * // The param is a reference to a global parameter
  * (
  *  { PaginationRequest: { name: 'cursor', in: 'query', type: 'string' } },
  *  'myOperationId'
- * ) -> 
+ * ) ->
  *   ({ '$ref': '#/parameters/PaginationRequest' }) ->
  *    { name: 'cursor?', type: 'string', in: 'query' }
  */
@@ -328,8 +330,6 @@ const parseParameter = (
   };
 };
 
-
-
 /**
  * Parse security along with security definitions to obtain a collection of tuples in the form (keyName, headerName).
  * It works with security object both global and operation-specific.
@@ -381,14 +381,13 @@ export function getAuthHeaders(
     });
 }
 
-
 /**
  * Takes an array of parameters and collect each definition referenced.
  * Those will correspond to types to be imported in typescript
  * @param parameters
  *
  * @returns a set of definitions to be imported
- * 
+ *
  * @example
  * ([
  *  {"in":"body","name":"body","schema":{"$ref":"#/definitions/MySchema"},"required":true},
@@ -420,8 +419,6 @@ const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
       : []
   );
 
-
-
 /**
  * Given a request param, parses its schema reference, if any
  * @param param a request parameter
@@ -439,7 +436,6 @@ const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
   }
   return typeFromRef(refInParam);
 };
-
 
 /**
  * Given a string in the form "#/<refType>/<refName>/, it returns a tuple in the form (refType, refName)"
@@ -474,7 +470,7 @@ function specTypeToTs(t: string): string {
     case "integer":
       return "number";
     case "file":
-      return "{ uri: string, name: string, type: string }";
+      return `{ "uri": string, "name": string, "type": string }`;
     default:
       return t;
   }
