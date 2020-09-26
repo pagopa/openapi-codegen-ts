@@ -10,6 +10,8 @@ import {
 } from "italia-ts-commons/lib/numbers";
 import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeIntegerTest";
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
+import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
+import { WithinRangeString } from "italia-ts-commons/lib/strings";
 
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
@@ -90,7 +92,7 @@ describe("Profile defintion", () => {
 });
 
 describe("WithinRangeIntegerTest defintion", () => {
-  //WithinRangeIntegerTest is defined min=0 max=10
+  //WithinRangeIntegerTest is defined min=0 max=10 in the spec
   it.each`
     value        | expected
     ${0}         | ${true /* lower bound */}
@@ -108,7 +110,7 @@ describe("WithinRangeIntegerTest defintion", () => {
       const result = WithinRangeIntegerTest.decode(value);
       expect(result.isRight()).toEqual(expected);
       if (result.isRight()) {
-        // check definition
+        // check type definition
         const _: IWithinRangeIntegerTag<0, 11> = result.value;
       }
     }
@@ -116,7 +118,7 @@ describe("WithinRangeIntegerTest defintion", () => {
 });
 
 describe("WithinRangeNumberTest defintion", () => {
-  //WithinRangeNumberTest is defined min=0 max=10
+  //WithinRangeNumberTest is defined min=0 max=10 in the spec
   it.each`
     value        | expected
     ${0}         | ${true /* lower bound */}
@@ -134,8 +136,31 @@ describe("WithinRangeNumberTest defintion", () => {
       const result = WithinRangeNumberTest.decode(value);
       expect(result.isRight()).toEqual(expected);
       if (result.isRight()) {
-        // check definition
-        const _: IWithinRangeNumberTag<0, 10> = result.value;
+        // check type definition
+        const _: IWithinRangeNumberTag<0, 11> = result.value;
+      }
+    }
+  );
+});
+
+describe("WithinRangeStringTest defintion", () => {
+  //WithinRangeStringTest is defined min=8 max=10 in the spec
+  it.each`
+    value             | expected
+    ${"a".repeat(7)}  | ${false}
+    ${"a".repeat(8)}  | ${true /* lower bound */}
+    ${"a".repeat(9)}  | ${true}
+    ${"a".repeat(10)} | ${true /* upper bound */}
+    ${"a".repeat(11)} | ${false}
+    ${undefined}      | ${false}
+  `(
+    "should decode $value with WithinRangeStringTest",
+    ({ value, expected }) => {
+      const result = WithinRangeStringTest.decode(value);
+      expect(result.isRight()).toEqual(expected);
+      if (result.isRight()) {
+        // check type definition
+        const _: WithinRangeString<8, 11> = result.value;
       }
     }
   );
