@@ -71,7 +71,7 @@
 {% macro defineNumber(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
     {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
-    {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
+    {% set typedef %}WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum + 1 }}){% endset %}
   {% elif definition.minimum == "0" %}
     {{- 'import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeNumber{% endset %}
