@@ -110,10 +110,6 @@ describe("WithinRangeIntegerTest defintion", () => {
     ({ value, expected }) => {
       const result = WithinRangeIntegerTest.decode(value);
       expect(result.isRight()).toEqual(expected);
-      if (result.isRight()) {
-        // check type definition
-        const _: IWithinRangeIntegerTag<0, 10> = result.value;
-      }
     }
   );
 });
@@ -136,24 +132,21 @@ describe("WithinRangeNumberTest defintion", () => {
     ({ value, expected }) => {
       const result = WithinRangeNumberTest.decode(value);
       expect(result.isRight()).toEqual(expected);
-      if (result.isRight()) {
-        // check type definition
-        const _: IWithinRangeNumberTag<0, 10> = result.value;
-        const __: 10 = result.value;
-      }
     }
   );
 
-  it("should have correct ts types", () => {
+/*   it("should have correct ts types", () => {
     // value is actually "any"
     const value1: WithinRangeNumberTest = WithinRangeNumberTest.decode(10).getOrElseL(err => {
       throw new Error(readableReport(err))
     });
     // should this be ok? value1 can be 10 and it's not in [0, 10)
     const asRangedValue: IWithinRangeNumberTag<0, 10> = value1;
+    const asRangedValue3: IWithinRangeNumberTag<0, 10> = value1;
     // should this be ok? value1 can be in [0, 10) and it's not 10
     const asRangedValue2: 10 = value1;
-  })
+    const asRangedValue5: WithinRangeNumberTest = 10;
+  }) */
 });
 
 describe("WithinRangeStringTest defintion", () => {
@@ -171,10 +164,6 @@ describe("WithinRangeStringTest defintion", () => {
     ({ value, expected }) => {
       const result = WithinRangeStringTest.decode(value);
       expect(result.isRight()).toEqual(expected);
-      if (result.isRight()) {
-        // check type definition
-        const _: WithinRangeString<8, 11> = result.value;
-      }
     }
   );
 });

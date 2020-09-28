@@ -70,8 +70,11 @@
  #}
 {% macro defineNumber(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
-    {{- 'import { WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
-    {% set typedef %}t.union([WithinRangeNumber({{ definition.minimum }}, {{ definition.maximum }}), t.literal({{ definition.maximum }})]){% endset %}
+    {{- 'import { IWithinRangeNumberTag, WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}t.union([
+      WithinRangeNumber<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeNumberTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }}),
+      t.literal({{ definition.maximum }})
+    ]){% endset %}
   {% elif definition.minimum == "0" %}
     {{- 'import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeNumber{% endset %}
@@ -86,8 +89,11 @@
  #}
 {% macro defineInteger(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
-    {{- 'import { WithinRangeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
-    {% set typedef %}t.union([WithinRangeInteger({{ definition.minimum }}, {{ definition.maximum }}), t.literal({{ definition.maximum }})]){% endset %}
+    {{- 'import { IWithinRangeIntegerTag, WithinRangeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
+    {% set typedef %}t.union([
+      WithinRangeInteger<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeIntegerTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }}),
+      t.literal({{ definition.maximum }})
+    ]){% endset %}
   {% elif definition.minimum == "0" %}
     {{- 'import { NonNegativeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeInteger{% endset %}

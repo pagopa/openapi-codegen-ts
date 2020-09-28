@@ -454,12 +454,15 @@ exports[`gen-api-models should handle WithinRangeIntegers: within-range-integer 
  */
 /* tslint:disable */
 
-import { WithinRangeInteger } from \\"italia-ts-commons/lib/numbers\\";
+import {
+  IWithinRangeIntegerTag,
+  WithinRangeInteger
+} from \\"italia-ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeIntegerTest = t.TypeOf<typeof WithinRangeIntegerTest>;
 export const WithinRangeIntegerTest = t.union([
-  WithinRangeInteger(0, 10),
+  WithinRangeInteger<0, 10, IWithinRangeIntegerTag<0, 10>>(0, 10),
   t.literal(10)
 ]);
 "
@@ -472,12 +475,15 @@ exports[`gen-api-models should handle WithinRangeNumbers: within-range-numbers 1
  */
 /* tslint:disable */
 
-import { WithinRangeNumber } from \\"italia-ts-commons/lib/numbers\\";
+import {
+  IWithinRangeNumberTag,
+  WithinRangeNumber
+} from \\"italia-ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeNumberTest = t.TypeOf<typeof WithinRangeNumberTest>;
 export const WithinRangeNumberTest = t.union([
-  WithinRangeNumber(0, 10),
+  WithinRangeNumber<0, 10, IWithinRangeNumberTag<0, 10>>(0, 10),
   t.literal(10)
 ]);
 "
