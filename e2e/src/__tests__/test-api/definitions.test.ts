@@ -12,6 +12,7 @@ import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeInteg
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
 import { WithinRangeString } from "italia-ts-commons/lib/strings";
+import { readableReport } from "italia-ts-commons/lib/reporters";
 
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
@@ -111,7 +112,7 @@ describe("WithinRangeIntegerTest defintion", () => {
       expect(result.isRight()).toEqual(expected);
       if (result.isRight()) {
         // check type definition
-        const _: IWithinRangeIntegerTag<0, 11> = result.value;
+        const _: IWithinRangeIntegerTag<0, 10> = result.value;
       }
     }
   );
@@ -137,10 +138,22 @@ describe("WithinRangeNumberTest defintion", () => {
       expect(result.isRight()).toEqual(expected);
       if (result.isRight()) {
         // check type definition
-        const _: IWithinRangeNumberTag<0, 11> = result.value;
+        const _: IWithinRangeNumberTag<0, 10> = result.value;
+        const __: 10 = result.value;
       }
     }
   );
+
+  it("should have correct ts types", () => {
+    // value is actually "any"
+    const value1: WithinRangeNumberTest = WithinRangeNumberTest.decode(10).getOrElseL(err => {
+      throw new Error(readableReport(err))
+    });
+    // should this be ok? value1 can be 10 and it's not in [0, 10)
+    const asRangedValue: IWithinRangeNumberTag<0, 10> = value1;
+    // should this be ok? value1 can be in [0, 10) and it's not 10
+    const asRangedValue2: 10 = value1;
+  })
 });
 
 describe("WithinRangeStringTest defintion", () => {

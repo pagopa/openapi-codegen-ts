@@ -458,7 +458,10 @@ import { WithinRangeInteger } from \\"italia-ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeIntegerTest = t.TypeOf<typeof WithinRangeIntegerTest>;
-export const WithinRangeIntegerTest = WithinRangeInteger(0, 11);
+export const WithinRangeIntegerTest = t.union([
+  WithinRangeInteger(0, 10),
+  t.literal(10)
+]);
 "
 `;
 
@@ -473,7 +476,10 @@ import { WithinRangeNumber } from \\"italia-ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeNumberTest = t.TypeOf<typeof WithinRangeNumberTest>;
-export const WithinRangeNumberTest = WithinRangeNumber(0, 11);
+export const WithinRangeNumberTest = t.union([
+  WithinRangeNumber(0, 10),
+  t.literal(10)
+]);
 "
 `;
 
