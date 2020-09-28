@@ -87,7 +87,7 @@ describe("gen-api-models", () => {
       definition,
       false
     );
-    expect(code).toContain("WithinRangeString(10, 11)");
+    expect(code).toContain("WithinRangeString(8, 11)");
     expect(code).toMatchSnapshot("within-range-strings");
   });
 

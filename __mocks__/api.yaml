@@ -181,7 +181,7 @@ definitions:
   WithinRangeStringTest:
     title: WithinRangeStringTest
     type: string
-    minLength: 10
+    minLength: 8
     maxLength: 10
   WithinRangeNumberTest:
     title: WithinRangeNumberTest
