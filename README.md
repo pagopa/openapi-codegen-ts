@@ -234,7 +234,7 @@ Generated code is slightly different from `v4` as it implements some bug fixes t
 * When using `gen-api-models` command, `--request-types` flag must be used explicitly in order to have `requestTypes` file generated.
 * Parameters that has a schema reference (like [this](https://github.com/pagopa/io-utils/blob/491d927ff263863bda9038fffa26442050b788e7/__mocks__/api.yaml#L87)) now use the `name` attribute as the parameter name. It used to be the lower-cased reference's name instead.
 * The script creates the destination folder automatically, there is no need to `mkdir` anymore.
-* The change of [#182] has been reverted, `WithinRangeInteger<L,H>` now defines a set `[L,H]` (in 4.3.0 we used to add `1` to `H`, now it's not longer needed). 
+* Both ranged number and integers now correctly include upper bound values. This is achieved without using the _add 1_ trick implemented in [#182], which is reverted. Breaking changes may arise in target application if values are assigned to variables of type `WithinRangeInteger` or `WithinRangeNumber`. See [#205].
 #### from 4.0.0 to 4.3.0
 * Attributes with `type: string` and `format: date` used to result in a `String` definition, while now produce `Date`. [#184](https://github.com/pagopa/io-utils/pull/184)
 * Allow camel-cased prop names. [#183](https://github.com/pagopa/io-utils/pull/183)
