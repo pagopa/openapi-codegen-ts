@@ -15,7 +15,7 @@ securityDefinitions:
     x-auth-scheme: bearer
   simpleToken:
     type: apiKey
-    name: X-Simple-Token
+    name: X-Functions-Key
     in: header
 paths:
   /test-auth-bearer:

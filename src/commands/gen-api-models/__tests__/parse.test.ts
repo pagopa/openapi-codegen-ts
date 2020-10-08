@@ -47,7 +47,7 @@ describe("getAuthHeaders", () => {
     expect(parsed).toEqual([
       expect.objectContaining({
         authScheme: "none",
-        headerName: "X-Simple-Token",
+        headerName: "X-Functions-Key",
         in: "header",
         name: "simpleToken",
         tokenType: "apiKey",

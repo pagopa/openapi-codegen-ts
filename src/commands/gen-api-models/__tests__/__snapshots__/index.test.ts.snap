@@ -934,7 +934,7 @@ export function createClient<K extends ParamKeys>({
     method: \\"get\\",
 
     headers: ({ simpleToken }: { simpleToken: string }) => ({
-      \\"X-Simple-Token\\": simpleToken
+      \\"X-Functions-Key\\": simpleToken
     }),
     response_decoder: testSimpleTokenDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-simple-token\`,
