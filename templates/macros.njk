@@ -449,13 +449,15 @@
 
 {##
  # Given an IAuthHeaderParamenterInfo, it renders token in the form expected by its type
- # example: { name: 'token', headerName: 'Authorization', tokenType: 'apiKey' } -> `Bearer ${token}`
+ # If authScheme is passed for token of type apiKey, the schema will be applied to tokens
+ # example: { name: 'token', headerName: 'Authorization', tokenType: 'apiKey' } -> token
+ # example: { name: 'token', headerName: 'Authorization', tokenType: 'apiKey', authScheme: 'bearer' -> `Bearer ${token}`
  # example: { name: 'token', headerName: 'Authorization', tokenType: 'basic' } -> `Basic ${token}`
  # example: { name: 'token', headerName: 'Authorization' } -> token
  #}
 {% macro tokenize(headerParam) -%}
-{% if headerParam.tokenType === "apiKey" %}
-`Bearer {{ $(headerParam.name) }}`
+{% if headerParam.tokenType === "apiKey" and headerParam.authScheme and headerParam.authScheme !== "none" %}
+`{{ headerParam.authScheme | capitalizeFirst }} {{ $(headerParam.name) }}`
 {% elif headerParam.tokenType === "oauth" %}
 `Bearer {{ $(headerParam.name) }}`
 {% elif headerParam.tokenType === "basic" %}

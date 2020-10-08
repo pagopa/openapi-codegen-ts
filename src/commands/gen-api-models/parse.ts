@@ -6,6 +6,7 @@ import { ITuple2, Tuple2, Tuple3 } from "italia-ts-commons/lib/tuples";
 import { OpenAPIV2 } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
 import {
+  ExtendedOpenAPIV2SecuritySchemeApiKey,
   IAuthHeaderParameterInfo,
   IHeaderParameterInfo,
   IOperationInfo,
@@ -368,15 +369,17 @@ export function getAuthHeaders(
     .map(_ => {
       const {
         name: headerName,
-        type: tokenType
-      } = _.e2 as OpenAPIV2.SecuritySchemeApiKey; // Because _.e2 is of type OpenAPIV2.SecuritySchemeObject which is the super type of OpenAPIV2.SecuritySchemeApiKey. In the previous step of the chain we filtered so we're pretty sure _.e2 is of type OpenAPIV2.SecuritySchemeApiKey, but the compiler fails at it. I can add an explicit guard to the filter above, but I think the result is the same.
+        type: tokenType,
+        ["x-auth-scheme"]: authScheme = "none"
+      } = _.e2 as ExtendedOpenAPIV2SecuritySchemeApiKey; // Because _.e2 is of type OpenAPIV2.SecuritySchemeObject which is the super type of OpenAPIV2.SecuritySchemeApiKey. In the previous step of the chain we filtered so we're pretty sure _.e2 is of type OpenAPIV2.SecuritySchemeApiKey, but the compiler fails at it. I can add an explicit guard to the filter above, but I think the result is the same.
       return {
+        authScheme,
         headerName,
         // tslint:disable-next-line: no-useless-cast
         in: "header" as "header", // this cast is needed otherwise "in" property will be recognize as string
         name: _.e1,
-        type: "string",
-        tokenType
+        tokenType,
+        type: "string"
       };
     });
 }
