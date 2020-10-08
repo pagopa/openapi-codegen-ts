@@ -3,10 +3,7 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
-import {
-  parseAllOperations,
-  parseOperation,
-} from "../parse";
+import { parseAllOperations, parseOperation } from "../parse";
 import {
   renderClientCode,
   renderDefinitionCode,
@@ -372,7 +369,7 @@ describe("gen-api-models", () => {
     )("post");
 
     if (operationInfo1 && operationInfo2) {
-      const code = renderAllOperations([operationInfo1, operationInfo2], true)
+      const code = renderAllOperations([operationInfo1, operationInfo2], true);
       expect(code).toMatchSnapshot();
     } else {
       fail("failed to parse operation");
@@ -444,7 +441,8 @@ describe("gen-api-models", () => {
             type: "string",
             in: "header",
             headerName: "Authorization",
-            tokenType: "apiKey"
+            tokenType: "apiKey",
+            authScheme: "bearer"
           },
           {
             name: "qo?",
@@ -529,12 +527,12 @@ describe("gen-api-models", () => {
   it("should parse external definitions and their dependencies when they are NOT referenced in the spec", async () => {
     // Person, Address and ZipCode are defined in an external defintion file
     const { Person, Address, ZipCode } = spec.definitions || {};
-    
+
     // Person is referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
     expect(Person).toEqual({
       type: "object",
-      properties:  expect.any(Object)
+      properties: expect.any(Object)
     });
 
     // address is defined by Address, which is not referenced by the spec
@@ -568,7 +566,7 @@ describe("gen-api-models", () => {
   it("should parse external definitions and their dependencies when they are referenced in the spec", async () => {
     // Book, Author and Person are defined in an external defintion file
     const { Book, Author, Person } = spec.definitions || {};
-    
+
     // Book is referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
     expect(Book).toEqual({

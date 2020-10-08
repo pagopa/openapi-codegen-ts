@@ -12,6 +12,7 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
+    x-auth-scheme: bearer
 paths:
   /test-auth-bearer:
     get:

@@ -22,6 +22,8 @@ export interface IGenerateApiOptions {
  */
 export type SupportedMethod = "get" | "post" | "put" | "delete";
 
+export type SupportedAuthScheme = "bearer" | "digest" | "none";
+
 /**
  * Define the shape of a parsed parameter
  */
@@ -44,6 +46,7 @@ export interface IHeaderParameterInfo extends IParameterInfo {
  */
 export interface IAuthHeaderParameterInfo extends IHeaderParameterInfo {
   tokenType: "basic" | "apiKey" | "oauth2";
+  authScheme: SupportedAuthScheme;
 }
 
 /**
@@ -69,3 +72,7 @@ export interface ISpecMetaInfo {
   version?: string;
   title?: string;
 }
+
+export type ExtendedOpenAPIV2SecuritySchemeApiKey = OpenAPIV2.SecuritySchemeApiKey & {
+  "x-auth-scheme": SupportedAuthScheme;
+};

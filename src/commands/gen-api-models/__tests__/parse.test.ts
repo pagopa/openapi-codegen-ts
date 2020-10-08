@@ -3,10 +3,7 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
-import {
-  parseAllOperations,
-  parseOperation,
-} from "../parse";
+import { getAuthHeaders, parseOperation } from "../parse";
 
 let spec: OpenAPIV2.Document;
 beforeAll(
@@ -16,9 +13,37 @@ beforeAll(
     )) as OpenAPIV2.Document)
 );
 
-describe("gen-api-models parse", () => {
+describe("getAuthHeaders", () => {
+  it("should parse a security definition with bearer token", () => {
+    // basically, this tell which security defintion we select
+    const security = [
+      {
+        bearerToken: []
+      }
+    ];
+    const parsed = getAuthHeaders(spec.securityDefinitions, security);
+
+    expect(parsed).toEqual([
+      expect.objectContaining({
+        authScheme: "bearer",
+        headerName: "Authorization",
+        in: "header",
+        name: "bearerToken",
+        tokenType: "apiKey",
+        type: "string"
+      })
+    ]);
+  });
+});
+describe("parseOperation", () => {
   it("should parse an operation with external parameter", () => {
-    const parsed = parseOperation(spec, "/test-auth-bearer", [], "undefined", "undefined")("get");
+    const parsed = parseOperation(
+      spec,
+      "/test-auth-bearer",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
 
     expect(parsed).toEqual(
       expect.objectContaining({
@@ -32,7 +57,7 @@ describe("gen-api-models parse", () => {
         ])
       })
     );
-  })
+  });
 
   it("should parse an operation which parameter has schema reference", () => {
     const parsed = parseOperation(
