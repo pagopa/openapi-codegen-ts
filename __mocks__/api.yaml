@@ -38,6 +38,26 @@ paths:
           description: "Will send `Authenticated`"
         "403":
           description: "You do not have necessary permissions for the resource"
+  /test-simple-token:
+    get:
+      operationId: "testSimpleToken"
+      security:
+        - simpleToken: []
+      parameters:
+        - name: "qo"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "qr"
+          in: "query"
+          required: true
+          type: "string"
+        - $ref: "#/parameters/PaginationRequest"
+      responses:
+        "200":
+          description: "Will send `Authenticated`"
+        "403":
+          description: "You do not have necessary permissions for the resource"          
   /test-multiple-success:
     get:
       operationId: "testMultipleSuccess"

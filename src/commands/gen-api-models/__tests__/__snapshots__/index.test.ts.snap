@@ -706,6 +706,8 @@ import { identity } from \\"fp-ts/lib/function\\";
 import {
   TestAuthBearerT,
   testAuthBearerDefaultDecoder,
+  TestSimpleTokenT,
+  testSimpleTokenDefaultDecoder,
   TestMultipleSuccessT,
   testMultipleSuccessDefaultDecoder,
   TestFileUploadT,
@@ -727,6 +729,7 @@ import {
 type __UNDEFINED_KEY = \\"_____\\";
 
 export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
+  TypeofApiCall<TestSimpleTokenT> &
   TypeofApiCall<TestMultipleSuccessT> &
   TypeofApiCall<TestFileUploadT> &
   TypeofApiCall<TestResponseHeaderT> &
@@ -735,6 +738,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestWithTwoParamsT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
+  TypeofApiParams<TestSimpleTokenT> &
   TypeofApiParams<TestMultipleSuccessT> &
   TypeofApiParams<TestFileUploadT> &
   TypeofApiParams<TestResponseHeaderT> &
@@ -765,6 +769,7 @@ export type WithDefaultsT<
   K extends ParamKeys | __UNDEFINED_KEY = __UNDEFINED_KEY
 > = OmitApiCallParams<
   | TestAuthBearerT
+  | TestSimpleTokenT
   | TestMultipleSuccessT
   | TestFileUploadT
   | TestResponseHeaderT
@@ -783,6 +788,8 @@ export type Client<
 > = K extends __UNDEFINED_KEY
   ? {
       readonly testAuthBearer: TypeofApiCall<TestAuthBearerT>;
+
+      readonly testSimpleToken: TypeofApiCall<TestSimpleTokenT>;
 
       readonly testMultipleSuccess: TypeofApiCall<TestMultipleSuccessT>;
 
@@ -803,6 +810,13 @@ export type Client<
         ReplaceRequestParams<
           TestAuthBearerT,
           Omit<RequestParams<TestAuthBearerT>, K>
+        >
+      >;
+
+      readonly testSimpleToken: TypeofApiCall<
+        ReplaceRequestParams<
+          TestSimpleTokenT,
+          Omit<RequestParams<TestSimpleTokenT>, K>
         >
       >;
 
@@ -910,6 +924,29 @@ export function createClient<K extends ParamKeys>({
   };
   const testAuthBearer: TypeofApiCall<TestAuthBearerT> = createFetchRequestForApi(
     testAuthBearerT,
+    options
+  );
+
+  const testSimpleTokenT: ReplaceRequestParams<
+    TestSimpleTokenT,
+    RequestParams<TestSimpleTokenT>
+  > = {
+    method: \\"get\\",
+
+    headers: ({ simpleToken }: { simpleToken: string }) => ({
+      \\"X-Simple-Token\\": simpleToken
+    }),
+    response_decoder: testSimpleTokenDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-simple-token\`,
+
+    query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) => ({
+      qo,
+      qr,
+      cursor
+    })
+  };
+  const testSimpleToken: TypeofApiCall<TestSimpleTokenT> = createFetchRequestForApi(
+    testSimpleTokenT,
     options
   );
 
@@ -1035,6 +1072,7 @@ export function createClient<K extends ParamKeys>({
 
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
+    testSimpleToken: (withDefaults || identity)(testSimpleToken),
     testMultipleSuccess: (withDefaults || identity)(testMultipleSuccess),
     testFileUpload: (withDefaults || identity)(testFileUpload),
     testResponseHeader: (withDefaults || identity)(testResponseHeader),
