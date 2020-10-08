@@ -34,6 +34,27 @@ describe("getAuthHeaders", () => {
       })
     ]);
   });
+
+  it("should parse a security definition with no auth schema", () => {
+    // basically, this tell which security defintion we select
+    const security = [
+      {
+        simpleToken: []
+      }
+    ];
+    const parsed = getAuthHeaders(spec.securityDefinitions, security);
+
+    expect(parsed).toEqual([
+      expect.objectContaining({
+        authScheme: "none",
+        headerName: "X-Simple-Token",
+        in: "header",
+        name: "simpleToken",
+        tokenType: "apiKey",
+        type: "string"
+      })
+    ]);
+  });
 });
 describe("parseOperation", () => {
   it("should parse an operation with external parameter", () => {
