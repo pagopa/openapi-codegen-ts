@@ -213,6 +213,25 @@ definitions:
     type: number
     minimum: 0
     maximum: 10
+  WithinRangeExclusiveMinimumNumberTest:
+    title: WithinRangeNumberTest
+    type: number
+    minimum: 0
+    exclusiveMinimum: true
+    maximum: 10
+  WithinRangeExclusiveMaximumNumberTest:
+    title: WithinRangeNumberTest
+    type: number
+    minimum: 0
+    maximum: 10
+    exclusiveMaximum: true    
+  WithinRangeExclusiveMaxMaxNumberTest:
+    title: WithinRangeNumberTest
+    type: number
+    minimum: 0
+    exclusiveMinimum: true
+    maximum: 10
+    exclusiveMaximum: true    
   InlinePropertyTest:
     type: object
     properties:
