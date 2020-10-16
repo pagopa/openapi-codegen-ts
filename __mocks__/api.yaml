@@ -214,24 +214,43 @@ definitions:
     minimum: 0
     maximum: 10
   WithinRangeExclusiveMinimumNumberTest:
-    title: WithinRangeNumberTest
+    title: WithinRangeExclusiveMinimumNumberTest
     type: number
     minimum: 0
     exclusiveMinimum: true
     maximum: 10
   WithinRangeExclusiveMaximumNumberTest:
-    title: WithinRangeNumberTest
+    title: WithinRangeExclusiveMaximumNumberTest
     type: number
     minimum: 0
     maximum: 10
     exclusiveMaximum: true    
-  WithinRangeExclusiveMaxMaxNumberTest:
-    title: WithinRangeNumberTest
+  WithinRangeExclusiveMinMaxNumberTest:
+    title: WithinRangeExclusiveMinMaxNumberTest
     type: number
     minimum: 0
     exclusiveMinimum: true
     maximum: 10
+    exclusiveMaximum: true
+  WithinRangeExclusiveMinimumIntegerTest:
+    title: WithinRangeExclusiveMinimumIntegerTest
+    type: integer
+    minimum: 0
+    exclusiveMinimum: true
+    maximum: 10
+  WithinRangeExclusiveMaximumIntegerTest:
+    title: WithinRangeExclusiveMaximumIntegerTest
+    type: integer
+    minimum: 0
+    maximum: 10
     exclusiveMaximum: true    
+  WithinRangeExclusiveMinMaxIntegerTest:
+    title: WithinRangeExclusiveMinMaxIntegerTest
+    type: number
+    minimum: 0
+    exclusiveMinimum: true
+    maximum: 10
+    exclusiveMaximum: true      
   InlinePropertyTest:
     type: object
     properties:
