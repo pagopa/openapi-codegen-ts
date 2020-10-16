@@ -8,6 +8,8 @@ import {
   IWithinRangeIntegerTag,
   IWithinRangeNumberTag
 } from "italia-ts-commons/lib/numbers";
+import { readableReport } from "italia-ts-commons/lib/reporters";
+import { WithinRangeString } from "italia-ts-commons/lib/strings";
 import { WithinRangeExclusiveMaximumIntegerTest } from "../../generated/testapi/WithinRangeExclusiveMaximumIntegerTest";
 import { WithinRangeExclusiveMaximumNumberTest } from "../../generated/testapi/WithinRangeExclusiveMaximumNumberTest";
 import { WithinRangeExclusiveMinimumIntegerTest } from "../../generated/testapi/WithinRangeExclusiveMinimumIntegerTest";
@@ -15,8 +17,6 @@ import { WithinRangeExclusiveMinimumNumberTest } from "../../generated/testapi/W
 import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeIntegerTest";
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
-import { WithinRangeString } from "italia-ts-commons/lib/strings";
-import { readableReport } from "italia-ts-commons/lib/reporters";
 
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
@@ -97,7 +97,7 @@ describe("Profile defintion", () => {
 });
 
 describe("WithinRangeIntegerTest defintion", () => {
-  //WithinRangeIntegerTest is defined min=0 max=10 in the spec
+  // WithinRangeIntegerTest is defined min=0 max=10 in the spec
   it.each`
     value        | expected
     ${0}         | ${true /* lower bound */}
@@ -119,7 +119,7 @@ describe("WithinRangeIntegerTest defintion", () => {
 });
 
 describe("WithinRangeNumberTest defintion", () => {
-  //WithinRangeNumberTest is defined min=0 max=10 in the spec
+  // WithinRangeNumberTest is defined min=0 max=10 in the spec
   it.each`
     value        | expected
     ${0}         | ${true /* lower bound */}
@@ -140,7 +140,7 @@ describe("WithinRangeNumberTest defintion", () => {
   );
 
   describe("WithinRangeExclusiveMinimumNumberTest definition", () => {
-    //WithinRangeExclusiveMinimumNumberTest is defined min=0 max=10 exclusiveMinimum: true in the spec
+    // WithinRangeExclusiveMinimumNumberTest is defined min=0 max=10 exclusiveMinimum: true in the spec
     it.each`
       value        | expected
       ${-1}        | ${false}
@@ -162,7 +162,7 @@ describe("WithinRangeNumberTest defintion", () => {
     );
   });
   describe("WithinRangeExclusiveMaximumNumberTest definition", () => {
-    //WithinRangeExclusiveMaximumNumberTest is defined min=0 max=10 exclusiveMaximum: true in the spec
+    // WithinRangeExclusiveMaximumNumberTest is defined min=0 max=10 exclusiveMaximum: true in the spec
     it.each`
       value        | expected
       ${0}         | ${true /* lower bound */}
@@ -171,7 +171,7 @@ describe("WithinRangeNumberTest defintion", () => {
       ${5.5}       | ${true}
       ${9}         | ${true}
       ${9.5}       | ${true}
-      ${10}        | ${false}
+      ${10}        | ${false /* upper bound */}
       ${11}        | ${false}
       ${100}       | ${false}
       ${undefined} | ${false}
@@ -184,7 +184,7 @@ describe("WithinRangeNumberTest defintion", () => {
     );
   });
 
-/*   it("should have correct ts types", () => {
+  /*   it("should have correct ts types", () => {
     // value is actually "any"
     const value1: WithinRangeNumberTest = WithinRangeNumberTest.decode(10).getOrElseL(err => {
       throw new Error(readableReport(err))
@@ -199,7 +199,7 @@ describe("WithinRangeNumberTest defintion", () => {
 });
 
 describe("WithinRangeExclusiveMinimumIntegerTest definition", () => {
-  //WithinRangeExclusiveMinimumIntegerTest is defined min=0 max=10 exclusiveMinimum: true in the spec
+  // WithinRangeExclusiveMinimumIntegerTest is defined min=0 max=10 exclusiveMinimum: true in the spec
   it.each`
     value        | expected
     ${0}         | ${false}
@@ -221,15 +221,15 @@ describe("WithinRangeExclusiveMinimumIntegerTest definition", () => {
 });
 
 describe("WithinRangeExclusiveMaximumIntegerTest definition", () => {
-  //WithinRangeExclusiveMaximumIntegerTest is defined min=0 max=10 exclusiveMaximum: true in the spec
+  // WithinRangeExclusiveMaximumIntegerTest is defined min=0 max=10 exclusiveMaximum: true in the spec
   it.each`
     value        | expected
     ${0}         | ${true /* lower bound */}
     ${-1}        | ${false}
     ${1}         | ${true}
     ${5}         | ${true}
-    ${9}         | ${true /* upper bound */}
-    ${10}        | ${false}
+    ${9}         | ${true}
+    ${10}        | ${false /* upper bound */}
     ${11}        | ${false}
     ${100}       | ${false}
     ${undefined} | ${false}
@@ -243,7 +243,7 @@ describe("WithinRangeExclusiveMaximumIntegerTest definition", () => {
 });
 
 describe("WithinRangeStringTest defintion", () => {
-  //WithinRangeStringTest is defined min=8 max=10 in the spec
+  // WithinRangeStringTest is defined min=8 max=10 in the spec
   it.each`
     value             | expected
     ${"a".repeat(7)}  | ${false}
