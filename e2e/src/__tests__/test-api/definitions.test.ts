@@ -14,6 +14,8 @@ import { WithinRangeExclusiveMaximumIntegerTest } from "../../generated/testapi/
 import { WithinRangeExclusiveMaximumNumberTest } from "../../generated/testapi/WithinRangeExclusiveMaximumNumberTest";
 import { WithinRangeExclusiveMinimumIntegerTest } from "../../generated/testapi/WithinRangeExclusiveMinimumIntegerTest";
 import { WithinRangeExclusiveMinimumNumberTest } from "../../generated/testapi/WithinRangeExclusiveMinimumNumberTest";
+import { WithinRangeExclusiveMinMaxNumberTest } from "../../generated/testapi/WithinRangeExclusiveMinMaxNumberTest";
+
 import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeIntegerTest";
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
@@ -145,7 +147,8 @@ describe("WithinRangeNumberTest defintion", () => {
       value        | expected
       ${-1}        | ${false}
       ${0}         | ${false}
-      ${0.1}       | ${false}
+      ${0.1}       | ${true}
+      ${0.5}       | ${true}
       ${1}         | ${true}
       ${9.9999999} | ${true}
       ${10}        | ${true /* upper bound */}
@@ -165,13 +168,14 @@ describe("WithinRangeNumberTest defintion", () => {
     // WithinRangeExclusiveMaximumNumberTest is defined min=0 max=10 exclusiveMaximum: true in the spec
     it.each`
       value        | expected
-      ${0}         | ${true /* lower bound */}
       ${-1}        | ${false}
+      ${0}         | ${true /* lower bound */}
       ${1.5}       | ${true}
       ${5.5}       | ${true}
       ${9}         | ${true}
       ${9.5}       | ${true}
-      ${10}        | ${false /* upper bound */}
+      ${9.999}     | ${true}
+      ${10}        | ${false}
       ${11}        | ${false}
       ${100}       | ${false}
       ${undefined} | ${false}
@@ -184,6 +188,30 @@ describe("WithinRangeNumberTest defintion", () => {
     );
   });
 
+  describe("WithinRangeExclusiveMinMaxNumberTest definition", () => {
+    // WithinRangeExclusiveMinMaxNumberTest is defined min=0 max=10 exclusiveMaximum: true exclusiveMinimum: true in the spec
+    it.each`
+      value        | expected
+      ${-1}        | ${false}
+      ${0}         | ${false}
+      ${0.1}       | ${true}
+      ${1.5}       | ${true}
+      ${5.5}       | ${true}
+      ${9}         | ${true}
+      ${9.5}       | ${true}
+      ${9.999}     | ${true}
+      ${10}        | ${false}
+      ${11}        | ${false}
+      ${100}       | ${false}
+      ${undefined} | ${false}
+    `(
+      "should decode $value with WithinRangeExclusiveMinMaxNumberTest",
+      ({ value, expected }) => {
+        const result = WithinRangeExclusiveMinMaxNumberTest.decode(value);
+        expect(result.isRight()).toEqual(expected);
+      }
+    );
+  });
   /*   it("should have correct ts types", () => {
     // value is actually "any"
     const value1: WithinRangeNumberTest = WithinRangeNumberTest.decode(10).getOrElseL(err => {
