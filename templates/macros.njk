@@ -71,10 +71,55 @@
 {% macro defineNumber(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
     {{- 'import { IWithinRangeNumberTag, WithinRangeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
-    {% set typedef %}t.union([
-      WithinRangeNumber<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeNumberTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }}),
-      t.literal({{ definition.maximum }})
-    ]){% endset %}
+    {% if definition.minimum != undefined and definition.maximum != undefined %}
+      {## [R,L)  #}
+      {% if definition.exclusiveMaximum and not definition.exclusiveMinimum %}
+        {% set typedef %}
+          WithinRangeNumber<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeNumberTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }})
+        {% endset %}
+      {## (R,L]  #}  
+      {% elif definition.exclusiveMinimum and not definition.exclusiveMaximum %}
+        {% set typedef %}const WithoutExclusive = t.union([
+          WithinRangeNumber<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeNumberTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }}),
+          t.literal({{ definition.maximum }})
+        ]){% endset %}
+        {{ defineConst(undefined, 'WithoutExclusive', typedef, false, true) }}
+        {% set typedef %}
+        t.brand(
+          WithoutExclusive,
+          (
+            n
+          ): n is t.Branded<
+            t.TypeOf<typeof WithoutExclusive>,
+            { readonly {{ definitionName }}: symbol }
+          > => n != {{ definition.minimum }},
+          "{{definitionName}}"
+        );
+        {% endset %}
+      {## (R,L)  #}
+      {% elif definition.exclusiveMaximum and definition.exclusiveMinimum %}
+        {% set typedef %}const WithoutExclusive = WithinRangeNumber<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeNumberTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }}){% endset %}
+        {{ defineConst(undefined, 'WithoutExclusive', typedef, false, true) }}
+        {% set typedef %}
+        t.brand(
+          WithoutExclusive,
+          (
+            n
+          ): n is t.Branded<
+            t.TypeOf<typeof WithoutExclusive>,
+            { readonly {{ definitionName }}: symbol }
+          > => n != {{ definition.minimum }},
+          "{{definitionName}}"
+        );
+        {% endset %}
+      {## [R,L]  #}  
+      {% else %}
+        {% set typedef %}t.union([
+          WithinRangeNumber<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeNumberTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }}),
+          t.literal({{ definition.maximum }})
+        ]){% endset %}
+      {% endif %}
+    {% endif %}
   {% elif definition.minimum == "0" %}
     {{- 'import { NonNegativeNumber } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeNumber{% endset %}
@@ -89,10 +134,12 @@
  #}
 {% macro defineInteger(definitionName, definition, inline = false) -%}
   {% if definition.minimum != undefined and definition.maximum != undefined %}
+    {% set minimum = definition.minimum + 1 if definition.exclusiveMinimum else definition.minimum %}
+    {% set maximum = definition.maximum - 1 if definition.exclusiveMaximum else definition.maximum %}
     {{- 'import { IWithinRangeIntegerTag, WithinRangeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}t.union([
-      WithinRangeInteger<{{ definition.minimum }}, {{ definition.maximum }}, IWithinRangeIntegerTag<{{ definition.minimum }}, {{ definition.maximum }}>>({{ definition.minimum }}, {{ definition.maximum }}),
-      t.literal({{ definition.maximum }})
+      WithinRangeInteger<{{ minimum }}, {{ maximum }}, IWithinRangeIntegerTag<{{ minimum }}, {{ maximum }}>>({{ minimum }}, {{ maximum }}),
+      t.literal({{ maximum }})
     ]){% endset %}
   {% elif definition.minimum == "0" %}
     {{- 'import { NonNegativeInteger } from "italia-ts-commons/lib/numbers";' | addImport -}}
