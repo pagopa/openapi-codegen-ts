@@ -302,6 +302,21 @@ definitions:
           - value1
           - value2
           - value3
+  EnumTrueTest:
+    type: object
+    properties:
+      flag:
+        type: boolean
+        enum:
+          - true
+  EnumTrueFalseTest:
+    type: object
+    properties:
+      flag:
+        type: boolean
+        enum:
+          - true      
+          - false       
   MessageContent:
     type: object
     properties:

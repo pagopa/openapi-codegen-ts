@@ -20,6 +20,9 @@ import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeInteg
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
 
+import { EnumTrueFalseTest } from "../../generated/testapi/EnumTrueFalseTest";
+import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
+
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
 // if there's no need for this suite in this particular run, just skip it
@@ -287,4 +290,36 @@ describe("WithinRangeStringTest defintion", () => {
       expect(result.isRight()).toEqual(expected);
     }
   );
+});
+
+describe("EnumTrueTest definition", () => {
+  const statusOk = { flag: true };
+  const statusKo = { flag: false };
+
+  it("should decode statusOk with EnumTrueTest", () => {
+    const result = EnumTrueTest.decode(statusOk);
+    expect(result.isRight()).toBe(true);
+  });
+
+  it("should not decode statusKo with EnumTrueTest", () => {
+    const result = EnumTrueTest.decode(statusKo);
+
+    expect(result.isLeft()).toBe(true);
+  });
+});
+
+describe("EnumTrueFalseTest definition", () => {
+  const statusTrue = { flag: true };
+  const statusFalse = { flag: false };
+
+  it("should decode statusTrue with EnumTrueFalseTest", () => {
+    const result = EnumTrueFalseTest.decode(statusTrue);
+    expect(result.isRight()).toBe(true);
+  });
+
+  it("should decode statusFalse with EnumTrueFalseTest", () => {
+    const result = EnumTrueFalseTest.decode(statusFalse);
+
+    expect(result.isRight()).toBe(true);
+  });
 });
