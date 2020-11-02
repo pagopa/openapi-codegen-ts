@@ -20,7 +20,9 @@ import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeInteg
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
 
+import { DisabledUserTest } from "../../generated/testapi/DisabledUserTest";
 import { DisjointUnionsUserTest } from "../../generated/testapi/DisjointUnionsUserTest";
+import { EnabledUserTest } from "../../generated/testapi/EnabledUserTest";
 import { EnumFalseTest } from "../../generated/testapi/EnumFalseTest";
 import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
 
@@ -344,18 +346,32 @@ describe("DisjointUnionsUserTest definition", () => {
   };
 
   it("should decode enabledUser with DisjointUnionsUserTest", () => {
-    const result = DisjointUnionsUserTest.decode(enabledUser);
-    expect(result.isRight()).toBe(true);
+    const userTest = DisjointUnionsUserTest.decode(enabledUser);
+    const enabledUserTest = EnabledUserTest.decode(enabledUser);
+    const disabledUserTest = DisabledUserTest.decode(enabledUser);
+
+    expect(userTest.isRight()).toBe(true);
+    expect(enabledUserTest.isRight()).toBe(true);
+    expect(disabledUserTest.isLeft()).toBe(true);
   });
 
   it("should decode disabledUser with DisjointUnionsUserTest", () => {
-    const result = DisjointUnionsUserTest.decode(disabledUser);
-    expect(result.isRight()).toBe(true);
+    const userTest = DisjointUnionsUserTest.decode(disabledUser);
+    const enabledUserTest = EnabledUserTest.decode(disabledUser);
+    const disabledUserTest = DisabledUserTest.decode(disabledUser);
+
+    expect(userTest.isRight()).toBe(true);
+    expect(disabledUserTest.isRight()).toBe(true);
+    expect(enabledUserTest.isLeft()).toBe(true);
   });
 
   it("should not decode invalidUser with DisjointUnionsUserTest", () => {
-    const result = DisjointUnionsUserTest.decode(invalidUser);
+    const userTest = DisjointUnionsUserTest.decode(invalidUser);
+    const enabledUserTest = EnabledUserTest.decode(invalidUser);
+    const disabledUserTest = DisabledUserTest.decode(invalidUser);
 
-    expect(result.isLeft()).toBe(true);
+    expect(userTest.isLeft()).toBe(true);
+    expect(disabledUserTest.isLeft()).toBe(true);
+    expect(enabledUserTest.isLeft()).toBe(true);
   });
 });
