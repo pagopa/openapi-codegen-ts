@@ -20,7 +20,6 @@ import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeInteg
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
 
-import { EnumTrueFalseTest } from "../../generated/testapi/EnumTrueFalseTest";
 import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
 
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
