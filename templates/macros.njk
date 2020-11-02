@@ -215,18 +215,8 @@
  # defines a boolean property
  #}
 {% macro defineBoolean(definitionName, definition, inline = false) -%}
-  {% if definition["enum"] %}    
-    {% if definition["enum"] | length == 1 %}
-      {% set typedef %}t.literal({{definition["enum"][0]}}){% endset %}
-    {% elif definition["enum"] | length > 1 %}
-      {% set typedef %}
-        t.union([
-        {% for enum in definition["enum"] %}
-          t.literal({{enum}}),
-        {% endfor %}
-        ])
-      {% endset %}
-    {% endif %}
+  {% if definition["enum"] and definition["enum"] | length == 1%}    
+    {% set typedef %}t.literal({{definition["enum"][0]}}){% endset %}
   {% else %}
     {% set typedef %}t.boolean{% endset %}
   {% endif %}

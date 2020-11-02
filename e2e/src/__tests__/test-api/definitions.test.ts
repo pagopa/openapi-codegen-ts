@@ -307,19 +307,3 @@ describe("EnumTrueTest definition", () => {
     expect(result.isLeft()).toBe(true);
   });
 });
-
-describe("EnumTrueFalseTest definition", () => {
-  const statusTrue = { flag: true };
-  const statusFalse = { flag: false };
-
-  it("should decode statusTrue with EnumTrueFalseTest", () => {
-    const result = EnumTrueFalseTest.decode(statusTrue);
-    expect(result.isRight()).toBe(true);
-  });
-
-  it("should decode statusFalse with EnumTrueFalseTest", () => {
-    const result = EnumTrueFalseTest.decode(statusFalse);
-
-    expect(result.isRight()).toBe(true);
-  });
-});

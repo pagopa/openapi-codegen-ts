@@ -308,15 +308,7 @@ definitions:
       flag:
         type: boolean
         enum:
-          - true
-  EnumTrueFalseTest:
-    type: object
-    properties:
-      flag:
-        type: boolean
-        enum:
-          - true      
-          - false       
+          - true 
   MessageContent:
     type: object
     properties:
