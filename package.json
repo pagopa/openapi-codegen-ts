@@ -35,7 +35,7 @@
     "safe-identifier": "^0.4.2",
     "swagger-parser": "^7.0.0",
     "write-yaml-file": "^4.1.0",
-    "yargs": "^11.1.0"
+    "yargs": "^16.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.2",
