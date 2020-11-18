@@ -215,7 +215,11 @@
  # defines a boolean property
  #}
 {% macro defineBoolean(definitionName, definition, inline = false) -%}
-  {% set typedef %}t.boolean{% endset %}
+  {% if definition["enum"] and definition["enum"] | length == 1%}    
+    {% set typedef %}t.literal({{definition["enum"][0]}}){% endset %}
+  {% else %}
+    {% set typedef %}t.boolean{% endset %}
+  {% endif %}
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro %}
 

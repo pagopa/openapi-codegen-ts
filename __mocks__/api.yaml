@@ -302,6 +302,55 @@ definitions:
           - value1
           - value2
           - value3
+  EnumTrueTest:
+    type: object
+    properties:
+      flag:
+        type: boolean
+        enum:
+          - true
+  EnumFalseTest:
+    type: object
+    properties:
+      flag:
+        type: boolean
+        enum:
+          - false
+  EnabledUserTest:
+    type: object
+    properties:
+      description:
+        type: string   
+      enabled:
+        type: boolean
+        enum:
+          - true
+      username:
+        type: string
+    required:
+      - enabled 
+      - description
+      - username
+  DisabledUserTest:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        enum:
+          - false
+      reason:
+         type: string    
+      username:
+        type: string
+    required:
+      - enabled
+      - reason 
+      - username      
+  DisjointUnionsUserTest: 
+    x-one-of: true
+    allOf:
+      - $ref: "#/definitions/EnabledUserTest"
+      - $ref: "#/definitions/DisabledUserTest"                 
   MessageContent:
     type: object
     properties:

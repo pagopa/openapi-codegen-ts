@@ -20,6 +20,12 @@ import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeInteg
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
 
+import { DisabledUserTest } from "../../generated/testapi/DisabledUserTest";
+import { DisjointUnionsUserTest } from "../../generated/testapi/DisjointUnionsUserTest";
+import { EnabledUserTest } from "../../generated/testapi/EnabledUserTest";
+import { EnumFalseTest } from "../../generated/testapi/EnumFalseTest";
+import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
+
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
 // if there's no need for this suite in this particular run, just skip it
@@ -287,4 +293,85 @@ describe("WithinRangeStringTest defintion", () => {
       expect(result.isRight()).toEqual(expected);
     }
   );
+});
+
+describe("EnumTrueTest definition", () => {
+  const statusOk = { flag: true };
+  const statusKo = { flag: false };
+
+  it("should decode statusOk with EnumTrueTest", () => {
+    const result = EnumTrueTest.decode(statusOk);
+    expect(result.isRight()).toBe(true);
+  });
+
+  it("should not decode statusKo with EnumTrueTest", () => {
+    const result = EnumTrueTest.decode(statusKo);
+
+    expect(result.isLeft()).toBe(true);
+  });
+});
+
+describe("EnumFalseTest definition", () => {
+  const statusOk = { flag: false };
+  const statusKo = { flag: true };
+
+  it("should decode statusOk with EnumFalseTest", () => {
+    const result = EnumFalseTest.decode(statusOk);
+    expect(result.isRight()).toBe(true);
+  });
+
+  it("should not decode statusKo with EnumFalseTest", () => {
+    const result = EnumFalseTest.decode(statusKo);
+
+    expect(result.isLeft()).toBe(true);
+  });
+});
+
+describe("DisjointUnionsUserTest definition", () => {
+  const enabledUser = {
+    description: "Description for the user",
+    enabled: true,
+    username: "user"
+  };
+  const disabledUser = {
+    enabled: false,
+    reason: "reason for the user",
+    username: "user"
+  };
+
+  const invalidUser = {
+    description: "Description for the user",
+    enabled: false,
+    username: "user"
+  };
+
+  it("should decode enabledUser with DisjointUnionsUserTest", () => {
+    const userTest = DisjointUnionsUserTest.decode(enabledUser);
+    const enabledUserTest = EnabledUserTest.decode(enabledUser);
+    const disabledUserTest = DisabledUserTest.decode(enabledUser);
+
+    expect(userTest.isRight()).toBe(true);
+    expect(enabledUserTest.isRight()).toBe(true);
+    expect(disabledUserTest.isLeft()).toBe(true);
+  });
+
+  it("should decode disabledUser with DisjointUnionsUserTest", () => {
+    const userTest = DisjointUnionsUserTest.decode(disabledUser);
+    const enabledUserTest = EnabledUserTest.decode(disabledUser);
+    const disabledUserTest = DisabledUserTest.decode(disabledUser);
+
+    expect(userTest.isRight()).toBe(true);
+    expect(disabledUserTest.isRight()).toBe(true);
+    expect(enabledUserTest.isLeft()).toBe(true);
+  });
+
+  it("should not decode invalidUser with DisjointUnionsUserTest", () => {
+    const userTest = DisjointUnionsUserTest.decode(invalidUser);
+    const enabledUserTest = EnabledUserTest.decode(invalidUser);
+    const disabledUserTest = DisabledUserTest.decode(invalidUser);
+
+    expect(userTest.isLeft()).toBe(true);
+    expect(disabledUserTest.isLeft()).toBe(true);
+    expect(enabledUserTest.isLeft()).toBe(true);
+  });
 });
