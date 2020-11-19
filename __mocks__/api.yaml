@@ -127,6 +127,7 @@ paths:
           in: query
           type: string
         - $ref: "#/parameters/RequestId"
+        - $ref: "#/parameters/HeaderParamWithDashes"
       responses:
         "200":
           description: "Ok"
@@ -584,6 +585,12 @@ parameters:
     name: request-id
     in: query
     type: string
+  HeaderParamWithDashes:
+    name: x-header-param
+    in: header
+    description: A header param which has dashes in it
+    type: string
+    required: true
 consumes:
   - application/json
 produces:
