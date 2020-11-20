@@ -1,7 +1,7 @@
-import { createClient } from "../../generated/testapi/client";
-import { isRight, Either } from "fp-ts/lib/Either";
+import { Either, isRight } from "fp-ts/lib/Either";
 import nodeFetch from "node-fetch";
 import config from "../../config";
+import { createClient } from "../../generated/testapi/client";
 
 // @ts-ignore because leaked-handles doesn't ship type defintions
 import * as leaked from "leaked-handles";
@@ -23,7 +23,7 @@ describeSuite("Http client generated from Test API spec", () => {
     const client = createClient({
       baseUrl: `http://localhost:${mockPort}`,
       fetchApi: (nodeFetch as any) as typeof fetch,
-      basePath: "",
+      basePath: ""
     });
 
     expect(client.testAuthBearer).toEqual(expect.any(Function));
@@ -36,12 +36,12 @@ describeSuite("Http client generated from Test API spec", () => {
   });
 
   it("should make a call, with default parameters", async () => {
-  
     const client = createClient<"bearerToken">({
       baseUrl: `http://localhost:${mockPort}`,
       fetchApi: (nodeFetch as any) as typeof fetch,
       basePath: "",
-      withDefaults: (op: any) => (params: any) => op({ ...params, bearerToken: 'abc123'})
+      withDefaults: (op: any) => (params: any) =>
+        op({ ...params, bearerToken: "abc123" })
     });
 
     expect(client.testAuthBearer).toEqual(expect.any(Function));
@@ -63,6 +63,7 @@ describeSuite("Http client generated from Test API spec", () => {
 
     const result = await client.testParameterWithDash({
       "foo-bar": "value",
+      headerInlineParam: "value",
       "path-param": "value",
       "request-id": "value",
       "x-header-param": "value"

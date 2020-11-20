@@ -363,7 +363,7 @@ exports[`gen-api-models should generate decoder definitions for (get, /test-para
      */
 
     // Request type definition
-    export type TestParameterWithDashT = r.IGetApiRequestType<{readonly \\"path-param\\"?: string,readonly \\"foo-bar\\"?: string,readonly \\"request-id\\"?: string,readonly \\"x-header-param\\": string}, never, never, r.IResponseType<200, undefined, never>|r.IResponseType<500, undefined, never>>;
+    export type TestParameterWithDashT = r.IGetApiRequestType<{readonly \\"path-param\\"?: string,readonly \\"foo-bar\\"?: string,readonly \\"headerInlineParam\\": string,readonly \\"request-id\\"?: string,readonly \\"x-header-param\\": string}, never, never, r.IResponseType<200, undefined, never>|r.IResponseType<500, undefined, never>>;
   
       
     export const testParameterWithDashDefaultResponses = {
@@ -1048,10 +1048,14 @@ export function createClient<K extends ParamKeys>({
     method: \\"get\\",
 
     headers: ({
+      [\\"headerInlineParam\\"]: headerInlineParam,
       [\\"x-header-param\\"]: xHeaderParam
     }: {
+      headerInlineParam: string;
       \\"x-header-param\\": string;
     }) => ({
+      headerInlineParam: headerInlineParam,
+
       \\"x-header-param\\": xHeaderParam
     }),
     response_decoder: testParameterWithDashDefaultDecoder(),

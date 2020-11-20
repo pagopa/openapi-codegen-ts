@@ -126,8 +126,12 @@ paths:
         - name: foo-bar
           in: query
           type: string
+        - name: headerInlineParam
+          in: header
+          type: string
+          required: true
         - $ref: "#/parameters/RequestId"
-        - $ref: "#/parameters/HeaderParamWithDashes"
+        - $ref: "#/parameters/HeaderParamWithReference"
       responses:
         "200":
           description: "Ok"
@@ -585,7 +589,7 @@ parameters:
     name: request-id
     in: query
     type: string
-  HeaderParamWithDashes:
+  HeaderParamWithReference:
     name: x-header-param
     in: header
     description: A header param which has dashes in it
