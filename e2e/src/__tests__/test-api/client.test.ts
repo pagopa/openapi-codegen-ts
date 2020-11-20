@@ -64,7 +64,8 @@ describeSuite("Http client generated from Test API spec", () => {
     const result = await client.testParameterWithDash({
       "foo-bar": "value",
       "path-param": "value",
-      "request-id": "value"
+      "request-id": "value",
+      "x-header-param": "value"
     });
     expect(isRight(result)).toBe(true);
   });

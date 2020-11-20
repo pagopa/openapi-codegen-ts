@@ -1050,9 +1050,9 @@ export function createClient<K extends ParamKeys>({
     headers: ({
       [\\"x-header-param\\"]: xHeaderParam
     }: {
-      xHeaderParam: string;
+      \\"x-header-param\\": string;
     }) => ({
-      \\"\\": x - header - param
+      \\"x-header-param\\": xHeaderParam
     }),
     response_decoder: testParameterWithDashDefaultDecoder(),
     url: ({ [\\"path-param\\"]: pathParam }) =>

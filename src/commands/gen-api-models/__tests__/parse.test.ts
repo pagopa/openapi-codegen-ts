@@ -99,4 +99,32 @@ describe("parseOperation", () => {
       })
     );
   });
+
+  it("should parse an operation with header parameters", () => {
+    const parsed = parseOperation(
+      spec,
+      "/test-parameter-with-dash/{path-param}",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "get",
+        path: "/test-parameter-with-dash/{path-param}",
+        parameters: expect.arrayContaining([
+          { name: "path-param?", in: "path", type: "string" },
+          { name: "foo-bar?", in: "query", type: "string" },
+          { name: "request-id?", in: "query", type: "string" },
+          {
+            headerName: "x-header-param",
+            in: "header",
+            name: "x-header-param",
+            type: "string"
+          }
+        ])
+      })
+    );
+  });
 });
