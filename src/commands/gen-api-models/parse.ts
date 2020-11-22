@@ -265,15 +265,25 @@ export const parseOperation = (
 const parseParameter = (
   specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
   operationId: string
-) => (param: OpenAPIV2.ParameterObject): IParameterInfo | undefined => {
-  if (param.name && param.type && param.in !== "header") {
-    return {
-      name: `${param.name}${param.required ? "" : "?"}`,
-      in: param.in,
-      type: specTypeToTs(param.type)
-    };
-  }
-  // Parameter is declared as ref, we need to look it up
+) => (param: OpenAPIV2.ParameterObject): IParameterInfo | undefined =>
+  param.name && param.type
+    ? parseInlineParam(param)
+    : parseParamWithReference(specParameters, operationId, param);
+
+const parseInlineParam = (
+  param: OpenAPIV2.ParameterObject
+): IParameterInfo => ({
+  in: param.in,
+  name: `${param.name}${param.required ? "" : "?"}`,
+  type: specTypeToTs(param.type),
+  ...(param.in === "header" ? { headerName: param.name } : {})
+});
+
+const parseParamWithReference = (
+  specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
+  operationId: string,
+  param: OpenAPIV2.ParameterObject
+): IParameterInfo | undefined => {
   const refInParam: string | undefined =
     param.$ref || (param.schema ? param.schema.$ref : undefined);
 
@@ -313,11 +323,11 @@ const parseParameter = (
       ? specParameters[parsedRef.e2].required
       : false;
 
-  const paramName = `${uncapitalize(
+  const paramName = uncapitalize(
     specParameters && specParameters[parsedRef.e2]
       ? specParameters[parsedRef.e2].name
       : param.name
-  )}${isParamRequired ? "" : "?"}`;
+  );
 
   const paramIn =
     specParameters && specParameters[parsedRef.e2]
@@ -325,11 +335,12 @@ const parseParameter = (
       : param.in;
 
   return {
-    name: paramName,
+    in: paramIn,
+    name: `${paramName}${isParamRequired ? "" : "?"}`,
     type: paramType,
-    in: paramIn
+    ...(paramIn === "header" ? { headerName: paramName } : {})
   };
-};
+}
 
 /**
  * Parse security along with security definitions to obtain a collection of tuples in the form (keyName, headerName).

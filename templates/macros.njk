@@ -508,13 +508,13 @@
  #}
 {% macro tokenize(headerParam) -%}
 {% if headerParam.tokenType === "apiKey" and headerParam.authScheme and headerParam.authScheme !== "none" %}
-`{{ headerParam.authScheme | capitalizeFirst }} {{ $(headerParam.name) }}`
+`{{ headerParam.authScheme | capitalizeFirst }} {{ $(headerParam.name | safeIdentifier) }}`
 {% elif headerParam.tokenType === "oauth" %}
-`Bearer {{ $(headerParam.name) }}`
+`Bearer {{ $(headerParam.name | safeIdentifier ) }}`
 {% elif headerParam.tokenType === "basic" %}
-`Basic {{ $(headerParam.name) }}
+`Basic {{ $(headerParam.name | safeIdentifier) }}
 `{% else %}
-{{ headerParam.name }}
+{{ headerParam.name | safeIdentifier }}
 {% endif %}
 {% endmacro %}
 
@@ -545,8 +545,8 @@
 {% macro composedHeaderProducers(headerParams, consumes) -%}
   (
     {% if headerParams.length  %}
-    { {% for p in headerParams %}{{p.name}},{% endfor %} }: 
-    { {% for p in headerParams %}{{p.name}}:{{p.type}};{% endfor %} }
+    { {% for p in headerParams %}{{p.name | safeDestruct | safe }},{% endfor %} }: 
+    { {% for p in headerParams %}"{{p.name | safe }}":{{p.type}};{% endfor %} }
     {% endif %}
   ) => ({
     {% for p in headerParams %}"{{p.headerName}}": {{ tokenize(p) }},{% endfor %}
