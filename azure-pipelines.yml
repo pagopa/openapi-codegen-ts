@@ -43,10 +43,7 @@ variables:
 # of the following conditions is true:
 # - a push is made to any branch in the repository (not only 'master')
 # - a pull request is created
-trigger:
-  branches:
-    include:
-      - '*'
+trigger: none
 
 # This pipeline has been implemented to be run on hosted agent pools based both
 # on 'windows' and 'ubuntu' virtual machine images and using the scripts defined
