@@ -1,0 +1,70 @@
+# Azure DevOps pipeline to build, check source codes and run tests.
+#
+# To make Danger JS run on a pull request you need to add the following pipeline 
+# variable and set it with a GitHub access token (scope public_repo); otherwise 
+# set its value to 'skip' without marking it secret: 
+# - DANGER_GITHUB_API_TOKEN
+# 
+
+variables:
+  NODE_VERSION: '10.14.1'
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+
+# Automatically triggered on PR
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema%2Cparameter-schema#pr-trigger
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    dependsOn: []
+    jobs:
+      - job: make_build
+        steps:
+          - template: azure-templates/setup-project.yml
+          - script: |
+              yarn build
+            displayName: 'Build'
+  
+  - stage: Static_analysis
+    dependsOn: []
+    jobs:          
+      - job: lint
+        steps:
+          - template: azure-templates/setup-project.yml
+          - script: |
+              yarn lint
+            displayName: 'Lint'
+
+      - job: danger
+        condition: 
+          and(
+            succeeded(), 
+            and(
+              eq(variables['Build.Reason'], 'PullRequest'),
+              ne(variables['DANGER_GITHUB_API_TOKEN'], 'skip')
+            )
+          )
+        steps:
+          - template: azure-templates/setup-project.yml
+          - bash: |
+              yarn danger ci
+            env:
+              DANGER_GITHUB_API_TOKEN: '$(DANGER_GITHUB_API_TOKEN)'
+            displayName: 'Danger CI'
+
+  - stage: Test
+    dependsOn: []
+    jobs:
+      - job: unit_tests
+        steps:
+          - template: azure-templates/setup-project.yml
+          - script: |
+              yarn test
+            displayName: 'Unit tests exec'
+
+          - bash: |
+              bash <(curl -s https://codecov.io/bash)
+            displayName: 'Code coverage'
