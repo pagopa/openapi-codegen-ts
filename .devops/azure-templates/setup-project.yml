@@ -4,10 +4,6 @@
 # 3. install node dependencies
 
 parameters:
-- name: 'cache_version_id'
-  type: string
-  default: $(CACHE_VERSION_ID)
-
 # the branch, tag or commit to deploy
 - name: 'gitReference'
   type: string
