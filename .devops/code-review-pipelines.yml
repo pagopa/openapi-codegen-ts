@@ -75,8 +75,6 @@ stages:
       - job: e2e_tests
         steps:
           - template: azure-templates/setup-project.yml
-            parameters:
-              make: install_dependencies
           # e2e script builds the package
           - script: |
               yarn e2e
