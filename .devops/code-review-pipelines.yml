@@ -68,3 +68,17 @@ stages:
           - bash: |
               bash <(curl -s https://codecov.io/bash)
             displayName: 'Code coverage'
+  
+  - stage: Teste_2e
+    dependsOn: []
+    jobs:
+      - job: e2e_tests
+        steps:
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
+          # e2e script builds the package
+          - script: |
+              yarn e2e
+            displayName: 'e2e tests exec'
+
