@@ -81,4 +81,3 @@ stages:
           - script: |
               yarn e2e
             displayName: 'e2e tests exec'
-

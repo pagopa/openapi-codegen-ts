@@ -1,7 +1,7 @@
 # Azure DevOps pipeline template used to setup the Node project:
 # 1. checkout code
 # 2. setup correct node version
-# 3. install node dependencies
+# 3. install node dependencies 
 
 parameters:
 # the branch, tag or commit to deploy
