@@ -98,24 +98,14 @@ stages:
             inputs:
               SourceFolder: '$(System.DefaultWorkingDirectory)'
               TargetFolder: '$(System.DefaultWorkingDirectory)/bundle'
+              # The list of files to be considered is determined by the "files" entry in package.json
               Contents: |
-                **/*
-                !.git/**/*
-                !**/*.js.map
-                !**/*.ts
-                !src/**/*
-                !.vscode/**/*
-                !.devops/**/*
-                !.prettierrc
-                !.gitignore
-                !jest.config.js
-                !test
-                !tsconfig.json
-                !tslint.json
-                !yarn.lock
-                !Dangerfile.js
-                !CODEOWNERS
-                !__*/**/*
+                README.md
+                LICENSE
+                CHANGELOG.md
+                package.json
+                dist/**/*
+                templates/**/*
             displayName: 'Copy bundle files'
           
           - publish: $(System.DefaultWorkingDirectory)/bundle
@@ -138,3 +128,4 @@ stages:
               command: publish
               verbose: true
               publishEndpoint: $(NPM_CONNECTION)
+              workingDir: '$(Pipeline.Workspace)/Bundle'
