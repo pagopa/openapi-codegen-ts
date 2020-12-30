@@ -16,7 +16,6 @@
     "templates/"
   ],
   "scripts": {
-    "prepublishOnly": "crlf --set=LF dist/* && npm run build",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc",
     "postversion": "git push && git push --tags",
