@@ -1,5 +1,5 @@
 {
-  "name": "italia-utils",
+  "name": "@pagopa/openapi-codegen-ts",
   "version": "6.3.0",
   "description": "Tools and utilities for the IO project",
   "repository": "https://github.com/pagopa/io-utils",

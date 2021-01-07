@@ -6,7 +6,7 @@ Digital Citizenship initiative.
 To add the tools to a project:
 
 ```sh
-$ yarn add -D italia-utils
+$ yarn add -D @pagopa/openapi-codegen-ts
 ```
 
 ## Commands
