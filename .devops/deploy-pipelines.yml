@@ -1,0 +1,132 @@
+# Azure DevOps pipeline to release a new version and publish the package to the registry
+#
+# The following variables must be configured in the pipeline settings
+#
+# GIT_EMAIL         - when bumping the package version, is the email we author the commit with
+# GIT_USERNAME      - when bumping the package version, is the name we author the commit with
+# GITHUB_CONNECTION - name of the Github service connection used to create a new release; be sure that the related user has appopriate right
+# NPM_CONNECTION    - name of the NPM service connection used to publish the package; be sure that the related user has appopriate right
+# 
+
+variables:
+  NODE_VERSION: '10.14.1'
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+
+parameters:
+  - name: 'RELEASE_SEMVER'
+    displayName: 'When packing a release, define the version bump to apply'
+    type: string
+    values:
+      - major
+      - minor
+      - patch
+    default: minor
+
+# Only manual activations are intended
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+    - repository: pagopaCommons
+      type: github
+      name: pagopa/azure-pipeline-templates
+      ref: refs/tags/v4
+      endpoint: 'pagopa'
+
+stages:
+
+  # Create a relase
+  # Activated when ONE OF these are met:
+  # - is on branch master 
+  # - is a tag in the form v{version}-RELEASE
+  - stage: Release
+    condition:
+      and(
+        succeeded(),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+          and(
+            startsWith(variables['Build.SourceBranch'], 'refs/tags'),
+            endsWith(variables['Build.SourceBranch'], '-RELEASE')
+          )
+        )
+      )
+    jobs:
+      - job: make_release
+        steps:
+        - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
+          - template: templates/node-github-release/template.yaml@pagopaCommons 
+            parameters:
+              semver: '${{ parameters.RELEASE_SEMVER }}'
+              gitEmail: $(GIT_EMAIL)
+              gitUsername: $(GIT_USERNAME)
+              gitHubConnection: $(GITHUB_CONNECTION)
+              nodeVersion: $(NODE_VERSION)
+              pkg_cache_version_id: $(CACHE_VERSION_ID)
+              pkg_cache_folder: $(YARN_CACHE_FOLDER)
+
+        - ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master') }}:
+          - script: |
+              echo "We assume this reference to be a valid release: $(Build.SourceBranch). Therefore, there is no need to bundle a new release."
+            displayName: 'Skip release bundle'
+
+  # Prepare Artifact
+  - stage: Prepare_artifact
+    dependsOn:
+      - Release
+    jobs:
+      - job: make_build
+        steps:
+          - template: azure-templates/setup-project.yml
+            parameters:
+              # On the assumption that this stage is executed only when Relase stage is,
+              #  with this parameter we set the reference the deploy script must pull changes from.
+              # The branch/tag name is calculated from the source branch
+              #  ex: Build.SourceBranch=refs/heads/master --> master
+              #  ex: Build.SourceBranch=refs/tags/v1.2.3-RELEASE --> v1.2.3-RELEASE
+              gitReference: ${{ replace(replace(variables['Build.SourceBranch'], 'refs/tags/', ''), 'refs/heads/', '') }}
+
+          - script: |
+              yarn build
+            displayName: 'Build'
+
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              TargetFolder: '$(System.DefaultWorkingDirectory)/bundle'
+              # The list of files to be considered is determined by the "files" entry in package.json
+              Contents: |
+                README.md
+                LICENSE
+                CHANGELOG.md
+                package.json
+                dist/**/*
+                templates/**/*
+            displayName: 'Copy bundle files'
+          
+          - publish: $(System.DefaultWorkingDirectory)/bundle
+            artifact: Bundle
+
+  # Publish
+  - stage: Publish
+    dependsOn:
+      - Prepare_artifact
+    jobs:
+      - job: publish
+        steps:   
+          - checkout: none
+
+          - download: current
+            artifact: Bundle
+
+          - task: Npm@1
+            inputs: 
+              command: custom
+              customCommand: publish --access public
+              customEndpoint: $(NPM_CONNECTION)
+              verbose: true
+              workingDir: '$(Pipeline.Workspace)/Bundle'

@@ -16,16 +16,15 @@
     "templates/"
   ],
   "scripts": {
-    "prepublishOnly": "crlf --set=LF dist/* && npm run build",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc",
-    "version": "npm run build",
-    "postversion": "git push && git push --tags",
     "e2e": "yarn build && cd ./e2e && yarn install --frozen-lockfile && yarn start",
     "pretest": "jest --clearCache",
     "test": "jest",
     "lint": "tslint --project .",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "preversion": "auto-changelog  --config .auto-changelog.json --unreleased --commit-limit false --stdout --template preview.hbs",
+    "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md"
   },
   "dependencies": {
     "fs-extra": "^6.0.0",
@@ -44,12 +43,12 @@
     "@types/nunjucks": "^3.0.0",
     "@types/prettier": "^1.12.0",
     "@types/yargs": "^11.1.0",
+    "auto-changelog": "^2.2.1",
     "crlf": "^1.1.1",
     "danger": "^3.5.1",
     "danger-plugin-digitalcitizenship": "^0.3.1",
     "io-ts": "1.8.5",
     "jest": "^25.2.7",
-    "release-it": "^13.3.0",
     "rimraf": "^2.6.2",
     "ts-jest": "^25.3.1",
     "ts-node": "^6.1.0",
