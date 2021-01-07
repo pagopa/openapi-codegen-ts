@@ -18,7 +18,6 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && tsc",
-    "postversion": "git push && git push --tags",
     "e2e": "yarn build && cd ./e2e && yarn install --frozen-lockfile && yarn start",
     "pretest": "jest --clearCache",
     "test": "jest",
