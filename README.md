@@ -1,3 +1,12 @@
+# ⚠️ The package `italia-utils` has been deprecated in favor of `@pagopa/openapi-codegen-ts`.
+Only the latter will receive updates, so we strongly advice to migrate to the new package. There are no significative differences between the latest version of `italia-utils` (6.3.1) and the first version of `@pagopa/openapi-codegen-ts` (7.0.0), so the migration will be painless. 
+
+As the latter is just an evolution of the first, both packages share the very same repository and hence the same version history.
+
+If you need to fix somtheing or add a new feature, please do it in the `master` branch.
+
+---
+
 # Utilities and tools for the Digital Citizenship initiative
 
 This package provide some tools that are used across the projects of the
