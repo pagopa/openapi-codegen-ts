@@ -9,11 +9,11 @@ $ yarn start
 $ yarn start --verbose # for a detailed list of executed test cases
 ```
 
-Please be sure that the `italia-utils` module has been compiled first.
+Please be sure that the `@pagopa/openapi-codegen-ts` module has been compiled first.
 
 ## How it works
 
-This project installs `italia-utils` and try to reproduce user interactions with the module. It ships several OpenApi specifications and for each it performs the relative code generation. At each specification is associated a name and a set of test suites that load generated modules and execute them in their intended scenarios. In order to test generated http clients, a http server for each specification is instantiated, serving a mock representation of the intendend api.
+This project installs `@pagopa/openapi-codegen-ts` and try to reproduce user interactions with the module. It ships several OpenApi specifications and for each it performs the relative code generation. At each specification is associated a name and a set of test suites that load generated modules and execute them in their intended scenarios. In order to test generated http clients, a http server for each specification is instantiated, serving a mock representation of the intendend api.
 
 ## Global configuration
 

@@ -4,7 +4,7 @@
  *  - it runs mock servers
  */
 
-import { generateApi } from "italia-utils";
+import { generateApi } from "@pagopa/openapi-codegen-ts";
 import { array } from "fp-ts/lib/Array";
 import { task } from "fp-ts/lib/Task";
 import { right, taskEither, tryCatch } from "fp-ts/lib/TaskEither";
@@ -17,7 +17,7 @@ const noopTE = right<Error, undefined>(task.of(undefined));
 const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
   tryCatch(
     () => generateApi(...p),
-    (reason) => {
+    reason => {
       console.error(reason);
       return new Error(`cannot create api `);
     }
@@ -26,7 +26,7 @@ const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
 const tsStartServer = (...p: Parameters<typeof startMockServer>) =>
   tryCatch(
     () => startMockServer(...p),
-    (reason) => {
+    reason => {
       console.error(reason);
       return new Error(`cannot start mock server`);
     }
@@ -46,7 +46,7 @@ export default async () => {
             definitionsDirPath: generatedFilesDir,
             generateClient: true,
             specFilePath: url,
-            strictInterfaces: true,
+            strictInterfaces: true
           })
       ).chain(() => (skipClient ? noopTE : tsStartServer(url, mockPort)))
     );
@@ -54,7 +54,7 @@ export default async () => {
   const startedAt = Date.now();
   return array
     .sequence(taskEither)(tasks)
-    .orElse((e) => {
+    .orElse(e => {
       throw e;
     })
     .run()
