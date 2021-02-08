@@ -115,7 +115,7 @@ export function renderAllOperations(
   
         ${generateResponseDecoders ? 'import * as t from "io-ts";' : ""}
   
-        import * as r from "italia-ts-commons/lib/requests";
+        import * as r from "@pagopa/ts-commons/lib/requests";
   
         ${Array.from(operationsImports.values())
           .map(i => `import { ${i} } from "./${i}";`)

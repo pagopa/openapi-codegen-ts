@@ -52,7 +52,7 @@ exports[`gen-api-models should generate a module with all definitions 1`] = `
 
 import * as t from \\"io-ts\\";
 
-import * as r from \\"italia-ts-commons/lib/requests\\";
+import * as r from \\"@pagopa/ts-commons/lib/requests\\";
 
 /****************************************************************
  * testAuthBearer
@@ -409,7 +409,7 @@ exports[`gen-api-models should handle CustomStringFormats: custom-string-format 
  */
 /* tslint:disable */
 
-import { SomeCustomStringType as SomeCustomStringTypeT } from \\"italia-ts-commons/lib/strings\\";
+import { SomeCustomStringType as SomeCustomStringTypeT } from \\"@pagopa/ts-commons/lib/strings\\";
 import * as t from \\"io-ts\\";
 
 export type CustomStringFormatTest = t.TypeOf<typeof CustomStringFormatTest>;
@@ -424,7 +424,7 @@ exports[`gen-api-models should handle NonNegativeIntegers: non-negative-integer 
  */
 /* tslint:disable */
 
-import { NonNegativeInteger } from \\"italia-ts-commons/lib/numbers\\";
+import { NonNegativeInteger } from \\"@pagopa/ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type NonNegativeIntegerTest = t.TypeOf<typeof NonNegativeIntegerTest>;
@@ -439,7 +439,7 @@ exports[`gen-api-models should handle NonNegativeNumbers: non-negative-numbers 1
  */
 /* tslint:disable */
 
-import { NonNegativeNumber } from \\"italia-ts-commons/lib/numbers\\";
+import { NonNegativeNumber } from \\"@pagopa/ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type NonNegativeNumberTest = t.TypeOf<typeof NonNegativeNumberTest>;
@@ -457,7 +457,7 @@ exports[`gen-api-models should handle WithinRangeIntegers: within-range-integer 
 import {
   IWithinRangeIntegerTag,
   WithinRangeInteger
-} from \\"italia-ts-commons/lib/numbers\\";
+} from \\"@pagopa/ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeIntegerTest = t.TypeOf<typeof WithinRangeIntegerTest>;
@@ -478,7 +478,7 @@ exports[`gen-api-models should handle WithinRangeNumbers: within-range-numbers 1
 import {
   IWithinRangeNumberTag,
   WithinRangeNumber
-} from \\"italia-ts-commons/lib/numbers\\";
+} from \\"@pagopa/ts-commons/lib/numbers\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeNumberTest = t.TypeOf<typeof WithinRangeNumberTest>;
@@ -496,7 +496,7 @@ exports[`gen-api-models should handle WithinRangeStrings: within-range-strings 1
  */
 /* tslint:disable */
 
-import { WithinRangeString } from \\"italia-ts-commons/lib/strings\\";
+import { WithinRangeString } from \\"@pagopa/ts-commons/lib/strings\\";
 import * as t from \\"io-ts\\";
 
 export type WithinRangeStringTest = t.TypeOf<typeof WithinRangeStringTest>;
@@ -512,7 +512,7 @@ exports[`gen-api-models should handle enums: enum-simple 1`] = `
 /* tslint:disable */
 
 import * as t from \\"io-ts\\";
-import { enumType } from \\"italia-ts-commons/lib/types\\";
+import { enumType } from \\"@pagopa/ts-commons/lib/types\\";
 
 export enum StatusEnum {
   \\"value1\\" = \\"value1\\",
@@ -543,7 +543,7 @@ exports[`gen-api-models should include aliases for types already defined elsewhe
  */
 /* tslint:disable */
 
-import { OrganizationFiscalCode as OrganizationFiscalCodeT } from \\"italia-ts-commons/lib/strings\\";
+import { OrganizationFiscalCode as OrganizationFiscalCodeT } from \\"@pagopa/ts-commons/lib/strings\\";
 import * as t from \\"io-ts\\";
 
 export type OrganizationFiscalCodeTest = t.TypeOf<
@@ -628,7 +628,7 @@ exports[`gen-api-models should parse custom inline properties: inline-property 1
 /* tslint:disable */
 
 import * as t from \\"io-ts\\";
-import { PatternString } from \\"italia-ts-commons/lib/strings\\";
+import { PatternString } from \\"@pagopa/ts-commons/lib/strings\\";
 
 // required attributes
 const InlinePropertyTestR = t.interface({});
@@ -657,7 +657,7 @@ exports[`gen-api-models should parse nested objects: nested-object 1`] = `
 /* tslint:disable */
 
 import * as t from \\"io-ts\\";
-import { PatternString } from \\"italia-ts-commons/lib/strings\\";
+import { PatternString } from \\"@pagopa/ts-commons/lib/strings\\";
 
 // required attributes
 const NestedObjectTestNestedObjectR = t.interface({});
@@ -712,7 +712,7 @@ import {
   TypeofApiParams,
   createFetchRequestForApi,
   ReplaceRequestParams
-} from \\"italia-ts-commons/lib/requests\\";
+} from \\"@pagopa/ts-commons/lib/requests\\";
 import { identity } from \\"fp-ts/lib/function\\";
 
 import {
@@ -1115,7 +1115,7 @@ exports[`gen-api-models should support additionalProperties default value: addit
 /* tslint:disable */
 
 import * as t from \\"io-ts\\";
-import { withDefault } from \\"italia-ts-commons/lib/types\\";
+import { withDefault } from \\"@pagopa/ts-commons/lib/types\\";
 
 type AdditionalpropsDefaultBase = t.TypeOf<typeof AdditionalpropsDefaultBase>;
 const AdditionalpropsDefaultBase = t.dictionary(
