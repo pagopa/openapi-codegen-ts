@@ -5,7 +5,7 @@
  * Data structure might be a parsed structure or directly a OpenAPI object (in which case, the parsing logic is demanded to the template macros).
  */
 
-import { ITuple3, Tuple2 } from "italia-ts-commons/lib/tuples";
+import { ITuple3, Tuple2 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPIV2 } from "openapi-types";
 import * as prettier from "prettier";
 import {
