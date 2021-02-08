@@ -4,12 +4,6 @@ import config from "../../config";
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
 
-import {
-  IWithinRangeIntegerTag,
-  IWithinRangeNumberTag
-} from "italia-ts-commons/lib/numbers";
-import { readableReport } from "italia-ts-commons/lib/reporters";
-import { WithinRangeString } from "italia-ts-commons/lib/strings";
 import { WithinRangeExclusiveMaximumIntegerTest } from "../../generated/testapi/WithinRangeExclusiveMaximumIntegerTest";
 import { WithinRangeExclusiveMaximumNumberTest } from "../../generated/testapi/WithinRangeExclusiveMaximumNumberTest";
 import { WithinRangeExclusiveMinimumIntegerTest } from "../../generated/testapi/WithinRangeExclusiveMinimumIntegerTest";
@@ -29,7 +23,6 @@ import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
 // if there's no need for this suite in this particular run, just skip it
-const describeSuite = isSpecEnabled ? describe : describe.skip;
 
 const loadModule = (name: string) =>
   import(`${generatedFilesDir}/${name}.ts`).then(mod => {
