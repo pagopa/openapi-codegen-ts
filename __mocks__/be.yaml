@@ -336,7 +336,7 @@ definitions:
     type: string
     description: Organization fiscal code.
     format: OrganizationFiscalCode
-    x-import: italia-ts-commons/lib/strings
+    x-import: '@pagopa/ts-commons/lib/strings'
     example: "12345678901"
   ServiceTuple:
     type: object

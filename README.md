@@ -21,7 +21,7 @@ In simple terms it converts an OpenAPI spec like [this one](https://github.com/t
 * An [io-ts](https://github.com/gcanti/io-ts) type definitions for [each API definition](https://github.com/teamdigitale/digital-citizenship-functions/tree/6798225bd725a42753b16375ce18a954a268f9b6/lib/api/definitions) that provides compile time types and runtime validation.
 * A http client exposing API operations as a collection of Typescript functions
 
-Note: the generated models requires the runtime dependency `italia-ts-commons`.
+Note: the generated models requires the runtime dependency [`@pagopa/ts-commons`](https://www.npmjs.com/package/@pagopa/ts-commons).
 
 
 #### Usage

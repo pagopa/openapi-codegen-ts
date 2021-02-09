@@ -21,9 +21,9 @@
   },
   "dependencies": {
     "@pagopa/openapi-codegen-ts": "../",
+    "@pagopa/ts-commons": "^9.1.0",
     "fp-ts": "1.19.5",
-    "io-ts": "1.8.5",
-    "italia-ts-commons": "^5.1.13"
+    "io-ts": "1.8.5"
   },
   "jest": {
     "testEnvironment": "node",

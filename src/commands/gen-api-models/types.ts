@@ -1,4 +1,4 @@
-import { ITuple3 } from "italia-ts-commons/lib/tuples";
+import { ITuple3 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPIV2 } from "openapi-types";
 
 /**
