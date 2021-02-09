@@ -1,4 +1,4 @@
-import { Either, isRight } from "fp-ts/lib/Either";
+import { isRight } from "fp-ts/lib/Either";
 import nodeFetch from "node-fetch";
 import config from "../../config";
 import { createClient } from "../../generated/testapi/client";

@@ -2,7 +2,7 @@
  * This module collects pure utility functions that convert a OpenAPI specification object into a shape which is convenient for code generation
  */
 
-import { ITuple2, Tuple2, Tuple3 } from "italia-ts-commons/lib/tuples";
+import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPIV2 } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
 import {
@@ -340,7 +340,7 @@ const parseParamWithReference = (
     type: paramType,
     ...(paramIn === "header" ? { headerName: paramName } : {})
   };
-}
+};
 
 /**
  * Parse security along with security definitions to obtain a collection of tuples in the form (keyName, headerName).

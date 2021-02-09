@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/openapi-codegen-ts",
-  "version": "7.0.0",
+  "version": "7.0.2",
   "description": "Tools and utilities for the IO project",
   "repository": "https://github.com/pagopa/io-utils",
   "author": "https://www.pagopa.gov.it/",
@@ -27,13 +27,13 @@
     "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md"
   },
   "dependencies": {
+    "@pagopa/ts-commons": "^9.1.0",
     "fs-extra": "^6.0.0",
-    "italia-ts-commons": "^8.6.0",
-    "nunjucks": "^3.1.2",
+    "nunjucks": "^3.2.2",
     "prettier": "^1.12.1",
     "safe-identifier": "^0.4.2",
     "swagger-parser": "^7.0.0",
-    "write-yaml-file": "^4.1.0",
+    "write-yaml-file": "^4.1.3",
     "yargs": "^13.1.0"
   },
   "devDependencies": {
