@@ -15,6 +15,7 @@ export interface IGenerateApiOptions {
   defaultSuccessType?: string;
   defaultErrorType?: string;
   camelCasedPropNames: boolean;
+  exactQueryParamNames: boolean;
 }
 
 /**

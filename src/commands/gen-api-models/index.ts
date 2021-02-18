@@ -50,7 +50,8 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     strictInterfaces = false,
     defaultSuccessType = "undefined",
     defaultErrorType = "undefined",
-    camelCasedPropNames = false
+    camelCasedPropNames = false,
+    exactQueryParamNames = false
   } = options;
 
   const {
@@ -116,7 +117,11 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     }
 
     if (generateClient) {
-      const code = await renderClientCode(specMeta, allOperationInfos);
+      const code = await renderClientCode(
+        specMeta,
+        allOperationInfos,
+        exactQueryParamNames
+      );
       await writeGeneratedCodeFile(
         "client",
         `${definitionsDirPath}/client.ts`,

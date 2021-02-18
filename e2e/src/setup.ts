@@ -44,6 +44,7 @@ export default async () => {
         : tsGenerateApi({
             camelCasedPropNames: false,
             definitionsDirPath: generatedFilesDir,
+            exactQueryParamNames: true,
             generateClient: true,
             specFilePath: url,
             strictInterfaces: true

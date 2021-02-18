@@ -119,6 +119,12 @@ const argv = yargs
     description: "Generate camelCased properties name (default: false)",
     group: CODE_GROUP
   })
+  .option("exact-query-param", {
+    boolean: false,
+    default: false,
+    description:
+      "Generate exact in query param properties name (no camelCased, default: false)"
+  })
   .help().argv;
 
 //
@@ -126,6 +132,7 @@ const argv = yargs
 //
 generateSdk({
   camelCasedPropNames: argv["camel-cased"],
+  exactQueryParamNames: argv["exact-query-param"],
   inferAttr: !argv["no-infer-attr"],
   name: argv["package-name"],
   version: argv["package-version"],

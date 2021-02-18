@@ -66,6 +66,12 @@ const argv = yargs
     default: false,
     description: "Generate camelCased properties name (default: false)"
   })
+  .option("exact-query-param", {
+    boolean: false,
+    default: false,
+    description:
+      "Generate exact in query param properties name (no camelCased, default: false)"
+  })
   .help().argv;
 
 //
@@ -77,6 +83,7 @@ generateApi({
   defaultErrorType: argv["default-error-type"],
   defaultSuccessType: argv["default-success-type"],
   definitionsDirPath: argv["out-dir"],
+  exactQueryParamNames: argv["exact-query-param"],
   generateClient: argv.client,
   generateRequestTypes: argv["request-types"],
   generateResponseDecoders: argv["response-decoders"],

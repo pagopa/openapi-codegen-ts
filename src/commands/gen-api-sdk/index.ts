@@ -38,6 +38,7 @@ export async function generateSdk(options: IGenerateSdkOptions) {
     defaultErrorType: options.defaultErrorType,
     defaultSuccessType: options.defaultSuccessType,
     definitionsDirPath: options.outPath,
+    exactQueryParamNames: options.exactQueryParamNames,
     generateClient: true,
     specFilePath: options.specFilePath,
     strictInterfaces: options.strictInterfaces

@@ -145,10 +145,10 @@ export function createClient<K extends ParamKeys>({
     body: () => "{}",
     {% endif %}
     {% if queryParams | length %}
-    {% if camelCasedPropNames %}
-    query: ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe  }} }),
-    {% else %}
+    {% if exactQueryParamNames %}
     query: ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | safeIdentifierWithoutCamelCase | join(", ") | safe  }} }),
+    {% else %}
+    query: ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe  }} }),
     {% endif %}
     {% else %}
     query: () => ({}),

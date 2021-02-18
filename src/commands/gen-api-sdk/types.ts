@@ -12,6 +12,7 @@ export interface IGeneratorParams {
   defaultSuccessType?: string;
   defaultErrorType?: string;
   camelCasedPropNames: boolean;
+  exactQueryParamNames: boolean;
 }
 
 export interface IPackageAttributes {
