@@ -517,7 +517,14 @@ describe("gen-api-models", () => {
     expect(allOperations).toEqual(expect.arrayContaining(expected));
   });
 
-  it("should render a client", async () => {
+  it("should render a client with camelCase", async () => {
+    const allOperations = parseAllOperations(spec, "undefined", "undefined");
+    const code = await renderClientCode(spec, allOperations, true);
+
+    expect(code).toMatchSnapshot();
+  });
+
+  it("should render a client with no camelCase", async () => {
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
     const code = await renderClientCode(spec, allOperations);
 

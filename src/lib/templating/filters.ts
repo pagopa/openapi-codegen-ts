@@ -85,6 +85,21 @@ export const safeIdentifier = oneOrMany(subject =>
 );
 
 /**
+ * Sanitise a string to be used as a javascript identifier without camelCase
+ * see https://developer.mozilla.org/en-US/docs/Glossary/Identifier#:~:text=An%20identifier%20is%20a%20sequence,not%20start%20with%20a%20digit.
+ *
+ * @param subject provided string or array of strings
+ *
+ * @returns Sanitised string or array of sanitised strings
+ *
+ * @example
+ * ("9-my invalid_id1") -> "myInvalidId1"
+ */
+export const safeIdentifierWithoutCamelCase = oneOrMany(subject =>
+  pipe((v: string) => v.replace(/^[0-9]+/, ""), identifier)(subject)
+);
+
+/**
  * Sanitise a string to be used as an object field name when destructuring.
  * The use case is when the template is composing a function declaration and the parameter is destructured
  * @param subject provided string or array of strings

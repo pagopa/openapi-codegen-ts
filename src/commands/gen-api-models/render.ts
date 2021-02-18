@@ -67,9 +67,11 @@ export async function renderDefinitionCode(
  */
 export async function renderClientCode(
   specMeta: ISpecMetaInfo,
-  operations: Array<IOperationInfo | undefined>
+  operations: Array<IOperationInfo | undefined>,
+  camelCasedPropNames: boolean = false
 ) {
   return render("client.ts.njk", {
+    camelCasedPropNames,
     operations,
     spec: specMeta
   }).then(formatCode);
