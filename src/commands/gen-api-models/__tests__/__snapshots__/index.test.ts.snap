@@ -1337,9 +1337,9 @@ export function createClient<K extends ParamKeys>({
     url: ({}) => \`\${basePath}/test-auth-bearer\`,
 
     query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) => ({
-      qo,
-      qr,
-      cursor
+      [\\"qo\\"]: qo,
+      [\\"qr\\"]: qr,
+      [\\"cursor\\"]: cursor
     })
   };
   const testAuthBearer: TypeofApiCall<TestAuthBearerT> = createFetchRequestForApi(
@@ -1360,9 +1360,9 @@ export function createClient<K extends ParamKeys>({
     url: ({}) => \`\${basePath}/test-simple-token\`,
 
     query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) => ({
-      qo,
-      qr,
-      cursor
+      [\\"qo\\"]: qo,
+      [\\"qr\\"]: qr,
+      [\\"cursor\\"]: cursor
     })
   };
   const testSimpleToken: TypeofApiCall<TestSimpleTokenT> = createFetchRequestForApi(
@@ -1471,8 +1471,8 @@ export function createClient<K extends ParamKeys>({
       \`\${basePath}/test-parameter-with-dash/\${pathParam}\`,
 
     query: ({ [\\"foo-bar\\"]: fooBar, [\\"request-id\\"]: requestId }) => ({
-      foo_bar,
-      request_id
+      [\\"foo-bar\\"]: fooBar,
+      [\\"request-id\\"]: requestId
     })
   };
   const testParameterWithDash: TypeofApiCall<TestParameterWithDashT> = createFetchRequestForApi(
