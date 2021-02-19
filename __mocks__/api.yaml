@@ -136,6 +136,27 @@ paths:
         "200":
           description: "Ok"
         "500":
+          description: "Fatal error" 
+  /test-parameter-with-dash-and_underscore/{path-param}:
+    get:
+      operationId: "testParameterWithDashAnUnderscore"
+      parameters:
+        - name: path-param
+          in: path
+          type: string
+        - name: foo_bar
+          in: query
+          type: string
+        - name: headerInlineParam
+          in: header
+          type: string
+          required: true
+        - $ref: "#/parameters/RequestId"
+        - $ref: "#/parameters/HeaderParamWithReference"
+      responses:
+        "200":
+          description: "Ok"
+        "500":
           description: "Fatal error"    
   /test-two-path-params/{first-param}/{second-param}:
     get:
