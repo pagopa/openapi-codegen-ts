@@ -70,4 +70,23 @@ describeSuite("Http client generated from Test API spec", () => {
     });
     expect(isRight(result)).toBe(true);
   });
+
+  it("should handle both parameter with dashes and underscores", async () => {
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+      basePath: ""
+    });
+
+    expect(client.testParameterWithDashAnUnderscore).toEqual(expect.any(Function));
+
+    const result = await client.testParameterWithDashAnUnderscore({
+      "foo_bar": "value",
+      headerInlineParam: "value",
+      "path-param": "value",
+      "request-id": "value",
+      "x-header-param": "value"
+    });
+    expect(isRight(result)).toBe(true);
+  });
 });
