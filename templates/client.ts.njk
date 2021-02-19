@@ -145,7 +145,7 @@ export function createClient<K extends ParamKeys>({
     body: () => "{}",
     {% endif %}
     {% if queryParams | length %}
-    query: ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe  }} }),
+    query: ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe }} }) => ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }),
     {% else %}
     query: () => ({}),
     {% endif %}
