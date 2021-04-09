@@ -3,6 +3,7 @@
  *
  * @param s string to be capitalized
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function capitalize(s: string): string {
   return `${s[0].toUpperCase()}${s.slice(1)}`;
 }
@@ -12,6 +13,7 @@ export function capitalize(s: string): string {
  *
  * @param s string to be uncapitalized
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function uncapitalize(s: string): string {
   return `${s[0].toLowerCase()}${s.slice(1)}`;
 }
@@ -21,6 +23,7 @@ export function uncapitalize(s: string): string {
  *
  * @param s string to be wrapped
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const doubleQuote = (s: string) => `"${s}"`;
 
 /**
@@ -46,6 +49,7 @@ export const toUnionOfLiterals = (
  *
  * @returns rendered name
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function withGenerics(
   name: string,
   generics: ReadonlyArray<string> = []
@@ -53,5 +57,6 @@ export function withGenerics(
   return generics.length ? `${name}<${generics.join(", ")}>` : name;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-function-return-type
 export const pipe = (...fns: ReadonlyArray<(a: any) => any>) => (value: any) =>
   fns.reduce((p, f) => f(p), value);

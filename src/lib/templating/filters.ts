@@ -12,6 +12,7 @@ import { pipe } from "../utils";
  * @param subject
  */
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const oneOrMany = (filterFn: (str: string) => string) => (
   subject: ReadonlyArray<string> | string
 ) =>
@@ -29,6 +30,7 @@ const oneOrMany = (filterFn: (str: string) => string) => (
  *
  * @return true if item is found
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const contains = <T>(subject: ReadonlyArray<T>, item: T) =>
   subject.indexOf(item) !== -1;
 
@@ -40,6 +42,7 @@ export const contains = <T>(subject: ReadonlyArray<T>, item: T) =>
  *
  * @returns true or false
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const startsWith = (subject: string, item: string) =>
   subject.indexOf(item) === 0;
 
@@ -48,6 +51,7 @@ export const startsWith = (subject: string, item: string) =>
  *
  * @param subject string to capitalize
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const capitalizeFirst = (subject: string) =>
   `${subject[0].toUpperCase()}${subject.slice(1)}`;
 
@@ -58,6 +62,7 @@ export const capitalizeFirst = (subject: string) =>
  *
  * @returns the wrapped comment
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const comment = (subject: string) =>
   `/**\n * ${subject.split("\n").join("\n * ")} \n */`;
 
@@ -69,7 +74,9 @@ export const comment = (subject: string) =>
  * @returns camel cased string
  *
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const camelCase = (subject: string) =>
+  // eslint-disable-next-line no-useless-escape
   subject.replace(/(\_\w)/g, ([, firstLetter]: string) =>
     typeof firstLetter === "undefined" ? "" : firstLetter.toUpperCase()
   );
@@ -111,6 +118,7 @@ export const safeDestruct = oneOrMany(
  *
  * @returns a list of keys
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/ban-types
 export const keys = (subject: object) => (subject ? Object.keys(subject) : []);
 
 /**
@@ -120,6 +128,7 @@ export const keys = (subject: object) => (subject ? Object.keys(subject) : []);
  *
  * @return the first element if present, undefined otherwise
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const first = <T>(subject: ReadonlyArray<T> | undefined) =>
   subject ? subject[0] : undefined;
 
@@ -131,6 +140,7 @@ export const first = <T>(subject: ReadonlyArray<T> | undefined) =>
  *
  * @return the joined string
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const join = <T>(subject: ReadonlyArray<T>, separator: string) =>
   subject.join(separator);
 
@@ -143,7 +153,9 @@ export const join = <T>(subject: ReadonlyArray<T>, separator: string) =>
  *
  * @returns the array tail
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const tail = <T>(subject: ReadonlyArray<T>) =>
+  // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
   subject && subject.length ? subject.slice(1) : [];
 
 /**
@@ -152,9 +164,11 @@ export const tail = <T>(subject: ReadonlyArray<T>) =>
  * @param subject provided array
  * @param toPush element to push
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const push = <T, R>(
   subject: ReadonlyArray<T> | undefined,
   toPush: T | R
+  // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
 ) => (subject && subject.length ? [...subject, toPush] : [toPush]);
 
 /**
@@ -165,7 +179,9 @@ export const push = <T, R>(
  *
  * @returns a value or an array of value
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-explicit-any
 export const pick = <T extends Record<string, any>>(
+  // eslint-disable-next-line functional/prefer-readonly-type
   subject: T[] | T | undefined,
   key: keyof T
 ) =>

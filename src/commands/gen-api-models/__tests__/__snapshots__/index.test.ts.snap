@@ -341,14 +341,14 @@ exports[`gen-api-models should generate decoder definitions for (get, /test-auth
         };
 
         
-    const d200 = (type[200].name === \\"undefined\\" 
+        const d200 = (type[200].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
         : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
-  
-    const d403 = (type[403].name === \\"undefined\\" 
+      
+        const d403 = (type[403].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 403, never>(403, undefined) 
         : r.ioResponseDecoder<403, (typeof type[403])[\\"_A\\"], (typeof type[403])[\\"_O\\"], never>(403, type[403])) as r.ResponseDecoder<r.IResponseType<403, A1, never>>;
-  
+      
         return r.composeResponseDecoders(d200, d403)
       }
 
@@ -387,14 +387,14 @@ exports[`gen-api-models should generate decoder definitions for (get, /test-para
         };
 
         
-    const d200 = (type[200].name === \\"undefined\\" 
+        const d200 = (type[200].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
         : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
-  
-    const d500 = (type[500].name === \\"undefined\\" 
+      
+        const d500 = (type[500].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 500, never>(500, undefined) 
         : r.ioResponseDecoder<500, (typeof type[500])[\\"_A\\"], (typeof type[500])[\\"_O\\"], never>(500, type[500])) as r.ResponseDecoder<r.IResponseType<500, A1, never>>;
-  
+      
         return r.composeResponseDecoders(d200, d500)
       }
 
@@ -1217,10 +1217,10 @@ exports[`gen-api-models should support file uploads 1`] = `
         };
 
         
-    const d200 = (type[200].name === \\"undefined\\" 
+        const d200 = (type[200].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
         : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
-  
+      
         return d200
       }
 
@@ -1259,14 +1259,14 @@ exports[`gen-api-models should support headers in response 1`] = `
         };
 
         
-    const d201 = (type[201].name === \\"undefined\\" 
+        const d201 = (type[201].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 201, \\"Location\\" | \\"Id\\">(201, undefined) 
         : r.ioResponseDecoder<201, (typeof type[201])[\\"_A\\"], (typeof type[201])[\\"_O\\"], \\"Location\\" | \\"Id\\">(201, type[201])) as r.ResponseDecoder<r.IResponseType<201, A0, \\"Location\\" | \\"Id\\">>;
-  
-    const d500 = (type[500].name === \\"undefined\\" 
+      
+        const d500 = (type[500].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 500, never>(500, undefined) 
         : r.ioResponseDecoder<500, (typeof type[500])[\\"_A\\"], (typeof type[500])[\\"_O\\"], never>(500, type[500])) as r.ResponseDecoder<r.IResponseType<500, A1, never>>;
-  
+      
         return r.composeResponseDecoders(d201, d500)
       }
 
@@ -1305,22 +1305,22 @@ exports[`gen-api-models should support multiple success cases 1`] = `
         };
 
         
-    const d200 = (type[200].name === \\"undefined\\" 
+        const d200 = (type[200].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 200, never>(200, undefined) 
         : r.ioResponseDecoder<200, (typeof type[200])[\\"_A\\"], (typeof type[200])[\\"_O\\"], never>(200, type[200])) as r.ResponseDecoder<r.IResponseType<200, A0, never>>;
-  
-    const d202 = (type[202].name === \\"undefined\\" 
+      
+        const d202 = (type[202].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 202, never>(202, undefined) 
         : r.ioResponseDecoder<202, (typeof type[202])[\\"_A\\"], (typeof type[202])[\\"_O\\"], never>(202, type[202])) as r.ResponseDecoder<r.IResponseType<202, A1, never>>;
-  
-    const d403 = (type[403].name === \\"undefined\\" 
+      
+        const d403 = (type[403].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 403, never>(403, undefined) 
         : r.ioResponseDecoder<403, (typeof type[403])[\\"_A\\"], (typeof type[403])[\\"_O\\"], never>(403, type[403])) as r.ResponseDecoder<r.IResponseType<403, A2, never>>;
-  
-    const d404 = (type[404].name === \\"undefined\\" 
+      
+        const d404 = (type[404].name === \\"undefined\\" 
         ? r.constantResponseDecoder<undefined, 404, never>(404, undefined) 
         : r.ioResponseDecoder<404, (typeof type[404])[\\"_A\\"], (typeof type[404])[\\"_O\\"], never>(404, type[404])) as r.ResponseDecoder<r.IResponseType<404, A3, never>>;
-  
+      
         return r.composeResponseDecoders(r.composeResponseDecoders(r.composeResponseDecoders(d200, d202), d403), d404)
       }
 

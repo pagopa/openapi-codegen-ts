@@ -13,6 +13,7 @@ export interface IBundleApiSpecOptions {
  *
  * @param param0
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 export async function bundleApiSpec({
   outPath,
   specFilePath,

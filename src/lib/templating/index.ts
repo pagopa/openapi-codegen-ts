@@ -10,6 +10,7 @@ export const DEFAULT_TEMPLATE_DIR = `${__dirname}/../../../templates`;
  * @param templateDir base directory for templates
  * @param customFilters list of custom filters to apply to the environment
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const createTemplateEnvironment = ({
   templateDir = DEFAULT_TEMPLATE_DIR,
   customFilters = {}
@@ -44,6 +45,7 @@ export const createTemplateEnvironment = ({
    *
    * @return a promise of the rendered template
    */
+  // eslint-disable-next-line @typescript-eslint/ban-types
   const render = (templateName: string, context?: object): Promise<string> =>
     new Promise((accept, reject) => {
       env.render(templateName, context, (err, res) => {

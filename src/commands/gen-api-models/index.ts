@@ -18,9 +18,11 @@ import { IGenerateApiOptions } from "./types";
  *
  * @returns true or false
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function isOpenAPIV2(
   specs: OpenAPI.Document
 ): specs is OpenAPIV2.Document {
+  // eslint-disable-next-line no-prototype-builtins
   return specs.hasOwnProperty("swagger");
 }
 
@@ -32,7 +34,9 @@ export function isOpenAPIV2(
  * @param code code to be saved
  *
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
+  // eslint-disable-next-line no-console
   console.log(`${name} -> ${outPath}`);
   return fs.writeFile(outPath, code);
 }
@@ -44,6 +48,7 @@ function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
  *
  *
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export async function generateApi(options: IGenerateApiOptions): Promise<void> {
   const {
     specFilePath,
@@ -79,6 +84,7 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
 
   const definitions = api.definitions;
   if (!definitions) {
+    // eslint-disable-next-line no-console
     console.log("No definitions found, skipping generation of model code.");
     return;
   }

@@ -8,15 +8,21 @@ import { createTemplateEnvironment } from "../../lib/templating";
  * Factory method to create a set of filters bound to a common storage.
  * The storage is in the form (key, true) where the presence of a kye indicates the flag is true
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createFlagStorageFilters = () => {
+  // eslint-disable-next-line functional/no-let, functional/prefer-readonly-type
   let store: { [key: string]: true } = {};
   return {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
     reset() {
       store = {};
     },
+    // eslint-disable-next-line sort-keys, @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
     add(subject: string) {
+      // eslint-disable-next-line functional/immutable-data
       store[subject] = true;
     },
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
     get() {
       return Object.keys(store).join("\n");
     }
@@ -45,6 +51,7 @@ const {
  *
  * @return the function argument declaration
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const toFnArgs = (
   subject: ReadonlyArray<{ readonly name: string }> | undefined
 ) =>
@@ -60,6 +67,7 @@ const toFnArgs = (
  *
  * @return filtered items
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const paramIn = (
   item: ReadonlyArray<{ readonly in: string }> | undefined,
   where: string
@@ -75,7 +83,9 @@ const paramIn = (
  *
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const stripQuestionMark = (subject: ReadonlyArray<string> | string) => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/explicit-function-return-type
   const strip_base = (str: string) =>
     str[str.length - 1] === "?" ? str.substring(0, str.length - 1) : str;
   return !subject
@@ -88,12 +98,15 @@ const stripQuestionMark = (subject: ReadonlyArray<string> | string) => {
 export default createTemplateEnvironment({
   customFilters: {
     resetImports,
+    // eslint-disable-next-line sort-keys
     addImport,
     getImports,
     resetTypeAliases,
+    // eslint-disable-next-line sort-keys
     addTypeAlias,
     getTypeAliases,
     toFnArgs,
+    // eslint-disable-next-line sort-keys
     paramIn,
     stripQuestionMark
   }
