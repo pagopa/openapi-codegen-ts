@@ -9,6 +9,7 @@ module.exports = {
         "generated",
         "**/__tests__/*",
         "**/__mocks__/*",
+        "**/e2e/*",
         "Dangerfile.*",
         "*.d.ts"
     ],

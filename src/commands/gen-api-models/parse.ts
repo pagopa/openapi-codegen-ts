@@ -16,6 +16,7 @@ import {
 } from "./types";
 /**
  * Extracts meta info in a convenient object
+ *
  * @param api
  */
 export function parseSpecMeta(api: OpenAPIV2.Document): ISpecMetaInfo {
@@ -29,6 +30,7 @@ export function parseSpecMeta(api: OpenAPIV2.Document): ISpecMetaInfo {
 /**
  * Iterates over all operations in the specifications and returns a list of IOperationInfo struct describing them.
  * It also flattens global parameters and definitions by place them in each operation
+ *
  * @param api
  * @param defaultSuccessType
  * @param defaultErrorType
@@ -69,22 +71,23 @@ export function parseAllOperations(
 
 /**
  * It extracts global parameters from a path definition. Parameters in body, path, query and form are of type IParameterInfo, while header parameters are of type IHeaderParameterInfo
+ *
  * @param pathSpec a pat definition
  *
  * @returns a list of parameters that applies to all methods of a path. Header parameters ship a more complete structure.
  */
 const parseExtraParameters = (
   pathSpec: OpenAPIV2.PathsObject
-): Array<IParameterInfo | IHeaderParameterInfo> => {
-  return typeof pathSpec.parameters !== "undefined"
+): ReadonlyArray<IParameterInfo | IHeaderParameterInfo> =>
+  typeof pathSpec.parameters !== "undefined"
     ? pathSpec.parameters.reduce(
         (
-          prev: Array<IParameterInfo | IHeaderParameterInfo>,
+          prev: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
           param: {
-            name: string;
-            type: string | undefined;
-            required: boolean;
-            in: string;
+            readonly name: string;
+            readonly type: string | undefined;
+            readonly required: boolean;
+            readonly in: string;
           }
         ) => {
           if (param && param.type) {
@@ -106,7 +109,6 @@ const parseExtraParameters = (
         []
       )
     : [];
-};
 
 /**
  * Extracts all the info referring to a single operation and returns a IOperationInfo struct.
@@ -124,7 +126,7 @@ const parseExtraParameters = (
 export const parseOperation = (
   api: OpenAPIV2.Document,
   path: string,
-  extraParameters: Array<IParameterInfo | IHeaderParameterInfo>,
+  extraParameters: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
   defaultSuccessType: string,
   defaultErrorType: string
 ) => (operationKey: string): IOperationInfo | undefined => {
@@ -157,7 +159,7 @@ export const parseOperation = (
 
   const operationParams =
     typeof operation.parameters !== "undefined"
-      ? (operation.parameters as OpenAPIV2.ParameterObject[])
+      ? (operation.parameters as ReadonlyArray<OpenAPIV2.ParameterObject>)
           .map(parseParameter(specParameters, operationId))
           .filter((e): e is IParameterInfo => typeof e !== "undefined")
       : [];
@@ -232,6 +234,7 @@ export const parseOperation = (
 /**
  * Parse a request parameter into an IParameterInfo structure.
  * The function has the curried form (specParameters, operationId) -> (param) -> IParameterInfo
+ *
  * @param specParameters spec's global parameters
  * @param operationId the identifier for the operation. Used for logging purpose
  * @param param the request parameter to parse
@@ -347,6 +350,7 @@ const parseParamWithReference = (
  * It works with security object both global and operation-specific.
  * see: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityRequirementObject
  * https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject
+ *
  * @param securityDefinitions global security definition objects
  * @param security global or specific security requirements
  *
@@ -354,8 +358,8 @@ const parseParamWithReference = (
  */
 export function getAuthHeaders(
   securityDefinitions: OpenAPIV2.Document["securityDefinitions"],
-  security?: OpenAPIV2.SecurityRequirementObject[]
-): IAuthHeaderParameterInfo[] {
+  security?: ReadonlyArray<OpenAPIV2.SecurityRequirementObject>
+): ReadonlyArray<IAuthHeaderParameterInfo> {
   const securityKeys: ReadonlyArray<string> | undefined =
     security && security.length
       ? security
@@ -386,8 +390,8 @@ export function getAuthHeaders(
       return {
         authScheme,
         headerName,
-        // tslint:disable-next-line: no-useless-cast
-        in: "header" as "header", // this cast is needed otherwise "in" property will be recognize as string
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        in: "header" as const, // this cast is needed otherwise "in" property will be recognize as string
         name: _.e1,
         tokenType,
         type: "string"
@@ -398,6 +402,7 @@ export function getAuthHeaders(
 /**
  * Takes an array of parameters and collect each definition referenced.
  * Those will correspond to types to be imported in typescript
+ *
  * @param parameters
  *
  * @returns a set of definitions to be imported
@@ -411,11 +416,11 @@ export function getAuthHeaders(
 const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
   new Set(
     typeof parameters !== "undefined"
-      ? (parameters as OpenAPIV2.ParameterObject[])
+      ? (parameters as ReadonlyArray<OpenAPIV2.ParameterObject>)
           .map(paramParsedRef)
           .reduce(
             (
-              prev: string[],
+              prev: ReadonlyArray<string>,
               parsed:
                 | ITuple2<"definition" | "parameter" | "other", string>
                 | undefined
@@ -435,6 +440,7 @@ const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
 
 /**
  * Given a request param, parses its schema reference, if any
+ *
  * @param param a request parameter
  *
  * @returns an ITuple<refType, refName> if the parameter has a reference, undefined otherwise
@@ -453,6 +459,7 @@ const paramParsedRef = (param?: OpenAPIV2.ParameterObject) => {
 
 /**
  * Given a string in the form "#/<refType>/<refName>/, it returns a tuple in the form (refType, refName)"
+ *
  * @param s
  *
  * @returns an ITuple object with { e1: refType, e2: refName }, undefined if the string is not the the correct form
@@ -475,6 +482,7 @@ function typeFromRef(
 
 /**
  * Given an OpenAPI param type, it returns its Typescript correspondent
+ *
  * @param t
  *
  * @returns a Typescript type
@@ -492,6 +500,7 @@ function specTypeToTs(t: string): string {
 
 /**
  * Pick a field from an object
+ *
  * @param field field to pick
  * @param elem the base object
  */

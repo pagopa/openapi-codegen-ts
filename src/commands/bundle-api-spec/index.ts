@@ -3,13 +3,14 @@ import * as SwaggerParser from "swagger-parser";
 import * as writeYamlFile from "write-yaml-file";
 
 export interface IBundleApiSpecOptions {
-  specFilePath: string | OpenAPIV2.Document;
-  outPath: string;
-  version?: string;
+  readonly specFilePath: string | OpenAPIV2.Document;
+  readonly outPath: string;
+  readonly version?: string;
 }
 
 /**
  * Takes an OpenAPI spec and writes a new one with only inner references
+ *
  * @param param0
  */
 export async function bundleApiSpec({

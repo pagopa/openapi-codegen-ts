@@ -8,6 +8,7 @@ import { pipe } from "../utils";
 /**
  * Apply a filter function indiscriminately to a single subject or to an array of subjects
  * In most cases nunjucks filters work for both strings or array of strings, so it's worth to handle this mechanism once forever
+ *
  * @param subject
  */
 
@@ -22,6 +23,7 @@ const oneOrMany = (filterFn: (str: string) => string) => (
 
 /**
  * Wheater or not an array contains an item
+ *
  * @param subject the provided array
  * @param item item to search
  *
@@ -32,6 +34,7 @@ export const contains = <T>(subject: ReadonlyArray<T>, item: T) =>
 
 /**
  * Wheater or not the first caracter of the string is the provided item
+ *
  * @param subject
  * @param item
  *
@@ -50,6 +53,7 @@ export const capitalizeFirst = (subject: string) =>
 
 /**
  * Wraps given text in a block comment
+ *
  * @param subject the given text
  *
  * @returns the wrapped comment
@@ -59,6 +63,7 @@ export const comment = (subject: string) =>
 
 /**
  * Converts a string to camel cased
+ *
  * @param subject provided string
  *
  * @returns camel cased string
@@ -87,6 +92,7 @@ export const safeIdentifier = oneOrMany(subject =>
 /**
  * Sanitise a string to be used as an object field name when destructuring.
  * The use case is when the template is composing a function declaration and the parameter is destructured
+ *
  * @param subject provided string or array of strings
  *
  * @returns Sanitised string or array of sanitised strings
@@ -100,39 +106,39 @@ export const safeDestruct = oneOrMany(
 
 /**
  * Object.keys
+ *
  * @param subject provided object
  *
  * @returns a list of keys
  */
-export const keys = (subject: object) => {
-  return subject ? Object.keys(subject) : [];
-};
+export const keys = (subject: object) => (subject ? Object.keys(subject) : []);
 
 /**
  * The first element of an array, if defined
+ *
  * @param subject
  *
  * @return the first element if present, undefined otherwise
  */
-export const first = <T>(subject: ReadonlyArray<T> | undefined) => {
-  return subject ? subject[0] : undefined;
-};
+export const first = <T>(subject: ReadonlyArray<T> | undefined) =>
+  subject ? subject[0] : undefined;
 
 /**
  * Array.join
+ *
  * @param subject
  * @param separator
  *
  * @return the joined string
  */
-export const join = <T>(subject: ReadonlyArray<T>, separator: string) => {
-  return subject.join(separator);
-};
+export const join = <T>(subject: ReadonlyArray<T>, separator: string) =>
+  subject.join(separator);
 
 /**
  * Given an array, returns all the elements except the first
  * example: [1,2,3] -> [2,3]
  * example: [] -> []
+ *
  * @param subject provided array
  *
  * @returns the array tail
@@ -142,6 +148,7 @@ export const tail = <T>(subject: ReadonlyArray<T>) =>
 
 /**
  * Returns an array containing all the elements of a given array plus the element to push
+ *
  * @param subject provided array
  * @param toPush element to push
  */
@@ -152,6 +159,7 @@ export const push = <T, R>(
 
 /**
  * Given an hash set, returns the value of a given key. If an array of hash sets is given, an array of values os returned
+ *
  * @param subject a hash set or an array of hash set
  * @param key the key to pick
  *

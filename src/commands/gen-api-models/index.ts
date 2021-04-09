@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+// eslint-disable no-console
 import * as fs from "fs-extra";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
@@ -13,6 +13,7 @@ import { IGenerateApiOptions } from "./types";
 
 /**
  * Checks if a parsed spec is in OA2 format
+ *
  * @param specs a parsed spec
  *
  * @returns true or false
@@ -25,6 +26,7 @@ export function isOpenAPIV2(
 
 /**
  * Wraps file writing to expose a common interface and log consistently
+ *
  * @param name name of the piece of code to render
  * @param outPath path of the file
  * @param code code to be saved
@@ -37,6 +39,7 @@ function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
 
 /**
  * Module's main method. It generates files based on a given specification url
+ *
  * @param options
  *
  *

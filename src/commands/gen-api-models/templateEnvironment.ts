@@ -40,31 +40,37 @@ const {
 /**
  * Given an array of parameter in the form { name: "value" }, it renders a function argument declaration with destructuring
  * example: [{ name: 'foo' }, { name: 'bar' }] -> '({ foo, bar })'
+ *
  * @param subject the array of parameters
  *
  * @return the function argument declaration
  */
-const toFnArgs = (subject: Array<{ name: string }> | undefined) =>
+const toFnArgs = (
+  subject: ReadonlyArray<{ readonly name: string }> | undefined
+) =>
   typeof subject === "undefined"
     ? "()"
     : `({${subject.map(({ name }) => name).join(", ")}})`;
 
 /**
  * Given an array of parameter in the form { in: "value" }, filter the items based on the provided value
+ *
  * @param item
  * @param where
  *
  * @return filtered items
  */
-const paramIn = (item: Array<{ in: string }> | undefined, where: string) => {
-  return item ? item.filter((e: { in: string }) => e.in === where) : [];
-};
+const paramIn = (
+  item: ReadonlyArray<{ readonly in: string }> | undefined,
+  where: string
+) => (item ? item.filter((e: { readonly in: string }) => e.in === where) : []);
 
 /**
  * Removes decorator character from a variable name
  * example: "arg?" -> "arg"
  * example: "arg" -> "arg"
  * example: ["arg1?", "arg2"] -> ["arg1", "arg2"]
+ *
  * @param subject
  *
  * @returns

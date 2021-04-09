@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* tslint:disable no-duplicate-string */
+/* eslint-disable sonarjs/no-duplicate-string */
 
 import yargs = require("yargs");
 import { generateSdk } from ".";
