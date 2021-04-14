@@ -9,19 +9,18 @@ module.exports = {
         "generated",
         "**/__tests__/*",
         "**/__mocks__/*",
-        "**/e2e/*",
         "Dangerfile.*",
         "*.d.ts"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "tsconfig.json",
+        "project": ".eslint.project.json",
         "sourceType": "module"
     },
     "extends": [
         "@pagopa/eslint-config/strong",
     ],
     "rules": {
-        
+        "jsdoc/check-indentation": "off"
     }
 }

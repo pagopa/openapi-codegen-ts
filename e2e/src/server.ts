@@ -11,11 +11,13 @@ const servers = new Map<number, ReturnType<typeof createServer>>();
 
 /**
  * Starts a mock server for a given specification
+ *
  * @param apiSpecUrl path to the OpenApi specification document
  * @param port port on which start the mock server
  *
  * @returns {Promise<void>} a resolving promise if the server is started correctly
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 function startMockServer(apiSpecUrl: string, port: number = 4100) {
   const startedAt = Date.now();
   return getHttpOperationsFromResource(apiSpecUrl)
@@ -26,6 +28,7 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
           checkSecurity: true,
           validateRequest: true,
           validateResponse: true,
+          // eslint-disable-next-line sort-keys
           errors: false,
           mock: { dynamic: false }
         },
@@ -34,6 +37,7 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
     )
     .then(server => {
       server.listen(port);
+      // eslint-disable-next-line no-console
       console.log(
         `server started on port ${port} after ${Date.now() - startedAt}ms`
       );
@@ -47,10 +51,13 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
  *
  * @returns {Promise<void>} a resolving promise if the servers have been stopped correctly
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 function stopAllServers() {
+  // eslint-disable-next-line no-console
   console.log(`stopping servers on ports ${[...servers.keys()].join(", ")}`);
   return Promise.all(
     [...servers.entries()].map(([port, server]) => {
+      // eslint-disable-next-line no-console
       console.log("shutting down server on port", port);
       return server.close();
     })
