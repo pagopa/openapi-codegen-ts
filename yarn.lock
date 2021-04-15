@@ -508,10 +508,10 @@
     universal-user-agent "^2.0.0"
     url-template "^2.0.8"
 
-"@pagopa/eslint-config@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@pagopa/eslint-config/-/eslint-config-1.1.1.tgz#09fdfa59708f44996c042451d4d16a624b276bcb"
-  integrity sha512-b4MBnPWFj1I/O3wpQfR475BoLcB7Nmze67eqLl+J1t7ajFKPi4FF8k7+Xpfct6Z1ziVSTYVjQgMuoBJRHADcrA==
+"@pagopa/eslint-config@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@pagopa/eslint-config/-/eslint-config-1.3.1.tgz#0c41ae939aa6d740fbc8d8dbe2c4395aa2ceaf95"
+  integrity sha512-UZvYeN1ivU5qMZDGXI/JlEoQ+2SMZfTjOeoZBd6Wm5UC98b6bYBG4ov3QmluM6TxsLLMyBALgP55lkg56+VjRw==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.10.0"
     "@typescript-eslint/eslint-plugin-tslint" "^4.10.0"
