@@ -35,8 +35,8 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
         cors: true
       })
     )
-    .then(server => {
-      server.listen(port);
+    .then(async server => {
+      await server.listen(port);
       // eslint-disable-next-line no-console
       console.log(
         `server started on port ${port} after ${Date.now() - startedAt}ms`
