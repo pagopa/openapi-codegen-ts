@@ -5,16 +5,16 @@ import { OpenAPIV2 } from "openapi-types";
  * Defines the set of parameters for the code generation
  */
 export interface IGenerateApiOptions {
-  specFilePath: string | OpenAPIV2.Document;
-  definitionsDirPath: string;
-  tsSpecFilePath?: string;
-  strictInterfaces?: boolean;
-  generateRequestTypes?: boolean;
-  generateResponseDecoders?: boolean;
-  generateClient?: boolean;
-  defaultSuccessType?: string;
-  defaultErrorType?: string;
-  camelCasedPropNames: boolean;
+  readonly specFilePath: string | OpenAPIV2.Document;
+  readonly definitionsDirPath: string;
+  readonly tsSpecFilePath?: string;
+  readonly strictInterfaces?: boolean;
+  readonly generateRequestTypes?: boolean;
+  readonly generateResponseDecoders?: boolean;
+  readonly generateClient?: boolean;
+  readonly defaultSuccessType?: string;
+  readonly defaultErrorType?: string;
+  readonly camelCasedPropNames: boolean;
 }
 
 /**
@@ -28,51 +28,53 @@ export type SupportedAuthScheme = "bearer" | "digest" | "none";
  * Define the shape of a parsed parameter
  */
 export interface IParameterInfo {
-  name: string;
-  type: string;
-  in: string;
-  headerName?: string;
+  readonly name: string;
+  readonly type: string;
+  readonly in: string;
+  readonly headerName?: string;
 }
 /**
  * Define the shape of a parameter of type header
  */
 export interface IHeaderParameterInfo extends IParameterInfo {
-  in: "header";
-  headerName: string;
+  readonly in: "header";
+  readonly headerName: string;
 }
 
 /**
  * Define the shape of a parameter of type header which is also an auth parameter
  */
 export interface IAuthHeaderParameterInfo extends IHeaderParameterInfo {
-  tokenType: "basic" | "apiKey" | "oauth2";
-  authScheme: SupportedAuthScheme;
+  readonly tokenType: "basic" | "apiKey" | "oauth2";
+  readonly authScheme: SupportedAuthScheme;
 }
 
 /**
  * Define the shape of a parsed operation
  */
 export interface IOperationInfo {
-  method: SupportedMethod;
-  operationId: string;
-  parameters: IParameterInfo[];
-  responses: Array<ITuple3<string, string, string[]>>;
-  headers: string[];
-  importedTypes: Set<string>;
-  path: string;
-  consumes?: string;
-  produces?: string;
+  readonly method: SupportedMethod;
+  readonly operationId: string;
+  readonly parameters: ReadonlyArray<IParameterInfo>;
+  readonly responses: ReadonlyArray<
+    ITuple3<string, string, ReadonlyArray<string>>
+  >;
+  readonly headers: ReadonlyArray<string>;
+  readonly importedTypes: ReadonlySet<string>;
+  readonly path: string;
+  readonly consumes?: string;
+  readonly produces?: string;
 }
 
 /**
  * Define the shape of an object containing the specification meta info
  */
 export interface ISpecMetaInfo {
-  basePath?: string;
-  version?: string;
-  title?: string;
+  readonly basePath?: string;
+  readonly version?: string;
+  readonly title?: string;
 }
 
 export type ExtendedOpenAPIV2SecuritySchemeApiKey = OpenAPIV2.SecuritySchemeApiKey & {
-  "x-auth-scheme": SupportedAuthScheme;
+  readonly "x-auth-scheme": SupportedAuthScheme;
 };

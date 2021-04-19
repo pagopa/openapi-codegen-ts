@@ -1,4 +1,4 @@
-/* tslint:disable:no-duplicate-string */
+/* eslint-disable sonarjs/no-duplicate-string */
 
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";

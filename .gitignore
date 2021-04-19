@@ -6,3 +6,7 @@ local*
 .vscode
 coverage
 .npmrc
+
+# eslint section
+!.eslintrc.js
+.eslintcache
