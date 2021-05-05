@@ -141,5 +141,8 @@ generateSdk({
   strictInterfaces: argv.strict
 }).then(
   () => console.log("done"),
-  err => console.log(`Error: ${err}`)
+  err => {
+    console.log(`Error: ${err}`);
+    process.exit(1);
+  }
 );
