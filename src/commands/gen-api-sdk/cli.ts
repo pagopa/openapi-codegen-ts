@@ -172,6 +172,9 @@ generateSdk({
 }).then(
   // eslint-disable-next-line no-console
   () => console.log("done"),
-  // eslint-disable-next-line no-console
-  err => console.log(`Error: ${err}`)
+  err => {
+    // eslint-disable-next-line no-console
+    console.log(`Error: ${err}`);
+    process.exit(1);
+  }
 );
