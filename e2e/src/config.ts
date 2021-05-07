@@ -3,10 +3,12 @@ const GENERATED_BASE_DIR = `${ROOT_DIRECTORY_FOR_E2E}/src/generated`;
 
 /**
  * parse a string value into a boolean
+ *
  * @param v string value to be parsed
  *
  * @returns true or false
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const truthy = (v: string | undefined) =>
   v === "true" || v === "TRUE" || v === "1";
 
@@ -18,6 +20,7 @@ const truthy = (v: string | undefined) =>
  *
  * @returns true of false wheater list include item
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const includeInList = (
   list: string | undefined,
   item: string,

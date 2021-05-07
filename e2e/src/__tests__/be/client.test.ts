@@ -161,7 +161,7 @@ describeSuite("Http client generated from BE API spec", () => {
       // please note we're not passing a K type to createClient, is being inferred from witBearer
       const { getVisibleServices } = createClient({
         baseUrl: `http://localhost:${mockPort}`,
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         fetchApi: (spiedFetch as any) as typeof fetch,
         basePath: "",
         withDefaults: withBearer
