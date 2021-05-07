@@ -30,7 +30,7 @@
   "dependencies": {
     "@pagopa/ts-commons": "^9.2.0",
     "fs-extra": "^6.0.0",
-    "nunjucks": "^3.2.2",
+    "nunjucks": "^3.2.3",
     "prettier": "^1.12.1",
     "safe-identifier": "^0.4.2",
     "swagger-parser": "^7.0.0",
