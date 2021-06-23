@@ -28,7 +28,7 @@
     "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md"
   },
   "dependencies": {
-    "@pagopa/ts-commons": "^9.2.0",
+    "@pagopa/ts-commons": "^9.4.1",
     "fs-extra": "^6.0.0",
     "nunjucks": "^3.2.2",
     "prettier": "^1.12.1",
