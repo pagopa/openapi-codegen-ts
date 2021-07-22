@@ -74,7 +74,6 @@ paths:
             $ref: "#/definitions/OneOfTest"
         "404":
           description: "Not found"
-
   /test-file-upload:
     post:
       operationId: "testFileUpload"
@@ -109,6 +108,7 @@ paths:
       parameters:
         - name: createdMessage
           in: body
+          required: true
           schema:
             $ref: "#/definitions/Message"
       responses:

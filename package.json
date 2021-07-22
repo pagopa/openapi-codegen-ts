@@ -18,8 +18,9 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && tsc",
-    "e2e": "yarn build && cd ./e2e && yarn install --frozen-lockfile && yarn start",
+    "e2e": "yarn build && rimraf e2e/node_modules && cd ./e2e && yarn install --frozen-lockfile && yarn start",
     "e2e:lint": "eslint ./e2e -c .eslintrc.js --ext .ts,.tsx",
+    "e2e-server": "yarn build && rimraf e2e-server/node_modules && cd ./e2e-server && yarn install --frozen-lockfile && yarn start",
     "pretest": "jest --clearCache",
     "test": "jest",
     "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",

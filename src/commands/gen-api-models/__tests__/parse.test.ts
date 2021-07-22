@@ -94,7 +94,7 @@ describe("parseOperation", () => {
         method: "post",
         path: "/test-parameter-with-reference",
         parameters: expect.arrayContaining([
-          { name: "createdMessage?", in: "body", type: "Message" }
+          { name: "createdMessage", in: "body", type: "Message" }
         ])
       })
     );

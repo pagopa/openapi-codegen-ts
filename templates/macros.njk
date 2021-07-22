@@ -241,6 +241,31 @@
   {{ defineConst(definition.default, definitionName, typedef, false, inline) }}
 {% endmacro %}
 
+
+{##
+ # defines an object property decoder type of some prop.type
+ #}
+{% macro defineObjectPropertyDecoderType(propName, prop, parentPropName, camelCasedPropNames) -%}
+  {%- if prop.$ref %}
+    {{ defineRef(prop.$ref, prop, true) }}
+  {% elif prop.type == "object" %}
+    {{ defineSubObject(parentPropName, propName, prop) }}
+  {% elif prop.type == "array" %}
+    {{ defineArray(propName, prop, true) }}
+  {% elif prop.type == "number" %}
+    {{ defineNumber(propName, prop, true) }}
+  {% elif prop.type == "integer" %}
+    {{ defineInteger(propName, prop, true) }}
+  {% elif prop.type == "string" %}
+    {{ defineString(propName, prop, true) }}
+  {% elif prop.type == "boolean" %}
+    {{ defineBoolean(propName, prop, true) }}
+  {% else %}
+    {{ prop.type }}
+  {% endif %}
+{% endmacro %}
+
+
 {##
  # defines an object property of some prop.type
  #}
@@ -252,6 +277,7 @@
       "{{ propName }}":
     {% endif %}
   {% endif %}
+ 
   {%- if prop.$ref %}
     {{ defineRef(prop.$ref, prop, true) }}
   {% elif prop.type == "object" %}
@@ -269,7 +295,9 @@
   {% else %}
     // TODO: generate model for definition "{{ propName }}: {{ prop.type }}"
   {% endif %}
+
 {% endmacro %}
+
 
 {##
  # convenience method to import required modules from $ref pointers
@@ -543,3 +571,41 @@
  # example: { name: 'token', headerName: 'Authorization' } -> ({ token }) => ({ "Authorization": token })
  #}
 {% macro requestParamsType(operation) -%}ReplaceRequestParams<{{ requestTypeName(operation) }},RequestParams<{{ requestTypeName(operation) }}>>{% endmacro %}
+
+
+
+{#  #}
+
+{% set successStatusCodeList = ["200", "201", "202"] %}
+
+
+{#  #}
+{% macro resultSuccessTypes(operation) -%}
+  {% set successResults = operation.responses | filterByParameterIn("e1", successStatusCodeList) %}
+
+  {% if successResults | length %}
+    {% set addPipe = 0 %}
+    {% for successResult in successResults %}
+      {{ " | " if  (addPipe > 0)  else "" }} 
+      /* {{ successResult.e1 }} */
+      r.{{ successResult | openapiResponseToTSCommonsResponse | safe }}
+      {% set addPipe = addPipe+1 %}{% endfor %}
+  {% else %}
+    never
+  {% endif %}
+{% endmacro %}
+
+{#  #}
+{% macro resultFailureTypes(operation) -%}
+  {% set failureResponses = operation.responses | filterByParameterNotIn("e1", successStatusCodeList) %}
+
+  {% if failureResponses | length %}
+    {% for response in failureResponses %}
+      {{ " | " if loop.index0 else "" }}
+        {% set statusCode= response.e1 %}
+          /* {{ statusCode }} */
+          r.{{ response | openapiResponseToTSCommonsResponse | safe }}{% endfor %}
+  {% else %}
+    never
+  {% endif %}
+{% endmacro %}

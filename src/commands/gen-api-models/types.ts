@@ -12,6 +12,7 @@ export interface IGenerateApiOptions {
   readonly generateRequestTypes?: boolean;
   readonly generateResponseDecoders?: boolean;
   readonly generateClient?: boolean;
+  readonly generateServer?: boolean;
   readonly defaultSuccessType?: string;
   readonly defaultErrorType?: string;
   readonly camelCasedPropNames: boolean;
@@ -49,6 +50,8 @@ export interface IAuthHeaderParameterInfo extends IHeaderParameterInfo {
   readonly authScheme: SupportedAuthScheme;
 }
 
+export type IResponse = ITuple3<string, string, ReadonlyArray<string>>;
+
 /**
  * Define the shape of a parsed operation
  */
@@ -56,9 +59,7 @@ export interface IOperationInfo {
   readonly method: SupportedMethod;
   readonly operationId: string;
   readonly parameters: ReadonlyArray<IParameterInfo>;
-  readonly responses: ReadonlyArray<
-    ITuple3<string, string, ReadonlyArray<string>>
-  >;
+  readonly responses: ReadonlyArray<IResponse>;
   readonly headers: ReadonlyArray<string>;
   readonly importedTypes: ReadonlySet<string>;
   readonly path: string;
