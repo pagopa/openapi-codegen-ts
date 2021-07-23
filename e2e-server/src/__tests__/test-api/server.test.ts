@@ -10,15 +10,17 @@ import {
   ITestMultipleSuccessRequestHandler,
   ITestParameterWithDashRequestHandler,
   ITestSimpleTokenRequestHandler,
+  ITestWithTwoParamsRequestHandler,
   setupTestAuthBearerEndpoint,
   setupTestFileUploadEndpoint,
   setupTestMultipleSuccessEndpoint,
-  setupTestParameterWithDashEndpoint
+  setupTestParameterWithDashEndpoint,
+  setupTestWithTwoParamsEndpoint
 } from "../../generated/testapi/server";
 
 import * as request from "supertest";
 import { Message } from "../../generated/testapi/Message";
-import { isSome } from "fp-ts/lib/Option";
+import { isNone, isSome } from "fp-ts/lib/Option";
 
 describe("server", () => {
   let app: express.Express;
@@ -96,6 +98,27 @@ describe("server", () => {
     setupTestParameterWithDashEndpoint(app, handler);
 
     const res = await request(app).get("/api/v1/test-parameter-with-dash/42");
+
+    console.log(res.body);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({});
+  });
+
+  // test-parameter-with-dash
+  it("should be able to build test-parameter-with-dash Endpoint", async () => {
+    const handler: ITestWithTwoParamsRequestHandler<{}> = ({
+      firstParam,
+      secondParam
+    }) => {
+      if (isSome(firstParam) && isSome(secondParam) && secondParam.value === "42")
+        return Promise.resolve(ResponseSuccessJson(undefined));
+      else return Promise.resolve(ResponseErrorInternal("pathparam undefined"));
+    };
+
+    setupTestWithTwoParamsEndpoint(app, handler);
+
+    const res = await request(app).get("/api/v1/test-two-path-params/1/42");
 
     console.log(res.body);
 
