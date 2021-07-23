@@ -525,7 +525,7 @@ export const setupTestParameterWithDashEndpoint = <
   // Generated Middleware
   const generatedMiddlewares = {
     pathParam: OptionalParamMiddleware(
-      \\"path-param\\",
+      \\"pathParam\\",
 
       t.string
     )
@@ -567,7 +567,7 @@ export const setupTestParameterWithDashEndpoint = <
   const handlerWithMiddlewares = wrapRequestHandler(wrappedWithMiddlewares);
 
   app.get(
-    \\"/api/v1/test-parameter-with-dash/:path-param\\",
+    \\"/api/v1/test-parameter-with-dash/:pathParam\\",
     handlerWithMiddlewares
   );
 };
@@ -616,7 +616,7 @@ export const setupTestParameterWithDashAnUnderscoreEndpoint = <
   // Generated Middleware
   const generatedMiddlewares = {
     pathParam: OptionalParamMiddleware(
-      \\"path-param\\",
+      \\"pathParam\\",
 
       t.string
     )
@@ -662,7 +662,7 @@ export const setupTestParameterWithDashAnUnderscoreEndpoint = <
   const handlerWithMiddlewares = wrapRequestHandler(wrappedWithMiddlewares);
 
   app.get(
-    \\"/api/v1/test-parameter-with-dash-and_underscore/:path-param\\",
+    \\"/api/v1/test-parameter-with-dash-and_underscore/:pathParam\\",
     handlerWithMiddlewares
   );
 };
@@ -708,13 +708,13 @@ export const setupTestWithTwoParamsEndpoint = <
   // Generated Middleware
   const generatedMiddlewares = {
     firstParam: OptionalParamMiddleware(
-      \\"first-param\\",
+      \\"firstParam\\",
 
       t.string
     ),
 
     secondParam: OptionalParamMiddleware(
-      \\"second-param\\",
+      \\"secondParam\\",
 
       t.string
     )
@@ -753,7 +753,7 @@ export const setupTestWithTwoParamsEndpoint = <
   const handlerWithMiddlewares = wrapRequestHandler(wrappedWithMiddlewares);
 
   app.get(
-    \\"/api/v1/test-two-path-params/:first-param/:second-param\\",
+    \\"/api/v1/test-two-path-params/:firstParam/:secondParam\\",
     handlerWithMiddlewares
   );
 };

@@ -105,12 +105,12 @@ export const setup{{ operationName }}Endpoint = <
       {% for parameter in pathParams | required %}
         {% set parameterName = parameter| pick("name") | safeIdentifier | safe %}
         {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
-        {{ parameterName }}: RequiredParamMiddleware("{{  parameter| pick("name") }}", {{ paramDecoderType }} ),
+        {{ parameterName }}: RequiredParamMiddleware("{{  parameterName }}", {{ paramDecoderType }} ),
       {% endfor %}
       {% for parameter in pathParams | optional %}
         {% set parameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
         {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
-        {{ parameterName }}: OptionalParamMiddleware("{{  parameter | pick("name") | stripQuestionMark }}", {{ paramDecoderType }} ),
+        {{ parameterName }}: OptionalParamMiddleware("{{  parameterName }}", {{ paramDecoderType }} ),
       {% endfor %}
   };
 
@@ -149,7 +149,8 @@ export const setup{{ operationName }}Endpoint = <
   {% set operationPath = operation.path | replace('{', '') | replace('}', '') %}
   {% for parameter in pathParams %}
     {% set parameterName = parameter| pick("name") | stripQuestionMark | safe %}
-    {% set operationPath = operationPath | replace("/"+parameterName, "/:"+parameterName ) %}
+    {% set sanitizedParameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
+    {% set operationPath = operationPath | replace("/"+parameterName, "/:"+sanitizedParameterName ) %}
   {% endfor %}
 
   app.{{operation.method}}("{{spec.basePath}}{{operationPath}}", handlerWithMiddlewares);
