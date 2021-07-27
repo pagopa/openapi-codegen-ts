@@ -1,4 +1,5 @@
 import {
+  ProblemJson,
   ResponseErrorInternal,
   ResponseSuccessAccepted,
   ResponseSuccessJson
@@ -105,13 +106,13 @@ describe("server", () => {
     expect(res.body).toMatchObject({});
   });
 
-  // test-parameter-with-dash
-  it("should be able to build test-parameter-with-dash Endpoint", async () => {
+  // est-parameter-with-two-dash
+  it("should be able to build test-parameter-with-two-dash Endpoint", async () => {
     const handler: ITestWithTwoParamsRequestHandler<{}> = ({
       firstParam,
       secondParam
     }) => {
-      if (isSome(firstParam) && isSome(secondParam) && secondParam.value === "42")
+      if (isSome(firstParam) && secondParam === 42)
         return Promise.resolve(ResponseSuccessJson(undefined));
       else return Promise.resolve(ResponseErrorInternal("pathparam undefined"));
     };
@@ -124,5 +125,46 @@ describe("server", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
+  });
+
+  // test-parameter-with-two-dash - 400 ProblemJson result
+  it("should be able to build test-parameter-with-dash Endpoin - Validation error ( > 100)", async () => {
+    const handler: ITestWithTwoParamsRequestHandler<{}> = ({}) =>
+      Promise.resolve(ResponseSuccessJson(undefined));
+    setupTestWithTwoParamsEndpoint(app, handler);
+
+    const res = await request(app).get(
+      "/api/v1/test-two-path-params/1/101"
+    );
+
+    expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({
+      detail: 'value [\"101\"] at [root.0] is not a valid [number >= 0 and < 100]\nvalue [\"101\"] at [root.1] is not a valid [100]',
+      status: 400,
+      title: "Invalid (number >= 0 and < 100 | 100)"
+    });
+  });
+
+  // test-parameter-with-two-dash - 400 ProblemJson result
+  it("should be able to build test-two-path-params Endpoint returning a validation error", async () => {
+    const handler: ITestWithTwoParamsRequestHandler<{}> = ({
+      firstParam,
+      secondParam
+    }) => {
+      return Promise.resolve(ResponseSuccessJson(undefined));
+    };
+
+    setupTestWithTwoParamsEndpoint(app, handler);
+
+    const res = await request(app).get(
+      "/api/v1/test-two-path-params/1/aString"
+    );
+
+    expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({
+      detail: 'value [\"aString\"] at [root.0] is not a valid [number >= 0 and < 100]\nvalue [\"aString\"] at [root.1] is not a valid [100]',
+      status: 400,
+      title: "Invalid (number >= 0 and < 100 | 100)"
+    });
   });
 });

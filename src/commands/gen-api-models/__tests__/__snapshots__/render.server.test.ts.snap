@@ -28,6 +28,7 @@ import {
 
 import { Message } from \\"./Message\\";
 import { OneOfTest } from \\"./OneOfTest\\";
+import { Integer } from \\"./Integer\\";
 
 // ---------------------------------------------------
 // TestAuthBearer
@@ -672,9 +673,9 @@ export const setupTestParameterWithDashAnUnderscoreEndpoint = <
 // ---------------------------------------------------
 
 export type ITestWithTwoParamsPathParams = {
-  firstParam: Option<string>;
+  secondParam: Integer;
 
-  secondParam: Option<string>;
+  firstParam: Option<string>;
 };
 
 export type ITestWithTwoParamsBodyParams = {};
@@ -707,14 +708,10 @@ export const setupTestWithTwoParamsEndpoint = <
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {
+    secondParam: RequiredParamMiddleware(\\"secondParam\\", Integer),
+
     firstParam: OptionalParamMiddleware(
       \\"firstParam\\",
-
-      t.string
-    ),
-
-    secondParam: OptionalParamMiddleware(
-      \\"secondParam\\",
 
       t.string
     )

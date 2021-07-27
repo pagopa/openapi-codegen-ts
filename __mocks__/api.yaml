@@ -166,8 +166,9 @@ paths:
           in: path
           type: string
         - name: second-param
+          $ref: "#/definitions/Integer"
+          required: true
           in: path
-          type: string
       responses:
         "200":
           description: "Ok"
@@ -175,6 +176,12 @@ paths:
           description: "Fatal error"                    
 
 definitions:
+  Integer:
+    type: number
+    x-import: '@pagopa/ts-commons/lib/numbers'
+    format: IntegerFromString
+    minimum: 0
+    maximum: 100
   Person:
     $ref: "definitions.yaml#/Person"
   Book:
