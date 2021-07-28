@@ -11,16 +11,162 @@ import * as express from "express";
 import * as t from "io-ts";
 import { Option } from "fp-ts/lib/Option";
 
-import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";
-import { OptionalParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/optional_param";
-import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";
-
 import { wrapRequestHandler } from "@pagopa/ts-commons/lib/request_middleware";
 import * as r from "@pagopa/ts-commons/lib/responses";
 
 import { AllMiddlewaresFailureResults, AllMiddlewaresResults, IRequestMiddlewares, withRequestMiddlewares } from "./middleware_helpers";
 
 {{- null | resetImports -}}
+
+
+{# Set block to be written after imports #}
+{% set codeBlock %}
+
+  {% for operation in operations %}
+  {# {% set operation = operations[6] %} #}
+  {% set operationName = operation.operationId | capitalizeFirst %}
+
+  {% set bodyParams = operation.parameters | paramIn("body") %}
+  {% set pathParams = operation.parameters | paramIn("path") %}
+  {% set queryParams = operation.parameters | paramIn("query") %}
+
+  {# TODO: Handle ---- #}
+  {% set headerParams = operation.parameters | paramIn("header") %}
+  {% set formParams = operation.parameters | paramIn("formData") %}
+  {# TODO: Handle ---- #}
+
+  {% set requestPathParamsType = "I"+( operationName )+"PathParams" %}
+  {% set requestQueryParamsType = "I"+( operationName )+"QueryParams" %}
+  {% set requestBodyParamsType = "I"+( operationName )+"BodyParams" %}
+
+  // ---------------------------------------------------
+  // {{ operationName }}
+  // ---------------------------------------------------
+
+
+  export type {{ requestPathParamsType }} = {
+    {% for parameter in pathParams | required %}
+      {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}: {{ parameter.type | replace('"', '') }};{% endfor %}
+    {% for parameter in pathParams | optional %}
+      {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}: Option<{{ parameter.type | replace('"', '') }}>;{% endfor %}
+  }
+
+    export type {{ requestQueryParamsType }} = {
+    {% for parameter in queryParams | required %}
+      {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}: {{ parameter.type | replace('"', '') }};{% endfor %}
+    {% for parameter in queryParams | optional %}
+      {# {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}: Option<{{ parameter.type | replace('"', '') }}>; #}
+      // TODO optional query params{% endfor %}
+  }
+
+  export type {{ requestBodyParamsType }} = {
+      {% for parameter in bodyParams %}
+          {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}:  {{ parameter.type | replace('"', '') }};{% endfor %}
+  }
+
+  export type I{{operationName}}RequestHandlerParams<
+    OtherParams extends Record<string, any>
+  > = {{ requestPathParamsType }} & {{ requestQueryParamsType }}  & {{ requestBodyParamsType }} & OtherParams;
+
+
+  type {{ operationName }}Success = {{ macro.resultSuccessTypes(operation) }};
+
+  type {{ operationName }}Failures = {{ macro.resultFailureTypes(operation) }};
+
+
+  export type I{{operationName}}RequestHandler<OtherParams extends Record<string, any>> = (
+    args: I{{operationName}}RequestHandlerParams<OtherParams> 
+  ) => Promise<{{ operationName }}Success | {{ operationName }}Failures>;
+
+
+  export const setup{{ operationName }}Endpoint = <
+    OtherParams extends Record<string, any> | never,
+    MiddlewareFailureKind extends string = string
+  >(
+    app: express.Express,
+    handler: I{{operationName}}RequestHandler<OtherParams>,
+    middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  ): void => {
+
+    // Generated Middleware
+    const generatedMiddlewares = {
+        {% for parameter in pathParams | required %}
+          {{- 'import { RequiredParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_param";' | addImport -}}
+          {% set parameterName = parameter| pick("name") | safeIdentifier | safe %}
+          {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
+          {{ parameterName }}: RequiredParamMiddleware("{{  parameterName }}", {{ paramDecoderType }} ),
+        {% endfor %}
+        {% for parameter in pathParams | optional %}
+          {{- 'import { OptionalParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/optional_param";' | addImport -}}
+          {% set parameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
+          {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
+          {{ parameterName }}: OptionalParamMiddleware("{{  parameterName }}", {{ paramDecoderType }} ),
+        {% endfor %}
+        {% for parameter in queryParams | required %}
+          {{- 'import { RequiredQueryParamMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_query_param";' | addImport -}}
+          {% set parameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
+          {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
+          {{ parameterName }}: RequiredQueryParamMiddleware("{{  parameterName }}", {{ paramDecoderType }} ),
+        {% endfor %}
+        {% for parameter in bodyParams %}
+          {{- 'import { RequiredBodyPayloadMiddleware } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/required_body_payload";' | addImport -}}
+          {% set parameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
+          {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
+          {{ parameterName }}: RequiredBodyPayloadMiddleware({{ paramDecoderType }}),
+        {% endfor %}
+    };
+
+    let wrappedWithMiddlewares;
+    if (middlewares) {
+      const allMiddlewares = {
+        ...middlewares,
+        ...generatedMiddlewares
+      };
+
+      wrappedWithMiddlewares = withRequestMiddlewares<
+        "IResponseErrorValidation" 
+        | MiddlewareFailureKind
+        | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
+        | AllMiddlewaresResults<typeof generatedMiddlewares>
+        | AllMiddlewaresResults<typeof middlewares>,
+        string,
+        {{ requestPathParamsType }} & {{ requestQueryParamsType }} & {{ requestBodyParamsType }} & OtherParams
+      >(allMiddlewares)(handler);
+    } else {
+      wrappedWithMiddlewares = withRequestMiddlewares<
+        "IResponseErrorValidation"
+        | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
+        AllMiddlewaresResults<typeof generatedMiddlewares>,
+        string,
+        {{ requestPathParamsType }} & {{ requestQueryParamsType }} & {{ requestBodyParamsType }} 
+      >(generatedMiddlewares)(
+        handler as (
+          args: {{ requestPathParamsType }} & {{ requestQueryParamsType }}  & {{ requestBodyParamsType }} 
+        ) => Promise<{{ operationName }}Success | {{ operationName }}Failures>
+      );
+    }
+
+    const handlerWithMiddlewares = wrapRequestHandler(wrappedWithMiddlewares);
+
+    {% set operationPath = operation.path | replace('{', '') | replace('}', '') %}
+    {% for parameter in pathParams %}
+      {% set parameterName = parameter| pick("name") | stripQuestionMark | safe %}
+      {% set sanitizedParameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
+      {% set operationPath = operationPath | replace("/"+parameterName, "/:"+sanitizedParameterName ) %}
+    {% endfor %}
+
+    app.{{operation.method}}("{{spec.basePath}}{{operationPath}}", handlerWithMiddlewares);
+  };
+
+  {# End for operation #}
+  {% endfor %}
+
+{% endset %}
+
+
+
+{{ null | getImports | safe }}
+{{ null | getTypeAliases | safe }}
 
 {% if operations | length %}
 {% for type in operations | toUniqueImports %}
@@ -29,134 +175,5 @@ import { AllMiddlewaresFailureResults, AllMiddlewaresResults, IRequestMiddleware
     } from "./{{type}}";{% endfor %}
 {% endif%}
 
-
-
-{% for operation in operations %}
-{# {% set operation = operations[6] %} #}
-{% set operationName = operation.operationId | capitalizeFirst %}
-
-{% set bodyParams = operation.parameters | paramIn("body") %}
-{% set pathParams = operation.parameters | paramIn("path") %}
-
-{# TODO: Handle ---- #}
-{% set headerParams = operation.parameters | paramIn("header") %}
-{% set queryParams = operation.parameters | paramIn("query") %}
-{% set formParams = operation.parameters | paramIn("formData") %}
-{# TODO: Handle ---- #}
-
-{% set requestPathParamsType = "I"+( operationName )+"PathParams" %}
-{% set requestBodyParamsType = "I"+( operationName )+"BodyParams" %}
-
-// ---------------------------------------------------
-// {{ operationName }}
-// ---------------------------------------------------
-
-
-export type {{ requestPathParamsType }} = {
-  {% for parameter in pathParams | required %}
-    {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}: {{ parameter.type | replace('"', '') }}; 
-  {% endfor %}
-  {% for parameter in pathParams | optional %}
-    {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}: Option<{{ parameter.type | replace('"', '') }}>; 
-  {% endfor %}
-}
-
-
-export type {{ requestBodyParamsType }} = {
-    {% for parameter in bodyParams %}
-        {{ parameter| pick("name") | stripQuestionMark | safeIdentifier | safe }}{{ parameter.name | setOptionalSymbol }}:  {{ parameter.type | replace('"', '') }};
-    {% endfor %}
-}
-
-export type I{{operationName}}RequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = {{ requestPathParamsType }} & {{ requestBodyParamsType }} & OtherParams;
-
-
-type {{ operationName }}Success = {{ macro.resultSuccessTypes(operation) }};
-
-type {{ operationName }}Failures = {{ macro.resultFailureTypes(operation) }};
-
-
-export type I{{operationName}}RequestHandler<OtherParams extends Record<string, any>> = (
-  args: I{{operationName}}RequestHandlerParams<OtherParams> 
-) => Promise<{{ operationName }}Success | {{ operationName }}Failures>;
-
-
-export const setup{{ operationName }}Endpoint = <
-  OtherParams extends Record<string, any> | never,
-  MiddlewareFailureKind extends string = string
->(
-  app: express.Express,
-  handler: I{{operationName}}RequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
-): void => {
-
-  // Generated Middleware
-  const generatedMiddlewares = {
-      {% for parameter in bodyParams  | required %}
-        {% set parameterName = parameter| pick("name") | safeIdentifier | safe %}
-        {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
-        {{ parameterName }}: RequiredBodyPayloadMiddleware({{ paramDecoderType }}),
-      {% endfor %}
-      {% for parameter in bodyParams  | optional %}
-      //TODO
-      {% endfor %}
-      {% for parameter in pathParams | required %}
-        {% set parameterName = parameter| pick("name") | safeIdentifier | safe %}
-        {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
-        {{ parameterName }}: RequiredParamMiddleware("{{  parameterName }}", {{ paramDecoderType }} ),
-      {% endfor %}
-      {% for parameter in pathParams | optional %}
-        {% set parameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
-        {% set paramDecoderType =  macro.defineObjectPropertyDecoderType(parameterName, parameter, "", false) %}
-        {{ parameterName }}: OptionalParamMiddleware("{{  parameterName }}", {{ paramDecoderType }} ),
-      {% endfor %}
-  };
-
-  let wrappedWithMiddlewares;
-  if (middlewares) {
-    const allMiddlewares = {
-      ...middlewares,
-      ...generatedMiddlewares
-    };
-
-    wrappedWithMiddlewares = withRequestMiddlewares<
-      "IResponseErrorValidation" 
-      | MiddlewareFailureKind
-      | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
-      | AllMiddlewaresResults<typeof generatedMiddlewares>
-      | AllMiddlewaresResults<typeof middlewares>,
-      string,
-      {{ requestPathParamsType }} & {{ requestBodyParamsType }} & OtherParams
-    >(allMiddlewares)(handler);
-  } else {
-    wrappedWithMiddlewares = withRequestMiddlewares<
-      "IResponseErrorValidation"
-      | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
-      AllMiddlewaresResults<typeof generatedMiddlewares>,
-      string,
-      {{ requestPathParamsType }} & {{ requestBodyParamsType }} 
-    >(generatedMiddlewares)(
-      handler as (
-        args: {{ requestPathParamsType }} & {{ requestBodyParamsType }} 
-      ) => Promise<{{ operationName }}Success | {{ operationName }}Failures>
-    );
-  }
-
-  const handlerWithMiddlewares = wrapRequestHandler(wrappedWithMiddlewares);
-
-  {% set operationPath = operation.path | replace('{', '') | replace('}', '') %}
-  {% for parameter in pathParams %}
-    {% set parameterName = parameter| pick("name") | stripQuestionMark | safe %}
-    {% set sanitizedParameterName = parameter| pick("name") | stripQuestionMark | safeIdentifier | safe %}
-    {% set operationPath = operationPath | replace("/"+parameterName, "/:"+sanitizedParameterName ) %}
-  {% endfor %}
-
-  app.{{operation.method}}("{{spec.basePath}}{{operationPath}}", handlerWithMiddlewares);
-};
-
-
-
-{# End for operation #}
-{% endfor %}
+{# finally write codeBlock #}
+{{ codeBlock | safe }}

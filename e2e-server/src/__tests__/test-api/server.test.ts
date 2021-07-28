@@ -45,13 +45,14 @@ describe("server", () => {
 
   // ITestAuthBearerRequestHandler - TODO: query param
   it("should be able to build GetService Endpoint", async () => {
-    const handler: ITestAuthBearerRequestHandler<{}> = ({}) => {
+    const handler: ITestAuthBearerRequestHandler<{}> = ({ qr }) => {
+      console.log("qr - " + qr);
       return Promise.resolve(ResponseSuccessJson(undefined));
     };
 
     setupTestAuthBearerEndpoint(app, handler);
 
-    const res = await request(app).get("/api/v1/test-auth-bearer");
+    const res = await request(app).get("/api/v1/test-auth-bearer?qr=prova");
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
   });
@@ -127,11 +128,9 @@ describe("server", () => {
 
     setupTestParameterWithReferenceEndpoint(app, handler);
 
-    const res = await await request(app)
-      .post("/api/v1/test-parameter-with-reference");
-
-    console.log(res.body);
-    console.log(res.headers);
+    const res = await await request(app).post(
+      "/api/v1/test-parameter-with-reference"
+    );
 
     expect(res.status).toBe(400);
     expect(res.body).toMatchObject({
@@ -166,9 +165,6 @@ describe("server", () => {
       .post("/api/v1/test-parameter-with-reference")
       .send(message);
 
-    console.log(res.body);
-    console.log(res.headers);
-
     expect(res.status).toBe(201);
     expect(res.get("Location")).toEqual("anUrl");
   });
@@ -191,8 +187,6 @@ describe("server", () => {
     setupTestWithTwoParamsEndpoint(app, handler);
 
     const res = await request(app).get("/api/v1/test-two-path-params/1/42");
-
-    console.log(res.body);
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
