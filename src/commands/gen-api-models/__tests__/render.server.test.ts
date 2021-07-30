@@ -16,7 +16,7 @@ describe("gen-api-models - server", () => {
     const allOperations = parseAllOperations(spec, "undefined", "undefined");
 
     const definitions = spec.definitions;
-    const code = await renderServerCode(spec, allOperations);
+    const code = await renderServerCode(spec, allOperations, spec.parameters);
 
     expect(code).toMatchSnapshot();
   });

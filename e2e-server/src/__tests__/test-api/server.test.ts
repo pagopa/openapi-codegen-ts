@@ -1,18 +1,17 @@
+import * as express from "express";
+import {  isSome } from "fp-ts/lib/Option";
 import {
-  ProblemJson,
   ResponseErrorInternal,
   ResponseSuccessAccepted,
   ResponseSuccessJson,
   ResponseSuccessRedirectToResource
 } from "@pagopa/ts-commons/lib/responses";
-import * as express from "express";
 import {
   ITestAuthBearerRequestHandler,
   ITestFileUploadRequestHandler,
   ITestMultipleSuccessRequestHandler,
   ITestParameterWithDashRequestHandler,
   ITestParameterWithReferenceRequestHandler,
-  ITestSimpleTokenRequestHandler,
   ITestWithTwoParamsRequestHandler,
   setupTestAuthBearerEndpoint,
   setupTestFileUploadEndpoint,
@@ -22,12 +21,13 @@ import {
   setupTestWithTwoParamsEndpoint
 } from "../../generated/testapi/server";
 
-import * as request from "supertest";
 import { Message } from "../../generated/testapi/Message";
-import { isNone, isSome } from "fp-ts/lib/Option";
 import { MessageBodyMarkdown } from "../../generated/testapi/MessageBodyMarkdown";
-import { MessageSubject } from "../../../../e2e/src/generated/testapi/MessageSubject";
+import { MessageSubject } from "../../generated/testapi/MessageSubject";
+
 import * as bodyParser from "body-parser";
+
+import * as request from "supertest";
 
 describe("server", () => {
   let app: express.Express;

@@ -30,49 +30,59 @@ import { Message } from \\"./Message\\";
 import { OneOfTest } from \\"./OneOfTest\\";
 
 // ---------------------------------------------------
+// Inline parameters decoders and types
+// ---------------------------------------------------
+
+const cursorDecoder = t.string;
+type cursorDecoder = t.TypeOf<typeof cursorDecoder>;
+
+const requestIdDecoder = t.string;
+type requestIdDecoder = t.TypeOf<typeof requestIdDecoder>;
+
+// ---------------------------------------------------
 // TestAuthBearer
 // ---------------------------------------------------
 
-export type ITestAuthBearerPathParams = {};
+type ITestAuthBearerPathParams = {};
 
-export type ITestAuthBearerQueryParams = {
+type ITestAuthBearerQueryParams = {
   qr: string;
 
   // TODO optional query params
-
   // TODO optional query params
 };
 
-export type ITestAuthBearerBodyParams = {};
+type ITestAuthBearerBodyParams = {};
 
-export type ITestAuthBearerRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestAuthBearerPathParams &
+export type ITestAuthBearerAllGeneratedParams = ITestAuthBearerPathParams &
   ITestAuthBearerQueryParams &
-  ITestAuthBearerBodyParams &
-  OtherParams;
+  ITestAuthBearerBodyParams;
 
-type TestAuthBearerSuccess =
+export type TestAuthBearerSuccess =
   /* 200 */
   r.IResponseSuccessJson<undefined>;
 
-type TestAuthBearerFailures =
+export type TestAuthBearerFailures =
   /* 403 */
   r.IResponseErrorForbiddenNotAuthorized;
 
 export type ITestAuthBearerRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestAuthBearerRequestHandlerParams<OtherParams>
+  args: ITestAuthBearerAllGeneratedParams & OtherParams
 ) => Promise<TestAuthBearerSuccess | TestAuthBearerFailures>;
 
 export const setupTestAuthBearerEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestAuthBearerRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {
@@ -97,10 +107,7 @@ export const setupTestAuthBearerEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestAuthBearerPathParams &
-        ITestAuthBearerQueryParams &
-        ITestAuthBearerBodyParams &
-        OtherParams
+      ITestAuthBearerAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -108,14 +115,10 @@ export const setupTestAuthBearerEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestAuthBearerPathParams &
-        ITestAuthBearerQueryParams &
-        ITestAuthBearerBodyParams
+      ITestAuthBearerAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestAuthBearerPathParams &
-          ITestAuthBearerQueryParams &
-          ITestAuthBearerBodyParams
+        args: ITestAuthBearerAllGeneratedParams
       ) => Promise<TestAuthBearerSuccess | TestAuthBearerFailures>
     );
   }
@@ -129,46 +132,46 @@ export const setupTestAuthBearerEndpoint = <
 // TestSimpleToken
 // ---------------------------------------------------
 
-export type ITestSimpleTokenPathParams = {};
+type ITestSimpleTokenPathParams = {};
 
-export type ITestSimpleTokenQueryParams = {
+type ITestSimpleTokenQueryParams = {
   qr: string;
 
   // TODO optional query params
-
   // TODO optional query params
 };
 
-export type ITestSimpleTokenBodyParams = {};
+type ITestSimpleTokenBodyParams = {};
 
-export type ITestSimpleTokenRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestSimpleTokenPathParams &
+export type ITestSimpleTokenAllGeneratedParams = ITestSimpleTokenPathParams &
   ITestSimpleTokenQueryParams &
-  ITestSimpleTokenBodyParams &
-  OtherParams;
+  ITestSimpleTokenBodyParams;
 
-type TestSimpleTokenSuccess =
+export type TestSimpleTokenSuccess =
   /* 200 */
   r.IResponseSuccessJson<undefined>;
 
-type TestSimpleTokenFailures =
+export type TestSimpleTokenFailures =
   /* 403 */
   r.IResponseErrorForbiddenNotAuthorized;
 
 export type ITestSimpleTokenRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestSimpleTokenRequestHandlerParams<OtherParams>
+  args: ITestSimpleTokenAllGeneratedParams & OtherParams
 ) => Promise<TestSimpleTokenSuccess | TestSimpleTokenFailures>;
 
 export const setupTestSimpleTokenEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestSimpleTokenRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {
@@ -193,10 +196,7 @@ export const setupTestSimpleTokenEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestSimpleTokenPathParams &
-        ITestSimpleTokenQueryParams &
-        ITestSimpleTokenBodyParams &
-        OtherParams
+      ITestSimpleTokenAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -204,14 +204,10 @@ export const setupTestSimpleTokenEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestSimpleTokenPathParams &
-        ITestSimpleTokenQueryParams &
-        ITestSimpleTokenBodyParams
+      ITestSimpleTokenAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestSimpleTokenPathParams &
-          ITestSimpleTokenQueryParams &
-          ITestSimpleTokenBodyParams
+        args: ITestSimpleTokenAllGeneratedParams
       ) => Promise<TestSimpleTokenSuccess | TestSimpleTokenFailures>
     );
   }
@@ -225,26 +221,23 @@ export const setupTestSimpleTokenEndpoint = <
 // TestMultipleSuccess
 // ---------------------------------------------------
 
-export type ITestMultipleSuccessPathParams = {};
+type ITestMultipleSuccessPathParams = {};
 
-export type ITestMultipleSuccessQueryParams = {};
+type ITestMultipleSuccessQueryParams = {};
 
-export type ITestMultipleSuccessBodyParams = {};
+type ITestMultipleSuccessBodyParams = {};
 
-export type ITestMultipleSuccessRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestMultipleSuccessPathParams &
+export type ITestMultipleSuccessAllGeneratedParams = ITestMultipleSuccessPathParams &
   ITestMultipleSuccessQueryParams &
-  ITestMultipleSuccessBodyParams &
-  OtherParams;
+  ITestMultipleSuccessBodyParams;
 
-type TestMultipleSuccessSuccess =
+export type TestMultipleSuccessSuccess =
   /* 200 */
   | r.IResponseSuccessJson<Message>
   /* 202 */
   | r.IResponseSuccessAccepted<undefined>;
 
-type TestMultipleSuccessFailures =
+export type TestMultipleSuccessFailures =
   /* 403 */
   | r.IResponseErrorForbiddenNotAuthorized
 
@@ -252,18 +245,22 @@ type TestMultipleSuccessFailures =
   | r.IResponseErrorNotFound;
 
 export type ITestMultipleSuccessRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestMultipleSuccessRequestHandlerParams<OtherParams>
+  args: ITestMultipleSuccessAllGeneratedParams & OtherParams
 ) => Promise<TestMultipleSuccessSuccess | TestMultipleSuccessFailures>;
 
 export const setupTestMultipleSuccessEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestMultipleSuccessRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {};
@@ -282,10 +279,7 @@ export const setupTestMultipleSuccessEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestMultipleSuccessPathParams &
-        ITestMultipleSuccessQueryParams &
-        ITestMultipleSuccessBodyParams &
-        OtherParams
+      ITestMultipleSuccessAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -293,14 +287,10 @@ export const setupTestMultipleSuccessEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestMultipleSuccessPathParams &
-        ITestMultipleSuccessQueryParams &
-        ITestMultipleSuccessBodyParams
+      ITestMultipleSuccessAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestMultipleSuccessPathParams &
-          ITestMultipleSuccessQueryParams &
-          ITestMultipleSuccessBodyParams
+        args: ITestMultipleSuccessAllGeneratedParams
       ) => Promise<TestMultipleSuccessSuccess | TestMultipleSuccessFailures>
     );
   }
@@ -314,38 +304,39 @@ export const setupTestMultipleSuccessEndpoint = <
 // TestFileUpload
 // ---------------------------------------------------
 
-export type ITestFileUploadPathParams = {};
+type ITestFileUploadPathParams = {};
 
-export type ITestFileUploadQueryParams = {};
+type ITestFileUploadQueryParams = {};
 
-export type ITestFileUploadBodyParams = {};
+type ITestFileUploadBodyParams = {};
 
-export type ITestFileUploadRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestFileUploadPathParams &
+export type ITestFileUploadAllGeneratedParams = ITestFileUploadPathParams &
   ITestFileUploadQueryParams &
-  ITestFileUploadBodyParams &
-  OtherParams;
+  ITestFileUploadBodyParams;
 
-type TestFileUploadSuccess =
+export type TestFileUploadSuccess =
   /* 200 */
   r.IResponseSuccessJson<undefined>;
 
-type TestFileUploadFailures = never;
+export type TestFileUploadFailures = never;
 
 export type ITestFileUploadRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestFileUploadRequestHandlerParams<OtherParams>
+  args: ITestFileUploadAllGeneratedParams & OtherParams
 ) => Promise<TestFileUploadSuccess | TestFileUploadFailures>;
 
 export const setupTestFileUploadEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestFileUploadRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {};
@@ -364,10 +355,7 @@ export const setupTestFileUploadEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestFileUploadPathParams &
-        ITestFileUploadQueryParams &
-        ITestFileUploadBodyParams &
-        OtherParams
+      ITestFileUploadAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -375,14 +363,10 @@ export const setupTestFileUploadEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestFileUploadPathParams &
-        ITestFileUploadQueryParams &
-        ITestFileUploadBodyParams
+      ITestFileUploadAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestFileUploadPathParams &
-          ITestFileUploadQueryParams &
-          ITestFileUploadBodyParams
+        args: ITestFileUploadAllGeneratedParams
       ) => Promise<TestFileUploadSuccess | TestFileUploadFailures>
     );
   }
@@ -396,40 +380,41 @@ export const setupTestFileUploadEndpoint = <
 // TestResponseHeader
 // ---------------------------------------------------
 
-export type ITestResponseHeaderPathParams = {};
+type ITestResponseHeaderPathParams = {};
 
-export type ITestResponseHeaderQueryParams = {};
+type ITestResponseHeaderQueryParams = {};
 
-export type ITestResponseHeaderBodyParams = {};
+type ITestResponseHeaderBodyParams = {};
 
-export type ITestResponseHeaderRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestResponseHeaderPathParams &
+export type ITestResponseHeaderAllGeneratedParams = ITestResponseHeaderPathParams &
   ITestResponseHeaderQueryParams &
-  ITestResponseHeaderBodyParams &
-  OtherParams;
+  ITestResponseHeaderBodyParams;
 
-type TestResponseHeaderSuccess =
+export type TestResponseHeaderSuccess =
   /* 201 */
   r.IResponseSuccessRedirectToResource<Message, Message>;
 
-type TestResponseHeaderFailures =
+export type TestResponseHeaderFailures =
   /* 500 */
   r.IResponseErrorInternal;
 
 export type ITestResponseHeaderRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestResponseHeaderRequestHandlerParams<OtherParams>
+  args: ITestResponseHeaderAllGeneratedParams & OtherParams
 ) => Promise<TestResponseHeaderSuccess | TestResponseHeaderFailures>;
 
 export const setupTestResponseHeaderEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestResponseHeaderRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {};
@@ -448,10 +433,7 @@ export const setupTestResponseHeaderEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestResponseHeaderPathParams &
-        ITestResponseHeaderQueryParams &
-        ITestResponseHeaderBodyParams &
-        OtherParams
+      ITestResponseHeaderAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -459,14 +441,10 @@ export const setupTestResponseHeaderEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestResponseHeaderPathParams &
-        ITestResponseHeaderQueryParams &
-        ITestResponseHeaderBodyParams
+      ITestResponseHeaderAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestResponseHeaderPathParams &
-          ITestResponseHeaderQueryParams &
-          ITestResponseHeaderBodyParams
+        args: ITestResponseHeaderAllGeneratedParams
       ) => Promise<TestResponseHeaderSuccess | TestResponseHeaderFailures>
     );
   }
@@ -480,44 +458,45 @@ export const setupTestResponseHeaderEndpoint = <
 // TestParameterWithReference
 // ---------------------------------------------------
 
-export type ITestParameterWithReferencePathParams = {};
+type ITestParameterWithReferencePathParams = {};
 
-export type ITestParameterWithReferenceQueryParams = {};
+type ITestParameterWithReferenceQueryParams = {};
 
-export type ITestParameterWithReferenceBodyParams = {
+type ITestParameterWithReferenceBodyParams = {
   createdMessage: Message;
 };
 
-export type ITestParameterWithReferenceRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestParameterWithReferencePathParams &
+export type ITestParameterWithReferenceAllGeneratedParams = ITestParameterWithReferencePathParams &
   ITestParameterWithReferenceQueryParams &
-  ITestParameterWithReferenceBodyParams &
-  OtherParams;
+  ITestParameterWithReferenceBodyParams;
 
-type TestParameterWithReferenceSuccess =
+export type TestParameterWithReferenceSuccess =
   /* 201 */
   r.IResponseSuccessRedirectToResource<undefined, undefined>;
 
-type TestParameterWithReferenceFailures =
+export type TestParameterWithReferenceFailures =
   /* 500 */
   r.IResponseErrorInternal;
 
 export type ITestParameterWithReferenceRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestParameterWithReferenceRequestHandlerParams<OtherParams>
+  args: ITestParameterWithReferenceAllGeneratedParams & OtherParams
 ) => Promise<
   TestParameterWithReferenceSuccess | TestParameterWithReferenceFailures
 >;
 
 export const setupTestParameterWithReferenceEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestParameterWithReferenceRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {
@@ -538,10 +517,7 @@ export const setupTestParameterWithReferenceEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestParameterWithReferencePathParams &
-        ITestParameterWithReferenceQueryParams &
-        ITestParameterWithReferenceBodyParams &
-        OtherParams
+      ITestParameterWithReferenceAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -549,14 +525,10 @@ export const setupTestParameterWithReferenceEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestParameterWithReferencePathParams &
-        ITestParameterWithReferenceQueryParams &
-        ITestParameterWithReferenceBodyParams
+      ITestParameterWithReferenceAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestParameterWithReferencePathParams &
-          ITestParameterWithReferenceQueryParams &
-          ITestParameterWithReferenceBodyParams
+        args: ITestParameterWithReferenceAllGeneratedParams
       ) => Promise<
         TestParameterWithReferenceSuccess | TestParameterWithReferenceFailures
       >
@@ -572,45 +544,46 @@ export const setupTestParameterWithReferenceEndpoint = <
 // TestParameterWithDash
 // ---------------------------------------------------
 
-export type ITestParameterWithDashPathParams = {
+type ITestParameterWithDashPathParams = {
   pathParam: Option<string>;
 };
 
-export type ITestParameterWithDashQueryParams = {
+type ITestParameterWithDashQueryParams = {
   // TODO optional query params
   // TODO optional query params
 };
 
-export type ITestParameterWithDashBodyParams = {};
+type ITestParameterWithDashBodyParams = {};
 
-export type ITestParameterWithDashRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestParameterWithDashPathParams &
+export type ITestParameterWithDashAllGeneratedParams = ITestParameterWithDashPathParams &
   ITestParameterWithDashQueryParams &
-  ITestParameterWithDashBodyParams &
-  OtherParams;
+  ITestParameterWithDashBodyParams;
 
-type TestParameterWithDashSuccess =
+export type TestParameterWithDashSuccess =
   /* 200 */
   r.IResponseSuccessJson<undefined>;
 
-type TestParameterWithDashFailures =
+export type TestParameterWithDashFailures =
   /* 500 */
   r.IResponseErrorInternal;
 
 export type ITestParameterWithDashRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestParameterWithDashRequestHandlerParams<OtherParams>
+  args: ITestParameterWithDashAllGeneratedParams & OtherParams
 ) => Promise<TestParameterWithDashSuccess | TestParameterWithDashFailures>;
 
 export const setupTestParameterWithDashEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestParameterWithDashRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {
@@ -635,10 +608,7 @@ export const setupTestParameterWithDashEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestParameterWithDashPathParams &
-        ITestParameterWithDashQueryParams &
-        ITestParameterWithDashBodyParams &
-        OtherParams
+      ITestParameterWithDashAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -646,14 +616,10 @@ export const setupTestParameterWithDashEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestParameterWithDashPathParams &
-        ITestParameterWithDashQueryParams &
-        ITestParameterWithDashBodyParams
+      ITestParameterWithDashAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestParameterWithDashPathParams &
-          ITestParameterWithDashQueryParams &
-          ITestParameterWithDashBodyParams
+        args: ITestParameterWithDashAllGeneratedParams
       ) => Promise<TestParameterWithDashSuccess | TestParameterWithDashFailures>
     );
   }
@@ -670,48 +636,49 @@ export const setupTestParameterWithDashEndpoint = <
 // TestParameterWithDashAnUnderscore
 // ---------------------------------------------------
 
-export type ITestParameterWithDashAnUnderscorePathParams = {
+type ITestParameterWithDashAnUnderscorePathParams = {
   pathParam: Option<string>;
 };
 
-export type ITestParameterWithDashAnUnderscoreQueryParams = {
+type ITestParameterWithDashAnUnderscoreQueryParams = {
   // TODO optional query params
   // TODO optional query params
 };
 
-export type ITestParameterWithDashAnUnderscoreBodyParams = {};
+type ITestParameterWithDashAnUnderscoreBodyParams = {};
 
-export type ITestParameterWithDashAnUnderscoreRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestParameterWithDashAnUnderscorePathParams &
+export type ITestParameterWithDashAnUnderscoreAllGeneratedParams = ITestParameterWithDashAnUnderscorePathParams &
   ITestParameterWithDashAnUnderscoreQueryParams &
-  ITestParameterWithDashAnUnderscoreBodyParams &
-  OtherParams;
+  ITestParameterWithDashAnUnderscoreBodyParams;
 
-type TestParameterWithDashAnUnderscoreSuccess =
+export type TestParameterWithDashAnUnderscoreSuccess =
   /* 200 */
   r.IResponseSuccessJson<undefined>;
 
-type TestParameterWithDashAnUnderscoreFailures =
+export type TestParameterWithDashAnUnderscoreFailures =
   /* 500 */
   r.IResponseErrorInternal;
 
 export type ITestParameterWithDashAnUnderscoreRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestParameterWithDashAnUnderscoreRequestHandlerParams<OtherParams>
+  args: ITestParameterWithDashAnUnderscoreAllGeneratedParams & OtherParams
 ) => Promise<
   | TestParameterWithDashAnUnderscoreSuccess
   | TestParameterWithDashAnUnderscoreFailures
 >;
 
 export const setupTestParameterWithDashAnUnderscoreEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestParameterWithDashAnUnderscoreRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {
@@ -736,10 +703,7 @@ export const setupTestParameterWithDashAnUnderscoreEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestParameterWithDashAnUnderscorePathParams &
-        ITestParameterWithDashAnUnderscoreQueryParams &
-        ITestParameterWithDashAnUnderscoreBodyParams &
-        OtherParams
+      ITestParameterWithDashAnUnderscoreAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -747,14 +711,10 @@ export const setupTestParameterWithDashAnUnderscoreEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestParameterWithDashAnUnderscorePathParams &
-        ITestParameterWithDashAnUnderscoreQueryParams &
-        ITestParameterWithDashAnUnderscoreBodyParams
+      ITestParameterWithDashAnUnderscoreAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestParameterWithDashAnUnderscorePathParams &
-          ITestParameterWithDashAnUnderscoreQueryParams &
-          ITestParameterWithDashAnUnderscoreBodyParams
+        args: ITestParameterWithDashAnUnderscoreAllGeneratedParams
       ) => Promise<
         | TestParameterWithDashAnUnderscoreSuccess
         | TestParameterWithDashAnUnderscoreFailures
@@ -774,43 +734,45 @@ export const setupTestParameterWithDashAnUnderscoreEndpoint = <
 // TestWithTwoParams
 // ---------------------------------------------------
 
-export type ITestWithTwoParamsPathParams = {
+type ITestWithTwoParamsPathParams = {
   firstParam: Option<string>;
+
   secondParam: Option<string>;
 };
 
-export type ITestWithTwoParamsQueryParams = {};
+type ITestWithTwoParamsQueryParams = {};
 
-export type ITestWithTwoParamsBodyParams = {};
+type ITestWithTwoParamsBodyParams = {};
 
-export type ITestWithTwoParamsRequestHandlerParams<
-  OtherParams extends Record<string, any>
-> = ITestWithTwoParamsPathParams &
+export type ITestWithTwoParamsAllGeneratedParams = ITestWithTwoParamsPathParams &
   ITestWithTwoParamsQueryParams &
-  ITestWithTwoParamsBodyParams &
-  OtherParams;
+  ITestWithTwoParamsBodyParams;
 
-type TestWithTwoParamsSuccess =
+export type TestWithTwoParamsSuccess =
   /* 200 */
   r.IResponseSuccessJson<undefined>;
 
-type TestWithTwoParamsFailures =
+export type TestWithTwoParamsFailures =
   /* 500 */
   r.IResponseErrorInternal;
 
 export type ITestWithTwoParamsRequestHandler<
-  OtherParams extends Record<string, any>
+  OtherParams extends Record<string, any> | Record<string, never>
 > = (
-  args: ITestWithTwoParamsRequestHandlerParams<OtherParams>
+  args: ITestWithTwoParamsAllGeneratedParams & OtherParams
 ) => Promise<TestWithTwoParamsSuccess | TestWithTwoParamsFailures>;
 
 export const setupTestWithTwoParamsEndpoint = <
-  OtherParams extends Record<string, any> | never,
+  OtherParams extends Record<string, any> | Record<string, never>,
   MiddlewareFailureKind extends string = string
 >(
   app: express.Express,
   handler: ITestWithTwoParamsRequestHandler<OtherParams>,
-  middlewares?: IRequestMiddlewares<OtherParams, MiddlewareFailureKind, any>
+  middlewares?: IRequestMiddlewares<
+    OtherParams,
+    MiddlewareFailureKind,
+    OtherParams[keyof OtherParams]
+  >
 ): void => {
   // Generated Middleware
   const generatedMiddlewares = {
@@ -841,10 +803,7 @@ export const setupTestWithTwoParamsEndpoint = <
       | AllMiddlewaresResults<typeof generatedMiddlewares>
       | AllMiddlewaresResults<typeof middlewares>,
       string,
-      ITestWithTwoParamsPathParams &
-        ITestWithTwoParamsQueryParams &
-        ITestWithTwoParamsBodyParams &
-        OtherParams
+      ITestWithTwoParamsAllGeneratedParams & OtherParams
     >(allMiddlewares)(handler);
   } else {
     wrappedWithMiddlewares = withRequestMiddlewares<
@@ -852,14 +811,10 @@ export const setupTestWithTwoParamsEndpoint = <
       | AllMiddlewaresFailureResults<typeof generatedMiddlewares>,
       AllMiddlewaresResults<typeof generatedMiddlewares>,
       string,
-      ITestWithTwoParamsPathParams &
-        ITestWithTwoParamsQueryParams &
-        ITestWithTwoParamsBodyParams
+      ITestWithTwoParamsAllGeneratedParams
     >(generatedMiddlewares)(
       handler as (
-        args: ITestWithTwoParamsPathParams &
-          ITestWithTwoParamsQueryParams &
-          ITestWithTwoParamsBodyParams
+        args: ITestWithTwoParamsAllGeneratedParams
       ) => Promise<TestWithTwoParamsSuccess | TestWithTwoParamsFailures>
     );
   }

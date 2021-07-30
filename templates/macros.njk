@@ -245,7 +245,7 @@
 {##
  # defines an object property decoder type of some prop.type
  #}
-{% macro defineObjectPropertyDecoderType(propName, prop, parentPropName, camelCasedPropNames) -%}
+{% macro defineObjectPropertyDecoderType(propName, prop, parentPropName) -%}
   {%- if prop.$ref %}
     {{ defineRef(prop.$ref, prop, true) }}
   {% elif prop.type == "object" %}
@@ -576,13 +576,12 @@
 
 {#  #}
 
-{% set successStatusCodeList = ["200", "201", "202"] %}
+{% set successStatusCodeList = ["200", "201", "202", "204"] %}
 
 
 {#  #}
 {% macro resultSuccessTypes(operation) -%}
   {% set successResults = operation.responses | filterByParameterIn("e1", successStatusCodeList) %}
-
   {% if successResults | length %}
     {% set addPipe = 0 %}
     {% for successResult in successResults %}
@@ -598,7 +597,6 @@
 {#  #}
 {% macro resultFailureTypes(operation) -%}
   {% set failureResponses = operation.responses | filterByParameterNotIn("e1", successStatusCodeList) %}
-
   {% if failureResponses | length %}
     {% for response in failureResponses %}
       {{ " | " if loop.index0 else "" }}

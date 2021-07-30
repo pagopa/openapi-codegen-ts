@@ -255,6 +255,8 @@ const toUniqueImports = (
       .reduce((prev, curr) => [...prev, ...curr], [] as ReadonlyArray<string>)
   );
 
+const jsonToString = (obj: unknown): string => JSON.stringify(obj, null, "\t");
+
 /**
  *
  */
@@ -277,6 +279,7 @@ export default createTemplateEnvironment({
     filterByParameterNotIn,
     setOptionalSymbol,
     openapiResponseToTSCommonsResponse,
-    toUniqueImports
+    toUniqueImports,
+    jsonToString
   }
 });

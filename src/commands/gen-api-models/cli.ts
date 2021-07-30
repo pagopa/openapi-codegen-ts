@@ -54,6 +54,12 @@ const argv = yargs
     default: false,
     description: "Generate request client SDK"
   })
+  .option("server", {
+    // eslint-disable-next-line id-blacklist
+    boolean: false,
+    default: false,
+    description: "Generate request server SDK"
+  })
   .option("default-success-type", {
     default: "undefined",
     description:
@@ -90,6 +96,7 @@ generateApi({
   generateClient: argv.client,
   generateRequestTypes: argv["request-types"],
   generateResponseDecoders: argv["response-decoders"],
+  generateServer: argv.server,
   specFilePath: argv["api-spec"],
   strictInterfaces: argv.strict,
   tsSpecFilePath: argv["ts-spec-file"]

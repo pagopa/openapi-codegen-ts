@@ -94,10 +94,12 @@ export async function renderClientCode(
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 export async function renderServerCode(
   specMeta: ISpecMetaInfo,
-  operations: ReadonlyArray<IOperationInfo | undefined>
+  operations: ReadonlyArray<IOperationInfo | undefined>,
+  parameters: OpenAPIV2.ParametersDefinitionsObject | undefined
 ) {
   return render("server.ts.njk", {
     operations,
+    parameters: parameters ? Object.values(parameters) : undefined,
     spec: specMeta
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
   }).then(formatCode);

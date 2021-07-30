@@ -66,7 +66,7 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
 
   const {
     generateRequestTypes = generateClient || generateServer,
-    generateResponseDecoders = generateClient || generateServer
+    generateResponseDecoders = generateClient
   } = options;
 
   const api = await SwaggerParser.bundle(specFilePath);
@@ -138,7 +138,11 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     }
 
     if (generateServer) {
-      const code = await renderServerCode(specMeta, allOperationInfos);
+      const code = await renderServerCode(
+        specMeta,
+        allOperationInfos,
+        api.parameters
+      );
       await writeGeneratedCodeFile(
         "server",
         `${definitionsDirPath}/server.ts`,
