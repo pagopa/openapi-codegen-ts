@@ -53,7 +53,7 @@ export const startsWith = (subject: string, item: string) =>
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const capitalizeFirst = (subject: string) =>
-  `${subject[0].toUpperCase()}${subject.slice(1)}`;
+  `${subject.charAt(0).toUpperCase()}${subject.slice(1)}`;
 
 /**
  * Wraps given text in a block comment

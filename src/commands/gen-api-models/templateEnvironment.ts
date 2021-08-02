@@ -176,7 +176,9 @@ const filterByParameterIn = <T>(
   parameterName: string,
   value: ReadonlyArray<T>
 ): ReadonlyArray<Record<string, T>> | undefined =>
-  array.filter(a => value.includes(a[parameterName]));
+  array === undefined
+    ? undefined
+    : array.filter(a => value.includes(a[parameterName]));
 /**
  * Filter an array based on a paramenter and a value to match
  */
@@ -185,7 +187,9 @@ const filterByParameterNotIn = <T>(
   parameterName: string,
   value: ReadonlyArray<T>
 ): ReadonlyArray<Record<string, T>> | undefined =>
-  array.filter(a => !value.includes(a[parameterName]));
+  array === undefined
+    ? undefined
+    : array.filter(a => !value.includes(a[parameterName]));
 
 /**
  * Build the IResponse type based on OpenApi response values
@@ -246,6 +250,9 @@ const openapiResponseToTSCommonsResponse = (response: IResponse): string => {
   }
 };
 
+/**
+ * Write operations' imports once
+ */
 const toUniqueImports = (
   operations: ReadonlyArray<IOperationInfo>
 ): ReadonlySet<string> =>
@@ -255,7 +262,16 @@ const toUniqueImports = (
       .reduce((prev, curr) => [...prev, ...curr], [] as ReadonlyArray<string>)
   );
 
+/**
+ * Debug utility for printing a json object
+ */
 const jsonToString = (obj: unknown): string => JSON.stringify(obj, null, "\t");
+
+/**
+ * Debug utility for logging values in nunjucks template
+ */
+// eslint-disable-next-line no-console
+const log = console.log;
 
 /**
  *
@@ -280,6 +296,7 @@ export default createTemplateEnvironment({
     setOptionalSymbol,
     openapiResponseToTSCommonsResponse,
     toUniqueImports,
-    jsonToString
+    jsonToString,
+    log
   }
 });
