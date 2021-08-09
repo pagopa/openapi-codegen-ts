@@ -1,0 +1,45 @@
+{
+  "name": "@pagopa/openapi-codegen-ts-e2e",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "start": "jest --verbose",
+    "lint": "tslint --project ."
+  },
+  "devDependencies": {
+    "@stoplight/prism-http-server": "^3.3.3",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.11.0",
+    "@types/node-fetch": "^2.5.5",
+    "fs-extra": "^9.0.0",
+    "jest": "^25.2.7",
+    "leaked-handles": "^5.2.0",
+    "node-fetch": "^2.6.1",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^25.3.1",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@pagopa/openapi-codegen-ts": "../",
+    "@pagopa/ts-commons": "^10.0.0",
+    "fp-ts": "^2.10.5",
+    "io-ts": "^2.2.16"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "jsx",
+      "node",
+      "ts",
+      "tsx"
+    ],
+    "preset": "ts-jest",
+    "testMatch": null,
+    "globalSetup": "./src/setup.ts",
+    "globalTeardown": "./src/teardown.ts"
+  }
+}

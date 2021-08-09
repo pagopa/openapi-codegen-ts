@@ -20,6 +20,8 @@
     "build": "yarn clean && tsc",
     "e2e": "yarn build && cd ./e2e && yarn install --frozen-lockfile && yarn start",
     "e2e:lint": "eslint ./e2e -c .eslintrc.js --ext .ts,.tsx",
+    "e2e_fp-ts-v2": "yarn build && cd ./e2e_fp-ts-v2 && yarn install --frozen-lockfile && yarn start",
+    "e2e_fp-ts-v2:lint": "eslint ./e2e_fp-ts-v2 -c .eslintrc.js --ext .ts,.tsx",
     "pretest": "jest --clearCache",
     "test": "jest",
     "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
