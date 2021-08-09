@@ -3,17 +3,32 @@
  */
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2 } from "openapi-types";
+import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
   IAuthHeaderParameterInfo,
+  IDefinition,
   IHeaderParameterInfo,
   IOperationInfo,
   IParameterInfo,
   ISpecMetaInfo,
   SupportedMethod
 } from "./types";
+
+/**
+ * Parse a schema object into a common definition, regardless of the version of the spec
+ *
+ * @param source the definition as it comes from the specification
+ * @returns a parsed definition
+ */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function parseDefinition(
+  source: OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject
+): IDefinition {
+  return (source as unknown) as IDefinition;
+}
+
 /**
  * Extracts meta info in a convenient object
  *
