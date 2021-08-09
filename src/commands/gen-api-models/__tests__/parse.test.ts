@@ -159,4 +159,12 @@ describe("parseDefinition", () => {
     expect(parsed.allOf).toBeDefined();
     expect(parsed.oneOf).not.toBeDefined();
   });
+
+  it("should parse a definition with x-extensible-enum", () => {
+    const definition = getDefinitionOrFail(spec, "PreferredLanguage");
+
+    const parsed = parseDefinition(definition);
+
+    expect(parsed.enum).toEqual(expect.any(Array));
+  });
 });

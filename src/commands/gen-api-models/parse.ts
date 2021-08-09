@@ -36,7 +36,14 @@ export function parseDefinition(
       ? { allOf: undefined, oneOf: source.allOf }
       : { allOf: source.allOf, oneOf: source.oneOf };
 
-  return ({ ...source, allOf, oneOf } as unknown) as IDefinition;
+  // enum used to be defined with "x-extensible-enum" custom field
+  const enumm = source.enum
+    ? source.enum
+    : "x-extensible-enum" in source
+    ? source["x-extensible-enum"]
+    : undefined;
+
+  return ({ ...source, allOf, enum: enumm, oneOf } as unknown) as IDefinition;
 }
 
 /**

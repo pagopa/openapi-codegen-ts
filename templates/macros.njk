@@ -177,20 +177,6 @@
       {% set typedef %}{{ definition.format }}T{% endset %}
       {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
-    {% elif definition["x-extensible-enum"] %}
-      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
-      {% set enumTypeAlias %}
-        export enum {{ definitionName | capitalizeFirst }}Enum {
-            {% for enum in definition["x-extensible-enum"] %}
-              "{{ enum }}" = "{{ enum }}",
-            {% endfor %}
-        }
-      {% endset %}
-      {{- enumTypeAlias | addTypeAlias -}}
-      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
-        {{ definitionName | capitalizeFirst }}Enum,
-        "{{ definitionName }}"
-      ){% endset %}
     {% elif definition["enum"] %}
       {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
       {% set enumTypeAlias %}
