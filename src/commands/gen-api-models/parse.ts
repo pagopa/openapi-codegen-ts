@@ -4,6 +4,7 @@
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
+import { boolean } from "yargs";
 import { uncapitalize } from "../../lib/utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
@@ -26,7 +27,16 @@ import {
 export function parseDefinition(
   source: OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject
 ): IDefinition {
-  return (source as unknown) as IDefinition;
+  // OAS2 does not support disjointed unions with oneOf,
+  //  so we introduced "x-one-of" custom field in association with allOf
+  const { oneOf, allOf } =
+    typeof source.oneOf === "undefined" &&
+    "x-one-of" in source &&
+    source["x-one-of"]
+      ? { allOf: undefined, oneOf: source.allOf }
+      : { allOf: source.allOf, oneOf: source.oneOf };
+
+  return ({ ...source, allOf, oneOf } as unknown) as IDefinition;
 }
 
 /**

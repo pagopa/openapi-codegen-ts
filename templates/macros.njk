@@ -376,7 +376,7 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {% elif definition.allOf and not definition["x-one-of"] %}
+  {% elif definition.allOf %}
 
     {{- 'import * as t from "io-ts";' | addImport -}}
 
@@ -404,9 +404,7 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {# When using the custom property "x-one-of" allOf behaves like oneOf #}
-  {# Needed to support swagger specs 2.0 that don't support oneOf #}
-  {% elif definition.oneOf or (definition["x-one-of"] and definition.allOf) %}
+  {% elif definition.oneOf %}
     {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
 
     {{- 'import * as t from "io-ts";' | addImport -}}
