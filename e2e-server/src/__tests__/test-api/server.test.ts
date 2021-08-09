@@ -1,5 +1,5 @@
 import * as express from "express";
-import {  isSome } from "fp-ts/lib/Option";
+import { isSome } from "fp-ts/lib/Option";
 import {
   ResponseErrorInternal,
   ResponseSuccessAccepted,
@@ -45,13 +45,14 @@ describe("server", () => {
 
   // ITestAuthBearerRequestHandler - TODO: query param
   it("should be able to build GetService Endpoint", async () => {
-    const handler: ITestAuthBearerRequestHandler<{}> = ({ qr }) => {
-      console.log("qr - " + qr);
-      return Promise.resolve(ResponseSuccessJson(undefined));
-    };
+    //handler.ts
+    const handler: ITestAuthBearerRequestHandler<{}> = async ({ qr }) =>
+      ResponseSuccessJson(undefined);
 
+    // index.ts
     setupTestAuthBearerEndpoint(app, handler);
 
+    //test
     const res = await request(app).get("/api/v1/test-auth-bearer?qr=prova");
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
@@ -59,12 +60,14 @@ describe("server", () => {
 
   // TestMultipleSuccess - 200
   it("should be able to build TestMultipleSuccess Endpoint", async () => {
-    const handler: ITestMultipleSuccessRequestHandler<{}> = ({}) => {
-      return Promise.resolve(ResponseSuccessJson({ id: "42" } as Message));
-    };
+    //handler.ts
+    const handler: ITestMultipleSuccessRequestHandler<{}> = async ({}) =>
+      ResponseSuccessJson({ id: "42" } as Message);
 
+    // index.ts
     setupTestMultipleSuccessEndpoint(app, handler);
 
+    // test
     const res = await request(app).get("/api/v1/test-multiple-success");
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({ id: "42" });
@@ -72,12 +75,15 @@ describe("server", () => {
 
   // TestMultipleSuccess - 202
   it("should be able to build TestMultipleSuccess Endpoint", async () => {
+    //handler.ts
     const handler: ITestMultipleSuccessRequestHandler<{}> = ({}) => {
       return Promise.resolve(ResponseSuccessAccepted());
     };
 
+    // index.ts
     setupTestMultipleSuccessEndpoint(app, handler);
 
+    //test
     const res = await request(app).get("/api/v1/test-multiple-success");
     expect(res.status).toBe(202);
     expect(res.body).toMatchObject({});
@@ -85,12 +91,15 @@ describe("server", () => {
 
   // testFileUpload - 202 -- TODO: add formData
   it("should be able to build RestFileUpload Endpoint", async () => {
+    //handler.ts
     const handler: ITestFileUploadRequestHandler<{}> = ({}) => {
       return Promise.resolve(ResponseSuccessJson(undefined));
     };
 
+    // index.ts
     setupTestFileUploadEndpoint(app, handler);
 
+    //test
     const res = await request(app).post("/api/v1/test-file-upload");
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
@@ -98,16 +107,19 @@ describe("server", () => {
 
   // test-parameter-with-dash
   it("should be able to build test-parameter-with-dash Endpoint", async () => {
-    const handler: ITestParameterWithDashRequestHandler<{}> = ({
+    //handler.ts
+    const handler: ITestParameterWithDashRequestHandler<{}> = async ({
       pathParam
     }) => {
       if (isSome(pathParam) && pathParam.value === "42")
-        return Promise.resolve(ResponseSuccessJson(undefined));
-      else return Promise.resolve(ResponseErrorInternal("pathparam undefined"));
+        return ResponseSuccessJson(undefined);
+      else return ResponseErrorInternal("pathparam undefined");
     };
 
+    // index.ts
     setupTestParameterWithDashEndpoint(app, handler);
 
+    //test
     const res = await request(app).get("/api/v1/test-parameter-with-dash/42");
 
     console.log(res.body);
@@ -118,16 +130,15 @@ describe("server", () => {
 
   // test-parameter-with-reference - Middleware validation error
   it("should be able to build test-parameter-with-reference Endpoint (Middleware validation result)", async () => {
-    const handler: ITestParameterWithReferenceRequestHandler<{}> = ({
+    //handler.ts
+    const handler: ITestParameterWithReferenceRequestHandler<{}> = async ({
       createdMessage
-    }) => {
-      return Promise.resolve(
-        ResponseSuccessRedirectToResource(undefined, "", undefined)
-      );
-    };
-
+    }) => ResponseSuccessRedirectToResource(undefined, "", undefined);
+    
+    // index.ts
     setupTestParameterWithReferenceEndpoint(app, handler);
 
+    //test
     const res = await await request(app).post(
       "/api/v1/test-parameter-with-reference"
     );
@@ -144,14 +155,12 @@ describe("server", () => {
 
   // Post with  body - Success
   it("should be able to build test-parameter-with-reference Endpoint", async () => {
-    const handler: ITestParameterWithReferenceRequestHandler<{}> = ({
+    //handler.ts
+    const handler: ITestParameterWithReferenceRequestHandler<{}> = async ({
       createdMessage
-    }) => {
-      return Promise.resolve(
-        ResponseSuccessRedirectToResource(undefined, "anUrl", undefined)
-      );
-    };
+    }) => ResponseSuccessRedirectToResource(undefined, "anUrl", undefined);
 
+    // index.ts
     setupTestParameterWithReferenceEndpoint(app, handler);
 
     const message: Message = {
@@ -161,6 +170,8 @@ describe("server", () => {
         subject: "s".repeat(80) as MessageSubject
       }
     };
+
+    // test
     const res = await request(app)
       .post("/api/v1/test-parameter-with-reference")
       .send(message);
@@ -171,7 +182,8 @@ describe("server", () => {
 
   // test-parameter-with-two-dash
   it("should be able to build test-parameter-with-two-dash Endpoint", async () => {
-    const handler: ITestWithTwoParamsRequestHandler<{}> = ({
+    //handler.ts
+    const handler: ITestWithTwoParamsRequestHandler<{}> = async ({
       firstParam,
       secondParam
     }) => {
@@ -180,14 +192,15 @@ describe("server", () => {
         isSome(secondParam) &&
         secondParam.value === "42"
       )
-        return Promise.resolve(ResponseSuccessJson(undefined));
-      else return Promise.resolve(ResponseErrorInternal("pathparam undefined"));
+        return ResponseSuccessJson(undefined);
+      else return ResponseErrorInternal("pathparam undefined");
     };
 
+    // index.ts
     setupTestWithTwoParamsEndpoint(app, handler);
 
+    //test
     const res = await request(app).get("/api/v1/test-two-path-params/1/42");
-
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
   });

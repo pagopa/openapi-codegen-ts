@@ -33,14 +33,15 @@ describe("server", () => {
     const result = (id: string) => ({
       service_id: id
     });
-    const handler: IGetServiceRequestHandler<{}> = ({ serviceId }) => {
-      return Promise.resolve(
-        ResponseSuccessJson((result(serviceId) as any) as ServicePublic)
-      );
-    };
 
+    // handler.ts
+    const handler: IGetServiceRequestHandler<{}> = async ({ serviceId }) =>
+      ResponseSuccessJson((result(serviceId) as any) as ServicePublic);
+
+    // index.ts
     setupGetServiceEndpoint(app, handler);
 
+    // test
     const res = await request(app).get("/api/v1/services/3");
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject(result("3"));
@@ -48,15 +49,14 @@ describe("server", () => {
 
   // GetService - Failure 500
   it("should be able to build GetService Endpoint", async () => {
-    const result = (id: string) => ({
-      service_id: id
-    });
-    const handler: IGetServiceRequestHandler<{}> = ({ serviceId }) => {
-      return Promise.resolve(ResponseErrorInternal("error"));
-    };
+    // handler.ts
+    const handler: IGetServiceRequestHandler<{}> = async ({ serviceId }) =>
+      ResponseErrorInternal("error");
 
+    // index.ts
     setupGetServiceEndpoint(app, handler);
 
+    // test
     const res = await request(app).get("/api/v1/services/0");
     expect(res.status).toBe(500);
   });
@@ -64,14 +64,14 @@ describe("server", () => {
   // GetServicesByRecipient - Success
   it("should be able to build GetServicesByRecipient Endpoint ", async () => {
     const result = { page_size: 10 };
-    const handler: IGetServicesByRecipientRequestHandler<{}> = ({}) => {
-      return Promise.resolve(
-        ResponseSuccessJson((result as any) as PaginatedServiceTupleCollection)
-      );
-    };
+    // handler.ts
+    const handler: IGetServicesByRecipientRequestHandler<{}> = async () =>
+      ResponseSuccessJson((result as any) as PaginatedServiceTupleCollection);
 
+    // index.ts
     setupGetServicesByRecipientEndpoint(app, handler);
 
+    // test
     const res = await request(app).get("/api/v1/profile/sender-services");
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject(result);
@@ -79,12 +79,14 @@ describe("server", () => {
 
   // email-validation-process - Success
   it("should be able to build StartEmailValidationProcess Endpoint ", async () => {
-    const handler: IStartEmailValidationProcessRequestHandler<{}> = ({}) => {
-      return Promise.resolve(ResponseSuccessAccepted());
-    };
+    // handler.ts
+    const handler: IStartEmailValidationProcessRequestHandler<{}> = async () =>
+      ResponseSuccessAccepted();
 
+    //index.ts
     setupStartEmailValidationProcessEndpoint(app, handler);
 
+    // test
     const res = await request(app).post("/api/v1/email-validation-process");
     expect(res.status).toBe(202);
     expect(res.body).toMatchObject({});
@@ -92,12 +94,14 @@ describe("server", () => {
 
   // email-validation-process - Success
   it("should be able to build StartEmailValidationProcess Endpoint ", async () => {
-    const handler: IStartEmailValidationProcessRequestHandler<{}> = ({}) => {
-      return Promise.resolve(ResponseSuccessAccepted());
-    };
+    // handler.ts
+    const handler: IStartEmailValidationProcessRequestHandler<{}> = async () =>
+      ResponseSuccessAccepted();
 
+    // index.ts
     setupStartEmailValidationProcessEndpoint(app, handler);
 
+    // test
     const res = await request(app).post("/api/v1/email-validation-process");
     expect(res.status).toBe(202);
     expect(res.body).toMatchObject({});
