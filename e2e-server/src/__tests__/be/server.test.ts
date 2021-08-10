@@ -35,7 +35,7 @@ describe("server", () => {
     });
 
     // handler.ts
-    const handler: IGetServiceRequestHandler<{}> = async ({ serviceId }) =>
+    const handler: IGetServiceRequestHandler = async ({ serviceId }) =>
       ResponseSuccessJson((result(serviceId) as any) as ServicePublic);
 
     // index.ts
@@ -50,7 +50,7 @@ describe("server", () => {
   // GetService - Failure 500
   it("should be able to build GetService Endpoint", async () => {
     // handler.ts
-    const handler: IGetServiceRequestHandler<{}> = async ({ serviceId }) =>
+    const handler: IGetServiceRequestHandler = async ({ serviceId }) =>
       ResponseErrorInternal("error");
 
     // index.ts
@@ -65,7 +65,7 @@ describe("server", () => {
   it("should be able to build GetServicesByRecipient Endpoint ", async () => {
     const result = { page_size: 10 };
     // handler.ts
-    const handler: IGetServicesByRecipientRequestHandler<{}> = async () =>
+    const handler: IGetServicesByRecipientRequestHandler = async () =>
       ResponseSuccessJson((result as any) as PaginatedServiceTupleCollection);
 
     // index.ts
@@ -80,7 +80,7 @@ describe("server", () => {
   // email-validation-process - Success
   it("should be able to build StartEmailValidationProcess Endpoint ", async () => {
     // handler.ts
-    const handler: IStartEmailValidationProcessRequestHandler<{}> = async () =>
+    const handler: IStartEmailValidationProcessRequestHandler = async () =>
       ResponseSuccessAccepted();
 
     //index.ts
@@ -95,7 +95,7 @@ describe("server", () => {
   // email-validation-process - Success
   it("should be able to build StartEmailValidationProcess Endpoint ", async () => {
     // handler.ts
-    const handler: IStartEmailValidationProcessRequestHandler<{}> = async () =>
+    const handler: IStartEmailValidationProcessRequestHandler = async () =>
       ResponseSuccessAccepted();
 
     // index.ts

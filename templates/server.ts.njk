@@ -123,7 +123,7 @@ import { AllMiddlewaresFailureResults, AllMiddlewaresResults, IRequestMiddleware
       export type {{ operationName }}Failures = {{ macro.resultFailureTypes(operation) }};
 
 
-      export type I{{operationName}}RequestHandler<  OtherParams extends Record<string, any> | Record<string, never>> = (
+      export type I{{operationName}}RequestHandler<OtherParams extends Record<string, any> | Record<string, never> = {}> = (
         args: {{ allGeneratedParamsType }} & OtherParams
       ) => Promise<{{ operationName }}Success | {{ operationName }}Failures>;
 

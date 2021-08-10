@@ -46,7 +46,7 @@ describe("server", () => {
   // ITestAuthBearerRequestHandler - TODO: query param
   it("should be able to build GetService Endpoint", async () => {
     //handler.ts
-    const handler: ITestAuthBearerRequestHandler<{}> = async ({ qr }) =>
+    const handler: ITestAuthBearerRequestHandler = async ({ qr }) =>
       ResponseSuccessJson(undefined);
 
     // index.ts
@@ -61,7 +61,7 @@ describe("server", () => {
   // TestMultipleSuccess - 200
   it("should be able to build TestMultipleSuccess Endpoint", async () => {
     //handler.ts
-    const handler: ITestMultipleSuccessRequestHandler<{}> = async ({}) =>
+    const handler: ITestMultipleSuccessRequestHandler = async ({}) =>
       ResponseSuccessJson({ id: "42" } as Message);
 
     // index.ts
@@ -76,7 +76,7 @@ describe("server", () => {
   // TestMultipleSuccess - 202
   it("should be able to build TestMultipleSuccess Endpoint", async () => {
     //handler.ts
-    const handler: ITestMultipleSuccessRequestHandler<{}> = ({}) => {
+    const handler: ITestMultipleSuccessRequestHandler = ({}) => {
       return Promise.resolve(ResponseSuccessAccepted());
     };
 
@@ -92,7 +92,7 @@ describe("server", () => {
   // testFileUpload - 202 -- TODO: add formData
   it("should be able to build RestFileUpload Endpoint", async () => {
     //handler.ts
-    const handler: ITestFileUploadRequestHandler<{}> = ({}) => {
+    const handler: ITestFileUploadRequestHandler = ({}) => {
       return Promise.resolve(ResponseSuccessJson(undefined));
     };
 
@@ -108,7 +108,7 @@ describe("server", () => {
   // test-parameter-with-dash
   it("should be able to build test-parameter-with-dash Endpoint", async () => {
     //handler.ts
-    const handler: ITestParameterWithDashRequestHandler<{}> = async ({
+    const handler: ITestParameterWithDashRequestHandler = async ({
       pathParam
     }) => {
       if (isSome(pathParam) && pathParam.value === "42")
@@ -131,7 +131,7 @@ describe("server", () => {
   // test-parameter-with-reference - Middleware validation error
   it("should be able to build test-parameter-with-reference Endpoint (Middleware validation result)", async () => {
     //handler.ts
-    const handler: ITestParameterWithReferenceRequestHandler<{}> = async ({
+    const handler: ITestParameterWithReferenceRequestHandler = async ({
       createdMessage
     }) => ResponseSuccessRedirectToResource(undefined, "", undefined);
     
@@ -156,7 +156,7 @@ describe("server", () => {
   // Post with  body - Success
   it("should be able to build test-parameter-with-reference Endpoint", async () => {
     //handler.ts
-    const handler: ITestParameterWithReferenceRequestHandler<{}> = async ({
+    const handler: ITestParameterWithReferenceRequestHandler = async ({
       createdMessage
     }) => ResponseSuccessRedirectToResource(undefined, "anUrl", undefined);
 
@@ -183,7 +183,7 @@ describe("server", () => {
   // test-parameter-with-two-dash
   it("should be able to build test-parameter-with-two-dash Endpoint", async () => {
     //handler.ts
-    const handler: ITestWithTwoParamsRequestHandler<{}> = async ({
+    const handler: ITestWithTwoParamsRequestHandler = async ({
       firstParam,
       secondParam
     }) => {

@@ -67,7 +67,7 @@ export type TestAuthBearerFailures =
   r.IResponseErrorForbiddenNotAuthorized;
 
 export type ITestAuthBearerRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestAuthBearerAllGeneratedParams & OtherParams
 ) => Promise<TestAuthBearerSuccess | TestAuthBearerFailures>;
@@ -156,7 +156,7 @@ export type TestSimpleTokenFailures =
   r.IResponseErrorForbiddenNotAuthorized;
 
 export type ITestSimpleTokenRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestSimpleTokenAllGeneratedParams & OtherParams
 ) => Promise<TestSimpleTokenSuccess | TestSimpleTokenFailures>;
@@ -245,7 +245,7 @@ export type TestMultipleSuccessFailures =
   | r.IResponseErrorNotFound;
 
 export type ITestMultipleSuccessRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestMultipleSuccessAllGeneratedParams & OtherParams
 ) => Promise<TestMultipleSuccessSuccess | TestMultipleSuccessFailures>;
@@ -321,7 +321,7 @@ export type TestFileUploadSuccess =
 export type TestFileUploadFailures = never;
 
 export type ITestFileUploadRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestFileUploadAllGeneratedParams & OtherParams
 ) => Promise<TestFileUploadSuccess | TestFileUploadFailures>;
@@ -399,7 +399,7 @@ export type TestResponseHeaderFailures =
   r.IResponseErrorInternal;
 
 export type ITestResponseHeaderRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestResponseHeaderAllGeneratedParams & OtherParams
 ) => Promise<TestResponseHeaderSuccess | TestResponseHeaderFailures>;
@@ -479,7 +479,7 @@ export type TestParameterWithReferenceFailures =
   r.IResponseErrorInternal;
 
 export type ITestParameterWithReferenceRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestParameterWithReferenceAllGeneratedParams & OtherParams
 ) => Promise<
@@ -568,7 +568,7 @@ export type TestParameterWithDashFailures =
   r.IResponseErrorInternal;
 
 export type ITestParameterWithDashRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestParameterWithDashAllGeneratedParams & OtherParams
 ) => Promise<TestParameterWithDashSuccess | TestParameterWithDashFailures>;
@@ -660,7 +660,7 @@ export type TestParameterWithDashAnUnderscoreFailures =
   r.IResponseErrorInternal;
 
 export type ITestParameterWithDashAnUnderscoreRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestParameterWithDashAnUnderscoreAllGeneratedParams & OtherParams
 ) => Promise<
@@ -757,7 +757,7 @@ export type TestWithTwoParamsFailures =
   r.IResponseErrorInternal;
 
 export type ITestWithTwoParamsRequestHandler<
-  OtherParams extends Record<string, any> | Record<string, never>
+  OtherParams extends Record<string, any> | Record<string, never> = {}
 > = (
   args: ITestWithTwoParamsAllGeneratedParams & OtherParams
 ) => Promise<TestWithTwoParamsSuccess | TestWithTwoParamsFailures>;
