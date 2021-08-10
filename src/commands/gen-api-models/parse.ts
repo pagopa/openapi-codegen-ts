@@ -4,7 +4,6 @@
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
-import { boolean } from "yargs";
 import { uncapitalize } from "../../lib/utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
@@ -43,7 +42,39 @@ export function parseDefinition(
     ? source["x-extensible-enum"]
     : undefined;
 
-  return ({ ...source, allOf, enum: enumm, oneOf } as unknown) as IDefinition;
+  // recursively parse properties
+  const properties = source.properties
+    ? Object.entries(source.properties)
+        .map(([k, v]) =>
+          v.$ref // if the property is a reference, just leave it as it is
+            ? [k, v]
+            : [k, parseDefinition(v)]
+        )
+        .reduce((p, [k, v]) => ({ ...p, [k as string]: v }), {})
+    : undefined;
+
+  return {
+    additionalProperties: source.additionalProperties,
+    allOf,
+    default: source.default,
+    description: source.description,
+    enum: enumm,
+    exclusiveMaximum: source.exclusiveMaximum,
+    exclusiveMinimum: source.exclusiveMinimum,
+    format: source.format,
+    maxLength: source.maxLength,
+    maximum: source.maximum,
+    minLength: source.minLength,
+    minimum: source.minimum,
+    oneOf,
+    pattern: source.pattern,
+    properties,
+    required: source.required,
+    title: source.title,
+    type: source.type,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ["x-import"]: (source as any)["x-import"]
+  };
 }
 
 /**
