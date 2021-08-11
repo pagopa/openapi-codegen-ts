@@ -22,12 +22,24 @@ import {
 } from "../../generated/testapi/server";
 
 import { Message } from "../../generated/testapi/Message";
-import { MessageBodyMarkdown } from "../../generated/testapi/MessageBodyMarkdown";
-import { MessageSubject } from "../../generated/testapi/MessageSubject";
 
 import * as bodyParser from "body-parser";
 
 import * as request from "supertest";
+
+// -----------
+
+const message: Message = Message.decode({
+  id: "42",
+  content: {
+    markdown: "a".repeat(81),
+    subject: "s".repeat(80)
+  }
+}).getOrElseL(() => {
+  throw Error("Invalid Message");
+});
+
+// -----------
 
 describe("server", () => {
   let app: express.Express;
@@ -43,26 +55,31 @@ describe("server", () => {
     app.emit("server:stop");
   });
 
-  // ITestAuthBearerRequestHandler - TODO: query param
+  // ITestAuthBearerRequestHandler
   it("should be able to build GetService Endpoint", async () => {
     //handler.ts
-    const handler: ITestAuthBearerRequestHandler = async ({ qr }) =>
-      ResponseSuccessJson(undefined);
+    const handler: ITestAuthBearerRequestHandler = async ({ qr }) => {
+      expect(qr).toEqual("aQueryStringText");
+      return ResponseSuccessJson(undefined);
+    };
 
     // index.ts
     setupTestAuthBearerEndpoint(app, handler);
 
     //test
-    const res = await request(app).get("/api/v1/test-auth-bearer?qr=prova");
+    const res = await request(app).get(
+      "/api/v1/test-auth-bearer?qr=aQueryStringText"
+    );
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
   });
 
   // TestMultipleSuccess - 200
   it("should be able to build TestMultipleSuccess Endpoint", async () => {
+
     //handler.ts
-    const handler: ITestMultipleSuccessRequestHandler = async ({}) =>
-      ResponseSuccessJson({ id: "42" } as Message);
+    const handler: ITestMultipleSuccessRequestHandler = async () =>
+      ResponseSuccessJson(message);
 
     // index.ts
     setupTestMultipleSuccessEndpoint(app, handler);
@@ -70,7 +87,7 @@ describe("server", () => {
     // test
     const res = await request(app).get("/api/v1/test-multiple-success");
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ id: "42" });
+    expect(res.body).toMatchObject(message);
   });
 
   // TestMultipleSuccess - 202
@@ -122,8 +139,6 @@ describe("server", () => {
     //test
     const res = await request(app).get("/api/v1/test-parameter-with-dash/42");
 
-    console.log(res.body);
-
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({});
   });
@@ -133,8 +148,9 @@ describe("server", () => {
     //handler.ts
     const handler: ITestParameterWithReferenceRequestHandler = async ({
       createdMessage
+      // ^^^ decoded Message
     }) => ResponseSuccessRedirectToResource(undefined, "", undefined);
-    
+
     // index.ts
     setupTestParameterWithReferenceEndpoint(app, handler);
 
@@ -162,14 +178,6 @@ describe("server", () => {
 
     // index.ts
     setupTestParameterWithReferenceEndpoint(app, handler);
-
-    const message: Message = {
-      id: "anId",
-      content: {
-        markdown: "a".repeat(81) as MessageBodyMarkdown,
-        subject: "s".repeat(80) as MessageSubject
-      }
-    };
 
     // test
     const res = await request(app)

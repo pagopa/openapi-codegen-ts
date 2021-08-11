@@ -17,6 +17,25 @@ import { ServicePublic } from "../../generated/be/ServicePublic";
 
 import * as request from "supertest";
 
+// --------------------
+
+const validService = {
+  service_id: "sid1234",
+  service_name: "my service",
+  organization_name: "my org",
+  department_name: "my dep",
+  organization_fiscal_code: "12345678901",
+  version: 123
+};
+
+const paginatedServices = {
+  items: [{ service_id: "foo123", version: 789 }],
+  next: "http://example.com/next",
+  page_size: 1
+};
+
+// --------------------
+
 describe("server", () => {
   let app: express.Express;
   beforeEach(() => {
@@ -30,13 +49,17 @@ describe("server", () => {
 
   // GetService - Success
   it("should be able to build GetService Endpoint", async () => {
-    const result = (id: string) => ({
-      service_id: id
-    });
+    const servicePublicResult = (id: string) =>
+      ServicePublic.decode({
+        ...validService,
+        service_id: id
+      }).getOrElseL(() => {
+        throw Error("Invalid ServicePublic");
+      });
 
     // handler.ts
     const handler: IGetServiceRequestHandler = async ({ serviceId }) =>
-      ResponseSuccessJson((result(serviceId) as any) as ServicePublic);
+      ResponseSuccessJson(servicePublicResult(serviceId));
 
     // index.ts
     setupGetServiceEndpoint(app, handler);
@@ -44,7 +67,7 @@ describe("server", () => {
     // test
     const res = await request(app).get("/api/v1/services/3");
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(result("3"));
+    expect(res.body).toMatchObject(servicePublicResult("3"));
   });
 
   // GetService - Failure 500
@@ -63,10 +86,14 @@ describe("server", () => {
 
   // GetServicesByRecipient - Success
   it("should be able to build GetServicesByRecipient Endpoint ", async () => {
-    const result = { page_size: 10 };
+    const result: PaginatedServiceTupleCollection = PaginatedServiceTupleCollection.decode(
+      paginatedServices
+    ).getOrElseL(() => {
+      throw Error("Invalid PaginatedServiceTupleCollection");
+    });
     // handler.ts
     const handler: IGetServicesByRecipientRequestHandler = async () =>
-      ResponseSuccessJson((result as any) as PaginatedServiceTupleCollection);
+      ResponseSuccessJson(result);
 
     // index.ts
     setupGetServicesByRecipientEndpoint(app, handler);
