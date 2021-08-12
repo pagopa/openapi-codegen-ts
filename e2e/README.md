@@ -1,4 +1,4 @@
-# IO-UTILS E2E TEST SUITE
+# IO-UTILS E2E (FP-TS v2) TEST SUITE
 In this folder is defined a barebone project used to test `gen-api-models`' generated files in real-world scenarios. 
 
 ## Usage

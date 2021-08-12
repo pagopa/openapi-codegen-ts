@@ -85,14 +85,3 @@ stages:
           - script: |
               yarn e2e
             displayName: 'e2e tests exec'
-
-  - stage: Teste_e2e_fp_ts_v2
-    dependsOn: []
-    jobs:
-      - job: e2e_fp_ts_v2_tests
-        steps:
-          - template: azure-templates/setup-project.yml
-          # e2e_fp-ts-v2 script builds the package
-          - script: |
-              yarn e2e_fp-ts-v2
-            displayName: 'e2e_fp-ts-v2 tests exec'
