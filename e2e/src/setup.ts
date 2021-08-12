@@ -6,15 +6,18 @@
  */
 
 import { generateApi } from "@pagopa/openapi-codegen-ts";
-import { array } from "fp-ts/lib/Array";
-import { task } from "fp-ts/lib/Task";
-import { right, taskEither, tryCatch } from "fp-ts/lib/TaskEither";
+import { sequence } from "fp-ts/lib/Array";
+import { pipe } from "fp-ts/lib/function";
+import { tryCatch } from "fp-ts/lib/TaskEither";
+
+import * as TE from "fp-ts/lib/TaskEither";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ensureDir } from "fs-extra";
 import config from "./config";
 import { startMockServer } from "./server";
 
-const noopTE = right<Error, undefined>(task.of(undefined));
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const noopTE = TE.right<Error, unknown>(undefined);
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const tsGenerateApi = (...p: Parameters<typeof generateApi>) =>
@@ -46,28 +49,32 @@ export default async () => {
   const { specs, skipClient, skipGeneration } = config;
   const tasks = Object.values(specs)
     .filter(({ isSpecEnabled }) => isSpecEnabled)
-    .map(({ url, mockPort, generatedFilesDir }) =>
-      (skipGeneration
-        ? noopTE
-        : tsGenerateApi({
-            camelCasedPropNames: false,
-            definitionsDirPath: generatedFilesDir,
-            generateClient: true,
-            specFilePath: url,
-            strictInterfaces: true
-          })
-      ).chain(() => (skipClient ? noopTE : tsStartServer(url, mockPort)))
-    );
+    .map(({ url, mockPort, generatedFilesDir }) => {
+      // eslint-disable-next-line sonarjs/prefer-immediate-return
+      const p = pipe(
+        skipGeneration
+          ? noopTE
+          : tsGenerateApi({
+              camelCasedPropNames: false,
+              definitionsDirPath: generatedFilesDir,
+              generateClient: true,
+              specFilePath: url,
+              strictInterfaces: true
+            }),
+        TE.chain(() => (skipClient ? noopTE : tsStartServer(url, mockPort)))
+      );
+
+      return p;
+    });
 
   const startedAt = Date.now();
-  return array
-    .sequence(taskEither)(tasks)
-    .orElse(e => {
+  return pipe(
+    sequence(TE.taskEither)(tasks),
+    TE.orElse(e => {
       throw e;
     })
-    .run()
-    .then(() =>
-      // eslint-disable-next-line no-console
-      console.log(`setup completed after ${Date.now() - startedAt}ms`)
-    );
+  )().then(_ =>
+    // eslint-disable-next-line no-console
+    console.log(`setup completed after ${Date.now() - startedAt}ms`)
+  );
 };

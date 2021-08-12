@@ -3,6 +3,8 @@ import mockResponse from "../../../../__mocks__/response";
 import config from "../../config";
 import * as requestTypes from "../../generated/testapi/requestTypes";
 
+import * as E from "fp-ts/lib/Either";
+
 // @ts-ignore because leaked-handles doesn't ship type defintions
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
@@ -43,14 +45,14 @@ describeSuite("Request types generated from Test API spec", () => {
         if (cannotDecode) {
           expect(result).not.toBeDefined();
         } else if (result) {
-          result.fold(
+          E.fold(
             // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
             // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
-          );
-          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+          )(result);
+          expect(E.isRight(result)).toBe(typeof expectedRight !== "undefined");
+          expect(E.isLeft(result)).toBe(typeof expectedLeft !== "undefined");
         } else {
           fail("result should be defined");
         }
@@ -88,14 +90,14 @@ describeSuite("Request types generated from Test API spec", () => {
         if (cannotDecode) {
           expect(result).not.toBeDefined();
         } else if (result) {
-          result.fold(
+          E.fold(
             // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
             // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
-          );
-          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+          )(result);
+          expect(E.isRight(result)).toBe(typeof expectedRight !== "undefined");
+          expect(E.isLeft(result)).toBe(typeof expectedLeft !== "undefined");
         } else {
           fail("result should be defined");
         }
@@ -131,14 +133,14 @@ describeSuite("Request types generated from Test API spec", () => {
         if (cannotDecode) {
           expect(result).not.toBeDefined();
         } else if (result) {
-          result.fold(
+          E.fold(
             // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
             // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
-          );
-          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+          )(result);
+          expect(E.isRight(result)).toBe(typeof expectedRight !== "undefined");
+          expect(E.isLeft(result)).toBe(typeof expectedLeft !== "undefined");
         } else {
           fail("result should be defined");
         }
@@ -174,14 +176,14 @@ describeSuite("Request types generated from Test API spec", () => {
         if (cannotDecode) {
           expect(result).not.toBeDefined();
         } else if (result) {
-          result.fold(
+          E.fold(
             // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
             // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
-          );
-          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+          )(result);
+          expect(E.isRight(result)).toBe(typeof expectedRight !== "undefined");
+          expect(E.isLeft(result)).toBe(typeof expectedLeft !== "undefined");
         } else {
           fail("result should be defined");
         }
