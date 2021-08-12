@@ -40,9 +40,6 @@ stages:
           - script: |
               yarn e2e:lint
             displayName: 'Lint e2e project'
-          - script: |
-              yarn e2e_fp-ts-v2:lint
-            displayName: 'Lint e2e_fp-ts-v2 project'
 
       - job: danger
         condition: 
