@@ -167,4 +167,25 @@ describe("parseDefinition", () => {
 
     expect(parsed.enum).toEqual(expect.any(Array));
   });
+
+  it("should handle AnObjectWithAnItemsField", async () => {
+    const definition = getDefinitionOrFail(spec, "AnObjectWithAnItemsField");
+
+    const parsed = parseDefinition(definition);
+
+    //expect(parsed).toEqual({});
+    expect(parsed.type).toBe("object");
+    expect(parsed.properties?.items).toEqual(expect.any(Object));
+
+    if (parsed.properties?.items && "type" in parsed.properties?.items) {
+      expect(parsed.properties?.items.type).toBe("array");
+      expect(parsed.properties?.items.items).toEqual(
+        expect.objectContaining({
+          $ref: "#/definitions/DefinitionFieldWithDash"
+        })
+      );
+    } else {
+      fail("a type should be specified");
+    }
+  });
 });

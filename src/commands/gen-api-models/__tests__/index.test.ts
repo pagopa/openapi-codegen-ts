@@ -340,6 +340,51 @@ describe("gen-api-models", () => {
     expect(code).toMatchSnapshot("defined-type");
   });
 
+  it("should handle list of defintions", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.ListOfDefinitions;
+    const code = await renderDefinitionCode(
+      "ListOfDefinitions",
+      parseDefinition(definition),
+      false
+    );
+    expect(code).toMatchSnapshot();
+  });
+
+  it("should handle list of references", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.ListOfReferences;
+    const code = await renderDefinitionCode(
+      "ListOfReferences",
+      parseDefinition(definition),
+      false
+    );
+    expect(code).toMatchSnapshot();
+  });
+
+  it("should handle AnObjectWithAnItemsField", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.AnObjectWithAnItemsField;
+    const code = await renderDefinitionCode(
+      "AnObjectWithAnItemsField",
+      parseDefinition(definition),
+      false
+    );
+    expect(code).toMatchSnapshot();
+  });
+
   it.each`
     path                                        | method
     ${"/test-auth-bearer"}                      | ${"get"}

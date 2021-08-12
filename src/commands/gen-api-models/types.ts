@@ -92,6 +92,7 @@ export interface IDefinition {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly default?: any;
   readonly format?: string;
+  readonly items?: IDefinition;
   readonly maximum?: number;
   readonly exclusiveMaximum?: boolean;
   readonly minimum?: number;
