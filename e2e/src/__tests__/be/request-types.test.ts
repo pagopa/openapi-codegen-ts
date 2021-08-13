@@ -2,6 +2,7 @@ import * as t from "io-ts";
 import mockResponse from "../../../../__mocks__/response";
 import config from "../../config";
 import * as requestTypes from "../../generated/be/requestTypes";
+import * as E from "fp-ts/lib/Either"
 
 const { isSpecEnabled } = config.specs.be;
 
@@ -46,14 +47,14 @@ describeSuite("Request types generated from BE API spec", () => {
         if (cannotDecode) {
           expect(result).not.toBeDefined();
         } else if (result) {
-          result.fold(
+          E.fold(
             // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
             // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
-          );
-          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+          )(result);
+          expect(E.isRight(result)).toBe(typeof expectedRight !== "undefined");
+          expect(E.isLeft(result)).toBe(typeof expectedLeft !== "undefined");
         } else {
           fail("result should be defined");
         }
@@ -89,14 +90,14 @@ describeSuite("Request types generated from BE API spec", () => {
         if (cannotDecode) {
           expect(result).not.toBeDefined();
         } else if (result) {
-          result.fold(
+          E.fold(
             // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
             // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
-          );
-          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+          )(result);
+          expect(E.isRight(result)).toBe(typeof expectedRight !== "undefined");
+          expect(E.isLeft(result)).toBe(typeof expectedLeft !== "undefined");
         } else {
           fail("result should be defined");
         }
@@ -138,14 +139,14 @@ describeSuite("Request types generated from BE API spec", () => {
         if (cannotDecode) {
           expect(result).not.toBeDefined();
         } else if (result) {
-          result.fold(
+          E.fold(
             // in case the decoding gives a left, it checks the result against the expected value
             (l: any) => expect(l).toEqual(expectedLeft),
             // in case the decoding gives a right, it checks the result against the expected value
             (r: any) => expect(r).toEqual(expectedRight)
-          );
-          expect(result.isRight()).toBe(typeof expectedRight !== "undefined");
-          expect(result.isLeft()).toBe(typeof expectedLeft !== "undefined");
+          )(result);
+          expect(E.isRight(result)).toBe(typeof expectedRight !== "undefined");
+          expect(E.isLeft(result)).toBe(typeof expectedLeft !== "undefined");
         } else {
           fail("result should be defined");
         }
