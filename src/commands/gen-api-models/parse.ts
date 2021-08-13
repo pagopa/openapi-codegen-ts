@@ -45,7 +45,6 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
     ? looselySource["x-extensible-enum"]
     : undefined;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const format = "format" in looselySource ? looselySource.format : undefined;
 
   const additionalProperties =
