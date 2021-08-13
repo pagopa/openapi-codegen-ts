@@ -30,7 +30,6 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
   const { oneOf, allOf } =
     typeof looselySource.oneOf === "undefined" &&
     "x-one-of" in looselySource &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     looselySource["x-one-of"]
       ? { allOf: undefined, oneOf: looselySource.allOf }
       : {
