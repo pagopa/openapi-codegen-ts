@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+// eslint-disable no-console
 import * as fs from "fs-extra";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
@@ -13,34 +13,42 @@ import { IGenerateApiOptions } from "./types";
 
 /**
  * Checks if a parsed spec is in OA2 format
+ *
  * @param specs a parsed spec
  *
  * @returns true or false
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function isOpenAPIV2(
   specs: OpenAPI.Document
 ): specs is OpenAPIV2.Document {
+  // eslint-disable-next-line no-prototype-builtins
   return specs.hasOwnProperty("swagger");
 }
 
 /**
  * Wraps file writing to expose a common interface and log consistently
+ *
  * @param name name of the piece of code to render
  * @param outPath path of the file
  * @param code code to be saved
  *
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
+  // eslint-disable-next-line no-console
   console.log(`${name} -> ${outPath}`);
   return fs.writeFile(outPath, code);
 }
 
 /**
  * Module's main method. It generates files based on a given specification url
+ *
  * @param options
  *
  *
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export async function generateApi(options: IGenerateApiOptions): Promise<void> {
   const {
     specFilePath,
@@ -76,6 +84,7 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
 
   const definitions = api.definitions;
   if (!definitions) {
+    // eslint-disable-next-line no-console
     console.log("No definitions found, skipping generation of model code.");
     return;
   }

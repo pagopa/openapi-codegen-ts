@@ -18,8 +18,10 @@ const { render } = createTemplateEnvironment({
 
 /**
  * Generate models as well as package scaffolding for a sdk that talks to a provided api spec
+ *
  * @param options
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 export async function generateSdk(options: IGenerateSdkOptions) {
   const { inferAttr, ...params } = options;
 
@@ -28,10 +30,13 @@ export async function generateSdk(options: IGenerateSdkOptions) {
   const templateParams: IPackageAttributes &
     IRegistryAttributes &
     IGeneratorParams = inferAttr
-    ? mergeParams(await inferAttributesFromPackage(), params)
+    ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      mergeParams(await inferAttributesFromPackage(), params)
     : params;
 
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const renderedFiles = await renderAll(listTemplates(), templateParams);
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
   await generateApi({
     camelCasedPropNames: options.camelCasedPropNames,
@@ -49,6 +54,7 @@ export async function generateSdk(options: IGenerateSdkOptions) {
   });
 }
 
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 async function inferAttributesFromPackage(): Promise<
   IPackageAttributes & IRegistryAttributes
 > {
@@ -64,16 +70,21 @@ async function inferAttributesFromPackage(): Promise<
   return {
     name: `${pkg.name}-sdk`,
     version: pkg.version,
+    // eslint-disable-next-line sort-keys
     description: `Generated SDK for ${pkg.name}. ${pkg.description}`,
+    // eslint-disable-next-line sort-keys
     author: pkg.author,
     license: pkg.license,
     registry: pkg.publishConfig?.registry,
+    // eslint-disable-next-line sort-keys
     access: pkg.publishConfig?.access
   };
 }
 
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions, @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
 function mergeParams<A extends object, B extends object>(a: A, b: B): any {
   return Object.keys({ ...a, ...b }).reduce(
+    // eslint-disable-next-line @typescript-eslint/ban-types
     (p: object, k: string) => ({
       ...p,
       [k]: b[k as keyof B] || a[k as keyof A]
@@ -82,14 +93,17 @@ function mergeParams<A extends object, B extends object>(a: A, b: B): any {
   );
 }
 
-function listTemplates(): string[] {
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+function listTemplates(): ReadonlyArray<string> {
   return ["package.json.njk", "tsconfig.json.njk", "index.ts.njk"];
 }
 
 /**
  * Renders all templates and return a hashmap in the form (filepath, renderedCode)
+ *
  * @param options
  */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export async function renderAll(
   files: ReadonlyArray<string>,
   options: IPackageAttributes & IRegistryAttributes & IGeneratorParams
@@ -108,16 +122,20 @@ export async function renderAll(
 
 /**
  * Wraps file writing to expose a common interface and log consistently
+ *
  * @param name name of the piece of code to render
  * @param outPath path of the file
  * @param code code to be saved
  *
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
+  // eslint-disable-next-line no-console
   console.log(`${name} -> ${outPath}`);
   return fs.writeFile(outPath, code);
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 function writeAllGeneratedCodeFiles(
   outPath: string,
   files: Record<string, string>

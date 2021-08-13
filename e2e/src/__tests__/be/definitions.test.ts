@@ -1,3 +1,4 @@
+import { isLeft, isRight } from "fp-ts/lib/Either";
 import config from "../../config";
 
 const { generatedFilesDir, isSpecEnabled } = config.specs.be;
@@ -45,7 +46,7 @@ describeSuite("Decoders generated from BE API spec defintions", () => {
       ${"should decode valid service"}          | ${validService}          | ${true}
     `("$title", async ({ example, expectedRight }) => {
       const { ServicePublic } = await loadModule("ServicePublic");
-      const result = ServicePublic.decode(example).isRight();
+      const result = isRight(ServicePublic.decode(example));
       expect(result).toEqual(expectedRight);
     });
   });
@@ -73,7 +74,7 @@ describeSuite("Decoders generated from BE API spec defintions", () => {
       const { PaginatedServiceTupleCollection } = await loadModule(
         "PaginatedServiceTupleCollection"
       );
-      const result = PaginatedServiceTupleCollection.decode(example).isRight();
+      const result = isRight( PaginatedServiceTupleCollection.decode(example));
       expect(result).toEqual(expectedRight);
     });
   });

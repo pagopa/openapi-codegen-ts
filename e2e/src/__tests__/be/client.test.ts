@@ -1,4 +1,9 @@
 import nodeFetch from "node-fetch";
+import { pipe } from "fp-ts/lib/function";
+
+import * as TE from "fp-ts/lib/TaskEither";
+import * as E from "fp-ts/lib/Either";
+
 import config from "../../config";
 import { createClient, WithDefaultsT } from "../../generated/be/client";
 
@@ -30,12 +35,15 @@ describeSuite("Http client generated from BE API spec", () => {
         service_id: "service123"
       });
 
-      result.fold(
-        (e: any) => fail(e),
-        response => {
-          expect(response.status).toBe(200);
-          expect(response.value).toEqual(expect.any(Object));
-        }
+      pipe(
+        result,
+        E.fold(
+          (e: any) => fail(e),
+          response => {
+            expect(response.status).toBe(200);
+            expect(response.value).toEqual(expect.any(Object));
+          }
+        )
       );
     });
 
@@ -59,12 +67,15 @@ describeSuite("Http client generated from BE API spec", () => {
         service_id: "service123"
       });
 
-      result.fold(
-        (e: any) => fail(e),
-        response => {
-          expect(response.status).toBe(200);
-          expect(response.value).toEqual(expect.any(Object));
-        }
+      pipe(
+        result,
+        E.fold(
+          (e: any) => fail(e),
+          response => {
+            expect(response.status).toBe(200);
+            expect(response.value).toEqual(expect.any(Object));
+          }
+        )
       );
     });
   });
@@ -81,16 +92,19 @@ describeSuite("Http client generated from BE API spec", () => {
         Bearer: VALID_TOKEN
       });
 
-      result.fold(
-        (e: any) => fail(e),
-        response => {
-          expect(response.status).toBe(200);
-          if (response.status === 200) {
-            expect(response.value).toEqual(expect.any(Object));
-            expect(response.value.items).toEqual(expect.any(Array));
-            expect(response.value.page_size).toEqual(expect.any(Number));
+      pipe(
+        result,
+        E.fold(
+          (e: any) => fail(e),
+          response => {
+            expect(response.status).toBe(200);
+            if (response.status === 200) {
+              expect(response.value).toEqual(expect.any(Object));
+              expect(response.value.items).toEqual(expect.any(Array));
+              expect(response.value.page_size).toEqual(expect.any(Number));
+            }
           }
-        }
+        )
       );
     });
 
@@ -106,16 +120,19 @@ describeSuite("Http client generated from BE API spec", () => {
         cursor: "my cursor"
       });
 
-      result.fold(
-        (e: any) => fail(e),
-        response => {
-          expect(response.status).toBe(200);
-          if (response.status === 200) {
-            expect(response.value).toEqual(expect.any(Object));
-            expect(response.value.items).toEqual(expect.any(Array));
-            expect(response.value.page_size).toEqual(expect.any(Number));
+      pipe(
+        result,
+        E.fold(
+          (e: any) => fail(e),
+          response => {
+            expect(response.status).toBe(200);
+            if (response.status === 200) {
+              expect(response.value).toEqual(expect.any(Object));
+              expect(response.value.items).toEqual(expect.any(Array));
+              expect(response.value.page_size).toEqual(expect.any(Number));
+            }
           }
-        }
+        )
       );
     });
 
@@ -161,7 +178,7 @@ describeSuite("Http client generated from BE API spec", () => {
       // please note we're not passing a K type to createClient, is being inferred from witBearer
       const { getVisibleServices } = createClient({
         baseUrl: `http://localhost:${mockPort}`,
-        // tslint:disable-next-line: no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         fetchApi: (spiedFetch as any) as typeof fetch,
         basePath: "",
         withDefaults: withBearer

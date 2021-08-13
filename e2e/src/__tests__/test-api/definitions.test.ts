@@ -20,6 +20,8 @@ import { EnabledUserTest } from "../../generated/testapi/EnabledUserTest";
 import { EnumFalseTest } from "../../generated/testapi/EnumFalseTest";
 import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
 
+import * as E from "fp-ts/lib/Either"
+
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
 
 // if there's no need for this suite in this particular run, just skip it
@@ -45,7 +47,7 @@ describe("FiscalCode definition", () => {
     ${"should fail decoding invalid cf"} | ${"INVALIDCFFORMAT"}  | ${false}
   `("$title", async ({ example, expected }) => {
     const { FiscalCode } = await loadModule("FiscalCode");
-    const result = FiscalCode.decode(example).isRight();
+    const result = E.isRight(FiscalCode.decode(example));
     expect(result).toEqual(expected);
   });
 });
@@ -92,7 +94,7 @@ describe("Profile defintion", () => {
     ${"should decode profile with payload"} | ${profileWithPayload} | ${true}
   `("$title", async ({ example, expected }) => {
     const { Profile } = await loadModule("Profile");
-    const result = Profile.decode(example).isRight();
+    const result = E.isRight(Profile.decode(example));
     expect(result).toEqual(expected);
   });
 });
@@ -114,7 +116,7 @@ describe("WithinRangeIntegerTest defintion", () => {
     "should decode $value with WithinRangeIntegerTest",
     ({ value, expected }) => {
       const result = WithinRangeIntegerTest.decode(value);
-      expect(result.isRight()).toEqual(expected);
+      expect(E.isRight(result)).toEqual(expected);
     }
   );
 });
@@ -136,7 +138,7 @@ describe("WithinRangeNumberTest defintion", () => {
     "should decode $value with WithinRangeNumberTest",
     ({ value, expected }) => {
       const result = WithinRangeNumberTest.decode(value);
-      expect(result.isRight()).toEqual(expected);
+      expect(E.isRight(result)).toEqual(expected);
     }
   );
 
@@ -159,7 +161,7 @@ describe("WithinRangeNumberTest defintion", () => {
       "should decode $value with WithinRangeExclusiveMinimumNumberTest",
       ({ value, expected }) => {
         const result = WithinRangeExclusiveMinimumNumberTest.decode(value);
-        expect(result.isRight()).toEqual(expected);
+        expect(E.isRight(result)).toEqual(expected);
       }
     );
   });
@@ -182,7 +184,7 @@ describe("WithinRangeNumberTest defintion", () => {
       "should decode $value with WithinRangeExclusiveMaximumNumberTest",
       ({ value, expected }) => {
         const result = WithinRangeExclusiveMaximumNumberTest.decode(value);
-        expect(result.isRight()).toEqual(expected);
+        expect(E.isRight(result)).toEqual(expected);
       }
     );
   });
@@ -207,7 +209,7 @@ describe("WithinRangeNumberTest defintion", () => {
       "should decode $value with WithinRangeExclusiveMinMaxNumberTest",
       ({ value, expected }) => {
         const result = WithinRangeExclusiveMinMaxNumberTest.decode(value);
-        expect(result.isRight()).toEqual(expected);
+        expect(E.isRight(result)).toEqual(expected);
       }
     );
   });
@@ -242,7 +244,7 @@ describe("WithinRangeExclusiveMinimumIntegerTest definition", () => {
     "should decode $value with WithinRangeExclusiveMinimumIntegerTest",
     ({ value, expected }) => {
       const result = WithinRangeExclusiveMinimumIntegerTest.decode(value);
-      expect(result.isRight()).toEqual(expected);
+      expect(E.isRight(result)).toEqual(expected);
     }
   );
 });
@@ -264,7 +266,7 @@ describe("WithinRangeExclusiveMaximumIntegerTest definition", () => {
     "should decode $value with WithinRangeExclusiveMaximumIntegerTest",
     ({ value, expected }) => {
       const result = WithinRangeExclusiveMaximumIntegerTest.decode(value);
-      expect(result.isRight()).toEqual(expected);
+      expect(E.isRight(result)).toEqual(expected);
     }
   );
 });
@@ -283,7 +285,7 @@ describe("WithinRangeStringTest defintion", () => {
     "should decode $value with WithinRangeStringTest",
     ({ value, expected }) => {
       const result = WithinRangeStringTest.decode(value);
-      expect(result.isRight()).toEqual(expected);
+      expect(E.isRight(result)).toEqual(expected);
     }
   );
 });
@@ -294,13 +296,13 @@ describe("EnumTrueTest definition", () => {
 
   it("should decode statusOk with EnumTrueTest", () => {
     const result = EnumTrueTest.decode(statusOk);
-    expect(result.isRight()).toBe(true);
+    expect(E.isRight(result)).toBe(true);
   });
 
   it("should not decode statusKo with EnumTrueTest", () => {
     const result = EnumTrueTest.decode(statusKo);
 
-    expect(result.isLeft()).toBe(true);
+    expect(E.isLeft(result)).toBe(true);
   });
 });
 
@@ -310,13 +312,13 @@ describe("EnumFalseTest definition", () => {
 
   it("should decode statusOk with EnumFalseTest", () => {
     const result = EnumFalseTest.decode(statusOk);
-    expect(result.isRight()).toBe(true);
+    expect(E.isRight(result)).toBe(true);
   });
 
   it("should not decode statusKo with EnumFalseTest", () => {
     const result = EnumFalseTest.decode(statusKo);
 
-    expect(result.isLeft()).toBe(true);
+    expect(E.isLeft(result)).toBe(true);
   });
 });
 
@@ -343,9 +345,9 @@ describe("DisjointUnionsUserTest definition", () => {
     const enabledUserTest = EnabledUserTest.decode(enabledUser);
     const disabledUserTest = DisabledUserTest.decode(enabledUser);
 
-    expect(userTest.isRight()).toBe(true);
-    expect(enabledUserTest.isRight()).toBe(true);
-    expect(disabledUserTest.isLeft()).toBe(true);
+    expect(E.isRight(userTest)).toBe(true);
+    expect(E.isRight(enabledUserTest)).toBe(true);
+    expect(E.isLeft(disabledUserTest)).toBe(true);
   });
 
   it("should decode disabledUser with DisjointUnionsUserTest", () => {
@@ -353,9 +355,9 @@ describe("DisjointUnionsUserTest definition", () => {
     const enabledUserTest = EnabledUserTest.decode(disabledUser);
     const disabledUserTest = DisabledUserTest.decode(disabledUser);
 
-    expect(userTest.isRight()).toBe(true);
-    expect(disabledUserTest.isRight()).toBe(true);
-    expect(enabledUserTest.isLeft()).toBe(true);
+    expect(E.isRight(userTest)).toBe(true);
+    expect(E.isRight(disabledUserTest)).toBe(true);
+    expect(E.isLeft(enabledUserTest)).toBe(true);
   });
 
   it("should not decode invalidUser with DisjointUnionsUserTest", () => {
@@ -363,8 +365,8 @@ describe("DisjointUnionsUserTest definition", () => {
     const enabledUserTest = EnabledUserTest.decode(invalidUser);
     const disabledUserTest = DisabledUserTest.decode(invalidUser);
 
-    expect(userTest.isLeft()).toBe(true);
-    expect(disabledUserTest.isLeft()).toBe(true);
-    expect(enabledUserTest.isLeft()).toBe(true);
+    expect(E.isLeft(userTest)).toBe(true);
+    expect(E.isLeft(disabledUserTest)).toBe(true);
+    expect(E.isLeft(enabledUserTest)).toBe(true);
   });
 });
