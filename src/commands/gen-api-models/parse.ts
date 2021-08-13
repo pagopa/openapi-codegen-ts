@@ -42,8 +42,7 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
   const enumm = looselySource.enum
     ? looselySource.enum
     : "x-extensible-enum" in looselySource
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      looselySource["x-extensible-enum"]
+    ? looselySource["x-extensible-enum"]
     : undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
