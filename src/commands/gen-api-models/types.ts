@@ -1,5 +1,5 @@
 import { ITuple3 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2 } from "openapi-types";
+import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
 
 /**
  * Defines the set of parameters for the code generation
@@ -78,3 +78,36 @@ export interface ISpecMetaInfo {
 export type ExtendedOpenAPIV2SecuritySchemeApiKey = OpenAPIV2.SecuritySchemeApiKey & {
   readonly "x-auth-scheme": SupportedAuthScheme;
 };
+
+type ReferenceObject = OpenAPIV3.ReferenceObject;
+
+/**
+ * Define the shape of a schema definition as it supported by the generator,
+ *   regardless of OpenAPI version.
+ */
+export interface IDefinition {
+  readonly title?: string;
+  readonly type?: string | ReadonlyArray<string>;
+  readonly description?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly default?: any;
+  readonly format?: string;
+  readonly items?: IDefinition;
+  readonly maximum?: number;
+  readonly exclusiveMaximum?: boolean;
+  readonly minimum?: number;
+  readonly exclusiveMinimum?: boolean;
+  readonly maxLength?: number;
+  readonly minLength?: number;
+  readonly pattern?: string;
+  readonly required?: ReadonlyArray<string>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly enum?: ReadonlyArray<any>;
+  readonly properties?: {
+    readonly [name: string]: ReferenceObject | IDefinition;
+  };
+  readonly additionalProperties?: boolean | ReferenceObject | IDefinition;
+  readonly allOf?: ReadonlyArray<ReferenceObject | IDefinition>;
+  readonly oneOf?: ReadonlyArray<ReferenceObject | IDefinition>;
+  readonly ["x-import"]?: string;
+}

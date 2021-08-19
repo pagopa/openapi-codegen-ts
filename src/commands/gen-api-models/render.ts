@@ -15,7 +15,7 @@ import {
   withGenerics
 } from "../../lib/utils";
 import templateEnvironment from "./templateEnvironment";
-import { IOperationInfo, ISpecMetaInfo } from "./types";
+import { IDefinition, IOperationInfo, ISpecMetaInfo } from "./types";
 
 const { render } = templateEnvironment;
 
@@ -50,7 +50,7 @@ added this line
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export async function renderDefinitionCode(
   definitionName: string,
-  definition: OpenAPIV2.DefinitionsObject,
+  definition: IDefinition,
   strictInterfaces: boolean,
   camelCasedPropNames: boolean = false
 ): Promise<string> {

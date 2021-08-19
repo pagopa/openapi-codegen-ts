@@ -3,7 +3,7 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
-import { parseAllOperations, parseOperation } from "../parse";
+import { parseAllOperations, parseDefinition, parseOperation } from "../parse";
 import {
   renderClientCode,
   renderDefinitionCode,
@@ -29,7 +29,7 @@ describe("gen-api-models", () => {
     expect(profileDefinition).toBeDefined();
     const code = await renderDefinitionCode(
       "Profile",
-      profileDefinition,
+      parseDefinition(profileDefinition),
       false,
       false
     );
@@ -47,7 +47,7 @@ describe("gen-api-models", () => {
     expect(definition).toBeDefined();
     const code = await renderDefinitionCode(
       "PaginationResponse",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("page_size");
@@ -64,7 +64,7 @@ describe("gen-api-models", () => {
     expect(definition).toBeDefined();
     const code = await renderDefinitionCode(
       "PaginationResponse",
-      definition,
+      parseDefinition(definition),
       false,
       true
     );
@@ -81,7 +81,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.WithinRangeStringTest;
     const code = await renderDefinitionCode(
       "WithinRangeStringTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("WithinRangeString(8, 11)");
@@ -97,7 +97,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.NonNegativeNumberTest;
     const code = await renderDefinitionCode(
       "NonNegativeNumberTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("NonNegativeNumber");
@@ -113,7 +113,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.NonNegativeIntegerTest;
     const code = await renderDefinitionCode(
       "NonNegativeIntegerTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("NonNegativeInteger");
@@ -128,7 +128,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.WithinRangeNumberTest;
     const code = await renderDefinitionCode(
       "WithinRangeNumberTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("WithinRangeNumber");
@@ -147,7 +147,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.WithinRangeIntegerTest;
     const code = await renderDefinitionCode(
       "WithinRangeIntegerTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("WithinRangeInteger");
@@ -162,7 +162,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.CustomStringFormatTest;
     const code = await renderDefinitionCode(
       "CustomStringFormatTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain(
@@ -177,7 +177,11 @@ describe("gen-api-models", () => {
       return;
     }
     const definition = spec.definitions.EnumTest;
-    const code = await renderDefinitionCode("EnumTest", definition, false);
+    const code = await renderDefinitionCode(
+      "EnumTest",
+      parseDefinition(definition),
+      false
+    );
     expect(code).toMatchSnapshot("enum-simple");
   });
 
@@ -189,7 +193,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.AdditionalPropsTest;
     const code = await renderDefinitionCode(
       "AdditionalPropsTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("t.dictionary");
@@ -204,7 +208,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.AdditionalPropsTrueTest;
     const code = await renderDefinitionCode(
       "AdditionalPropsTrueTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("t.dictionary");
@@ -220,7 +224,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.AdditionalpropsDefault;
     const code = await renderDefinitionCode(
       "AdditionalpropsDefault",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("t.dictionary");
@@ -234,7 +238,11 @@ describe("gen-api-models", () => {
       return;
     }
     const definition = spec.definitions.AllOfTest;
-    const code = await renderDefinitionCode("AllOfTest", definition, false);
+    const code = await renderDefinitionCode(
+      "AllOfTest",
+      parseDefinition(definition),
+      false
+    );
     expect(code).toContain("t.intersection");
     expect(code).toContain("PaginationResponse");
     expect(code).toMatchSnapshot("all-of-test");
@@ -246,7 +254,11 @@ describe("gen-api-models", () => {
       return;
     }
     const definition = spec.definitions.OneOfTest;
-    const code = await renderDefinitionCode("OneOfTest", definition, false);
+    const code = await renderDefinitionCode(
+      "OneOfTest",
+      parseDefinition(definition),
+      false
+    );
     expect(code).toContain("t.union");
     expect(code).toMatchSnapshot("oneof-test");
   });
@@ -259,7 +271,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.AllOfOneOfTest;
     const code = await renderDefinitionCode(
       "AllOfOneOfTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("t.union");
@@ -275,7 +287,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.InlinePropertyTest;
     const code = await renderDefinitionCode(
       "InlinePropertyTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("PatternString");
@@ -290,7 +302,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.NestedObjectTest;
     const code = await renderDefinitionCode(
       "NestedObjectTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("t.TypeOf<typeof NestedObjectTest>");
@@ -305,7 +317,7 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.OrganizationFiscalCode;
     const code = await renderDefinitionCode(
       "OrganizationFiscalCode",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain(
@@ -321,11 +333,56 @@ describe("gen-api-models", () => {
     const definition = spec.definitions.OrganizationFiscalCodeTest;
     const code = await renderDefinitionCode(
       "OrganizationFiscalCodeTest",
-      definition,
+      parseDefinition(definition),
       false
     );
     expect(code).toContain("OrganizationFiscalCodeTest");
     expect(code).toMatchSnapshot("defined-type");
+  });
+
+  it("should handle list of defintions", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.ListOfDefinitions;
+    const code = await renderDefinitionCode(
+      "ListOfDefinitions",
+      parseDefinition(definition),
+      false
+    );
+    expect(code).toMatchSnapshot();
+  });
+
+  it("should handle list of references", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.ListOfReferences;
+    const code = await renderDefinitionCode(
+      "ListOfReferences",
+      parseDefinition(definition),
+      false
+    );
+    expect(code).toMatchSnapshot();
+  });
+
+  it("should handle AnObjectWithAnItemsField", async () => {
+    if (!spec.definitions) {
+      fail("no definitions in the spec");
+      return;
+    }
+
+    const definition = spec.definitions.AnObjectWithAnItemsField;
+    const code = await renderDefinitionCode(
+      "AnObjectWithAnItemsField",
+      parseDefinition(definition),
+      false
+    );
+    expect(code).toMatchSnapshot();
   });
 
   it.each`

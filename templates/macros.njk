@@ -177,20 +177,6 @@
       {% set typedef %}{{ definition.format }}T{% endset %}
       {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
-    {% elif definition["x-extensible-enum"] %}
-      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
-      {% set enumTypeAlias %}
-        export enum {{ definitionName | capitalizeFirst }}Enum {
-            {% for enum in definition["x-extensible-enum"] %}
-              "{{ enum }}" = "{{ enum }}",
-            {% endfor %}
-        }
-      {% endset %}
-      {{- enumTypeAlias | addTypeAlias -}}
-      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
-        {{ definitionName | capitalizeFirst }}Enum,
-        "{{ definitionName }}"
-      ){% endset %}
     {% elif definition["enum"] %}
       {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
       {% set enumTypeAlias %}
@@ -376,7 +362,7 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {% elif definition.allOf and not definition["x-one-of"] %}
+  {% elif definition.allOf %}
 
     {{- 'import * as t from "io-ts";' | addImport -}}
 
@@ -404,9 +390,7 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {# When using the custom property "x-one-of" allOf behaves like oneOf #}
-  {# Needed to support swagger specs 2.0 that don't support oneOf #}
-  {% elif definition.oneOf or (definition["x-one-of"] and definition.allOf) %}
+  {% elif definition.oneOf %}
     {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
 
     {{- 'import * as t from "io-ts";' | addImport -}}

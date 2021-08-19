@@ -3,7 +3,7 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
-import { getAuthHeaders, parseOperation } from "../parse";
+import { getAuthHeaders, parseDefinition, parseOperation } from "../parse";
 
 let spec: OpenAPIV2.Document;
 beforeAll(
@@ -126,5 +126,66 @@ describe("parseOperation", () => {
         ])
       })
     );
+  });
+});
+
+// util to ensure a defintion is defined
+const getDefinitionOrFail = (
+  spec: OpenAPIV2.Document,
+  definitionName: string
+) => {
+  const definition = spec.definitions?.[definitionName];
+  if (typeof definition === "undefined") {
+    fail(`Unable to find definition ${definitionName}`);
+  }
+  return definition;
+};
+
+describe("parseDefinition", () => {
+  it("should parse a definition with allOf and x-one-of", () => {
+    const definition = getDefinitionOrFail(spec, "AllOfOneOfTest");
+
+    const parsed = parseDefinition(definition);
+
+    expect(parsed.allOf).not.toBeDefined();
+    expect(parsed.oneOf).toBeDefined();
+  });
+
+  it("should parse a definition with allOf", () => {
+    const definition = getDefinitionOrFail(spec, "AllOfTest");
+
+    const parsed = parseDefinition(definition);
+
+    expect(parsed.allOf).toBeDefined();
+    expect(parsed.oneOf).not.toBeDefined();
+  });
+
+  it("should parse a definition with x-extensible-enum", () => {
+    const definition = getDefinitionOrFail(spec, "PreferredLanguage");
+
+    const parsed = parseDefinition(definition);
+
+    expect(parsed.enum).toEqual(expect.any(Array));
+  });
+
+  it("should handle AnObjectWithAnItemsField", async () => {
+    const definition = getDefinitionOrFail(spec, "AnObjectWithAnItemsField");
+
+    const parsed = parseDefinition(definition);
+
+    //expect(parsed).toEqual({});
+    expect(parsed.type).toBe("object");
+    expect(parsed.properties?.items).toEqual(expect.any(Object));
+
+    if (parsed.properties?.items && "type" in parsed.properties?.items) {
+      expect(parsed.properties?.items.type).toBe("array");
+      expect(parsed.properties?.items.items).toEqual(
+        expect.objectContaining({
+          $ref: "#/definitions/DefinitionFieldWithDash"
+        })
+      );
+    } else {
+      fail("a type should be specified");
+    }
   });
 });

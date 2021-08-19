@@ -598,6 +598,33 @@ definitions:
     properties:
       id-field:
         type: string
+  ListOfReferences:
+    description: |-
+        a definition which is a list of references to other definitions.
+    type: array
+    items:
+      $ref: "#/definitions/DefinitionFieldWithDash"
+  ListOfDefinitions:
+    description: |-
+        a definition which is a list of other definitions.
+    type: array
+    items:
+      type: object
+      properties:
+        field:
+          type: string
+  AnObjectWithAnItemsField:
+    description: |-
+      What if a object has a field named items?
+      The case is an object like { items: [] }, which is legal
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/DefinitionFieldWithDash"
+    required:
+      - items
 responses: {}
 parameters:
   PaginationRequest:

@@ -2,7 +2,7 @@
 import * as fs from "fs-extra";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
-import { parseAllOperations, parseSpecMeta } from "./parse";
+import { parseAllOperations, parseDefinition, parseSpecMeta } from "./parse";
 import {
   renderAllOperations,
   renderClientCode,
@@ -93,7 +93,7 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     Object.keys(definitions).map((definitionName: string) =>
       renderDefinitionCode(
         definitionName,
-        definitions[definitionName],
+        parseDefinition(definitions[definitionName]),
         strictInterfaces,
         camelCasedPropNames
       ).then((code: string) =>

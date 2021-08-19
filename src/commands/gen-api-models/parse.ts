@@ -3,17 +3,116 @@
  */
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2 } from "openapi-types";
+import { OpenAPIV2, IJsonSchema } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
   IAuthHeaderParameterInfo,
+  IDefinition,
   IHeaderParameterInfo,
   IOperationInfo,
   IParameterInfo,
   ISpecMetaInfo,
   SupportedMethod
 } from "./types";
+
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+function parseInnerDefinition(source: IJsonSchema): IDefinition {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const looselySource = source as any;
+
+  if (looselySource.$ref) {
+    return looselySource;
+  }
+
+  // OAS2 does not support disjointed unions with oneOf,
+  //  so we introduced "x-one-of" custom field in association with allOf
+  const { oneOf, allOf } =
+    typeof looselySource.oneOf === "undefined" &&
+    "x-one-of" in looselySource &&
+    looselySource["x-one-of"]
+      ? { allOf: undefined, oneOf: looselySource.allOf }
+      : {
+          allOf: looselySource.allOf,
+          oneOf: looselySource.oneOf
+        };
+
+  // enum used to be defined with "x-extensible-enum" custom field
+  const enumm = looselySource.enum
+    ? looselySource.enum
+    : "x-extensible-enum" in looselySource
+    ? looselySource["x-extensible-enum"]
+    : undefined;
+
+  const format = "format" in looselySource ? looselySource.format : undefined;
+
+  const additionalProperties =
+    typeof source.additionalProperties === "undefined" ||
+    typeof source.additionalProperties === "boolean"
+      ? source.additionalProperties
+      : parseInnerDefinition(source.additionalProperties);
+
+  const items = !("items" in source)
+    ? undefined
+    : !source.items
+    ? undefined
+    : Array.isArray(source.items)
+    ? // We don't support multiple array item definitions, should we?
+      // Use oneOf instead
+      parseInnerDefinition(source.items[0])
+    : parseInnerDefinition(source.items);
+
+  return {
+    additionalProperties,
+    allOf,
+    description: source.description,
+    enum: enumm,
+    exclusiveMaximum: source.exclusiveMaximum,
+    exclusiveMinimum: source.exclusiveMinimum,
+    format,
+    items,
+    maxLength: source.maxLength,
+    maximum: source.maximum,
+    minLength: source.minLength,
+    minimum: source.minimum,
+    oneOf,
+    pattern: source.pattern,
+    required: source.required,
+    title: source.title,
+    type: source.type,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ["x-import"]: (source as any)["x-import"]
+  };
+}
+
+/**
+ * Parse a schema object into a common definition, regardless of the version of the spec
+ *
+ * @param source the definition as it comes from the specification
+ * @returns a parsed definition
+ */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function parseDefinition(source: OpenAPIV2.SchemaObject): IDefinition {
+  const base = parseInnerDefinition(source);
+
+  // recursively parse properties
+  const properties = source.properties
+    ? Object.entries(source.properties)
+        .map(([k, v]) => [k, parseDefinition(v)])
+        .reduce((p, [k, v]) => ({ ...p, [k as string]: v }), {})
+    : undefined;
+
+  const defaultt = "default" in source ? source.default : undefined;
+
+  return {
+    ...base,
+    default: defaultt,
+    properties,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ["x-import"]: (source as any)["x-import"]
+  };
+}
+
 /**
  * Extracts meta info in a convenient object
  *
