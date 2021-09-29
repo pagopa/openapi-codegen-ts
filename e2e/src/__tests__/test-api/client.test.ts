@@ -14,6 +14,15 @@ const { generatedFilesDir, mockPort, isSpecEnabled } = config.specs.testapi;
 // if there's no need for this suite in this particular run, just skip it
 const describeSuite = skipClient || !isSpecEnabled ? describe.skip : describe;
 
+// given a spied fetch call, check if the request has been made using the provided parameter in querystring
+const hasQueryParam = (paramName: string) => ([input]: Parameters<
+  typeof fetch
+>) => {
+  const inputUrl = typeof input === "string" ? input : input.url;
+  const parsedUrl = url.parse(inputUrl);
+  return parsedUrl.query && ~parsedUrl.query.indexOf(paramName);
+};
+
 describeSuite("Http client generated from Test API spec", () => {
   it("should be a valid module", async () => {
     expect(createClient).toBeDefined();
@@ -95,14 +104,6 @@ describeSuite("Http client generated from Test API spec", () => {
   });
 
   it("should not edit parameter names", async () => {
-    // given a spied fetch call, check if the request has been made using the provided parameter in querystring
-    const hasQueryParam = (paramName: string) => ([input]: Parameters<
-      typeof fetch
-    >) => {
-      const inputUrl = typeof input === "string" ? input : input.url;
-      const parsedUrl = url.parse(inputUrl);
-      return parsedUrl.query && ~parsedUrl.query.indexOf(paramName);
-    };
 
     // given a spied fetch call, check if the request has been made using the provided header parameter
     const hasHeaderParam = (paramName: string) => ([, init]: Parameters<
@@ -151,15 +152,6 @@ describeSuite("Http client generated from Test API spec", () => {
   });
 
   it("should strip out undefined query params", async () => {
-    // given a spied fetch call, check if the request has been made using the provided parameter in querystring
-    const hasQueryParam = (paramName: string) => ([input]: Parameters<
-      typeof fetch
-    >) => {
-      const inputUrl = typeof input === "string" ? input : input.url;
-      const parsedUrl = url.parse(inputUrl);
-      return parsedUrl.query && ~parsedUrl.query.indexOf(paramName);
-    };
-
     const spiedFetch = jest.fn<
       ReturnType<typeof fetch>,
       Parameters<typeof fetch>

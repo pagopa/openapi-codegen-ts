@@ -706,6 +706,7 @@ exports[`gen-api-models should render a client 1`] = `
  */
 /* eslint-disable  */
 
+import { withoutUndefinedValues } from \\"@pagopa/ts-commons/lib/types\\";
 import {
   RequestParams,
   TypeofApiCall,
@@ -944,11 +945,8 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testAuthBearerDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-auth-bearer\`,
 
-    query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) => ({
-      [\\"qo\\"]: qo,
-      [\\"qr\\"]: qr,
-      [\\"cursor\\"]: cursor
-    })
+    query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) =>
+      withoutUndefinedValues({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor })
   };
   const testAuthBearer: TypeofApiCall<TestAuthBearerT> = createFetchRequestForApi(
     testAuthBearerT,
@@ -967,11 +965,8 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testSimpleTokenDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-simple-token\`,
 
-    query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) => ({
-      [\\"qo\\"]: qo,
-      [\\"qr\\"]: qr,
-      [\\"cursor\\"]: cursor
-    })
+    query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) =>
+      withoutUndefinedValues({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor })
   };
   const testSimpleToken: TypeofApiCall<TestSimpleTokenT> = createFetchRequestForApi(
     testSimpleTokenT,
@@ -1078,10 +1073,8 @@ export function createClient<K extends ParamKeys>({
     url: ({ [\\"path-param\\"]: pathParam }) =>
       \`\${basePath}/test-parameter-with-dash/\${pathParam}\`,
 
-    query: ({ [\\"foo-bar\\"]: fooBar, [\\"request-id\\"]: requestId }) => ({
-      [\\"foo-bar\\"]: fooBar,
-      [\\"request-id\\"]: requestId
-    })
+    query: ({ [\\"foo-bar\\"]: fooBar, [\\"request-id\\"]: requestId }) =>
+      withoutUndefinedValues({ [\\"foo-bar\\"]: fooBar, [\\"request-id\\"]: requestId })
   };
   const testParameterWithDash: TypeofApiCall<TestParameterWithDashT> = createFetchRequestForApi(
     testParameterWithDashT,
@@ -1109,10 +1102,8 @@ export function createClient<K extends ParamKeys>({
     url: ({ [\\"path-param\\"]: pathParam }) =>
       \`\${basePath}/test-parameter-with-dash-and_underscore/\${pathParam}\`,
 
-    query: ({ [\\"foo_bar\\"]: fooBar, [\\"request-id\\"]: requestId }) => ({
-      [\\"foo_bar\\"]: fooBar,
-      [\\"request-id\\"]: requestId
-    })
+    query: ({ [\\"foo_bar\\"]: fooBar, [\\"request-id\\"]: requestId }) =>
+      withoutUndefinedValues({ [\\"foo_bar\\"]: fooBar, [\\"request-id\\"]: requestId })
   };
   const testParameterWithDashAnUnderscore: TypeofApiCall<TestParameterWithDashAnUnderscoreT> = createFetchRequestForApi(
     testParameterWithDashAnUnderscoreT,
