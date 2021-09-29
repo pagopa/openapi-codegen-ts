@@ -33,6 +33,7 @@ describeSuite("Http client generated from Test API spec", () => {
       bearerToken: "acb123",
       qr: "acb123"
     });
+
     expect(isRight(result)).toBe(true);
   });
 
@@ -147,5 +148,40 @@ describeSuite("Http client generated from Test API spec", () => {
     expect(
       hasHeaderParam("headerInlineParam")(spiedFetch.mock.calls[0])
     ).toBeTruthy();
+  });
+
+  it("should strip out undefined query params", async () => {
+    // given a spied fetch call, check if the request has been made using the provided parameter in querystring
+    const hasQueryParam = (paramName: string) => ([input]: Parameters<
+      typeof fetch
+    >) => {
+      const inputUrl = typeof input === "string" ? input : input.url;
+      const parsedUrl = url.parse(inputUrl);
+      return parsedUrl.query && ~parsedUrl.query.indexOf(paramName);
+    };
+
+    const spiedFetch = jest.fn<
+      ReturnType<typeof fetch>,
+      Parameters<typeof fetch>
+    >((nodeFetch as any) as typeof fetch);
+
+    const client = createClient<"bearerToken">({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: spiedFetch,
+      basePath: "",
+      withDefaults: (op: any) => (params: any) =>
+        op({ ...params, bearerToken: "abc123" })
+    });
+
+    expect(client.testAuthBearer).toEqual(expect.any(Function));
+
+    const result = await client.testAuthBearer({
+      qr: "string",
+      qo: undefined
+    });
+
+    expect(spiedFetch).toHaveBeenCalledTimes(1);
+    expect(hasQueryParam("qr")(spiedFetch.mock.calls[0])).toBeTruthy();
+    expect(hasQueryParam("qo")(spiedFetch.mock.calls[0])).toBeFalsy();
   });
 });
