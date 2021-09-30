@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/openapi-codegen-ts",
-  "version": "10.0.2",
+  "version": "10.0.3",
   "description": "Tools and utilities for the IO project",
   "repository": "https://github.com/pagopa/io-utils",
   "author": "https://www.pagopa.gov.it/",
