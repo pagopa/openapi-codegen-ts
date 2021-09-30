@@ -148,7 +148,7 @@ export function createClient<K extends ParamKeys>({
     {% if queryParams | length %}
     query: ({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe }} }) => withoutUndefinedValues({ {{ queryParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }),
     {% else %}
-    query: () => ({}),
+    query: () => withoutUndefinedValues({}),
     {% endif %}
   };
   const {{ operation.operationId }}: TypeofApiCall<{{ macro.requestTypeName(operation) }}> = createFetchRequestForApi({{ operation.operationId }}T, options);

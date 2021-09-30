@@ -1061,7 +1061,7 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testMultipleSuccessDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-multiple-success\`,
 
-    query: () => ({})
+    query: () => withoutUndefinedValues({})
   };
   const testMultipleSuccess: TypeofApiCall<TestMultipleSuccessT> = createFetchRequestForApi(
     testMultipleSuccessT,
@@ -1082,7 +1082,7 @@ export function createClient<K extends ParamKeys>({
 
     body: ({ [\\"file\\"]: file }) => file.uri,
 
-    query: () => ({})
+    query: () => withoutUndefinedValues({})
   };
   const testFileUpload: TypeofApiCall<TestFileUploadT> = createFetchRequestForApi(
     testFileUploadT,
@@ -1100,7 +1100,7 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testResponseHeaderDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-response-header\`,
 
-    query: () => ({})
+    query: () => withoutUndefinedValues({})
   };
   const testResponseHeader: TypeofApiCall<TestResponseHeaderT> = createFetchRequestForApi(
     testResponseHeaderT,
@@ -1122,7 +1122,7 @@ export function createClient<K extends ParamKeys>({
     body: ({ [\\"createdMessage\\"]: createdMessage }) =>
       JSON.stringify(createdMessage),
 
-    query: () => ({})
+    query: () => withoutUndefinedValues({})
   };
   const testParameterWithReference: TypeofApiCall<TestParameterWithReferenceT> = createFetchRequestForApi(
     testParameterWithReferenceT,
@@ -1199,7 +1199,7 @@ export function createClient<K extends ParamKeys>({
     url: ({ [\\"first-param\\"]: firstParam, [\\"second-param\\"]: secondParam }) =>
       \`\${basePath}/test-two-path-params/\${firstParam}/\${secondParam}\`,
 
-    query: () => ({})
+    query: () => withoutUndefinedValues({})
   };
   const testWithTwoParams: TypeofApiCall<TestWithTwoParamsT> = createFetchRequestForApi(
     testWithTwoParamsT,
