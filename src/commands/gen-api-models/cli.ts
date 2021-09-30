@@ -17,7 +17,7 @@ const argv = yargs
   })
   .option("strict", {
     // eslint-disable-next-line id-blacklist
-    boolean: false,
+    boolean: true,
     default: true,
     description: "Generate strict interfaces (default: true)"
   })
@@ -37,20 +37,20 @@ const argv = yargs
   })
   .option("request-types", {
     // eslint-disable-next-line id-blacklist
-    boolean: false,
+    boolean: true,
     default: false,
     description: "Generate request types (experimental, default: false)"
   })
   .option("response-decoders", {
     // eslint-disable-next-line id-blacklist
-    boolean: false,
+    boolean: true,
     default: false,
     description:
       "Generate response decoders (experimental, default: false, implies --request-types)"
   })
   .option("client", {
     // eslint-disable-next-line id-blacklist
-    boolean: false,
+    boolean: true,
     default: false,
     description: "Generate request client SDK"
   })
@@ -72,7 +72,7 @@ const argv = yargs
   })
   .option("camel-cased", {
     // eslint-disable-next-line id-blacklist
-    boolean: false,
+    boolean: true,
     default: false,
     description: "Generate camelCased properties name (default: false)"
   })

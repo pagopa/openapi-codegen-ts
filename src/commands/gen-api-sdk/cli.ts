@@ -104,7 +104,7 @@ const argv = yargs
   })
   .option("strict", {
     // eslint-disable-next-line id-blacklist
-    boolean: false,
+    boolean: true,
     default: true,
     description: "Generate strict interfaces (default: true)",
     group: CODE_GROUP
@@ -141,7 +141,7 @@ const argv = yargs
   })
   .option("camel-cased", {
     // eslint-disable-next-line id-blacklist
-    boolean: false,
+    boolean: true,
     default: false,
     description: "Generate camelCased properties name (default: false)",
     group: CODE_GROUP
