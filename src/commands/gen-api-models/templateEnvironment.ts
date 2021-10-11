@@ -95,6 +95,11 @@ const stripQuestionMark = (subject: ReadonlyArray<string> | string) => {
     : subject.map(strip_base);
 };
 
+/**
+ * Debug utility for printing a json object within nunjuk templates
+ */
+const jsonToString = (obj: unknown): string => JSON.stringify(obj, null, "\t");
+
 export default createTemplateEnvironment({
   customFilters: {
     resetImports,
@@ -108,6 +113,8 @@ export default createTemplateEnvironment({
     toFnArgs,
     // eslint-disable-next-line sort-keys
     paramIn,
-    stripQuestionMark
+    stripQuestionMark,
+    // eslint-disable-next-line sort-keys
+    jsonToString
   }
 });

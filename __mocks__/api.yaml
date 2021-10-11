@@ -172,6 +172,18 @@ paths:
         "200":
           description: "Ok"
         "500":
+          description: "Fatal error"  
+  /test-path-level-parameter:
+    parameters:
+      - $ref: "#/parameters/RequiredRequestId"
+      - $ref: "#/parameters/PaginationRequest"
+    get:
+      operationId: "testParametersAtPathLevel"
+      description: when we declare parameters at path level
+      responses:
+        "200":
+          description: "Ok"
+        "500":
           description: "Fatal error"                    
 
 definitions:
@@ -637,6 +649,11 @@ parameters:
     name: request-id
     in: query
     type: string
+  RequiredRequestId:
+    name: request-id
+    in: query
+    type: string
+    required: true
   HeaderParamWithReference:
     name: x-header-param
     in: header
