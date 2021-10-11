@@ -175,7 +175,7 @@ paths:
           description: "Fatal error"  
   /test-path-level-parameter:
     parameters:
-      - $ref: "#/parameters/RequestId"
+      - $ref: "#/parameters/RequiredRequestId"
       - $ref: "#/parameters/PaginationRequest"
     get:
       operationId: "testParametersAtPathLevel"
@@ -649,6 +649,11 @@ parameters:
     name: request-id
     in: query
     type: string
+  RequiredRequestId:
+    name: request-id
+    in: query
+    type: string
+    required: true
   HeaderParamWithReference:
     name: x-header-param
     in: header

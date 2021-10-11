@@ -104,7 +104,6 @@ describeSuite("Http client generated from Test API spec", () => {
   });
 
   it("should not edit parameter names", async () => {
-
     // given a spied fetch call, check if the request has been made using the provided header parameter
     const hasHeaderParam = (paramName: string) => ([, init]: Parameters<
       typeof fetch
@@ -175,5 +174,39 @@ describeSuite("Http client generated from Test API spec", () => {
     expect(spiedFetch).toHaveBeenCalledTimes(1);
     expect(hasQueryParam("qr")(spiedFetch.mock.calls[0])).toBeTruthy();
     expect(hasQueryParam("qo")(spiedFetch.mock.calls[0])).toBeFalsy();
+  });
+
+  it("should handle parameters at path level", async () => {
+    const spiedFetch = jest.fn<
+      ReturnType<typeof fetch>,
+      Parameters<typeof fetch>
+    >((nodeFetch as any) as typeof fetch);
+
+    const client = createClient<"bearerToken">({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: spiedFetch,
+      basePath: "",
+      withDefaults: (op: any) => (params: any) =>
+        op({ ...params, bearerToken: "abc123" })
+    });
+
+    expect(client.testParametersAtPathLevel).toEqual(expect.any(Function));
+
+    // It can be called with expected query parameters
+    const resultWithCursor = await client.testParametersAtPathLevel({
+      "request-id": "an id",
+      cursor: "a cursor"
+    });
+
+    // It can be called without optional parameters
+    const result = await client.testParametersAtPathLevel({
+      "request-id": "an id"
+    });
+    
+    // It cannot be called without optional parameters
+    // @ts-expect-error
+    await client.testParametersAtPathLevel({
+      cursor: "a cursor"
+    });
   });
 });

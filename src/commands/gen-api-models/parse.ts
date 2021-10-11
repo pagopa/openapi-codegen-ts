@@ -155,7 +155,7 @@ export function parseAllOperations(
       const pathSpec = api.paths[path];
       const extraParameters = [
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        ...parseExtraParameters(pathSpec),
+        ...parseExtraParameters(api, path, pathSpec),
         ...globalAuthHeaders
       ];
       return Object.keys(pathSpec)
@@ -177,11 +177,15 @@ export function parseAllOperations(
 /**
  * It extracts global parameters from a path definition. Parameters in body, path, query and form are of type IParameterInfo, while header parameters are of type IHeaderParameterInfo
  *
- * @param pathSpec a pat definition
+ * @param pathSpec      The api spec object
+ * @param operationPath The path of the operation
+ * @param pathSpec      A path definition
  *
  * @returns a list of parameters that applies to all methods of a path. Header parameters ship a more complete structure.
  */
 const parseExtraParameters = (
+  apiSpec: OpenAPIV2.Document,
+  operationPath: string,
   pathSpec: OpenAPIV2.PathsObject
 ): ReadonlyArray<IParameterInfo | IHeaderParameterInfo> =>
   typeof pathSpec.parameters !== "undefined"
@@ -193,24 +197,20 @@ const parseExtraParameters = (
             readonly type: string | undefined;
             readonly required: boolean;
             readonly in: string;
+            readonly $ref: string | undefined;
           }
         ) => {
-          // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-          if (param && param.type) {
-            const paramName = `${param.name}${
-              param.required === true ? "" : "?"
-            }`;
+          if (param?.type) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define
+            return [...prev, parseInlineParam(param)];
+          } else if (param?.$ref) {
             return [
               ...prev,
-              {
-                headerName: param.in === "header" ? paramName : undefined,
-                in: param.in,
-                name: paramName,
-                // eslint-disable-next-line @typescript-eslint/no-use-before-define
-                type: specTypeToTs(param.type)
-              }
+              // eslint-disable-next-line @typescript-eslint/no-use-before-define
+              parseParamWithReference(apiSpec.parameters, operationPath, param)
             ];
           }
+
           return prev;
         },
         []
