@@ -186,6 +186,19 @@ paths:
         "500":
           description: "Fatal error"                    
 
+  /test-array-result:
+    get:
+      operationId: "testArrayResult"
+      responses:
+        "200":
+          description: "Will return an array of elements"
+          schema:
+            type: array 
+            items:
+              $ref: "#/definitions/Message"
+        "500":
+          description: "Fatal error"
+
 definitions:
   Person:
     $ref: "definitions.yaml#/Person"

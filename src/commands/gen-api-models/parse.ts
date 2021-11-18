@@ -303,7 +303,13 @@ export const parseOperation = (
 
   const responses = Object.keys(operation.responses).map(responseStatus => {
     const response = operation.responses[responseStatus];
-    const typeRef = response.schema ? response.schema.$ref : undefined;
+    const isArray =
+      response.schema !== undefined && response.schema.type === "array";
+    const typeRef = !response.schema
+      ? undefined
+      : isArray
+      ? response.schema.items.$ref
+      : response.schema.$ref;
     const responseHeaders = Object.keys(response.headers || {});
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
@@ -315,7 +321,11 @@ export const parseOperation = (
       : responseStatus === "200"
       ? defaultSuccessType
       : defaultErrorType;
-    return Tuple3(responseStatus, responseType, responseHeaders);
+    return Tuple3(
+      responseStatus,
+      isArray ? `readonly ${responseType}[]` : responseType,
+      responseHeaders
+    );
   });
 
   const consumes =

@@ -567,6 +567,19 @@ describe("gen-api-models", () => {
           { e1: "500", e2: "undefined", e3: [] }
         ],
         produces: "application/json"
+      },
+      {
+        path: "/test-array-result",
+        headers: [],
+        importedTypes: new Set(["Message"]),
+        method: "get",
+        operationId: "testArrayResult",
+        parameters: [],
+        responses: [
+          { e1: "200", e2: "readonly Message[]", e3: [] },
+          { e1: "500", e2: "undefined", e3: [] }
+        ],
+        produces: "application/json"
       }
     ];
 
