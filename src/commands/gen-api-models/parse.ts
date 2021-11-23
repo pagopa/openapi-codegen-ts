@@ -404,7 +404,7 @@ const parseInlineParam = (
   in: param.in,
   name: `${param.name}${param.required ? "" : "?"}`,
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  type: specTypeToTs(param.type),
+  type: specTypeToTs(param),
   ...(param.in === "header" ? { headerName: param.name } : {})
 });
 
@@ -442,7 +442,7 @@ const parseParamWithReference = (
       ? parsedRef.e2
       : specParameters
       ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        specTypeToTs(specParameters[parsedRef.e2].type)
+        specTypeToTs(specParameters[parsedRef.e2])
       : undefined;
 
   if (paramType === undefined) {
@@ -629,14 +629,18 @@ function typeFromRef(
  * @returns a Typescript type
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-function specTypeToTs(t: string): string {
-  switch (t) {
+function specTypeToTs(parameter: OpenAPIV2.ParameterObject): string {
+  if (parameter.in === "formData" && parameter.format === "binary") {
+    return "File";
+  }
+
+  switch (parameter.type) {
     case "integer":
       return "number";
     case "file":
       return `{ "uri": string, "name": string, "type": string }`;
     default:
-      return t;
+      return parameter.type;
   }
 }
 

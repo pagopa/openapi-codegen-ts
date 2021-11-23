@@ -802,6 +802,8 @@ import {
   testMultipleSuccessDefaultDecoder,
   TestFileUploadT,
   testFileUploadDefaultDecoder,
+  TestBinaryFileUploadT,
+  testBinaryFileUploadDefaultDecoder,
   TestResponseHeaderT,
   testResponseHeaderDefaultDecoder,
   TestParameterWithReferenceT,
@@ -826,6 +828,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestSimpleTokenT> &
   TypeofApiCall<TestMultipleSuccessT> &
   TypeofApiCall<TestFileUploadT> &
+  TypeofApiCall<TestBinaryFileUploadT> &
   TypeofApiCall<TestResponseHeaderT> &
   TypeofApiCall<TestParameterWithReferenceT> &
   TypeofApiCall<TestParameterWithDashT> &
@@ -837,6 +840,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
   TypeofApiParams<TestMultipleSuccessT> &
   TypeofApiParams<TestFileUploadT> &
+  TypeofApiParams<TestBinaryFileUploadT> &
   TypeofApiParams<TestResponseHeaderT> &
   TypeofApiParams<TestParameterWithReferenceT> &
   TypeofApiParams<TestParameterWithDashT> &
@@ -870,6 +874,7 @@ export type WithDefaultsT<
   | TestSimpleTokenT
   | TestMultipleSuccessT
   | TestFileUploadT
+  | TestBinaryFileUploadT
   | TestResponseHeaderT
   | TestParameterWithReferenceT
   | TestParameterWithDashT
@@ -894,6 +899,8 @@ export type Client<
       readonly testMultipleSuccess: TypeofApiCall<TestMultipleSuccessT>;
 
       readonly testFileUpload: TypeofApiCall<TestFileUploadT>;
+
+      readonly testBinaryFileUpload: TypeofApiCall<TestBinaryFileUploadT>;
 
       readonly testResponseHeader: TypeofApiCall<TestResponseHeaderT>;
 
@@ -939,6 +946,13 @@ export type Client<
         ReplaceRequestParams<
           TestFileUploadT,
           Omit<RequestParams<TestFileUploadT>, K>
+        >
+      >;
+
+      readonly testBinaryFileUpload: TypeofApiCall<
+        ReplaceRequestParams<
+          TestBinaryFileUploadT,
+          Omit<RequestParams<TestBinaryFileUploadT>, K>
         >
       >;
 
@@ -1105,6 +1119,31 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testBinaryFileUploadT: ReplaceRequestParams<
+    TestBinaryFileUploadT,
+    RequestParams<TestBinaryFileUploadT>
+  > = {
+    method: \\"post\\",
+
+    // Ignore lack of \\"Content-Type\\" header: it will be added by the framework
+    // @ts-ignore
+    headers: () => ({}),
+    response_decoder: testBinaryFileUploadDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-binary-file-upload\`,
+
+    body: ({ [\\"logo\\"]: logo }) => {
+      const formData = new FormData();
+      formData.append(\\"logo\\", logo);
+      return formData;
+    },
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testBinaryFileUpload: TypeofApiCall<TestBinaryFileUploadT> = createFetchRequestForApi(
+    testBinaryFileUploadT,
+    options
+  );
+
   const testResponseHeaderT: ReplaceRequestParams<
     TestResponseHeaderT,
     RequestParams<TestResponseHeaderT>
@@ -1246,6 +1285,7 @@ export function createClient<K extends ParamKeys>({
     testSimpleToken: (withDefaults || identity)(testSimpleToken),
     testMultipleSuccess: (withDefaults || identity)(testMultipleSuccess),
     testFileUpload: (withDefaults || identity)(testFileUpload),
+    testBinaryFileUpload: (withDefaults || identity)(testBinaryFileUpload),
     testResponseHeader: (withDefaults || identity)(testResponseHeader),
     testParameterWithReference: (withDefaults || identity)(
       testParameterWithReference

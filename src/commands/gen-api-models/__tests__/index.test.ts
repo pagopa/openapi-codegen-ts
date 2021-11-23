@@ -567,6 +567,23 @@ describe("gen-api-models", () => {
           { e1: "500", e2: "undefined", e3: [] }
         ],
         produces: "application/json"
+      },
+      {
+        path: "/test-binary-file-upload",
+        headers: ["Content-Type"],
+        importedTypes: new Set(),
+        method: "post",
+        operationId: "testBinaryFileUpload",
+        parameters: [
+          {
+            name: "logo",
+            type: `File`,
+            in: "formData"
+          }
+        ],
+        responses: [{ e1: "200", e2: "undefined", e3: [] }],
+        consumes: "multipart/form-data",
+        produces: "application/json"
       }
     ];
 

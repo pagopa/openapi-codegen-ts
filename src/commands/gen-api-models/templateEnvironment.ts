@@ -74,6 +74,30 @@ const paramIn = (
 ) => (item ? item.filter((e: { readonly in: string }) => e.in === where) : []);
 
 /**
+ * Filter an array based on a paramenter and a list of values to match
+ */
+ const filterByParameterIn = <T>(
+  array: ReadonlyArray<Record<string, T>>,
+  parameterName: string,
+  value: ReadonlyArray<T>
+): ReadonlyArray<Record<string, T>> | undefined =>
+  array === undefined
+    ? undefined
+    : array.filter(a => value.includes(a[parameterName]));
+
+/**
+ * Filter an array based on a paramenter and a list of values to exclude
+ */
+const filterByParameterNotIn = <T>(
+  array: ReadonlyArray<Record<string, T>>,
+  parameterName: string,
+  value: ReadonlyArray<T>
+): ReadonlyArray<Record<string, T>> | undefined =>
+  array === undefined
+    ? undefined
+    : array.filter(a => !value.includes(a[parameterName]));
+
+/**
  * Removes decorator character from a variable name
  * example: "arg?" -> "arg"
  * example: "arg" -> "arg"
@@ -113,6 +137,9 @@ export default createTemplateEnvironment({
     toFnArgs,
     // eslint-disable-next-line sort-keys
     paramIn,
+    // eslint-disable-next-line sort-keys
+    filterByParameterIn,
+    filterByParameterNotIn,
     stripQuestionMark,
     // eslint-disable-next-line sort-keys
     jsonToString
