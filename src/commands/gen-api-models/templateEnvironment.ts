@@ -76,7 +76,7 @@ const paramIn = (
 /**
  * Filter an array based on a paramenter and a list of values to match
  */
- const filterByParameterIn = <T>(
+const filterByParameterIn = <T>(
   array: ReadonlyArray<Record<string, T>>,
   parameterName: string,
   value: ReadonlyArray<T>
