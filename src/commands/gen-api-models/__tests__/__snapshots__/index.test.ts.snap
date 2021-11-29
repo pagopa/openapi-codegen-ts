@@ -1125,13 +1125,19 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"post\\",
 
-    // Ignore lack of \\"Content-Type\\" header: it will be added by the framework
-    // @ts-ignore
+    // There is a well-known issue about fetch and Content-Type header when it comes to add multipart/form-data files.
+    //  reference: https://github.com/github/fetch/issues/505#issuecomment-293064470
+    // The solution is to skip the Content-Type header and let fetch add it for us.
+    // @ts-ignore as IRequestType would require something
     headers: () => ({}),
     response_decoder: testBinaryFileUploadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-binary-file-upload\`,
 
     body: ({ [\\"logo\\"]: logo }) => {
+      if (typeof window === \\"undefined\\")
+        throw new Error(
+          \\"File upload is only support inside a browser runtime envoronment\\"
+        );
       const formData = new FormData();
       formData.append(\\"logo\\", logo);
       return formData;

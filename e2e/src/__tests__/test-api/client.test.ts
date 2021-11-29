@@ -4,7 +4,6 @@ import nodeFetch from "node-fetch";
 import config from "../../config";
 import { createClient } from "../../generated/testapi/client";
 
-
 // @ts-ignore because leaked-handles doesn't ship type defintions
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
@@ -211,7 +210,7 @@ describeSuite("Http client generated from Test API spec", () => {
     });
   });
 
-  it("should handle File parameters", async () => {
+  it("should raise an exception when calling file upload from ode runtime environment", async () => {
     const spiedFetch = jest.fn<
       ReturnType<typeof fetch>,
       Parameters<typeof fetch>
@@ -232,12 +231,17 @@ describeSuite("Http client generated from Test API spec", () => {
 
     var blob = Buffer.from(base64File, "base64");
 
-    //TODO: Fix `ReferenceError: File is not defined`
-    
-    // It can be called with expected query parameters
-    // const resultWithCursor = await client.testBinaryFileUpload({
-    //   logo: new File([blob], "filename.png")
-    // });
-
+    expect.assertions(2);
+    try {
+      await client.testBinaryFileUpload({
+        logo: {} as File
+      });
+    } catch (e) {
+      expect(e).toEqual(
+        Error(
+          "File upload is only support inside a browser runtime envoronment"
+        )
+      );
+    }
   });
 });

@@ -153,7 +153,14 @@ export function createClient<K extends ParamKeys>({
     body: ({ {{ formParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => {{ formParams | pick("name") | safeIdentifier | first }}.uri,
     {% elif formParamsBinary | length %}
     {%set paramName = formParamsBinary | pick("name") | safeIdentifier | first %}
-    body: ({ {{ formParamsBinary | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => {const formData = new FormData(); formData.append("{{paramName}}", {{paramName}}); return formData;},
+    body: ({ {{ formParamsBinary | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => 
+      {
+        if(typeof window === "undefined")
+	        throw new Error("File upload is only support inside a browser runtime envoronment");
+        const formData = new FormData(); 
+        formData.append("{{paramName}}", {{paramName}}); 
+        return formData;
+      },
     {% elif operation.method === "post" %}
     body: () => "{}",
     {% endif %}
