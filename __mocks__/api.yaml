@@ -88,6 +88,20 @@ paths:
       responses:
         "200":
           description: "File uploaded"
+  /test-binary-file-upload:
+    post:
+      operationId: "testBinaryFileUpload"
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: "logo"
+          in: "formData"
+          format: "binary"
+          type: "string"
+          required: true
+      responses:
+        "200":
+          description: "File uploaded"
   /test-response-header:
     get:
       operationId: "testResponseHeader"
@@ -103,6 +117,7 @@ paths:
               type: string
         "500":
           description: "Fatal error"
+
   /test-parameter-with-reference:
     post:
       operationId: "testParameterWithReference"

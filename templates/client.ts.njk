@@ -127,12 +127,21 @@ export function createClient<K extends ParamKeys>({
   {% set bodyParams = operation.parameters | paramIn("body") %}
   {% set queryParams = operation.parameters | paramIn("query") %}
   {% set pathParams = operation.parameters | paramIn("path") %}
-  {% set formParams = operation.parameters | paramIn("formData") %}
+  {% set formParams = operation.parameters | paramIn("formData") | filterByParameterNotIn("type", ["File"]) %}
+  {% set formParamsBinary = operation.parameters | paramIn("formData") | filterByParameterIn("type", ["File"]) %}
 
   const {{ operation.operationId }}T: {{ macro.requestParamsType(operation) }} = {
     method: "{{ operation.method }}",
     {% if headerParams | length or operation.consumes %}
-    headers: {{ macro.composedHeaderProducers(headerParams, operation.consumes) }},
+      {%if formParamsBinary | length %}
+        // There is a well-known issue about fetch and Content-Type header when it comes to add multipart/form-data files.
+        //  reference: https://github.com/github/fetch/issues/505#issuecomment-293064470
+        // The solution is to skip the Content-Type header and let fetch add it for us.
+        // @ts-ignore as IRequestType would require something
+        headers: {{ macro.composedHeaderProducers(headerParams, undefined) }},
+      {% else %}
+        headers: {{ macro.composedHeaderProducers(headerParams, operation.consumes) }},
+      {% endif %}
     {% else %}
     headers: () => ({}),
     {% endif %}
@@ -142,6 +151,16 @@ export function createClient<K extends ParamKeys>({
     body: ({ {{ bodyParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => JSON.stringify({{ bodyParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe  }}),
     {% elif formParams | length %}
     body: ({ {{ formParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => {{ formParams | pick("name") | safeIdentifier | first }}.uri,
+    {% elif formParamsBinary | length %}
+    {%set paramName = formParamsBinary | pick("name") | safeIdentifier | first %}
+    body: ({ {{ formParamsBinary | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => 
+      {
+        if(typeof window === "undefined")
+	        throw new Error("File upload is only support inside a browser runtime envoronment");
+        const formData = new FormData(); 
+        formData.append("{{paramName}}", {{paramName}}); 
+        return formData;
+      },
     {% elif operation.method === "post" %}
     body: () => "{}",
     {% endif %}
