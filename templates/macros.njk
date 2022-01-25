@@ -498,7 +498,7 @@
 {% elif headerParam.tokenType === "basic" %}
 `Basic {{ $(headerParam.name | safeIdentifier) }}
 `{% else %}
-{{ headerParam.name | safeIdentifier }}
+{{ headerParam.name | stripQuestionMark | safeIdentifier }}
 {% endif %}
 {% endmacro %}
 
