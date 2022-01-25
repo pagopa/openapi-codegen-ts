@@ -816,6 +816,8 @@ import {
   testWithTwoParamsDefaultDecoder,
   TestParametersAtPathLevelT,
   testParametersAtPathLevelDefaultDecoder,
+  TestHeaderParametersAtPathLevelT,
+  testHeaderParametersAtPathLevelDefaultDecoder,
   TestOptionalHeaderParametersT,
   testOptionalHeaderParametersDefaultDecoder
 } from \\"./requestTypes\\";
@@ -837,6 +839,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestParameterWithDashAnUnderscoreT> &
   TypeofApiCall<TestWithTwoParamsT> &
   TypeofApiCall<TestParametersAtPathLevelT> &
+  TypeofApiCall<TestHeaderParametersAtPathLevelT> &
   TypeofApiCall<TestOptionalHeaderParametersT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
@@ -850,6 +853,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestParameterWithDashAnUnderscoreT> &
   TypeofApiParams<TestWithTwoParamsT> &
   TypeofApiParams<TestParametersAtPathLevelT> &
+  TypeofApiParams<TestHeaderParametersAtPathLevelT> &
   TypeofApiParams<TestOptionalHeaderParametersT>);
 
 /**
@@ -885,6 +889,7 @@ export type WithDefaultsT<
   | TestParameterWithDashAnUnderscoreT
   | TestWithTwoParamsT
   | TestParametersAtPathLevelT
+  | TestHeaderParametersAtPathLevelT
   | TestOptionalHeaderParametersT,
   K
 >;
@@ -923,6 +928,10 @@ export type Client<
 
       readonly testParametersAtPathLevel: TypeofApiCall<
         TestParametersAtPathLevelT
+      >;
+
+      readonly testHeaderParametersAtPathLevel: TypeofApiCall<
+        TestHeaderParametersAtPathLevelT
       >;
 
       readonly testOptionalHeaderParameters: TypeofApiCall<
@@ -1004,6 +1013,13 @@ export type Client<
         ReplaceRequestParams<
           TestParametersAtPathLevelT,
           Omit<RequestParams<TestParametersAtPathLevelT>, K>
+        >
+      >;
+
+      readonly testHeaderParametersAtPathLevel: TypeofApiCall<
+        ReplaceRequestParams<
+          TestHeaderParametersAtPathLevelT,
+          Omit<RequestParams<TestHeaderParametersAtPathLevelT>, K>
         >
       >;
 
@@ -1302,6 +1318,29 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testHeaderParametersAtPathLevelT: ReplaceRequestParams<
+    TestHeaderParametersAtPathLevelT,
+    RequestParams<TestHeaderParametersAtPathLevelT>
+  > = {
+    method: \\"get\\",
+
+    headers: ({
+      [\\"x-header-param\\"]: xHeaderParam
+    }: {
+      \\"x-header-param\\": string;
+    }) => ({
+      \\"x-header-param\\": xHeaderParam
+    }),
+    response_decoder: testHeaderParametersAtPathLevelDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-header-path-level-parameter\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testHeaderParametersAtPathLevel: TypeofApiCall<TestHeaderParametersAtPathLevelT> = createFetchRequestForApi(
+    testHeaderParametersAtPathLevelT,
+    options
+  );
+
   const testOptionalHeaderParametersT: ReplaceRequestParams<
     TestOptionalHeaderParametersT,
     RequestParams<TestOptionalHeaderParametersT>
@@ -1313,7 +1352,7 @@ export function createClient<K extends ParamKeys>({
     }: {
       \\"x-header-param\\"?: string;
     }) => ({
-      \\"x-header-param\\": xHeaderParam_
+      \\"x-header-param\\": xHeaderParam
     }),
     response_decoder: testOptionalHeaderParametersDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-optional-header\`,
@@ -1342,6 +1381,9 @@ export function createClient<K extends ParamKeys>({
     testWithTwoParams: (withDefaults || identity)(testWithTwoParams),
     testParametersAtPathLevel: (withDefaults || identity)(
       testParametersAtPathLevel
+    ),
+    testHeaderParametersAtPathLevel: (withDefaults || identity)(
+      testHeaderParametersAtPathLevel
     ),
     testOptionalHeaderParameters: (withDefaults || identity)(
       testOptionalHeaderParameters
