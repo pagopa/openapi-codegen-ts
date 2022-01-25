@@ -210,6 +210,59 @@ describeSuite("Http client generated from Test API spec", () => {
     });
   });
 
+  it("should handle header parameters at path level", async () => {
+    const spiedFetch = jest.fn<
+      ReturnType<typeof fetch>,
+      Parameters<typeof fetch>
+    >((nodeFetch as any) as typeof fetch);
+
+    const client = createClient<"bearerToken">({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: spiedFetch,
+      basePath: "",
+      withDefaults: (op: any) => (params: any) =>
+        op({ ...params, bearerToken: "abc123" })
+    });
+
+    expect(client.testHeaderParametersAtPathLevel).toEqual(
+      expect.any(Function)
+    );
+
+    // It can be called with expected query parameters
+    const resultWithCursor = await client.testHeaderParametersAtPathLevel({
+      "x-header-param": "a value"
+    });
+
+    // It cannot be called without optional parameters
+    // @ts-expect-error
+    await client.testHeaderParametersAtPathLevel({});
+  });
+
+  it("should handle optional header parameters", async () => {
+    const spiedFetch = jest.fn<
+      ReturnType<typeof fetch>,
+      Parameters<typeof fetch>
+    >((nodeFetch as any) as typeof fetch);
+
+    const client = createClient<"bearerToken">({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: spiedFetch,
+      basePath: "",
+      withDefaults: (op: any) => (params: any) =>
+        op({ ...params, bearerToken: "abc123" })
+    });
+
+    expect(client.testOptionalHeaderParameters).toEqual(expect.any(Function));
+
+    // It can be called with expected query parameters
+    await client.testOptionalHeaderParameters({
+      "x-header-param": "a value"
+    });
+
+    // It can be called without optional query parameters
+    await client.testOptionalHeaderParameters({});
+  });
+
   it("should raise an exception when calling file upload from ode runtime environment", async () => {
     const spiedFetch = jest.fn<
       ReturnType<typeof fetch>,
