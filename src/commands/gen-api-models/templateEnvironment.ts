@@ -120,6 +120,24 @@ const stripQuestionMark = (subject: ReadonlyArray<string> | string) => {
 };
 
 /**
+ * Print optional symbol `?` from a variable name
+ * example: "arg?" -> "?"
+ * example: "arg" -> ""
+ * example: ["arg1?", "arg2"] -> ["?", ""]
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const printQuestionMark = (subject: ReadonlyArray<string> | string) => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/explicit-function-return-type
+  const getQuestionMark = (str: string) =>
+    str[str.length - 1] === "?" ? "?" : "";
+  return !subject
+    ? undefined
+    : typeof subject === "string"
+    ? getQuestionMark(subject)
+    : subject.map(getQuestionMark);
+};
+
+/**
  * Debug utility for printing a json object within nunjuk templates
  */
 const jsonToString = (obj: unknown): string => JSON.stringify(obj, null, "\t");
@@ -141,6 +159,8 @@ export default createTemplateEnvironment({
     filterByParameterIn,
     filterByParameterNotIn,
     stripQuestionMark,
+    // eslint-disable-next-line sort-keys
+    printQuestionMark,
     // eslint-disable-next-line sort-keys
     jsonToString
   }

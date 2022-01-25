@@ -815,7 +815,9 @@ import {
   TestWithTwoParamsT,
   testWithTwoParamsDefaultDecoder,
   TestParametersAtPathLevelT,
-  testParametersAtPathLevelDefaultDecoder
+  testParametersAtPathLevelDefaultDecoder,
+  TestOptionalHeaderParametersT,
+  testOptionalHeaderParametersDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -834,7 +836,8 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestParameterWithDashT> &
   TypeofApiCall<TestParameterWithDashAnUnderscoreT> &
   TypeofApiCall<TestWithTwoParamsT> &
-  TypeofApiCall<TestParametersAtPathLevelT>;
+  TypeofApiCall<TestParametersAtPathLevelT> &
+  TypeofApiCall<TestOptionalHeaderParametersT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
@@ -846,7 +849,8 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestParameterWithDashT> &
   TypeofApiParams<TestParameterWithDashAnUnderscoreT> &
   TypeofApiParams<TestWithTwoParamsT> &
-  TypeofApiParams<TestParametersAtPathLevelT>);
+  TypeofApiParams<TestParametersAtPathLevelT> &
+  TypeofApiParams<TestOptionalHeaderParametersT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -880,7 +884,8 @@ export type WithDefaultsT<
   | TestParameterWithDashT
   | TestParameterWithDashAnUnderscoreT
   | TestWithTwoParamsT
-  | TestParametersAtPathLevelT,
+  | TestParametersAtPathLevelT
+  | TestOptionalHeaderParametersT,
   K
 >;
 
@@ -918,6 +923,10 @@ export type Client<
 
       readonly testParametersAtPathLevel: TypeofApiCall<
         TestParametersAtPathLevelT
+      >;
+
+      readonly testOptionalHeaderParameters: TypeofApiCall<
+        TestOptionalHeaderParametersT
       >;
     }
   : {
@@ -995,6 +1004,13 @@ export type Client<
         ReplaceRequestParams<
           TestParametersAtPathLevelT,
           Omit<RequestParams<TestParametersAtPathLevelT>, K>
+        >
+      >;
+
+      readonly testOptionalHeaderParameters: TypeofApiCall<
+        ReplaceRequestParams<
+          TestOptionalHeaderParametersT,
+          Omit<RequestParams<TestOptionalHeaderParametersT>, K>
         >
       >;
     };
@@ -1286,6 +1302,29 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testOptionalHeaderParametersT: ReplaceRequestParams<
+    TestOptionalHeaderParametersT,
+    RequestParams<TestOptionalHeaderParametersT>
+  > = {
+    method: \\"get\\",
+
+    headers: ({
+      [\\"x-header-param\\"]: xHeaderParam
+    }: {
+      \\"x-header-param\\"?: string;
+    }) => ({
+      \\"x-header-param\\": xHeaderParam_
+    }),
+    response_decoder: testOptionalHeaderParametersDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-optional-header\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testOptionalHeaderParameters: TypeofApiCall<TestOptionalHeaderParametersT> = createFetchRequestForApi(
+    testOptionalHeaderParametersT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testSimpleToken: (withDefaults || identity)(testSimpleToken),
@@ -1303,6 +1342,9 @@ export function createClient<K extends ParamKeys>({
     testWithTwoParams: (withDefaults || identity)(testWithTwoParams),
     testParametersAtPathLevel: (withDefaults || identity)(
       testParametersAtPathLevel
+    ),
+    testOptionalHeaderParameters: (withDefaults || identity)(
+      testOptionalHeaderParameters
     )
   };
 }
