@@ -200,6 +200,28 @@ paths:
           description: "Ok"
         "500":
           description: "Fatal error"                    
+  /test-header-path-level-parameter:
+    parameters:
+      - $ref: "#/parameters/HeaderParamWithReference"
+    get:
+      operationId: "testHeaderParametersAtPathLevel"
+      description: when we declare parameters at path level
+      responses:
+        "200":  
+          description: "Ok"
+        "500":
+          description: "Fatal error"                    
+  /test-optional-header:
+    get:
+      operationId: "testOptionalHeaderParameters"
+      description: when we declare parameters at path level
+      parameters:
+        - $ref: "#/parameters/OptionalHeaderParamWithReference"
+      responses:
+        "200":  
+          description: "Ok"
+        "500":
+          description: "Fatal error"                    
 
 definitions:
   Person:
@@ -675,6 +697,12 @@ parameters:
     description: A header param which has dashes in it
     type: string
     required: true
+  OptionalHeaderParamWithReference:
+    name: x-header-param
+    in: header
+    description: A header param which has dashes in it
+    type: string
+    required: false
 consumes:
   - application/json
 produces:
