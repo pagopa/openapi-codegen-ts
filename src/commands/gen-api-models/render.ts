@@ -19,6 +19,16 @@ import { IDefinition, IOperationInfo, ISpecMetaInfo } from "./types";
 
 const { render } = templateEnvironment;
 
+const standardHeaders: ReadonlyArray<string> = [
+  "Accept-Encoding",
+  "Authorization",
+  "Content-Type",
+  "Host",
+  "If-None-Match",
+  "Ocp-Apim-Subscription-Key",
+  "X-Functions-Key"
+];
+
 /**
  * Render a code block which exports an object literal representing the api specification
  *
@@ -156,8 +166,12 @@ export const renderOperation = (
 
   const requestType = `r.I${capitalize(method)}ApiRequestType`;
 
+  const standardHeadersOnly = headers.filter(h => standardHeaders.includes(h));
+
   const headersCode =
-    headers.length > 0 ? headers.map(_ => `"${_}"`).join("|") : "never";
+    standardHeadersOnly.length > 0
+      ? standardHeadersOnly.map(_ => `"${_}"`).join("|")
+      : "never";
 
   const responsesType = responses
     .map(
