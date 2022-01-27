@@ -6,7 +6,7 @@
  */
 
 import { ITuple3, Tuple2 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2 } from "openapi-types";
+import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import * as prettier from "prettier";
 import {
   capitalize,
@@ -35,7 +35,7 @@ const standardHeaders: ReadonlyArray<string> = [
  * @param spec the original api specification
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions, @typescript-eslint/explicit-function-return-type
-export function renderSpecCode(spec: OpenAPIV2.Document) {
+export function renderSpecCode(spec: OpenAPIV2.Document | OpenAPIV3.Document) {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return formatCode(`
   /* eslint-disable sort-keys */
@@ -54,7 +54,7 @@ added this line
  * @param definition the definition data
  * @param strictInterfaces wheater requires strict interfaces or not
  * @param camelCasedPropNames wheater model properties must me camel-cased.
- *
+ * @param schemasPath
  * @returns the formatted code for the model's typescript definition
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
@@ -62,13 +62,15 @@ export async function renderDefinitionCode(
   definitionName: string,
   definition: IDefinition,
   strictInterfaces: boolean,
-  camelCasedPropNames: boolean = false
+  camelCasedPropNames: boolean = false,
+  schemasPath: string
 ): Promise<string> {
   return render("model.ts.njk", {
     camelCasedPropNames,
     definition,
     definitionName,
-    strictInterfaces
+    strictInterfaces,
+    schemasPath
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
   }).then(formatCode);
 }

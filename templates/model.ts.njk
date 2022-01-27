@@ -10,7 +10,7 @@
 {{- null | resetTypeAliases -}}
 
 {% set definition %}
-  {{ macro.defineObject(definitionName, definition, strictInterfaces, camelCasedPropNames) }}
+  {{ macro.defineObject(definitionName, definition, strictInterfaces, camelCasedPropNames, schemasPath) }}
 {% endset %}
 
 {{ null | getImports | safe }}

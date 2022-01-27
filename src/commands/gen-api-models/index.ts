@@ -1,6 +1,6 @@
 // eslint-disable no-console
 import * as fs from "fs-extra";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 import { parseAllOperations, parseDefinition, parseSpecMeta } from "./parse";
 import {
@@ -24,6 +24,13 @@ export function isOpenAPIV2(
 ): specs is OpenAPIV2.Document {
   // eslint-disable-next-line no-prototype-builtins
   return specs.hasOwnProperty("swagger");
+}
+
+export function isOpenAPIV3(
+  specs: OpenAPI.Document
+): specs is OpenAPIV3.Document {
+  // eslint-disable-next-line no-prototype-builtins
+  return specs.hasOwnProperty("openapi");
 }
 
 /**
@@ -68,8 +75,8 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
 
   const api = await SwaggerParser.bundle(specFilePath);
 
-  if (!isOpenAPIV2(api)) {
-    throw new Error("The specification is not of type swagger 2");
+  if (!isOpenAPIV2(api) && !isOpenAPIV3(api)) {
+    throw new Error("The specification is not of type swagger 2 or openapi 3");
   }
 
   await fs.ensureDir(definitionsDirPath);
@@ -82,55 +89,110 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     );
   }
 
-  const definitions = api.definitions;
-  if (!definitions) {
-    // eslint-disable-next-line no-console
-    console.log("No definitions found, skipping generation of model code.");
-    return;
-  }
-
-  await Promise.all(
-    Object.keys(definitions).map((definitionName: string) =>
-      renderDefinitionCode(
-        definitionName,
-        parseDefinition(definitions[definitionName]),
-        strictInterfaces,
-        camelCasedPropNames
-      ).then((code: string) =>
-        writeGeneratedCodeFile(
+  if (isOpenAPIV2(api)) {
+    if (!api.definitions) {
+      // eslint-disable-next-line no-console
+      console.log("No definitions found, skipping generation of model code.");
+      return;
+    }
+    const definitions = api.definitions;
+    await Promise.all(
+      Object.keys(definitions).map((definitionName: string) =>
+        renderDefinitionCode(
           definitionName,
-          `${definitionsDirPath}/${definitionName}.ts`,
-          code
+          parseDefinition(definitions[definitionName]),
+          strictInterfaces,
+          camelCasedPropNames,
+          "#/definitions/"
+        ).then((code: string) =>
+          writeGeneratedCodeFile(
+            definitionName,
+            `${definitionsDirPath}/${definitionName}.ts`,
+            code
+          )
         )
       )
-    )
-  );
-
-  const needToParseOperations = generateClient || generateRequestTypes;
-
-  if (needToParseOperations) {
-    const specMeta = parseSpecMeta(api);
-    const allOperationInfos = parseAllOperations(
-      api,
-      defaultSuccessType,
-      defaultErrorType
     );
 
-    if (generateRequestTypes) {
-      await writeGeneratedCodeFile(
-        "request types",
-        `${definitionsDirPath}/requestTypes.ts`,
-        renderAllOperations(allOperationInfos, generateResponseDecoders)
-      );
-    }
+    const needToParseOperations = generateClient || generateRequestTypes;
 
-    if (generateClient) {
-      const code = await renderClientCode(specMeta, allOperationInfos);
-      await writeGeneratedCodeFile(
-        "client",
-        `${definitionsDirPath}/client.ts`,
-        code
+    if (needToParseOperations) {
+      const specMeta = parseSpecMeta(api);
+      const allOperationInfos = parseAllOperations(
+        api,
+        defaultSuccessType,
+        defaultErrorType
       );
+
+      if (generateRequestTypes) {
+        await writeGeneratedCodeFile(
+          "request types",
+          `${definitionsDirPath}/requestTypes.ts`,
+          renderAllOperations(allOperationInfos, generateResponseDecoders)
+        );
+      }
+
+      if (generateClient) {
+        const code = await renderClientCode(specMeta, allOperationInfos);
+        await writeGeneratedCodeFile(
+          "client",
+          `${definitionsDirPath}/client.ts`,
+          code
+        );
+      }
+    }
+  } else {
+    if (!api.components?.schemas) {
+      // eslint-disable-next-line no-console
+      console.log("No definitions found, skipping generation of model code.");
+      return;
+    }
+    const definitions = api.components.schemas;
+
+    await Promise.all(
+      Object.keys(definitions).map((definitionName: string) =>
+        renderDefinitionCode(
+          definitionName,
+          parseDefinition(definitions[definitionName]),
+          strictInterfaces,
+          camelCasedPropNames,
+          "#/components/schemas/"
+        ).then((code: string) =>
+          writeGeneratedCodeFile(
+            definitionName,
+            `${definitionsDirPath}/${definitionName}.ts`,
+            code
+          )
+        )
+      )
+    );
+
+    const needToParseOperations = generateClient || generateRequestTypes;
+
+    if (needToParseOperations) {
+      const specMeta = parseSpecMeta(api);
+      const allOperationInfos = parseAllOperations(
+        api,
+        defaultSuccessType,
+        defaultErrorType
+      );
+
+      if (generateRequestTypes) {
+        await writeGeneratedCodeFile(
+          "request types",
+          `${definitionsDirPath}/requestTypes.ts`,
+          renderAllOperations(allOperationInfos, generateResponseDecoders)
+        );
+      }
+
+      if (generateClient) {
+        const code = await renderClientCode(specMeta, allOperationInfos);
+        await writeGeneratedCodeFile(
+          "client",
+          `${definitionsDirPath}/client.ts`,
+          code
+        );
+      }
     }
   }
 }

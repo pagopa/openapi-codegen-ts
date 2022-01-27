@@ -212,8 +212,8 @@
 {##
  # defines a $ref property
  #}
-{% macro defineRef(definitionName, definition, inline = false) -%}
-  {% set typedef %}{{ definitionName | replace("#/definitions/", "") }}{% endset %}
+{% macro defineRef(definitionName, definition, schemasPath, inline = false) -%}
+  {% set typedef %}{{ definitionName | replace(schemasPath, "") }}{% endset %}
   {{ defineConst(definition.default, typedef, typedef, false, inline) }}
 {% endmacro %}
 
@@ -228,10 +228,10 @@
 {##
  # defines an array property
  #}
-{% macro defineArray(definitionName, definition, inline = false) -%}
+{% macro defineArray(definitionName, definition, schemasPath, inline = false) -%}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if definition.items.$ref %}
-    {%- set realPropName = definition.items.$ref | replace("#/definitions/", "") -%}
+    {%- set realPropName = definition.items.$ref | replace(schemasPath, "") -%}
     {{ importLocalProp(realPropName) }}
     {% set typedef %}t.readonlyArray({{ realPropName }}, "array of {{ realPropName }}"){% endset %}
   {% else %}
@@ -244,7 +244,7 @@
 {##
  # defines an object property of some prop.type
  #}
-{% macro defineObjectProperty(propName, prop, parentPropName, camelCasedPropNames) -%}
+{% macro defineObjectProperty(propName, prop, parentPropName, camelCasedPropNames, schemasPath) -%}
   {% if propName %}
     {% if camelCasedPropNames %}
       "{{ propName | camelCase }}":
@@ -253,11 +253,11 @@
     {% endif %}
   {% endif %}
   {%- if prop.$ref %}
-    {{ defineRef(prop.$ref, prop, true) }}
+    {{ defineRef(prop.$ref, prop, schemasPath, true) }}
   {% elif prop.type == "object" %}
     {{ defineSubObject(parentPropName, propName, prop) }}
   {% elif prop.type == "array" %}
-    {{ defineArray(propName, prop, true) }}
+    {{ defineArray(propName, prop, schemasPath, true) }}
   {% elif prop.type == "number" %}
     {{ defineNumber(propName, prop, true) }}
   {% elif prop.type == "integer" %}
@@ -274,22 +274,22 @@
 {##
  # convenience method to import required modules from $ref pointers
  #}
-{% macro importLocalProps(definition) -%}
+{% macro importLocalProps(definition, schemasPath) -%}
   {% set defaultFound = 0 %}
   {% for propName, prop in definition.properties -%}{%
     if prop.$ref -%}{%-
-      set realPropName = prop.$ref | replace("#/definitions/", "") -%}
+      set realPropName = prop.$ref | replace(schemasPath, "") -%}
       {{ importLocalProp(realPropName) }}{%
     elif prop.items.$ref -%}{%-
-      set realPropName = prop.items.$ref | replace("#/definitions/", "") -%}
+      set realPropName = prop.items.$ref | replace(schemasPath, "") -%}
       {{ importLocalProp(realPropName) }}{%
     endif %}{%
   endfor %}
   {% if definition.additionalProperties.$ref -%}{%-
-      set realPropName = definition.additionalProperties.$ref | replace("#/definitions/", "") -%}
+      set realPropName = definition.additionalProperties.$ref | replace(schemasPath, "") -%}
       {{ importLocalProp(realPropName) }}{%
     elif definition.additionalProperties.items.$ref -%}{%-
-      set realPropName = definition.additionalProperties.items.$ref | replace("#/definitions/", "") -%}
+      set realPropName = definition.additionalProperties.items.$ref | replace(schemasPath, "") -%}
       {{ importLocalProp(realPropName) }}{%
   endif %}
   {% for propName, prop in definition.properties -%}
@@ -303,8 +303,8 @@
  # define object properties recursively,
  # supports additionaProperties, allOf and oneOf.
  #}
-{% macro defineObject(definitionName, definition, strictInterfaces, camelCasedPropNames) -%}
-  {{ importLocalProps(definition) }}
+{% macro defineObject(definitionName, definition, strictInterfaces, camelCasedPropNames, schemasPath) -%}
+  {{ importLocalProps(definition, schemasPath) }}
   {%- if definition.description %}
     {{ definition.description | comment | safe }}
   {% endif -%}
@@ -316,7 +316,7 @@
     {% for propName, prop in definition.properties -%}
       {% if prop.type == "object" %}
         {% set composedPropName %}{{ definitionName }}{{ propName | capitalizeFirst }}{% endset %}
-        {{ defineObject(composedPropName, prop, strictInterfaces, camelCasedPropNames) }}
+        {{ defineObject(composedPropName, prop, strictInterfaces, camelCasedPropNames, schemasPath) }}
       {% endif %}
     {% endfor %}
 
@@ -326,7 +326,7 @@
         {% set typedef %}t.dictionary(t.string, t.any, "{{ definitionName }}"){% endset %}
       {% else %}
         {% set typedef %}t.dictionary(t.string,
-          {{ defineObjectProperty(false, definition.additionalProperties, camelCasedPropNames) }} "{{ definitionName }}")
+          {{ defineObjectProperty(false, definition.additionalProperties, camelCasedPropNames, schemasPath) }} "{{ definitionName }}")
         {% endset %}
       {%- endif %}
       {% set defaultValue = definition.default | dump | safe if definition.default else undefined %}
@@ -336,7 +336,7 @@
       const {{ definitionName }}R = t.interface({
       {% for propName, prop in definition.properties -%}
         {% if definition.required and (definition.required | contains(propName)) %}
-          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames) }}
+          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames, schemasPath) }}
         {% endif %}
       {% endfor %}
       });
@@ -345,7 +345,7 @@
       const {{ definitionName }}O = t.partial({
       {% for propName, prop in definition.properties -%}
         {% if (not definition.required) or (definition.required and not (definition.required | contains(propName))) %}
-          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames) }}
+          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames, schemasPath) }}
         {% endif %}
       {% endfor %}
       });
@@ -368,9 +368,9 @@
 
     {% for schema in definition.allOf -%}
       {% if schema.type == "object" %}
-        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
+        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames, schemasPath) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
+        {%- set realPropName = schema.$ref | replace(schemasPath, "") -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -381,7 +381,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace("#/definitions/", "") }},
+            {{ schema.$ref | replace(schemasPath, "") }},
           {% endif %}
         {% endfor %}
       ],
@@ -397,9 +397,9 @@
 
     {% for schema in oneOfProps -%}
       {% if schema.type == "object" %}
-        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
+        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames, schemasPath) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
+        {%- set realPropName = schema.$ref | replace(schemasPath, "") -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -410,7 +410,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace("#/definitions/", "") }},
+            {{ schema.$ref | replace(schemasPath, "") }},
           {% endif %}
         {% endfor %}
       ],
@@ -437,7 +437,7 @@
 
   {% elif definition.type == "array" %}
 
-    {{ defineArray(definitionName, definition) }}
+    {{ defineArray(definitionName, definition, schemasPath) }}
 
   {% else %}
 

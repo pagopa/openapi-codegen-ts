@@ -5,7 +5,7 @@ import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
  * Defines the set of parameters for the code generation
  */
 export interface IGenerateApiOptions {
-  readonly specFilePath: string | OpenAPIV2.Document;
+  readonly specFilePath: string | OpenAPIV2.Document | OpenAPIV3.Document;
   readonly definitionsDirPath: string;
   readonly tsSpecFilePath?: string;
   readonly strictInterfaces?: boolean;

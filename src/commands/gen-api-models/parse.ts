@@ -2,9 +2,10 @@
  * This module collects pure utility functions that convert a OpenAPI specification object into a shape which is convenient for code generation
  */
 
-import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2, IJsonSchema } from "openapi-types";
-import { uncapitalize } from "../../lib/utils";
+import {ITuple2, Tuple2, Tuple3} from "@pagopa/ts-commons/lib/tuples";
+import {OpenAPIV2, OpenAPIV3} from "openapi-types";
+import {uncapitalize} from "../../lib/utils";
+import {isOpenAPIV2} from "./index";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
   IAuthHeaderParameterInfo,
@@ -17,9 +18,9 @@ import {
 } from "./types";
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-function parseInnerDefinition(source: IJsonSchema): IDefinition {
+function parseInnerDefinition(source: any): IDefinition {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const looselySource = source as any;
+  const looselySource = source;
 
   if (looselySource.$ref) {
     return looselySource;
@@ -27,22 +28,22 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
 
   // OAS2 does not support disjointed unions with oneOf,
   //  so we introduced "x-one-of" custom field in association with allOf
-  const { oneOf, allOf } =
+  const {oneOf, allOf} =
     typeof looselySource.oneOf === "undefined" &&
     "x-one-of" in looselySource &&
     looselySource["x-one-of"]
-      ? { allOf: undefined, oneOf: looselySource.allOf }
+      ? {allOf: undefined, oneOf: looselySource.allOf}
       : {
-          allOf: looselySource.allOf,
-          oneOf: looselySource.oneOf
-        };
+        allOf: looselySource.allOf,
+        oneOf: looselySource.oneOf
+      };
 
   // enum used to be defined with "x-extensible-enum" custom field
   const enumm = looselySource.enum
     ? looselySource.enum
     : "x-extensible-enum" in looselySource
-    ? looselySource["x-extensible-enum"]
-    : undefined;
+      ? looselySource["x-extensible-enum"]
+      : undefined;
 
   const format = "format" in looselySource ? looselySource.format : undefined;
 
@@ -55,12 +56,12 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
   const items = !("items" in source)
     ? undefined
     : !source.items
-    ? undefined
-    : Array.isArray(source.items)
-    ? // We don't support multiple array item definitions, should we?
-      // Use oneOf instead
-      parseInnerDefinition(source.items[0])
-    : parseInnerDefinition(source.items);
+      ? undefined
+      : Array.isArray(source.items)
+        ? // We don't support multiple array item definitions, should we?
+          // Use oneOf instead
+        parseInnerDefinition(source.items[0])
+        : parseInnerDefinition(source.items);
 
   return {
     additionalProperties,
@@ -81,7 +82,7 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
     title: source.title,
     type: source.type,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ["x-import"]: (source as any)["x-import"]
+    ["x-import"]: source["x-import"]
   };
 }
 
@@ -92,14 +93,16 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
  * @returns a parsed definition
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function parseDefinition(source: OpenAPIV2.SchemaObject): IDefinition {
+export function parseDefinition(
+  source: OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject
+): IDefinition {
   const base = parseInnerDefinition(source);
 
   // recursively parse properties
   const properties = source.properties
     ? Object.entries(source.properties)
-        .map(([k, v]) => [k, parseDefinition(v)])
-        .reduce((p, [k, v]) => ({ ...p, [k as string]: v }), {})
+      .map(([k, v]) => [k, parseDefinition(v)])
+      .reduce((p, [k, v]) => ({...p, [k as string]: v}), {})
     : undefined;
 
   const defaultt = "default" in source ? source.default : undefined;
@@ -119,13 +122,26 @@ export function parseDefinition(source: OpenAPIV2.SchemaObject): IDefinition {
  * @param api
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function parseSpecMeta(api: OpenAPIV2.Document): ISpecMetaInfo {
-  return {
-    basePath: api.basePath,
-    version: api.info?.version,
-    // eslint-disable-next-line sort-keys
-    title: api.info?.title
-  };
+export function parseSpecMeta(
+  api: OpenAPIV2.Document | OpenAPIV3.Document
+): ISpecMetaInfo {
+  if (isOpenAPIV2(api)) {
+    return {
+      basePath: api.basePath,
+      version: api.info?.version,
+      // eslint-disable-next-line sort-keys
+      title: api.info?.title
+    };
+  } else {
+    let basePath = api.servers?.[0].url ?? "";
+    basePath = basePath.replace("((http[s]?):)\\/\\/(\\w*\\.?:?\\d*)*", "");
+    return {
+      basePath,
+      version: api.info?.version,
+      // eslint-disable-next-line sort-keys
+      title: api.info?.title
+    };
+  }
 }
 
 /**
@@ -140,14 +156,20 @@ export function parseSpecMeta(api: OpenAPIV2.Document): ISpecMetaInfo {
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions, @typescript-eslint/explicit-function-return-type
 export function parseAllOperations(
-  api: OpenAPIV2.Document,
+  api: OpenAPIV2.Document | OpenAPIV3.Document,
   defaultSuccessType: string,
   defaultErrorType: string
 ) {
+  let securityDefinitions;
+  if (isOpenAPIV2(api)) {
+    securityDefinitions = api.securityDefinitions;
+  } else {
+    securityDefinitions = api.components?.securitySchemes;
+  }
   // map global auth headers only if global security is defined
   const globalAuthHeaders = api.security
     ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      getAuthHeaders(api.securityDefinitions, api.security)
+    getAuthHeaders(securityDefinitions, api.security)
     : [];
 
   return Object.keys(api.paths)
@@ -178,43 +200,63 @@ export function parseAllOperations(
  * It extracts global parameters from a path definition. Parameters in body, path, query and form are of type IParameterInfo, while header parameters are of type IHeaderParameterInfo
  *
  * @param pathSpec      The api spec object
+ * @param apiSpec
  * @param operationPath The path of the operation
  * @param pathSpec      A path definition
  *
+ * @param isOpenApi2
  * @returns a list of parameters that applies to all methods of a path. Header parameters ship a more complete structure.
  */
 const parseExtraParameters = (
-  apiSpec: OpenAPIV2.Document,
+  apiSpec: OpenAPIV2.Document | OpenAPIV3.Document,
   operationPath: string,
-  pathSpec: OpenAPIV2.PathsObject
+  pathSpec: OpenAPIV2.PathsObject | OpenAPIV3.PathsObject
 ): ReadonlyArray<IParameterInfo | IHeaderParameterInfo> =>
   typeof pathSpec.parameters !== "undefined"
     ? pathSpec.parameters.reduce(
-        (
-          prev: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
-          param: {
-            readonly name: string;
-            readonly type: string | undefined;
-            readonly required: boolean;
-            readonly in: string;
-            readonly $ref: string | undefined;
+      (
+        prev: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
+        param: {
+          readonly name: string;
+          readonly type: string | undefined;
+          readonly required: boolean;
+          readonly in: string;
+          readonly $ref: string | undefined;
+          readonly schema: any | undefined
+        }
+      ) => {
+        let type;
+        if (isOpenAPIV2(apiSpec)) {
+          type = param?.type
+        } else {
+          type = param?.schema.type;
+        }
+        if (type) {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          return [...prev, parseInlineParam(param, isOpenAPIV2(apiSpec))];
+        } else if (param?.$ref) {
+          let specParameters;
+          if (isOpenAPIV2(apiSpec)) {
+            specParameters = apiSpec.parameters;
+          } else {
+            specParameters = apiSpec.components?.parameters;
           }
-        ) => {
-          if (param?.type) {
+          return [
+            ...prev,
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            return [...prev, parseInlineParam(param)];
-          } else if (param?.$ref) {
-            return [
-              ...prev,
-              // eslint-disable-next-line @typescript-eslint/no-use-before-define
-              parseParamWithReference(apiSpec.parameters, operationPath, param)
-            ];
-          }
+            parseParamWithReference(
+              specParameters,
+              operationPath,
+              param,
+              isOpenAPIV2(apiSpec)
+            )
+          ];
+        }
 
-          return prev;
-        },
-        []
-      )
+        return prev;
+      },
+      []
+    )
     : [];
 
 /**
@@ -231,27 +273,36 @@ const parseExtraParameters = (
  * @returns a IOperationInfo struct if correct, undefined otherwise
  */
 export const parseOperation = (
-  api: OpenAPIV2.Document,
+  api: any,
   path: string,
   extraParameters: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
   defaultSuccessType: string,
   defaultErrorType: string
   // eslint-disable-next-line complexity, sonarjs/cognitive-complexity
 ) => (operationKey: string): IOperationInfo | undefined => {
-  const { parameters: specParameters, securityDefinitions } = api;
-  const pathSpec: OpenAPIV2.PathsObject = api.paths[path];
+  let specParameters;
+  let securityDefinitions;
+  if (isOpenAPIV2(api)) {
+    specParameters = api.parameters;
+    securityDefinitions = api.securityDefinitions;
+  } else {
+    specParameters = api.components?.parameters
+    securityDefinitions = api.components.securitySchemes;
+  }
+  const pathSpec: OpenAPIV2.PathsObject | OpenAPIV3.PathsObject =
+    api.paths[path];
 
   const method = operationKey.toLowerCase() as SupportedMethod;
-  const operation: OpenAPIV2.OperationObject =
+  const operation: OpenAPIV2.OperationObject | OpenAPIV3.OperationObject | any =
     method === "get"
       ? pathSpec.get
       : method === "post"
-      ? pathSpec.post
-      : method === "put"
-      ? pathSpec.put
-      : method === "delete"
-      ? pathSpec.delete
-      : undefined;
+        ? pathSpec.post
+        : method === "put"
+          ? pathSpec.put
+          : method === "delete"
+            ? pathSpec.delete
+            : undefined;
 
   if (operation === undefined) {
     // eslint-disable-next-line no-console
@@ -271,14 +322,14 @@ export const parseOperation = (
   const operationParams =
     typeof operation.parameters !== "undefined"
       ? (operation.parameters as ReadonlyArray<OpenAPIV2.ParameterObject>)
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          .map(parseParameter(specParameters, operationId))
-          .filter((e): e is IParameterInfo => typeof e !== "undefined")
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        .map(parseParameter(specParameters, operationId, isOpenAPIV2(api)))
+        .filter((e): e is IParameterInfo => typeof e !== "undefined")
       : [];
 
   const authHeadersAndParams = operation.security
     ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      getAuthHeaders(securityDefinitions, operation.security)
+    getAuthHeaders(securityDefinitions, operation.security)
     : [];
 
   const authParams = authHeadersAndParams;
@@ -313,8 +364,8 @@ export const parseOperation = (
     const responseType = parsedRef
       ? parsedRef.e2
       : responseStatus === "200"
-      ? defaultSuccessType
-      : defaultErrorType;
+        ? defaultSuccessType
+        : defaultErrorType;
     return Tuple3(responseStatus, responseType, responseHeaders);
   });
 
@@ -323,11 +374,11 @@ export const parseOperation = (
       ? undefined // get doesn't need content type as it does not ships a body
       : // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
       operation.consumes && operation.consumes.length
-      ? operation.consumes[0]
-      : // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-      api.consumes && api.consumes.length
-      ? api.consumes[0]
-      : "application/json"; // use json as default for methods that requires a Content-Type header
+        ? operation.consumes[0]
+        : // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+        api.consumes && api.consumes.length
+          ? api.consumes[0]
+          : "application/json"; // use json as default for methods that requires a Content-Type header
 
   const produces =
     // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
@@ -335,8 +386,8 @@ export const parseOperation = (
       ? operation.produces[0]
       : // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
       api.produces && api.produces.length
-      ? api.produces[0]
-      : undefined;
+        ? api.produces[0]
+        : undefined;
 
   return {
     method,
@@ -360,7 +411,7 @@ export const parseOperation = (
  *
  * @param specParameters spec's global parameters
  * @param operationId the identifier for the operation. Used for logging purpose
- * @param param the request parameter to parse
+ * @param isOpenApi2
  *
  * @returns a struct describing the parameter
  *
@@ -390,28 +441,46 @@ export const parseOperation = (
  */
 const parseParameter = (
   specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
-  operationId: string
-) => (param: OpenAPIV2.ParameterObject): IParameterInfo | undefined =>
-  param.name && param.type
+  operationId: string,
+  isOpenApi2: boolean
+) => (param: OpenAPIV2.ParameterObject): IParameterInfo | undefined => {
+  let type;
+  if (isOpenApi2) {
+    type = param.type;
+  } else {
+    type = param.schema.type;
+  }
+  return param.name && type
     ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      parseInlineParam(param)
+    parseInlineParam(param, isOpenApi2)
     : // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      parseParamWithReference(specParameters, operationId, param);
+    parseParamWithReference(specParameters, operationId, param, isOpenApi2);
+};
 
 const parseInlineParam = (
-  param: OpenAPIV2.ParameterObject
+  param: OpenAPIV2.ParameterObject | OpenAPIV3.ParameterObject,
+  isOpenApi2: boolean
 ): IParameterInfo => ({
   in: param.in,
   name: `${param.name}${param.required ? "" : "?"}`,
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  type: specTypeToTs(param),
-  ...(param.in === "header" ? { headerName: param.name } : {})
+  type: specTypeToTs(param, isOpenApi2),
+  ...(param.in === "header" ? {headerName: param.name} : {})
 });
 
 const parseParamWithReference = (
-  specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
+  specParameters:
+    | OpenAPIV2.ParametersDefinitionsObject
+    | {
+    readonly [key: string]:
+      | OpenAPIV3.ReferenceObject
+      | OpenAPIV3.ParameterObject;
+  }
+    | any
+    | undefined,
   operationId: string,
-  param: OpenAPIV2.ParameterObject
+  param: OpenAPIV2.ParameterObject | OpenAPIV3.ParameterObject | any,
+  isOpenApi2: boolean
 ): IParameterInfo | undefined => {
   const refInParam: string | undefined =
     param.$ref || (param.schema ? param.schema.$ref : undefined);
@@ -441,9 +510,9 @@ const parseParamWithReference = (
     refType === "definition"
       ? parsedRef.e2
       : specParameters
-      ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        specTypeToTs(specParameters[parsedRef.e2])
-      : undefined;
+        ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        specTypeToTs(specParameters[parsedRef.e2], isOpenApi2)
+        : undefined;
 
   if (paramType === undefined) {
     // eslint-disable-next-line no-console
@@ -455,8 +524,8 @@ const parseParamWithReference = (
     refType === "definition"
       ? param.required === true
       : specParameters
-      ? specParameters[parsedRef.e2].required
-      : false;
+        ? specParameters[parsedRef.e2].required
+        : false;
 
   const paramName = uncapitalize(
     // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
@@ -475,7 +544,7 @@ const parseParamWithReference = (
     in: paramIn,
     name: `${paramName}${isParamRequired ? "" : "?"}`,
     type: paramType,
-    ...(paramIn === "header" ? { headerName: paramName } : {})
+    ...(paramIn === "header" ? {headerName: paramName} : {})
   };
 };
 
@@ -492,31 +561,38 @@ const parseParamWithReference = (
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function getAuthHeaders(
-  securityDefinitions: OpenAPIV2.Document["securityDefinitions"],
+  securityDefinitions: any,
   security?: ReadonlyArray<OpenAPIV2.SecurityRequirementObject>
 ): ReadonlyArray<IAuthHeaderParameterInfo> {
-  const securityKeys: ReadonlyArray<string> | undefined =
+  let securityKeys: ReadonlyArray<string> | undefined =
     // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
     security && security.length
       ? security
-          .map((_: OpenAPIV2.SecurityRequirementObject) => Object.keys(_)[0])
-          .filter(_ => _ !== undefined)
+        .map((_: OpenAPIV2.SecurityRequirementObject | OpenAPIV3.SecurityRequirementObject) => Object.keys(_)[0])
+        .filter(_ => _ !== undefined)
       : undefined;
+
+  // workaround to put bearer token in header
+  Object.keys(securityDefinitions).forEach(k => {
+    if (securityDefinitions[k].scheme === "bearer") {
+      securityDefinitions[k].in = "header";
+    }
+  })
 
   const securityDefs =
     securityKeys !== undefined && securityDefinitions !== undefined
       ? // If we have both security and securityDefinitions defined, we extract
         // security items mapped to their securityDefinitions definitions.
-        securityKeys.map(k => Tuple2(k, securityDefinitions[k]))
+      securityKeys.map(k => Tuple2(k, securityDefinitions[k]))
       : securityDefinitions !== undefined
-      ? Object.keys(securityDefinitions).map(k =>
+        ? Object.keys(securityDefinitions).map(k =>
           Tuple2(k, securityDefinitions[k])
         )
-      : [];
+        : [];
 
   return securityDefs
     .filter(_ => _.e2 !== undefined)
-    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey).in === "header")
+    .filter(_ => (_.e2 as OpenAPIV2.SecuritySchemeApiKey | OpenAPIV3.ApiKeySecurityScheme).in === "header")
     .map(_ => {
       const {
         name: headerName,
@@ -550,29 +626,33 @@ export function getAuthHeaders(
  * ]) -> Set { 'MySchema' }
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const getImportedTypes = (parameters?: OpenAPIV2.Parameters) =>
+const getImportedTypes = (
+  parameters?:
+    | OpenAPIV2.Parameters
+    | ReadonlyArray<OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject>
+) =>
   new Set(
     typeof parameters !== "undefined"
       ? (parameters as ReadonlyArray<OpenAPIV2.ParameterObject>)
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          .map(paramParsedRef)
-          .reduce(
-            (
-              prev: ReadonlyArray<string>,
-              parsed:
-                | ITuple2<"definition" | "parameter" | "other", string>
-                | undefined
-            ) => {
-              if (typeof parsed === "undefined") {
-                return prev;
-              }
-              const { e1: refType, e2 } = parsed;
-              return refType === "definition" && typeof e2 !== "undefined"
-                ? prev.concat(e2)
-                : prev;
-            },
-            []
-          )
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        .map(paramParsedRef)
+        .reduce(
+          (
+            prev: ReadonlyArray<string>,
+            parsed:
+              | ITuple2<"definition" | "parameter" | "other", string>
+              | undefined
+          ) => {
+            if (typeof parsed === "undefined") {
+              return prev;
+            }
+            const {e1: refType, e2} = parsed;
+            return refType === "definition" && typeof e2 !== "undefined"
+              ? prev.concat(e2)
+              : prev;
+          },
+          []
+        )
       : []
   );
 
@@ -614,8 +694,8 @@ function typeFromRef(
       parts[1] === "definitions"
         ? "definition"
         : parts[1] === "parameters"
-        ? "parameter"
-        : "other";
+          ? "parameter"
+          : "other";
     return Tuple2(refType, parts[2]);
   }
   return undefined;
@@ -624,23 +704,37 @@ function typeFromRef(
 /**
  * Given an OpenAPI param type, it returns its Typescript correspondent
  *
- * @param t
  *
  * @returns a Typescript type
+ * @param parameter
+ * @param isOpenApi2
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-function specTypeToTs(parameter: OpenAPIV2.ParameterObject): string {
-  if (parameter.in === "formData" && parameter.format === "binary") {
+function specTypeToTs(
+  parameter: OpenAPIV2.ParameterObject | OpenAPIV3.ParameterObject,
+  isOpenApi2: boolean
+): string {
+  let format;
+  let type;
+  if (isOpenApi2) {
+    format = (parameter as OpenAPIV2.ParameterObject).format;
+    type = (parameter as OpenAPIV2.ParameterObject).type;
+  } else {
+    format = ((parameter as OpenAPIV3.ParameterObject).schema as OpenAPIV3.SchemaObject).format ?? ""
+    // @ts-ignore
+    type = ((parameter as OpenAPIV3.ParameterObject).schema as OpenAPIV3.SchemaObject).type ?? ""
+  }
+  if (parameter.in === "formData" && format === "binary") {
     return "File";
   }
 
-  switch (parameter.type) {
+  switch (type) {
     case "integer":
       return "number";
     case "file":
       return `{ "uri": string, "name": string, "type": string }`;
     default:
-      return parameter.type;
+      return type;
   }
 }
 
