@@ -2,7 +2,7 @@
 
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
-import { parseDefinition } from "../parse";
+import { parseDefinition } from "../parse.oa2";
 
 import { renderDefinitionCode } from "../render";
 
@@ -27,6 +27,7 @@ describe("renderDefinitionCode", () => {
       definitionName,
       parseDefinition(spec.definitions[definitionName]),
       true,
+      "#/definitions/",
       false
     );
     expect(code).toMatchSnapshot();

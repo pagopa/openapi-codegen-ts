@@ -52,8 +52,8 @@ added this line
  *
  * @param definitionName the name of the definition
  * @param definition the definition data
- * @param strictInterfaces wheater requires strict interfaces or not
- * @param camelCasedPropNames wheater model properties must me camel-cased.
+ * @param strictInterfaces whether requires strict interfaces or not
+ * @param camelCasedPropNames whether model properties must me camel-cased.
  * @param schemasPath
  * @returns the formatted code for the model's typescript definition
  */
@@ -62,8 +62,8 @@ export async function renderDefinitionCode(
   definitionName: string,
   definition: IDefinition,
   strictInterfaces: boolean,
-  camelCasedPropNames: boolean = false,
-  schemasPath: string
+  schemasPath: string,
+  camelCasedPropNames: boolean = false
 ): Promise<string> {
   return render("model.ts.njk", {
     camelCasedPropNames,
@@ -76,7 +76,7 @@ export async function renderDefinitionCode(
 }
 
 /**
- * Given a list of parsed operations, it renders the code for an opinionated http client module that imlements each operation as an async method
+ * Given a list of parsed operations, it renders the code for an opinionated http client module that implements each operation as an async method
  *
  * @param specMeta meta info of the api specification
  * @param operations the list of parsed operations
@@ -184,7 +184,7 @@ export const renderOperation = (
     )
     .join("|");
 
-  // wraps an identifiler with doublequotes
+  // wraps an identifier with double quotes
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const escapeIdentifier = (id: string) =>
     id.includes("?") ? `"${id.replace("?", "")}"?` : `"${id}"`;
@@ -360,9 +360,9 @@ export function renderDecoderCode({ responses, operationId }: IOperationInfo) {
           typeof d["_A"] !== "undefined";
 
         const ${typeVarName} = {
-          ...(${defaultResponsesVarName} as unknown as ${responsesTypeName}),
+          ...(${defaultResponsesVarName} as unknown | ${responsesTypeName}),
           ...(isDecoder(overrideTypes) ? { ${firstSuccessType.e1}: overrideTypes } : overrideTypes)
-        };
+        }
 
         ${decoderDefinitions}
         return ${composedDecoders}
@@ -376,9 +376,9 @@ export function renderDecoderCode({ responses, operationId }: IOperationInfo) {
  * Renders the response decoder associated to the given type.
  * Response types refer to io-ts-commons (https://github.com/pagopa/io-ts-commons/blob/master/src/requests.ts)
  *
- * @param param0.status http status code the decoder is associated with
- * @param param0.type type to be decoded
- * @param param0.headers headers of the response
+ * @param status
+ * @param type
+ * @param headers
  * @param varName the name of the variables that holds the type decoder
  *
  * @returns a string which represents a decoder declaration

@@ -3,7 +3,7 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
-import { parseAllOperations, parseDefinition, parseOperation } from "../parse";
+import { parseAllOperations, parseDefinition, parseOperation } from "../parse.oa2";
 import {
   renderClientCode,
   renderDefinitionCode,
@@ -31,7 +31,8 @@ describe("gen-api-models", () => {
       "Profile",
       parseDefinition(profileDefinition),
       false,
-      false
+      "#/definitions/",
+      false,
     );
     expect(code).toBeDefined();
     expect(code).toMatchSnapshot("dup-imports");
@@ -48,7 +49,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "PaginationResponse",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/",
     );
     expect(code).toContain("page_size");
     expect(code).not.toContain("pageSize");
@@ -66,6 +68,7 @@ describe("gen-api-models", () => {
       "PaginationResponse",
       parseDefinition(definition),
       false,
+      "#/definitions/",
       true
     );
     expect(code).toContain("pageSize");
@@ -82,7 +85,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "WithinRangeStringTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("WithinRangeString(8, 11)");
     expect(code).toMatchSnapshot("within-range-strings");
@@ -98,7 +102,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "NonNegativeNumberTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("NonNegativeNumber");
     expect(code).toMatchSnapshot("non-negative-numbers");
@@ -114,7 +119,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "NonNegativeIntegerTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("NonNegativeInteger");
     expect(code).toMatchSnapshot("non-negative-integer");
@@ -129,7 +135,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "WithinRangeNumberTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("WithinRangeNumber");
     expect(code).toMatchSnapshot("within-range-numbers");
@@ -148,7 +155,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "WithinRangeIntegerTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("WithinRangeInteger");
     expect(code).toMatchSnapshot("within-range-integer");
@@ -163,7 +171,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "CustomStringFormatTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain(
       "import { SomeCustomStringType as SomeCustomStringTypeT }"
@@ -180,7 +189,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "EnumTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toMatchSnapshot("enum-simple");
   });
@@ -194,7 +204,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "AdditionalPropsTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("t.dictionary");
     expect(code).toMatchSnapshot("additional-properties");
@@ -209,7 +220,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "AdditionalPropsTrueTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("t.dictionary");
     expect(code).toContain("t.any");
@@ -225,7 +237,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "AdditionalpropsDefault",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("t.dictionary");
     expect(code).toContain("withDefault");
@@ -241,7 +254,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "AllOfTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("t.intersection");
     expect(code).toContain("PaginationResponse");
@@ -257,7 +271,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "OneOfTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("t.union");
     expect(code).toMatchSnapshot("oneof-test");
@@ -272,7 +287,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "AllOfOneOfTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("t.union");
     expect(code).toContain("PaginationResponse");
@@ -288,7 +304,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "InlinePropertyTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("PatternString");
     expect(code).toMatchSnapshot("inline-property");
@@ -303,7 +320,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "NestedObjectTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("t.TypeOf<typeof NestedObjectTest>");
     expect(code).toMatchSnapshot("nested-object");
@@ -318,7 +336,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "OrganizationFiscalCode",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain(
       "import { OrganizationFiscalCode as OrganizationFiscalCodeT }"
@@ -334,7 +353,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "OrganizationFiscalCodeTest",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toContain("OrganizationFiscalCodeTest");
     expect(code).toMatchSnapshot("defined-type");
@@ -350,7 +370,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "ListOfDefinitions",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toMatchSnapshot();
   });
@@ -365,7 +386,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "ListOfReferences",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toMatchSnapshot();
   });
@@ -380,7 +402,8 @@ describe("gen-api-models", () => {
     const code = await renderDefinitionCode(
       "AnObjectWithAnItemsField",
       parseDefinition(definition),
-      false
+      false,
+      "#/definitions/"
     );
     expect(code).toMatchSnapshot();
   });

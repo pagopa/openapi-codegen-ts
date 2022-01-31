@@ -3,7 +3,7 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
-import { getAuthHeaders, parseDefinition, parseOperation } from "../parse";
+import { getAuthHeaders, parseDefinition, parseOperation } from "../parse.oa2";
 
 let spec: OpenAPIV2.Document;
 beforeAll(
