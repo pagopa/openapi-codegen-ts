@@ -125,7 +125,7 @@ export function parseSpecMeta(
   api: OpenAPIV3.Document
 ): ISpecMetaInfo {
   let basePath = api.servers?.[0].url ?? "";
-  basePath = basePath.replace("((http[s]?):)\\/\\/(\\w*\\.?:?\\d*)*", "");
+  basePath = basePath.replace(new RegExp("((http[s]?):)\\/\\/(\\w*\\.?:?\\d*)*"), "");
   return {
     basePath,
     version: api.info?.version,
@@ -296,6 +296,20 @@ export const parseOperation = (
         .filter((e): e is IParameterInfo => typeof e !== "undefined")
       : [];
 
+  if (typeof operation.requestBody !== "undefined") {
+    const body = operation.requestBody as OpenAPIV3.RequestBodyObject;
+    for (let key in body.content) {
+      let param = body.content[key] as OpenAPIV3.ParameterObject;
+      const type = param.schema?.type;
+      param.name && type
+        ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        parseInlineParam(param)
+        : // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        parseParamWithReference(specParameters, operationId, param);
+    }
+  }
+
+
   const authHeadersAndParams = operation.security
     ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
     getAuthHeaders(securityDefinitions, operation.security)
@@ -418,6 +432,7 @@ const parseParameter = (
     parseParamWithReference(specParameters, operationId, param);
 };
 
+
 const parseInlineParam = (
   param: OpenAPIV3.ParameterObject,
 ): IParameterInfo => ({
@@ -534,6 +549,7 @@ export function getAuthHeaders(
   Object.keys(securityDefinitions).forEach(k => {
     if (securityDefinitions[k].scheme === "bearer") {
       securityDefinitions[k].in = "header";
+      securityDefinitions[k].name = "Authorization";
     }
   })
 

@@ -3,6 +3,9 @@
     "schemas": {
       "AppInfo": {
         "properties": {
+          "dbConnection": {
+            "type": "string"
+          },
           "environment": {
             "type": "string"
           },
@@ -13,6 +16,11 @@
             "type": "string"
           }
         },
+        "required": [
+          "environment",
+          "name",
+          "version"
+        ],
         "type": "object"
       },
       "Broker": {
@@ -361,15 +369,12 @@
           "description",
           "digital_stamp_brand",
           "enabled",
-          "ip",
           "on_us",
-          "password",
           "payment_model",
           "port",
           "protocol",
           "recovery",
           "rt_push",
-          "service",
           "thread_number",
           "timeout_a",
           "timeout_b",
@@ -417,6 +422,22 @@
         "required": [
           "config_category",
           "config_key",
+          "config_value"
+        ],
+        "type": "object"
+      },
+      "ConfigurationKeyBase": {
+        "properties": {
+          "config_description": {
+            "example": " default millisecondi validit\u00e0 token",
+            "type": "string"
+          },
+          "config_value": {
+            "example": "180000",
+            "type": "string"
+          }
+        },
+        "required": [
           "config_value"
         ],
         "type": "object"
@@ -1002,6 +1023,51 @@
         ],
         "type": "object"
       },
+      "PaymentType": {
+        "properties": {
+          "description": {
+            "example": "Addebito diretto",
+            "maxLength": 35,
+            "minLength": 0,
+            "type": "string"
+          },
+          "payment_type": {
+            "example": "AD",
+            "maxLength": 15,
+            "minLength": 0,
+            "type": "string"
+          }
+        },
+        "required": [
+          "payment_type"
+        ],
+        "type": "object"
+      },
+      "PaymentTypeBase": {
+        "properties": {
+          "description": {
+            "example": "Addebito diretto",
+            "maxLength": 35,
+            "minLength": 0,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PaymentTypes": {
+        "properties": {
+          "payment_types": {
+            "items": {
+              "$ref": "#/components/schemas/PaymentType"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "payment_types"
+        ],
+        "type": "object"
+      },
       "Pdd": {
         "properties": {
           "description": {
@@ -1017,7 +1083,7 @@
             "type": "string"
           },
           "ip": {
-            "example": "locahost",
+            "example": "localhost",
             "type": "string"
           },
           "port": {
@@ -1030,6 +1096,33 @@
           "description",
           "enabled",
           "id_pdd",
+          "ip"
+        ],
+        "type": "object"
+      },
+      "PddBase": {
+        "properties": {
+          "description": {
+            "example": "Lorem ipsum dolor sit amet",
+            "type": "string"
+          },
+          "enabled": {
+            "example": false,
+            "type": "boolean"
+          },
+          "ip": {
+            "example": "localhost",
+            "type": "string"
+          },
+          "port": {
+            "example": 1234,
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description",
+          "enabled",
           "ip"
         ],
         "type": "object"
@@ -1080,17 +1173,6 @@
           },
           "payment_types": {
             "items": {
-              "enum": [
-                "BBT",
-                "BP",
-                "AD",
-                "CP",
-                "PO",
-                "OBEP",
-                "JIF",
-                "MYBK",
-                "PPAL"
-              ],
               "type": "string"
             },
             "type": "array"
@@ -1110,17 +1192,6 @@
           },
           "payment_types": {
             "items": {
-              "enum": [
-                "BBT",
-                "BP",
-                "AD",
-                "CP",
-                "PO",
-                "OBEP",
-                "JIF",
-                "MYBK",
-                "PPAL"
-              ],
               "type": "string"
             },
             "type": "array"
@@ -1150,17 +1221,6 @@
         "properties": {
           "payment_types": {
             "items": {
-              "enum": [
-                "BBT",
-                "BP",
-                "AD",
-                "CP",
-                "PO",
-                "OBEP",
-                "JIF",
-                "MYBK",
-                "PPAL"
-              ],
               "type": "string"
             },
             "type": "array"
@@ -1259,17 +1319,6 @@
             "type": "integer"
           },
           "payment_type_code": {
-            "enum": [
-              "BBT",
-              "BP",
-              "AD",
-              "CP",
-              "PO",
-              "OBEP",
-              "JIF",
-              "MYBK",
-              "PPAL"
-            ],
             "type": "string"
           },
           "psp_business_name": {
@@ -1537,6 +1586,41 @@
         ],
         "type": "object"
       },
+      "WfespPluginConfBase": {
+        "properties": {
+          "id_bean": {
+            "example": "defaultForwardProcessor",
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
+          },
+          "pag_const_string_profile": {
+            "example": "Lorem ipsum dolor sit amet",
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string"
+          },
+          "pag_rpt_xpath_profile": {
+            "example": "Lorem ipsum dolor sit amet",
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string"
+          },
+          "pag_soap_rule_profile": {
+            "example": "IDVS=$buyerBank$",
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id_bean",
+          "pag_const_string_profile",
+          "pag_rpt_xpath_profile",
+          "pag_soap_rule_profile"
+        ],
+        "type": "object"
+      },
       "WfespPluginConfs": {
         "properties": {
           "wfesp_plugin_confs": {
@@ -1593,7 +1677,7 @@
     "description": "Spring Application exposes Api to manage configuration for EC/PSP on the Nodo dei Pagamenti",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "PagoPA API configuration",
-    "version": "0.2.32"
+    "version": "0.2.33-2"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -4090,7 +4174,7 @@
     },
     "/channels/{channelcode}/paymenttypes": {
       "get": {
-        "operationId": "getPaymentTypes",
+        "operationId": "getChannelPaymentTypes",
         "parameters": [
           {
             "description": "Channel code",
@@ -4235,7 +4319,7 @@
         }
       ],
       "post": {
-        "operationId": "createPaymentType",
+        "operationId": "createChannelPaymentType",
         "parameters": [
           {
             "description": "Channel code",
@@ -4400,7 +4484,7 @@
     },
     "/channels/{channelcode}/paymenttypes/{paymenttypecode}": {
       "delete": {
-        "operationId": "deletePaymentType",
+        "operationId": "deleteChannelPaymentType",
         "parameters": [
           {
             "description": "Channel code",
@@ -5106,7 +5190,7 @@
         }
       ],
       "put": {
-        "operationId": "updateConfigurationKey_1",
+        "operationId": "updateFtpServer",
         "parameters": [
           {
             "description": "Host",
@@ -5384,7 +5468,7 @@
         }
       ],
       "post": {
-        "operationId": "createCreditorInstitution_1",
+        "operationId": "createConfigurationKey",
         "requestBody": {
           "content": {
             "application/json": {
@@ -5518,7 +5602,7 @@
     },
     "/configuration/keys/category/{category}/key/{key}": {
       "delete": {
-        "operationId": "deleteConfigurationKeys",
+        "operationId": "deleteConfigurationKey",
         "parameters": [
           {
             "description": "Configuration category",
@@ -5833,7 +5917,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConfigurationKey"
+                "$ref": "#/components/schemas/ConfigurationKeyBase"
               }
             }
           },
@@ -5844,7 +5928,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConfigurationKey"
+                  "$ref": "#/components/schemas/ConfigurationKeyBase"
                 }
               }
             },
@@ -5955,6 +6039,671 @@
           }
         ],
         "summary": "Update configuration key",
+        "tags": [
+          "Configuration"
+        ]
+      }
+    },
+    "/configuration/paymenttypes": {
+      "get": {
+        "operationId": "getPaymentTypes",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentTypes"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get list of payment type",
+        "tags": [
+          "Configuration"
+        ]
+      },
+      "parameters": [
+        {
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "in": "header",
+          "name": "X-Request-Id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "createPaymentType",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentType"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentType"
+                }
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Conflict",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Create payment type",
+        "tags": [
+          "Configuration"
+        ]
+      }
+    },
+    "/configuration/paymenttypes/{paymentTypeCode}": {
+      "delete": {
+        "operationId": "deletePaymentType",
+        "parameters": [
+          {
+            "description": "Payment type code",
+            "in": "path",
+            "name": "paymentTypeCode",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete payment type",
+        "tags": [
+          "Configuration"
+        ]
+      },
+      "get": {
+        "operationId": "getPaymentType",
+        "parameters": [
+          {
+            "description": "Payment type code",
+            "in": "path",
+            "name": "paymentTypeCode",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentType"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get details of payment type",
+        "tags": [
+          "Configuration"
+        ]
+      },
+      "parameters": [
+        {
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "in": "header",
+          "name": "X-Request-Id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "operationId": "updatePaymentType",
+        "parameters": [
+          {
+            "description": "Payment type code",
+            "in": "path",
+            "name": "paymentTypeCode",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentTypeBase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentTypeBase"
+                }
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Update payment type",
         "tags": [
           "Configuration"
         ]
@@ -6498,7 +7247,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Pdd"
+                "$ref": "#/components/schemas/PddBase"
               }
             }
           },
@@ -6509,7 +7258,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Pdd"
+                  "$ref": "#/components/schemas/PddBase"
                 }
               }
             },
@@ -6757,7 +7506,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConfigurationKey"
+                  "$ref": "#/components/schemas/WfespPluginConf"
                 }
               }
             },
@@ -7145,7 +7894,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/WfespPluginConf"
+                "$ref": "#/components/schemas/WfespPluginConfBase"
               }
             }
           },
@@ -7156,7 +7905,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WfespPluginConf"
+                  "$ref": "#/components/schemas/WfespPluginConfBase"
                 }
               }
             },
@@ -7409,9 +8158,287 @@
             "type": "string"
           }
         }
-      ]
+      ],
+      "post": {
+        "operationId": "createCounterpartTable",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "description": "The file to upload",
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Upload a XML file containing the details of a Counterpart table",
+        "tags": [
+          "Creditor Institutions"
+        ]
+      }
     },
     "/counterparttables/{idcounterparttable}": {
+      "delete": {
+        "operationId": "deleteCounterpartTable",
+        "parameters": [
+          {
+            "description": "ID of a counterpart table",
+            "in": "path",
+            "name": "idcounterparttable",
+            "required": true,
+            "schema": {
+              "maxLength": 50,
+              "minLength": 0,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Creditor institution code",
+            "in": "query",
+            "name": "creditorinstitutioncode",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete a Counterpart table XML file ",
+        "tags": [
+          "Creditor Institutions"
+        ]
+      },
       "get": {
         "operationId": "getCounterpartTable",
         "parameters": [
@@ -9640,7 +10667,145 @@
             "type": "string"
           }
         }
-      ]
+      ],
+      "post": {
+        "operationId": "createIca",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "description": "XML file regarding ICA to create",
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Upload a XML file containing the details of an ICA",
+        "tags": [
+          "Creditor Institutions"
+        ]
+      }
     },
     "/icas/xsd": {
       "parameters": [
@@ -9779,6 +10944,144 @@
       }
     },
     "/icas/{idica}": {
+      "delete": {
+        "operationId": "deleteIca",
+        "parameters": [
+          {
+            "description": "Id ICA",
+            "in": "path",
+            "name": "idica",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Creditor institution code",
+            "in": "query",
+            "name": "creditorinstitutioncode",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            },
+            "description": "Service unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete an ICA XML file",
+        "tags": [
+          "Creditor Institutions"
+        ]
+      },
       "get": {
         "operationId": "getIca",
         "parameters": [
@@ -11451,17 +12754,6 @@
             "name": "paymenttypecode",
             "required": false,
             "schema": {
-              "enum": [
-                "BBT",
-                "BP",
-                "AD",
-                "CP",
-                "PO",
-                "OBEP",
-                "JIF",
-                "MYBK",
-                "PPAL"
-              ],
               "type": "string"
             }
           },
