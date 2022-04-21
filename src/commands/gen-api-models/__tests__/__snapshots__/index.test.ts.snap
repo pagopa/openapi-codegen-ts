@@ -1312,6 +1312,8 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testSimplePatchDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-simple\`,
 
+    body: () => \\"{}\\",
+
     query: () => withoutUndefinedValues({})
   };
   const testSimplePatch: TypeofApiCall<TestSimplePatchT> = createFetchRequestForApi(

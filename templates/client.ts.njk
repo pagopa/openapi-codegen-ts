@@ -161,7 +161,7 @@ export function createClient<K extends ParamKeys>({
         formData.append("{{paramName}}", {{paramName}}); 
         return formData;
       },
-    {% elif operation.method === "post" %}
+    {% elif operation.method === "post" or operation.method === "put" or operation.method === "patch" %}
     body: () => "{}",
     {% endif %}
     {% if queryParams | length %}
