@@ -41,5 +41,8 @@
     "testMatch": null,
     "globalSetup": "./src/setup.ts",
     "globalTeardown": "./src/teardown.ts"
+  },
+  "resolutions": {
+    "y18n": "^4.0.1"
   }
 }
