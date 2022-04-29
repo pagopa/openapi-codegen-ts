@@ -245,7 +245,7 @@ describeSuite("Http client generated from Test API spec", () => {
     }
   });
 
-  /* it("should make patch http request", async () => {
+  it("should make patch http request", async () => {
     const client = createClient({
       baseUrl: `http://localhost:${mockPort}`,
       fetchApi: (nodeFetch as any) as typeof fetch,
@@ -254,7 +254,7 @@ describeSuite("Http client generated from Test API spec", () => {
 
     expect(client.testParameterWithDash).toEqual(expect.any(Function));
 
-    const result = await client.testSim({
+    const result = await client.testSimplePatch({
       "foo-bar": "value",
       headerInlineParam: "value",
       "path-param": "value",
@@ -262,5 +262,5 @@ describeSuite("Http client generated from Test API spec", () => {
       "x-header-param": "value"
     });
     expect(isRight(result)).toBe(true);
-  }); */
+  });
 });
