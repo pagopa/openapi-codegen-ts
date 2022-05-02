@@ -251,6 +251,8 @@ export const parseOperation = (
       ? pathSpec.put
       : method === "delete"
       ? pathSpec.delete
+      : method === "patch"
+      ? pathSpec.patch
       : undefined;
 
   if (operation === undefined) {

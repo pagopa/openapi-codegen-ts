@@ -199,7 +199,16 @@ paths:
         "200":
           description: "Ok"
         "500":
-          description: "Fatal error"                    
+          description: "Fatal error"  
+  /test-simple:
+    patch:
+      operationId: "testSimplePatch"
+      description: simply test of patch endpoint are considered
+      responses:
+        "200":
+          description: "Ok"
+        "500":
+          description: "Fatal error"                            
 
 definitions:
   Person:

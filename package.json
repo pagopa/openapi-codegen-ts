@@ -74,5 +74,8 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
+  },
+  "resolutions": {
+    "y18n": "^4.0.1"
   }
 }
