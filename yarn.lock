@@ -574,19 +574,19 @@
     eslint-plugin-sonarjs "^0.5.0"
     prettier "^2.1.2"
 
-"@pagopa/ts-commons@^10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@pagopa/ts-commons/-/ts-commons-10.0.0.tgz#20b5f5c9940019c697c87f652619a4ebc5c4193b"
-  integrity sha512-ruYm04X7pnQvkznDl6xH9XjuAkoUnjz7dKU2svkiO/iPiFhqMWoGxSTGwZIi/12PeTHSgZlorEOWgxZtxJolHQ==
+"@pagopa/ts-commons@^10.3.0":
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/@pagopa/ts-commons/-/ts-commons-10.3.0.tgz#6edccb731d5f99ad22c32c59e2a11f53a5f90207"
+  integrity sha512-pTp7qfOaL9cJSNEKrMMbYPtqrtZJNDrWMa9HnqiRQA4SAErrzGNGLTgxkLyOEsC1B4mS3uPWntAk+bblOKpyZw==
   dependencies:
     abort-controller "^3.0.0"
     agentkeepalive "^4.1.4"
     applicationinsights "^1.8.10"
-    fp-ts "^2.10.5"
+    fp-ts "^2.11.0"
     io-ts "^2.2.16"
     json-set-map "^1.1.2"
     node-fetch "^2.6.0"
-    validator "^10.1.0"
+    validator "^13.7.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
@@ -2497,10 +2497,10 @@ form-data@~2.3.2:
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
 
-fp-ts@^2.10.5:
-  version "2.11.1"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.11.1.tgz#b1eeb2540728b6328542664888442f8f805d2443"
-  integrity sha512-CJOfs+Heq/erkE5mqH2mhpsxCKABGmcLyeEwPxtbTlkLkItGUs6bmk2WqjB2SgoVwNwzTE5iKjPQJiq06CPs5g==
+fp-ts@^2.11.0:
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.12.0.tgz#6a0c9e99f69576aaa5a6c94c1284ba977f5569b7"
+  integrity sha512-ZIMpTxc4Vadj3gs3Geg4tohB7eSkC125TA7ZH2ddEcREmjpjpbq6wUxWQmFFfAOCRWEkljh3BPLZGBVj9HB9Xw==
 
 fragment-cache@^0.2.1:
   version "0.2.1"
@@ -5880,15 +5880,15 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-validator@^10.1.0:
-  version "10.11.0"
-  resolved "https://registry.yarnpkg.com/validator/-/validator-10.11.0.tgz#003108ea6e9a9874d31ccc9e5006856ccd76b228"
-  integrity sha512-X/p3UZerAIsbBfN/IwahhYaBbY68EN/UQBWHtsbXGT5bfrH/p4NQzUCG1kF/rtKaNpnJ7jAu6NGTdSNtyNIXMw==
-
 validator@^13.6.0:
   version "13.6.0"
   resolved "https://registry.yarnpkg.com/validator/-/validator-13.6.0.tgz#1e71899c14cdc7b2068463cb24c1cc16f6ec7059"
   integrity sha512-gVgKbdbHgtxpRyR8K0O6oFZPhhB5tT1jeEHZR0Znr9Svg03U0+r9DXWMrnRAB+HtCStDQKlaIZm42tVsVjqtjg==
+
+validator@^13.7.0:
+  version "13.7.0"
+  resolved "https://registry.yarnpkg.com/validator/-/validator-13.7.0.tgz#4f9658ba13ba8f3d82ee881d3516489ea85c0857"
+  integrity sha512-nYXQLCBkpJ8X6ltALua9dRrZDHVYxjJ1wgskNt1lH9fzGjs3tgojGSCBjmEPwkWS1y29+DrizMTW19Pr9uB2nw==
 
 verror@1.10.0:
   version "1.10.0"
