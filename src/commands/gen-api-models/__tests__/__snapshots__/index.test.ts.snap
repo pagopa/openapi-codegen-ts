@@ -817,7 +817,9 @@ import {
   TestParametersAtPathLevelT,
   testParametersAtPathLevelDefaultDecoder,
   TestSimplePatchT,
-  testSimplePatchDefaultDecoder
+  testSimplePatchDefaultDecoder,
+  TestCustomTokenHeaderT,
+  testCustomTokenHeaderDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -837,7 +839,8 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestParameterWithDashAnUnderscoreT> &
   TypeofApiCall<TestWithTwoParamsT> &
   TypeofApiCall<TestParametersAtPathLevelT> &
-  TypeofApiCall<TestSimplePatchT>;
+  TypeofApiCall<TestSimplePatchT> &
+  TypeofApiCall<TestCustomTokenHeaderT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
@@ -850,7 +853,8 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestParameterWithDashAnUnderscoreT> &
   TypeofApiParams<TestWithTwoParamsT> &
   TypeofApiParams<TestParametersAtPathLevelT> &
-  TypeofApiParams<TestSimplePatchT>);
+  TypeofApiParams<TestSimplePatchT> &
+  TypeofApiParams<TestCustomTokenHeaderT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -885,7 +889,8 @@ export type WithDefaultsT<
   | TestParameterWithDashAnUnderscoreT
   | TestWithTwoParamsT
   | TestParametersAtPathLevelT
-  | TestSimplePatchT,
+  | TestSimplePatchT
+  | TestCustomTokenHeaderT,
   K
 >;
 
@@ -926,6 +931,8 @@ export type Client<
       >;
 
       readonly testSimplePatch: TypeofApiCall<TestSimplePatchT>;
+
+      readonly testCustomTokenHeader: TypeofApiCall<TestCustomTokenHeaderT>;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -1009,6 +1016,13 @@ export type Client<
         ReplaceRequestParams<
           TestSimplePatchT,
           Omit<RequestParams<TestSimplePatchT>, K>
+        >
+      >;
+
+      readonly testCustomTokenHeader: TypeofApiCall<
+        ReplaceRequestParams<
+          TestCustomTokenHeaderT,
+          Omit<RequestParams<TestCustomTokenHeaderT>, K>
         >
       >;
     };
@@ -1321,6 +1335,25 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testCustomTokenHeaderT: ReplaceRequestParams<
+    TestCustomTokenHeaderT,
+    RequestParams<TestCustomTokenHeaderT>
+  > = {
+    method: \\"get\\",
+
+    headers: ({ [\\"customToken\\"]: customToken }: { customToken: string }) => ({
+      \\"custom-token\\": customToken
+    }),
+    response_decoder: testCustomTokenHeaderDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-custom-token-header\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testCustomTokenHeader: TypeofApiCall<TestCustomTokenHeaderT> = createFetchRequestForApi(
+    testCustomTokenHeaderT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testSimpleToken: (withDefaults || identity)(testSimpleToken),
@@ -1339,7 +1372,8 @@ export function createClient<K extends ParamKeys>({
     testParametersAtPathLevel: (withDefaults || identity)(
       testParametersAtPathLevel
     ),
-    testSimplePatch: (withDefaults || identity)(testSimplePatch)
+    testSimplePatch: (withDefaults || identity)(testSimplePatch),
+    testCustomTokenHeader: (withDefaults || identity)(testCustomTokenHeader)
   };
 }
 "

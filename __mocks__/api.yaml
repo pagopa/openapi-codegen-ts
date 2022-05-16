@@ -17,6 +17,10 @@ securityDefinitions:
     type: apiKey
     name: X-Functions-Key
     in: header
+  customToken:
+    type: apiKey
+    name: custom-token
+    in: header
 paths:
   /test-auth-bearer:
     get:
@@ -209,7 +213,17 @@ paths:
           description: "Ok"
         "500":
           description: "Fatal error"                            
-
+  /test-custom-token-header:
+    get:
+      operationId: "testCustomTokenHeader"
+      security:
+        - customToken: []
+      parameters: []
+      responses:
+        "200":
+          description: "Will send `Authenticated`"
+        "403":
+          description: "You do not have necessary permissions for the resource"    
 definitions:
   Person:
     $ref: "definitions.yaml#/Person"

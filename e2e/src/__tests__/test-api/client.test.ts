@@ -263,4 +263,18 @@ describeSuite("Http client generated from Test API spec", () => {
     });
     expect(isRight(result)).toBe(true);
   });
+  it("should allow any custom header", async () => {
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+      basePath: ""
+    });
+
+    expect(client.testCustomTokenHeader).toEqual(expect.any(Function));
+
+    const result = await client.testCustomTokenHeader({
+      customToken: "anystring"
+    });
+    expect(isRight(result)).toBe(true);
+  });
 });
