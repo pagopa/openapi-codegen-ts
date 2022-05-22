@@ -119,6 +119,8 @@ const stripQuestionMark = (subject: ReadonlyArray<string> | string) => {
     : subject.map(strip_base);
 };
 
+const splitBy = (value: string, character: string): ReadonlyArray<string> =>
+  value.split(character);
 /**
  * Debug utility for printing a json object within nunjuk templates
  */
@@ -141,6 +143,8 @@ export default createTemplateEnvironment({
     filterByParameterIn,
     filterByParameterNotIn,
     stripQuestionMark,
+    // eslint-disable-next-line sort-keys
+    splitBy,
     // eslint-disable-next-line sort-keys
     jsonToString
   }
