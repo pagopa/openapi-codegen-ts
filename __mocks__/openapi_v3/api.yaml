@@ -1,0 +1,357 @@
+openapi: 3.0.1
+info:
+  title: Test API
+  description: Test API.
+  version: 1.0.0
+servers:
+- url: https://localhost/api/v1
+paths:
+  /test-auth-bearer:
+    get:
+      operationId: testAuthBearer
+      parameters:
+      - name: qo
+        in: query
+        schema:
+          type: string
+      - name: qr
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: cursor
+        in: query
+        description: An opaque identifier that points to the next item in the collection.
+        schema:
+          minimum: 1
+          type: string
+      responses:
+        200:
+          description: Will send `Authenticated`
+        403:
+          description: You do not have necessary permissions for the resource
+      security:
+      - bearerToken: []
+
+  /test-parameter-with-reference:
+    post:
+      operationId: "testParameterWithReference"
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+
+      responses:
+        201:
+          description: "Created"
+        500:
+          description: "Fatal error"   
+
+  /test-parameter-with-body-ref:
+    post:
+      operationId: "testParameterWithReference"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Message"
+
+      responses:
+        201:
+          description: "Created"
+        500:
+          description: "Fatal error"   
+    
+  /test-parameter-with-dash/{path-param}:
+    get:
+      operationId: "testParameterWithDash"
+      parameters:
+        - name: path-param
+          in: path
+          schema: 
+            type: string
+        - name: foo-bar
+          in: query
+          schema:
+            type: string
+        - name: headerInlineParam
+          in: header
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/HeaderParamWithReference"
+      responses:
+        "200":
+          description: "Ok"
+        "500":
+          description: "Fatal error" 
+
+  /test-file-upload:
+    post:
+      operationId: "testFileUpload"
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: "file"
+          in: "formData"
+          required: true
+          schema:
+           type: "file"
+      responses:
+        "200":
+          description: "File uploaded"
+  
+  /test-multiple-success:
+    get:
+      operationId: "testMultipleSuccess"
+      responses:
+        "200":
+          description: "Will return a Message"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "202":
+          description: "Will return just accepted"
+        "403":
+          description: "You do not have necessary permissions for the resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneOfTest"
+        "404":
+          description: "Not found"
+  
+  /test-response-header:
+    get:
+      operationId: "testResponseHeader"
+      responses:
+        "201":
+          description: "Will create a Message"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+          headers:
+            Location:
+              type: string
+            Id:
+              type: string
+        "500":
+          description: "Fatal error"
+
+# -------------
+# Components
+# -------------
+components:
+
+  # -------------
+  # Schemas
+  # -------------
+  schemas:
+
+    SimpleDefinition:
+      title: SimpleDefinition
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+    DefinitionFieldWithDash:
+      type: object
+      properties:
+        id-field:
+          type: string
+    Message:
+      title: Message
+      type: object
+      properties:
+        id:
+          type: string
+        sender_service_id:
+          type: string
+      required:
+        - id
+        - content
+    OneOfTest:
+      description: test if we can use allOf as oneOf
+      oneOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+        - type: object
+          properties:
+            name:
+              type: string
+    AllOfTest:
+      description: test if we can use allOf as oneOf
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+        - type: object
+          properties:
+            name:
+              type: string
+    PreferredLanguage:
+      type: string
+      x-extensible-enum:
+        - it_IT
+        - en_GB
+        - es_ES
+        - de_DE
+        - fr_FR
+      example: it_IT
+    AnObjectWithAnItemsField:
+      description: |-
+        What if a object has a field named items?
+        The case is an object like { items: [] }, which is legal
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+      required:
+        - items
+    AnObjectWithRefImport:
+      title: AnObjectWithRefImport
+      description: Describes an object with a ref import
+      type: object
+      properties:
+        prop1:
+          $ref: "#/components/schemas/SimpleDefinition"
+      required:
+      - prop1
+    WithinRangeStringTest:
+      title: WithinRangeStringTest
+      type: string
+      minLength: 8
+      maxLength: 10
+    NonNegativeNumberTest:
+      title: NonNegativeNumberTest
+      type: number
+      minimum: 0
+    NonNegativeIntegerTest:
+      title: NonNegativeIntegerTest
+      type: integer
+      minimum: 0
+    WithinRangeIntegerTest:
+      title: WithinRangeIntegerTest
+      type: integer
+      minimum: 0
+      maximum: 10
+    WithinRangeNumberTest:
+      title: WithinRangeNumberTest
+      type: number
+      minimum: 0
+      maximum: 10
+    CustomStringFormatTest:
+      type: string
+      x-import: '@pagopa/ts-commons/lib/strings'
+      format: SomeCustomStringType
+    EnumTest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - value1
+            - value2
+            - value3
+    AdditionalPropsTest:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: number
+    AdditionalPropsTrueTest:
+      type: object
+      additionalProperties: true
+    AdditionalpropsDefault:
+      type: object
+      default: { "test": [1000] }
+      additionalProperties:
+        type: array
+        items:
+          type: number
+    InlinePropertyTest:
+      type: object
+      properties:
+        inlineProp:
+          type: string
+          description: The device global unique identifier.
+          pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    NestedObjectTest:
+      type: object
+      properties:
+        nestedObject:
+          type: object
+          properties:
+            inlineProp:
+              type: string
+              description: The device global unique identifier.
+              pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    OrganizationFiscalCode:
+      type: string
+      x-import: '@pagopa/ts-commons/lib/strings'
+      format: OrganizationFiscalCode
+    OrganizationFiscalCodeTest:
+      type: string
+      x-import: '@pagopa/ts-commons/lib/strings'
+      format: OrganizationFiscalCode
+    ListOfDefinitions:
+      description: |-
+          a definition which is a list of other definitions.
+      type: array
+      items:
+        type: object
+        properties:
+          field:
+            type: string
+    ListOfReferences:
+      description: |-
+          a definition which is a list of references to other definitions.
+      type: array
+      items:
+        $ref: "#/components/schemas/Message"
+
+  # -------------
+  # Parameters
+  # -------------
+  parameters:
+    PaginationRequest:
+      name: cursor
+      in: query
+      description: An opaque identifier that points to the next item in the collection.
+      schema:
+        minimum: 1
+        type: string
+    RequestId:
+      name: request-id
+      in: query
+      schema:
+        type: string
+    HeaderParamWithReference:
+      name: x-header-param
+      in: header
+      description: A header param which has dashes in it
+      required: true
+      schema:
+        type: string
+  
+  # -------------
+  # Sec Schemas
+  # -------------
+  securitySchemes:
+    bearerToken:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-auth-scheme: bearer
+    simpleToken:
+      type: apiKey
+      name: X-Functions-Key
+      in: header
