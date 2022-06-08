@@ -224,8 +224,26 @@ paths:
           description: "Ok"
         "500":
           description: "Fatal error"  
-
-
+  /test-simple:
+    patch:
+      operationId: "testSimplePatch"
+      description: simply test of patch endpoint are considered
+      responses:
+        "200":
+          description: "Ok"
+        "500":
+          description: "Fatal error"  
+  /test-custom-token-header:
+    get:
+      operationId: "testCustomTokenHeader"
+      security:
+        - customToken: []
+      parameters: []
+      responses:
+        "200":
+          description: "Will send `Authenticated`"
+        "403":
+          description: "You do not have necessary permissions for the resource"
 # -------------
 # Components
 # -------------
@@ -654,4 +672,8 @@ components:
     simpleToken:
       type: apiKey
       name: X-Functions-Key
+      in: header
+    customToken:
+      type: apiKey
+      name: custom-token
       in: header
