@@ -2,14 +2,14 @@
 import * as fs from "fs-extra";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
-import * as ParseOpenapiV2 from "./parse";
+import { getParser } from "./parse.utils";
 import {
   renderAllOperations,
   renderClientCode,
   renderDefinitionCode,
   renderSpecCode
 } from "./render";
-import { IDefinition, IGenerateApiOptions } from "./types";
+import { IGenerateApiOptions } from "./types";
 
 /**
  * Checks if a parsed spec is in OA2 format
@@ -23,16 +23,8 @@ export function isOpenAPIV2(
   specs: OpenAPI.Document
 ): specs is OpenAPIV2.Document {
   // eslint-disable-next-line no-prototype-builtins
-  return specs.hasOwnProperty("swagger");
+  return "swagger" in specs;
 }
-
-const parsers = {
-  V2: {
-    parseAllOperations: ParseOpenapiV2.parseAllOperations,
-    parseDefinition: ParseOpenapiV2.parseDefinition,
-    parseSpecMeta: ParseOpenapiV2.parseSpecMeta
-  }
-};
 
 /**
  * Wraps file writing to expose a common interface and log consistently
@@ -76,11 +68,7 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
 
   const api = await SwaggerParser.bundle(specFilePath);
 
-  if (!isOpenAPIV2(api)) {
-    throw new Error("The specification is not of type swagger 2");
-  }
-
-  const parser = parsers.V2;
+  const parser = getParser(api);
 
   await fs.ensureDir(definitionsDirPath);
 
@@ -92,23 +80,12 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     );
   }
 
-  const definitions = api.definitions;
-  if (!definitions) {
+  const parsedDefinitions = parser.getAllDefinitions(api);
+  if (Object.keys(parsedDefinitions).length === 0) {
     // eslint-disable-next-line no-console
     console.log("No definitions found, skipping generation of model code.");
     return;
   }
-
-  const parsedDefinitions = Object.keys(definitions).reduce(
-    (prev, definitionName: string) => {
-      // eslint-disable-next-line functional/immutable-data
-      prev[definitionName] = parser.parseDefinition(
-        definitions[definitionName]
-      );
-      return prev;
-    },
-    {} as Record<string, IDefinition>
-  );
 
   await Promise.all(
     Object.keys(parsedDefinitions).map(definitionName =>

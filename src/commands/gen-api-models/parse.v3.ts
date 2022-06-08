@@ -4,7 +4,7 @@
  */
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV3, IJsonSchema } from "openapi-types";
+import { OpenAPI, OpenAPIV3, IJsonSchema } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
@@ -16,6 +16,21 @@ import {
   ISpecMetaInfo,
   SupportedMethod
 } from "./types";
+
+/**
+ * Checks if a parsed spec is in OA2 format
+ *
+ * @param specs a parsed spec
+ *
+ * @returns true or false
+ */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function isOpenAPIV3(
+  specs: OpenAPI.Document
+): specs is OpenAPIV3.Document {
+  // eslint-disable-next-line no-prototype-builtins
+  return "openapi" in specs && specs.openapi.startsWith("3.");
+}
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 function parseInnerDefinition(source: IJsonSchema): IDefinition {
@@ -302,7 +317,17 @@ export const parseOperation = (
 
   const bodyParam: ReadonlyArray<IParameterInfo> =
     ["post", "put"].includes(method) && bodySchema
-      ? isRefObject(bodySchema)
+      ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        "multipart/form-data" in operation?.requestBody?.content
+        ? [
+            {
+              in: "formData",
+              name: `body${bodyRequired ? "" : "?"}`,
+              type: "File"
+            }
+          ]
+        : isRefObject(bodySchema)
         ? ([
             {
               in: "body",
@@ -332,7 +357,7 @@ export const parseOperation = (
 
   const contentTypeHeaders =
     (method === "post" || method === "put") &&
-    Object.keys(operationParams).length > 0
+    Object.keys([...operationParams, ...bodyParam]).length > 0
       ? ["Content-Type"]
       : [];
 
@@ -736,9 +761,6 @@ function specTypeToTs(parameter: OpenAPIV3.ParameterObject): string {
   switch (schema.type) {
     case "integer":
       return "number";
-    // TODO
-    // case "file":
-    //   return `{ "uri": string, "name": string, "type": string }`;
     default:
       return schema.type;
   }
