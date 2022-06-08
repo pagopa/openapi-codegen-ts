@@ -22,7 +22,7 @@ import { EnumTrueTest } from "../../generated/testapiV3/EnumTrueTest";
 
 import * as E from "fp-ts/lib/Either";
 
-const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
+const { generatedFilesDir, isSpecEnabled } = config.specs.testapiV3;
 
 // if there's no need for this suite in this particular run, just skip it
 

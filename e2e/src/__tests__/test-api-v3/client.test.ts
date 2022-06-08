@@ -8,8 +8,9 @@ import { createClient } from "../../generated/testapiV3/client";
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
 
+// Use same config as
 const { skipClient } = config;
-const { generatedFilesDir, mockPort, isSpecEnabled } = config.specs.testapi;
+const { generatedFilesDir, mockPort, isSpecEnabled } = config.specs.testapiV3;
 
 // if there's no need for this suite in this particular run, just skip it
 const describeSuite = skipClient || !isSpecEnabled ? describe.skip : describe;

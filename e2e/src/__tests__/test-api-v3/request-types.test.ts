@@ -8,7 +8,7 @@ import * as E from "fp-ts/lib/Either";
 import * as leaked from "leaked-handles";
 leaked.set({ debugSockets: true });
 
-const { isSpecEnabled } = config.specs.testapi;
+const { isSpecEnabled } = config.specs.testapiV3;
 
 // if there's no need for this suite in this particular run, just skip it
 const describeSuite = isSpecEnabled ? describe : describe.skip;
