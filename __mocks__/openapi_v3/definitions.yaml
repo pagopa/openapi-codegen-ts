@@ -1,0 +1,37 @@
+Person:
+  type: object
+  properties:
+    name:
+      type: string
+      description: |-
+        name of the person
+    address:
+      $ref: "#/Address"
+Address:
+  type: object
+  properties:
+    location:
+      type: string
+    city:
+      type: string
+    zipCode:
+      $ref: "#/ZipCode"
+ZipCode:
+  type: string
+  pattern: '^\d{5}$'
+Author:
+  type: object
+  properties:
+    isDead:
+      type: boolean
+    info:
+      $ref: "#/Person"
+Book:
+  type: object
+  properties:
+    title:
+      type: string
+      description: |-
+        title of the book
+    author:
+      $ref: "#/Author"

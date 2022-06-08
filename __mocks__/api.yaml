@@ -126,7 +126,21 @@ paths:
     post:
       operationId: "testParameterWithReference"
       parameters:
-        - name: createdMessage
+        - name: request-id
+          in: query
+          schema:
+            $ref: "#/parameters/RequestId"
+      responses:
+        "201":
+          description: "Created"
+        "500":
+          description: "Fatal error"   
+
+  /test-parameter-with-body-ref:
+    post:
+      operationId: "testParameterWithBodyReference"
+      parameters:
+        - name: body
           in: body
           schema:
             $ref: "#/definitions/Message"
@@ -135,6 +149,7 @@ paths:
           description: "Created"
         "500":
           description: "Fatal error"   
+          
   /test-parameter-with-dash/{path-param}:
     get:
       operationId: "testParameterWithDash"

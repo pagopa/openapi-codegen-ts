@@ -32,22 +32,110 @@ paths:
           description: You do not have necessary permissions for the resource
       security:
       - bearerToken: []
-
+  /test-simple-token:
+    get:
+      operationId: "testSimpleToken"
+      security:
+        - simpleToken: []
+      parameters:
+        - name: "qo"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+        - name: "qr"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+        - $ref: "#/components/parameters/PaginationRequest"
+      responses:
+        "200":
+          description: "Will send `Authenticated`"
+        "403":
+          description: "You do not have necessary permissions for the resource"      
+  /test-multiple-success:
+    get:
+      operationId: "testMultipleSuccess"
+      responses:
+        "200":
+          description: "Will return a Message"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "202":
+          description: "Will return just accepted"
+        "403":
+          description: "You do not have necessary permissions for the resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneOfTest"
+        "404":
+          description: "Not found"
+  /test-file-upload:
+    post:
+      operationId: "testFileUpload"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: "File uploaded"
+  /test-binary-file-upload:
+    post:
+      operationId: "testBinaryFileUpload"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: "File uploaded"
+  /test-response-header:
+    get:
+      operationId: "testResponseHeader"
+      responses:
+        "201":
+          description: "Will create a Message"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+          headers:
+            Location:
+              type: string
+            Id:
+              type: string
+        "500":
+          description: "Fatal error"
   /test-parameter-with-reference:
     post:
       operationId: "testParameterWithReference"
       parameters:
         - $ref: "#/components/parameters/RequestId"
-
       responses:
         201:
           description: "Created"
         500:
           description: "Fatal error"   
-
   /test-parameter-with-body-ref:
     post:
-      operationId: "testParameterWithReference"
+      operationId: "testParameterWithBodyReference"
       requestBody:
         content:
           application/json:
@@ -59,7 +147,6 @@ paths:
           description: "Created"
         500:
           description: "Fatal error"   
-    
   /test-parameter-with-dash/{path-param}:
     get:
       operationId: "testParameterWithDash"
@@ -84,60 +171,60 @@ paths:
           description: "Ok"
         "500":
           description: "Fatal error" 
-
-  /test-file-upload:
-    post:
-      operationId: "testFileUpload"
-      consumes:
-        - multipart/form-data
+  /test-parameter-with-dash-and_underscore/{path-param}:
+    get:
+      operationId: "testParameterWithDashAnUnderscore"
       parameters:
-        - name: "file"
-          in: "formData"
-          required: true
+        - name: path-param
+          in: path
           schema:
-           type: "file"
+            type: string
+        - name: foo_bar
+          in: query
+          schema:
+            type: string
+        - name: headerInlineParam
+          in: header
+          schema:
+            type: string
+          required: true
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/HeaderParamWithReference"
       responses:
         "200":
-          description: "File uploaded"
-  
-  /test-multiple-success:
-    get:
-      operationId: "testMultipleSuccess"
-      responses:
-        "200":
-          description: "Will return a Message"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Message"
-        "202":
-          description: "Will return just accepted"
-        "403":
-          description: "You do not have necessary permissions for the resource"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OneOfTest"
-        "404":
-          description: "Not found"
-  
-  /test-response-header:
-    get:
-      operationId: "testResponseHeader"
-      responses:
-        "201":
-          description: "Will create a Message"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Message"
-          headers:
-            Location:
-              type: string
-            Id:
-              type: string
+          description: "Ok"
         "500":
-          description: "Fatal error"
+          description: "Fatal error"    
+  /test-two-path-params/{first-param}/{second-param}:
+    get:
+      operationId: "testWithTwoParams"
+      parameters:
+        - name: first-param
+          in: path
+          schema:
+            type: string
+        - name: second-param
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Ok"
+        "500":
+          description: "Fatal error" 
+  /test-path-level-parameter:
+    parameters:
+      - $ref: "#/components/parameters/RequiredRequestId"
+      - $ref: "#/components/parameters/PaginationRequest"
+    get:
+      operationId: "testParametersAtPathLevel"
+      description: when we declare parameters at path level
+      responses:
+        "200":
+          description: "Ok"
+        "500":
+          description: "Fatal error"  
+
 
 # -------------
 # Components
@@ -149,6 +236,66 @@ components:
   # -------------
   schemas:
 
+    Person:
+      $ref: "definitions.yaml#/Person"
+    Book:
+      $ref: "definitions.yaml#/Book"
+
+    FiscalCode:   
+      type: string
+      description: User's fiscal code.
+      pattern: "^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$"
+      example: SPNDNL80R13C555X
+    EmailAddress:
+      type: string
+      format: email
+      example: foobar@example.com
+    IsInboxEnabled:
+      type: boolean
+      default: false
+      description: True if the recipient of a message wants to store its content for
+        later retrieval.
+    IsWebhookEnabled:
+      type: boolean
+      default: false
+      description: True if the recipient of a message wants to forward the notifications to the default webhook.
+    Profile:
+      title: Profile
+      description: Describes the user's profile.
+      type: object
+      properties:
+        email:
+          $ref: "#/components/schemas/EmailAddress"
+        family_name:
+          type: string
+        fiscal_code:
+          $ref: "#/components/schemas/FiscalCode"
+        has_profile:
+          type: boolean
+        is_email_set:
+          type: boolean
+        is_inbox_enabled:
+          $ref: "#/components/schemas/IsInboxEnabled"
+        is_webhook_enabled:
+          $ref: "#/components/schemas/IsWebhookEnabled"
+        name:
+          type: string
+        preferred_email:
+          $ref: "#/components/schemas/EmailAddress"
+        preferred_languages:
+          $ref: "#/components/schemas/PreferredLanguages"
+        version:
+          type: integer
+        payload:
+          type: object
+          properties: {}
+      required:
+        - fiscal_code
+        - family_name
+        - has_profile
+        - is_email_set
+        - name
+        - version
     SimpleDefinition:
       title: SimpleDefinition
       type: object
@@ -162,39 +309,85 @@ components:
       properties:
         id-field:
           type: string
+    MessageSubject:
+      type: string
+      description: |-
+        The (optional) subject of the message - note that only some notification
+        channels support the display of a subject. When a subject is not provided,
+        one gets generated from the client attributes.
+      minLength: 10
+      maxLength: 120
+      example: Welcome new user !
+    MessageBodyMarkdown:
+      type: string
+      description: |-
+        The full version of the message, in plain text or Markdown format. The
+        content of this field will be delivered to channels that don't have any
+        limit in terms of content size (e.g. email, etc...).
+      minLength: 80
+      maxLength: 10000
+      example: |-
+        # This is a markdown header
+
+        to show how easily markdown can be converted to **HTML**
+
+        Remember: this has to be a long text.
+    MessageContent:
+      type: object
+      properties:
+        subject:
+          $ref: "#/components/schemas/MessageSubject"
+        markdown:
+          $ref: "#/components/schemas/MessageBodyMarkdown"
+      required:
+        - markdown
     Message:
       title: Message
       type: object
       properties:
         id:
           type: string
+        content:
+          $ref: "#/components/schemas/MessageContent"
         sender_service_id:
           type: string
       required:
         - id
         - content
+    PaginationResponse:
+      type: object
+      description: Pagination response parameters.
+      properties:
+        page_size:
+          type: integer
+          minimum: 1
+          description: Number of items returned for each page.
+          example: 2
+        next:
+          type: string
+          description: 'Contains an URL to GET the next #<page_size> results in the
+            retrieved collection of items.'
+          format: uri
+          example: https://example.com/?p=0XXX2
     OneOfTest:
-      description: test if we can use allOf as oneOf
       oneOf:
         - type: object
           properties:
-            id:
-              type: integer
+            limited:
+              type: boolean
         - type: object
           properties:
-            name:
-              type: string
+            unlimited:
+              type: boolean
     AllOfTest:
-      description: test if we can use allOf as oneOf
       allOf:
         - type: object
           properties:
-            id:
-              type: integer
-        - type: object
-          properties:
-            name:
-              type: string
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Message"
+        - $ref: "#/components/schemas/PaginationResponse"
     PreferredLanguage:
       type: string
       x-extensible-enum:
@@ -204,6 +397,15 @@ components:
         - de_DE
         - fr_FR
       example: it_IT
+    PreferredLanguages:
+      type: array
+      items:
+        $ref: "#/components/schemas/PreferredLanguage"
+      description: Indicates the User's preferred written or spoken languages in order
+        of preference. Generally used for selecting a localized User interface. Valid
+        values are concatenation of the ISO 639-1 two letter language code, an underscore,
+        and the ISO 3166-1 2 letter country code; e.g., 'en_US' specifies the language
+        English and country US.
     AnObjectWithAnItemsField:
       description: |-
         What if a object has a field named items?
@@ -213,7 +415,7 @@ components:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/Message"
+            $ref: "#/components/schemas/DefinitionFieldWithDash"
       required:
         - items
     AnObjectWithRefImport:
@@ -248,6 +450,44 @@ components:
       type: number
       minimum: 0
       maximum: 10
+    WithinRangeExclusiveMaximumIntegerTest:
+      title: WithinRangeExclusiveMaximumIntegerTest
+      type: integer
+      minimum: 0
+      maximum: 10
+      exclusiveMaximum: true
+    WithinRangeExclusiveMinimumIntegerTest:
+      title: WithinRangeExclusiveMinimumIntegerTest
+      type: integer
+      minimum: 0
+      exclusiveMinimum: true
+      maximum: 10
+    WithinRangeExclusiveMinimumNumberTest:
+      title: WithinRangeExclusiveMinimumNumberTest
+      type: number
+      minimum: 0
+      exclusiveMinimum: true
+      maximum: 10
+    WithinRangeExclusiveMinMaxIntegerTest:
+      title: WithinRangeExclusiveMinMaxIntegerTest
+      type: number
+      minimum: 0
+      exclusiveMinimum: true
+      maximum: 10
+      exclusiveMaximum: true
+    WithinRangeExclusiveMinMaxNumberTest:
+      title: WithinRangeExclusiveMinMaxNumberTest
+      type: number
+      minimum: 0
+      exclusiveMinimum: true
+      maximum: 10
+      exclusiveMaximum: true
+    WithinRangeExclusiveMaximumNumberTest:
+      title: WithinRangeExclusiveMaximumNumberTest
+      type: number
+      minimum: 0
+      maximum: 10
+      exclusiveMaximum: true      
     CustomStringFormatTest:
       type: string
       x-import: '@pagopa/ts-commons/lib/strings'
@@ -287,6 +527,10 @@ components:
     NestedObjectTest:
       type: object
       properties:
+        inlineProp:
+          type: string
+          description: The device global unique identifier.
+          pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
         nestedObject:
           type: object
           properties:
@@ -316,7 +560,57 @@ components:
           a definition which is a list of references to other definitions.
       type: array
       items:
-        $ref: "#/components/schemas/Message"
+        $ref: "#/components/schemas/DefinitionFieldWithDash"
+
+  
+    EnabledUserTest:
+      type: object
+      properties:
+        description:
+          type: string   
+        enabled:
+          type: boolean
+          enum:
+            - true
+        username:
+          type: string
+      required:
+        - enabled 
+        - description
+        - username
+    DisabledUserTest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          enum:
+            - false
+        reason:
+          type: string    
+        username:
+          type: string
+      required:
+        - enabled
+        - reason 
+        - username 
+    DisjointUnionsUserTest: 
+      oneOf:
+        - $ref: "#/components/schemas/EnabledUserTest"
+        - $ref: "#/components/schemas/DisabledUserTest"
+    EnumTrueTest:
+      type: object
+      properties:
+        flag:
+          type: boolean
+          enum:
+            - true
+    EnumFalseTest:
+      type: object
+      properties:
+        flag:
+          type: boolean
+          enum:
+            - false
 
   # -------------
   # Parameters
@@ -332,6 +626,12 @@ components:
     RequestId:
       name: request-id
       in: query
+      schema:
+        type: string
+    RequiredRequestId:
+      name: request-id
+      in: query
+      required: true
       schema:
         type: string
     HeaderParamWithReference:

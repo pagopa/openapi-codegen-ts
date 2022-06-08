@@ -43,6 +43,12 @@ export default {
       isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "testapi"),
       mockPort: 4101,
       url: `${ROOT_DIRECTORY_FOR_E2E}/../__mocks__/api.yaml`
+    },
+    testapiV3: {
+      generatedFilesDir: `${GENERATED_BASE_DIR}/testapiV3`,
+      isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "testapiV3"),
+      mockPort: 4103,
+      url: `${ROOT_DIRECTORY_FOR_E2E}/../__mocks__/openapi_v3/api.yaml`
     }
   }
 };
