@@ -99,7 +99,7 @@ describe("Profile defintion", () => {
   });
 });
 
-describe("WithinRangeIntegerTest defintion", () => {
+describe("WithinRangeIntegerTest definition", () => {
   // WithinRangeIntegerTest is defined min=0 max=10 in the spec
   it.each`
     value        | expected
@@ -121,7 +121,7 @@ describe("WithinRangeIntegerTest defintion", () => {
   );
 });
 
-describe("WithinRangeNumberTest defintion", () => {
+describe("WithinRangeNumberTest definition", () => {
   // WithinRangeNumberTest is defined min=0 max=10 in the spec
   it.each`
     value        | expected
