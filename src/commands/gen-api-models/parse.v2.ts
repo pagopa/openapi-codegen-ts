@@ -3,7 +3,7 @@
  */
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2, IJsonSchema } from "openapi-types";
+import { OpenAPIV2, IJsonSchema, OpenAPI } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
@@ -15,6 +15,21 @@ import {
   ISpecMetaInfo,
   SupportedMethod
 } from "./types";
+
+/**
+ * Checks if a parsed spec is in OA2 format
+ *
+ * @param specs a parsed spec
+ *
+ * @returns true or false
+ */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function isOpenAPIV2(
+  specs: OpenAPI.Document
+): specs is OpenAPIV2.Document {
+  // eslint-disable-next-line no-prototype-builtins
+  return "swagger" in specs;
+}
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 function parseInnerDefinition(source: IJsonSchema): IDefinition {
