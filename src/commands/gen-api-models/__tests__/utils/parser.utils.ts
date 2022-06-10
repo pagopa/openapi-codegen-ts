@@ -1,8 +1,7 @@
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 
-import { isOpenAPIV2 } from "..";
-import * as ParseOpenapiV2 from "../parse";
-import * as ParseOpenapiV3 from "../parse.v3";
+import * as ParseOpenapiV2 from "../../parse.v2";
+import * as ParseOpenapiV3 from "../../parse.v3";
 
 const parserV2 = {
   getAuthHeaders: ParseOpenapiV2.getAuthHeaders,
@@ -19,10 +18,13 @@ const parserV3 = {
   parseSpecMeta: ParseOpenapiV3.parseSpecMeta
 };
 
+// TODO:
+// Use ../parse.utils.ts getParser instead
+
 export const getParser = <D extends OpenAPIV2.Document | OpenAPIV3.Document>(
   spec: D
 ): D extends OpenAPIV2.Document ? typeof parserV2 : typeof parserV3 =>
-  isOpenAPIV2(spec)
+  ParseOpenapiV2.isOpenAPIV2(spec)
     ? <D extends OpenAPIV2.Document ? typeof parserV2 : typeof parserV3>parserV2
     : <D extends OpenAPIV2.Document ? typeof parserV2 : typeof parserV3>(
         parserV3
@@ -33,7 +35,7 @@ export const getDefinitionOrFail = (
   spec: OpenAPIV2.Document | OpenAPIV3.Document,
   definitionName: string
 ) => {
-  const definition = isOpenAPIV2(spec)
+  const definition = ParseOpenapiV2.isOpenAPIV2(spec)
     ? spec.definitions?.[definitionName]
     : spec.components?.schemas?.[definitionName];
   if (typeof definition === "undefined") {

@@ -69,8 +69,7 @@
       "js"
     ],
     "testMatch": [
-      "**/__tests__/*.test.ts",
-      "**/__tests__/*.tests.ts"
+      "**/__tests__/*.ts"
     ]
   },
   "publishConfig": {
