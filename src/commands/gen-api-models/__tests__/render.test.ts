@@ -4,7 +4,7 @@ import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
 import { renderDefinitionCode } from "../render";
-import { getDefinitionOrFail, getParser } from "./_parser.utils";
+import { getDefinitionOrFail, getParser } from "./utils/parser.utils";
 
 let spec: OpenAPIV2.Document;
 

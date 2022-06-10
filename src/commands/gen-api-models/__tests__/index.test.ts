@@ -2,7 +2,7 @@
 
 import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
-import { isOpenAPIV2 } from "..";
+import { isOpenAPIV2 } from "../parse.v2";
 
 import {
   renderClientCode,
@@ -12,7 +12,7 @@ import {
 } from "../render";
 import { ISpecMetaInfo } from "../types";
 
-import { getDefinitionOrFail, getParser } from "./_parser.utils";
+import { getDefinitionOrFail, getParser } from "./utils/parser.utils";
 
 let spec: OpenAPIV2.Document | OpenAPIV3.Document;
 
