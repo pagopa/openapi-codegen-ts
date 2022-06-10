@@ -1,8 +1,9 @@
 // eslint-disable no-console
 import * as fs from "fs-extra";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import * as E from "fp-ts/Either";
 import * as SwaggerParser from "swagger-parser";
-import { parseAllOperations, parseDefinition, parseSpecMeta } from "./parse";
+
+import { getParser } from "./parse.utils";
 import {
   renderAllOperations,
   renderClientCode,
@@ -10,21 +11,6 @@ import {
   renderSpecCode
 } from "./render";
 import { IGenerateApiOptions } from "./types";
-
-/**
- * Checks if a parsed spec is in OA2 format
- *
- * @param specs a parsed spec
- *
- * @returns true or false
- */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function isOpenAPIV2(
-  specs: OpenAPI.Document
-): specs is OpenAPIV2.Document {
-  // eslint-disable-next-line no-prototype-builtins
-  return specs.hasOwnProperty("swagger");
-}
 
 /**
  * Wraps file writing to expose a common interface and log consistently
@@ -68,9 +54,13 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
 
   const api = await SwaggerParser.bundle(specFilePath);
 
-  if (!isOpenAPIV2(api)) {
-    throw new Error("The specification is not of type swagger 2");
+  const maybeParser = getParser(api);
+
+  if (E.isLeft(maybeParser)) {
+    throw maybeParser.left;
   }
+
+  const parser = maybeParser.right;
 
   await fs.ensureDir(definitionsDirPath);
 
@@ -82,18 +72,18 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
     );
   }
 
-  const definitions = api.definitions;
-  if (!definitions) {
+  const parsedDefinitions = parser.getAllDefinitions(api);
+  if (Object.keys(parsedDefinitions).length === 0) {
     // eslint-disable-next-line no-console
     console.log("No definitions found, skipping generation of model code.");
     return;
   }
 
   await Promise.all(
-    Object.keys(definitions).map((definitionName: string) =>
+    Object.keys(parsedDefinitions).map(definitionName =>
       renderDefinitionCode(
         definitionName,
-        parseDefinition(definitions[definitionName]),
+        parsedDefinitions[definitionName],
         strictInterfaces,
         camelCasedPropNames
       ).then((code: string) =>
@@ -109,8 +99,8 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
   const needToParseOperations = generateClient || generateRequestTypes;
 
   if (needToParseOperations) {
-    const specMeta = parseSpecMeta(api);
-    const allOperationInfos = parseAllOperations(
+    const specMeta = parser.parseSpecMeta(api);
+    const allOperationInfos = parser.parseAllOperations(
       api,
       defaultSuccessType,
       defaultErrorType

@@ -6,7 +6,7 @@
  */
 
 import { ITuple3, Tuple2 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2 } from "openapi-types";
+import { OpenAPI } from "openapi-types";
 import * as prettier from "prettier";
 import {
   capitalize,
@@ -25,7 +25,7 @@ const { render } = templateEnvironment;
  * @param spec the original api specification
  */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions, @typescript-eslint/explicit-function-return-type
-export function renderSpecCode(spec: OpenAPIV2.Document) {
+export function renderSpecCode(spec: OpenAPI.Document) {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return formatCode(`
   /* eslint-disable sort-keys */

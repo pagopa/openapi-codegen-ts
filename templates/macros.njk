@@ -213,7 +213,7 @@
  # defines a $ref property
  #}
 {% macro defineRef(definitionName, definition, inline = false) -%}
-  {% set typedef %}{{ definitionName | replace("#/definitions/", "") }}{% endset %}
+  {% set typedef %}{{ definitionName | splitBy("/") | last }}{% endset %}
   {{ defineConst(definition.default, typedef, typedef, false, inline) }}
 {% endmacro %}
 
@@ -231,7 +231,7 @@
 {% macro defineArray(definitionName, definition, inline = false) -%}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% if definition.items.$ref %}
-    {%- set realPropName = definition.items.$ref | replace("#/definitions/", "") -%}
+    {%- set realPropName = definition.items.$ref | splitBy("/") | last -%}
     {{ importLocalProp(realPropName) }}
     {% set typedef %}t.readonlyArray({{ realPropName }}, "array of {{ realPropName }}"){% endset %}
   {% else %}
@@ -278,18 +278,18 @@
   {% set defaultFound = 0 %}
   {% for propName, prop in definition.properties -%}{%
     if prop.$ref -%}{%-
-      set realPropName = prop.$ref | replace("#/definitions/", "") -%}
+      set realPropName = prop.$ref | splitBy("/") | last -%}
       {{ importLocalProp(realPropName) }}{%
     elif prop.items.$ref -%}{%-
-      set realPropName = prop.items.$ref | replace("#/definitions/", "") -%}
+      set realPropName = prop.items.$ref | splitBy("/") | last -%}
       {{ importLocalProp(realPropName) }}{%
     endif %}{%
   endfor %}
   {% if definition.additionalProperties.$ref -%}{%-
-      set realPropName = definition.additionalProperties.$ref | replace("#/definitions/", "") -%}
+      set realPropName = definition.additionalProperties.$ref | splitBy("/") | last -%}
       {{ importLocalProp(realPropName) }}{%
     elif definition.additionalProperties.items.$ref -%}{%-
-      set realPropName = definition.additionalProperties.items.$ref | replace("#/definitions/", "") -%}
+      set realPropName = definition.additionalProperties.items.$ref | splitBy("/") | last -%}
       {{ importLocalProp(realPropName) }}{%
   endif %}
   {% for propName, prop in definition.properties -%}
@@ -370,7 +370,7 @@
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
+        {%- set realPropName = schema.$ref | splitBy("/") | last -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -381,7 +381,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace("#/definitions/", "") }},
+            {{ schema.$ref | splitBy("/") | last }},
           {% endif %}
         {% endfor %}
       ],
@@ -399,7 +399,7 @@
       {% if schema.type == "object" %}
         {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
       {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | replace("#/definitions/", "") -%}
+        {%- set realPropName = schema.$ref | splitBy("/") | last -%}
         {{ importLocalProp(realPropName) }}
       {% endif %}
     {% endfor %}
@@ -410,7 +410,7 @@
           {% if schema.type == "object" %}
             {{ definitionName + loop.index }},
           {% elif schema.$ref %}
-            {{ schema.$ref | replace("#/definitions/", "") }},
+            {{ schema.$ref | splitBy("/") | last }},
           {% endif %}
         {% endfor %}
       ],

@@ -3,7 +3,7 @@
  */
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
-import { OpenAPIV2, IJsonSchema } from "openapi-types";
+import { OpenAPIV2, IJsonSchema, OpenAPI } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
@@ -15,6 +15,21 @@ import {
   ISpecMetaInfo,
   SupportedMethod
 } from "./types";
+
+/**
+ * Checks if a parsed spec is in OA2 format
+ *
+ * @param specs a parsed spec
+ *
+ * @returns true or false
+ */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function isOpenAPIV2(
+  specs: OpenAPI.Document
+): specs is OpenAPIV2.Document {
+  // eslint-disable-next-line no-prototype-builtins
+  return "swagger" in specs;
+}
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 function parseInnerDefinition(source: IJsonSchema): IDefinition {
@@ -174,6 +189,17 @@ export function parseAllOperations(
     .reduce((flatten, elems) => flatten.concat(elems), []);
 }
 
+const isRefObject = (
+  obj:
+    | OpenAPIV2.ReferenceObject
+    | OpenAPIV2.Parameter
+    | OpenAPIV2.ParameterObject
+    | OpenAPIV2.Response
+    | OpenAPIV2.Schema
+): obj is OpenAPIV2.ReferenceObject =>
+  // eslint-disable-next-line no-prototype-builtins
+  obj?.hasOwnProperty("$ref");
+
 /**
  * It extracts global parameters from a path definition. Parameters in body, path, query and form are of type IParameterInfo, while header parameters are of type IHeaderParameterInfo
  *
@@ -186,35 +212,23 @@ export function parseAllOperations(
 const parseExtraParameters = (
   apiSpec: OpenAPIV2.Document,
   operationPath: string,
-  pathSpec: OpenAPIV2.PathsObject
+  pathSpec: OpenAPIV2.PathItemObject
 ): ReadonlyArray<IParameterInfo | IHeaderParameterInfo> =>
   typeof pathSpec.parameters !== "undefined"
-    ? pathSpec.parameters.reduce(
-        (
-          prev: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
-          param: {
-            readonly name: string;
-            readonly type: string | undefined;
-            readonly required: boolean;
-            readonly in: string;
-            readonly $ref: string | undefined;
-          }
-        ) => {
-          if (param?.type) {
-            // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            return [...prev, parseInlineParam(param)];
-          } else if (param?.$ref) {
-            return [
-              ...prev,
-              // eslint-disable-next-line @typescript-eslint/no-use-before-define
-              parseParamWithReference(apiSpec.parameters, operationPath, param)
-            ];
-          }
-
-          return prev;
-        },
-        []
-      )
+    ? pathSpec.parameters.reduce((prev, param) => {
+        if (isRefObject(param) || isRefObject(param.schema)) {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          const params = parseParamWithReference(
+            apiSpec.parameters,
+            operationPath,
+            param
+          );
+          return params ? [...prev, params] : [...prev];
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          return [...prev, parseInlineParam(param)];
+        }
+      }, [] as ReadonlyArray<IParameterInfo | IHeaderParameterInfo>)
     : [];
 
 /**
@@ -239,10 +253,10 @@ export const parseOperation = (
   // eslint-disable-next-line complexity, sonarjs/cognitive-complexity
 ) => (operationKey: string): IOperationInfo | undefined => {
   const { parameters: specParameters, securityDefinitions } = api;
-  const pathSpec: OpenAPIV2.PathsObject = api.paths[path];
+  const pathSpec: OpenAPIV2.PathItemObject = api.paths[path];
 
   const method = operationKey.toLowerCase() as SupportedMethod;
-  const operation: OpenAPIV2.OperationObject =
+  const operation =
     method === "get"
       ? pathSpec.get
       : method === "post"
@@ -304,9 +318,17 @@ export const parseOperation = (
   const headers = [...contentTypeHeaders, ...authHeaders, ...extraHeaders];
 
   const responses = Object.keys(operation.responses).map(responseStatus => {
-    const response = operation.responses[responseStatus];
-    const typeRef = response.schema ? response.schema.$ref : undefined;
-    const responseHeaders = Object.keys(response.headers || {});
+    // We are reading responseStatus from operation.responses keys, so it will never be null
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const response: OpenAPIV2.Response = operation.responses[responseStatus]!;
+    const typeRef = isRefObject(response)
+      ? response.$ref
+      : response.schema !== undefined && isRefObject(response.schema)
+      ? response.schema.$ref
+      : undefined;
+    const responseHeaders = Object.keys(
+      !isRefObject(response) ? response.headers || {} : {}
+    );
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     const parsedRef = typeRef ? typeFromRef(typeRef) : undefined;
     if (parsedRef !== undefined) {
@@ -413,15 +435,21 @@ const parseInlineParam = (
 const parseParamWithReference = (
   specParameters: OpenAPIV2.ParametersDefinitionsObject | undefined,
   operationId: string,
-  param: OpenAPIV2.ParameterObject
+  param: OpenAPIV2.ReferenceObject | OpenAPIV2.ParameterObject
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 ): IParameterInfo | undefined => {
-  const refInParam: string | undefined =
-    param.$ref || (param.schema ? param.schema.$ref : undefined);
+  const refInParam: string | undefined = isRefObject(param)
+    ? param.$ref
+    : isRefObject(param.schema)
+    ? param.schema.$ref
+    : undefined;
 
   if (refInParam === undefined) {
     // eslint-disable-next-line no-console
     console.warn(
-      `Skipping param without ref in operation [${operationId}] [${param.name}]`
+      `Skipping param without ref in operation [${operationId}] [${
+        isRefObject(param) ? "(ref parameter)" : param.name
+      }]`
     );
     return undefined;
   }
@@ -453,24 +481,27 @@ const parseParamWithReference = (
     return undefined;
   }
 
-  const isParamRequired =
-    refType === "definition"
-      ? param.required === true
-      : specParameters
+  const isParamRequired = isRefObject(param)
+    ? specParameters
       ? specParameters[parsedRef.e2].required
-      : false;
+      : false
+    : param.required === true;
 
   const paramName = uncapitalize(
     // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-    specParameters && specParameters[parsedRef.e2]
-      ? specParameters[parsedRef.e2].name
+    isRefObject(param)
+      ? specParameters?.[parsedRef.e2]
+        ? specParameters[parsedRef.e2].name
+        : ""
       : param.name
   );
 
   const paramIn =
     // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-    specParameters && specParameters[parsedRef.e2]
-      ? specParameters[parsedRef.e2].in
+    isRefObject(param)
+      ? specParameters?.[parsedRef.e2]
+        ? specParameters[parsedRef.e2].in
+        : ""
       : param.in;
 
   return {

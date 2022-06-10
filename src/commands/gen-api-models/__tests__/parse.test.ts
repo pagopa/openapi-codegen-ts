@@ -1,19 +1,24 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 
-import { OpenAPIV2 } from "openapi-types";
+import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
+import { isOpenAPIV2 } from "../parse.v2";
 
-import { getAuthHeaders, parseDefinition, parseOperation } from "../parse";
+import { getDefinitionOrFail, getParser } from "./utils/parser.utils";
 
-let spec: OpenAPIV2.Document;
-beforeAll(
-  async () =>
-    (spec = (await SwaggerParser.bundle(
-      `${process.cwd()}/__mocks__/api.yaml`
-    )) as OpenAPIV2.Document)
-);
+let spec: OpenAPIV2.Document | OpenAPIV3.Document;
 
-describe("getAuthHeaders", () => {
+describe.each`
+  version | specPath
+  ${2}    | ${`${process.cwd()}/__mocks__/api.yaml`}
+  ${3}    | ${`${process.cwd()}/__mocks__/openapi_v3/api.yaml`}
+`("Openapi V$version |> getAuthHeaders", ({ version, specPath }) => {
+  beforeAll(async () => {
+    spec = (await SwaggerParser.bundle(specPath)) as
+      | OpenAPIV2.Document
+      | OpenAPIV3.Document;
+  });
+
   it("should parse a security definition with bearer token", () => {
     // basically, this tell which security defintion we select
     const security = [
@@ -21,7 +26,12 @@ describe("getAuthHeaders", () => {
         bearerToken: []
       }
     ];
-    const parsed = getAuthHeaders(spec.securityDefinitions, security);
+    const parsed = isOpenAPIV2(spec)
+      ? getParser(spec).getAuthHeaders(spec.securityDefinitions, security)
+      : getParser(spec).getAuthHeaders(
+          spec?.components?.securitySchemes,
+          security
+        );
 
     expect(parsed).toEqual([
       expect.objectContaining({
@@ -42,7 +52,12 @@ describe("getAuthHeaders", () => {
         simpleToken: []
       }
     ];
-    const parsed = getAuthHeaders(spec.securityDefinitions, security);
+    const parsed = isOpenAPIV2(spec)
+      ? getParser(spec).getAuthHeaders(spec.securityDefinitions, security)
+      : getParser(spec).getAuthHeaders(
+          spec?.components?.securitySchemes,
+          security
+        );
 
     expect(parsed).toEqual([
       expect.objectContaining({
@@ -56,9 +71,21 @@ describe("getAuthHeaders", () => {
     ]);
   });
 });
-describe("parseOperation", () => {
+
+describe.each`
+  version | specPath
+  ${2}    | ${`${process.cwd()}/__mocks__/api.yaml`}
+  ${3}    | ${`${process.cwd()}/__mocks__/openapi_v3/api.yaml`}
+`("Openapi V$version |> parseOperation", ({ specPath }) => {
+  beforeAll(async () => {
+    spec = (await SwaggerParser.bundle(specPath)) as
+      | OpenAPIV2.Document
+      | OpenAPIV3.Document;
+  });
+
   it("should parse an operation with external parameter", () => {
-    const parsed = parseOperation(
+    const parsed = getParser(spec).parseOperation(
+      // @ts-ignore
       spec,
       "/test-auth-bearer",
       [],
@@ -81,7 +108,8 @@ describe("parseOperation", () => {
   });
 
   it("should parse an operation which parameter has schema reference", () => {
-    const parsed = parseOperation(
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
       spec,
       "/test-parameter-with-reference",
       [],
@@ -94,14 +122,40 @@ describe("parseOperation", () => {
         method: "post",
         path: "/test-parameter-with-reference",
         parameters: expect.arrayContaining([
-          { name: "createdMessage?", in: "body", type: "Message" }
+          { name: "request-id?", in: "query", type: "string" }
+        ])
+      })
+    );
+  });
+
+  it("should parse an operation with body as ref", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/test-parameter-with-body-ref",
+      [],
+      "undefined",
+      "undefined"
+    )("post");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "post",
+        path: "/test-parameter-with-body-ref",
+        parameters: expect.arrayContaining([
+          {
+            name: "body?",
+            in: "body",
+            type: "Message"
+          }
         ])
       })
     );
   });
 
   it("should parse an operation with header parameters", () => {
-    const parsed = parseOperation(
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
       spec,
       "/test-parameter-with-dash/{path-param}",
       [],
@@ -129,23 +183,26 @@ describe("parseOperation", () => {
   });
 });
 
-// util to ensure a defintion is defined
-const getDefinitionOrFail = (
-  spec: OpenAPIV2.Document,
-  definitionName: string
-) => {
-  const definition = spec.definitions?.[definitionName];
-  if (typeof definition === "undefined") {
-    fail(`Unable to find definition ${definitionName}`);
-  }
-  return definition;
-};
+describe.each`
+  version | specPath
+  ${2}    | ${`${process.cwd()}/__mocks__/api.yaml`}
+  ${3}    | ${`${process.cwd()}/__mocks__/openapi_v3/api.yaml`}
+`("Openapi V$version |> parseDefinition", ({ version, specPath }) => {
+  beforeAll(async () => {
+    spec = (await SwaggerParser.bundle(specPath)) as
+      | OpenAPIV2.Document
+      | OpenAPIV3.Document;
+  });
 
-describe("parseDefinition", () => {
-  it("should parse a definition with allOf and x-one-of", () => {
-    const definition = getDefinitionOrFail(spec, "AllOfOneOfTest");
+  it("should parse a oneOf definition (allOf and x-one-of for V2)", () => {
+    // since oneOf does not exist in V2, we faked it using custom "x-one-of: true" property over allOf
+    const definitionName = version === 2 ? "AllOfOneOfTest" : "OneOfTest";
+    const definition = getDefinitionOrFail(spec, definitionName);
 
-    const parsed = parseDefinition(definition);
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
 
     expect(parsed.allOf).not.toBeDefined();
     expect(parsed.oneOf).toBeDefined();
@@ -154,7 +211,10 @@ describe("parseDefinition", () => {
   it("should parse a definition with allOf", () => {
     const definition = getDefinitionOrFail(spec, "AllOfTest");
 
-    const parsed = parseDefinition(definition);
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
 
     expect(parsed.allOf).toBeDefined();
     expect(parsed.oneOf).not.toBeDefined();
@@ -163,7 +223,10 @@ describe("parseDefinition", () => {
   it("should parse a definition with x-extensible-enum", () => {
     const definition = getDefinitionOrFail(spec, "PreferredLanguage");
 
-    const parsed = parseDefinition(definition);
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
 
     expect(parsed.enum).toEqual(expect.any(Array));
   });
@@ -171,7 +234,10 @@ describe("parseDefinition", () => {
   it("should handle AnObjectWithAnItemsField", async () => {
     const definition = getDefinitionOrFail(spec, "AnObjectWithAnItemsField");
 
-    const parsed = parseDefinition(definition);
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
 
     //expect(parsed).toEqual({});
     expect(parsed.type).toBe("object");
@@ -181,7 +247,9 @@ describe("parseDefinition", () => {
       expect(parsed.properties?.items.type).toBe("array");
       expect(parsed.properties?.items.items).toEqual(
         expect.objectContaining({
-          $ref: "#/definitions/DefinitionFieldWithDash"
+          $ref: expect.stringMatching(
+            "^#/(definitions|components/schemas)/DefinitionFieldWithDash$"
+          )
         })
       );
     } else {

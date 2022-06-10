@@ -1,35 +1,42 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 
-import { OpenAPIV2 } from "openapi-types";
+import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
+import { isOpenAPIV2 } from "../parse.v2";
 
-import { parseAllOperations, parseDefinition, parseOperation } from "../parse";
 import {
   renderClientCode,
   renderDefinitionCode,
   renderOperation,
   renderAllOperations
 } from "../render";
+import { ISpecMetaInfo } from "../types";
 
-let spec: OpenAPIV2.Document;
-beforeAll(
-  async () =>
-    (spec = (await SwaggerParser.bundle(
-      `${process.cwd()}/__mocks__/api.yaml`
-    )) as OpenAPIV2.Document)
-);
+import { getDefinitionOrFail, getParser } from "./utils/parser.utils";
 
-describe("gen-api-models", () => {
+let spec: OpenAPIV2.Document | OpenAPIV3.Document;
+
+describe.each`
+  version | specPath
+  ${2}    | ${`${process.cwd()}/__mocks__/api.yaml`}
+  ${3}    | ${`${process.cwd()}/__mocks__/openapi_v3/api.yaml`}
+`("Openapi V$version |> gen-api-models", ({ version, specPath }) => {
+  beforeAll(async () => {
+    spec = (await SwaggerParser.bundle(specPath)) as
+      | OpenAPIV2.Document
+      | OpenAPIV3.Document;
+  });
+
   it("should not generate duplicate imports", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const profileDefinition = spec.definitions.Profile;
-    expect(profileDefinition).toBeDefined();
+    const definition = getDefinitionOrFail(spec, "Profile");
+
+    expect(definition).toBeDefined();
     const code = await renderDefinitionCode(
       "Profile",
-      parseDefinition(profileDefinition),
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false,
       false
     );
@@ -38,16 +45,15 @@ describe("gen-api-models", () => {
   });
 
   it("should not camel-case properties by default", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definition = getDefinitionOrFail(spec, "PaginationResponse");
 
-    const definition = spec.definitions.PaginationResponse;
     expect(definition).toBeDefined();
     const code = await renderDefinitionCode(
       "PaginationResponse",
-      parseDefinition(definition),
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
     expect(code).toContain("page_size");
@@ -55,16 +61,14 @@ describe("gen-api-models", () => {
   });
 
   it("should handle camel-cased props", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definition = getDefinitionOrFail(spec, "PaginationResponse");
 
-    const definition = spec.definitions.PaginationResponse;
-    expect(definition).toBeDefined();
     const code = await renderDefinitionCode(
       "PaginationResponse",
-      parseDefinition(definition),
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false,
       true
     );
@@ -73,15 +77,15 @@ describe("gen-api-models", () => {
   });
 
   it("should handle WithinRangeStrings", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definitonName = "WithinRangeStringTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
 
-    const definition = spec.definitions.WithinRangeStringTest;
     const code = await renderDefinitionCode(
-      "WithinRangeStringTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
     expect(code).toContain("WithinRangeString(8, 11)");
@@ -89,15 +93,15 @@ describe("gen-api-models", () => {
   });
 
   it("should handle NonNegativeNumbers", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definitonName = "NonNegativeNumberTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
 
-    const definition = spec.definitions.NonNegativeNumberTest;
     const code = await renderDefinitionCode(
-      "NonNegativeNumberTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
     expect(code).toContain("NonNegativeNumber");
@@ -105,66 +109,69 @@ describe("gen-api-models", () => {
   });
 
   it("should handle NonNegativeIntegers", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definitonName = "NonNegativeIntegerTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
 
-    const definition = spec.definitions.NonNegativeIntegerTest;
     const code = await renderDefinitionCode(
-      "NonNegativeIntegerTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("NonNegativeInteger");
     expect(code).toMatchSnapshot("non-negative-integer");
   });
 
   it("should handle WithinRangeNumbers", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.WithinRangeNumberTest;
+    const definitonName = "WithinRangeNumberTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "WithinRangeNumberTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("WithinRangeNumber");
     expect(code).toMatchSnapshot("within-range-numbers");
   });
 
   it("should handle WithinRangeIntegers", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.WithinRangeIntegerTest;
+    const definitonName = "WithinRangeIntegerTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "WithinRangeIntegerTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("WithinRangeInteger");
     expect(code).toMatchSnapshot("within-range-integer");
   });
 
   it("should handle CustomStringFormats", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.CustomStringFormatTest;
+    const definitonName = "CustomStringFormatTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "CustomStringFormatTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain(
       "import { SomeCustomStringType as SomeCustomStringTypeT }"
     );
@@ -172,216 +179,245 @@ describe("gen-api-models", () => {
   });
 
   it("should handle enums", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.EnumTest;
+    const definitonName = "EnumTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "EnumTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toMatchSnapshot("enum-simple");
   });
 
   it("should generate a dictionary from additionalProperties", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.AdditionalPropsTest;
+    const definitonName = "AdditionalPropsTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "AdditionalPropsTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("t.dictionary");
     expect(code).toMatchSnapshot("additional-properties");
   });
 
   it("should generate a dictionary from additionalProperties: true", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.AdditionalPropsTrueTest;
+    const definitonName = "AdditionalPropsTrueTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "AdditionalPropsTrueTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("t.dictionary");
     expect(code).toContain("t.any");
     expect(code).toMatchSnapshot("additional-properties-true");
   });
 
   it("should support additionalProperties default value", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.AdditionalpropsDefault;
+    const definitonName = "AdditionalpropsDefault";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "AdditionalpropsDefault",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("t.dictionary");
     expect(code).toContain("withDefault");
     expect(code).toMatchSnapshot("additional-properties-default");
   });
 
   it("should generate a type intersection from allOf", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.AllOfTest;
+    const definitonName = "AllOfTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "AllOfTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("t.intersection");
     expect(code).toContain("PaginationResponse");
     expect(code).toMatchSnapshot("all-of-test");
   });
 
   it("should generate a type union from oneOf", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.OneOfTest;
+    const definitonName = "OneOfTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "OneOfTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("t.union");
     expect(code).toMatchSnapshot("oneof-test");
   });
 
   it("should generate a type union from allOf when x-one-of is used", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
+    if (version === 2) {
+      const definitonName = "AllOfOneOfTest";
+      const definition = getDefinitionOrFail(spec, definitonName);
+
+      const code = await renderDefinitionCode(
+        definitonName,
+        getParser(spec).parseDefinition(
+          // @ts-ignore
+          definition
+        ),
+        false
+      );
+
+      expect(code).toContain("t.union");
+      expect(code).toContain("PaginationResponse");
+      expect(code).toMatchSnapshot("allofoneof-test");
+    } else {
+      expect(true).toBeTruthy();
     }
-    const definition = spec.definitions.AllOfOneOfTest;
-    const code = await renderDefinitionCode(
-      "AllOfOneOfTest",
-      parseDefinition(definition),
-      false
-    );
-    expect(code).toContain("t.union");
-    expect(code).toContain("PaginationResponse");
-    expect(code).toMatchSnapshot("allofoneof-test");
   });
 
   it("should parse custom inline properties", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.InlinePropertyTest;
+    const definitonName = "InlinePropertyTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "InlinePropertyTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("PatternString");
     expect(code).toMatchSnapshot("inline-property");
   });
 
   it("should parse nested objects", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.NestedObjectTest;
+    const definitonName = "NestedObjectTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "NestedObjectTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("t.TypeOf<typeof NestedObjectTest>");
     expect(code).toMatchSnapshot("nested-object");
   });
 
   it("should include aliases for types already defined elsewhere if they have the same name", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.OrganizationFiscalCode;
+    const definitonName = "OrganizationFiscalCode";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "OrganizationFiscalCode",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain(
       "import { OrganizationFiscalCode as OrganizationFiscalCodeT }"
     );
   });
 
   it("should include aliases for types already defined elsewhere if they have a different name", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
-    const definition = spec.definitions.OrganizationFiscalCodeTest;
+    const definitonName = "OrganizationFiscalCodeTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
     const code = await renderDefinitionCode(
-      "OrganizationFiscalCodeTest",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toContain("OrganizationFiscalCodeTest");
     expect(code).toMatchSnapshot("defined-type");
   });
 
   it("should handle list of defintions", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definitonName = "ListOfDefinitions";
+    const definition = getDefinitionOrFail(spec, definitonName);
 
-    const definition = spec.definitions.ListOfDefinitions;
     const code = await renderDefinitionCode(
-      "ListOfDefinitions",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toMatchSnapshot();
   });
 
   it("should handle list of references", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definitonName = "ListOfReferences";
+    const definition = getDefinitionOrFail(spec, definitonName);
 
-    const definition = spec.definitions.ListOfReferences;
     const code = await renderDefinitionCode(
-      "ListOfReferences",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toMatchSnapshot();
   });
 
   it("should handle AnObjectWithAnItemsField", async () => {
-    if (!spec.definitions) {
-      fail("no definitions in the spec");
-      return;
-    }
+    const definitonName = "AnObjectWithAnItemsField";
+    const definition = getDefinitionOrFail(spec, definitonName);
 
-    const definition = spec.definitions.AnObjectWithAnItemsField;
     const code = await renderDefinitionCode(
-      "AnObjectWithAnItemsField",
-      parseDefinition(definition),
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
       false
     );
+
     expect(code).toMatchSnapshot();
   });
 
@@ -392,7 +428,8 @@ describe("gen-api-models", () => {
   `(
     "should generate decoder definitions for ($method, $path) ",
     async ({ method, path }) => {
-      const operationInfo = parseOperation(
+      const operationInfo = getParser(spec).parseOperation(
+        // @ts-ignore
         spec,
         path,
         [],
@@ -410,14 +447,16 @@ describe("gen-api-models", () => {
   );
 
   it("should generate a module with all definitions", async () => {
-    const operationInfo1 = parseOperation(
+    const operationInfo1 = getParser(spec).parseOperation(
+      // @ts-ignore
       spec,
       "/test-auth-bearer",
       [],
       "undefined",
       "undefined"
     )("get");
-    const operationInfo2 = parseOperation(
+    const operationInfo2 = getParser(spec).parseOperation(
+      // @ts-ignore
       spec,
       "/test-file-upload",
       [],
@@ -434,7 +473,8 @@ describe("gen-api-models", () => {
   });
 
   it("should support file uploads", async () => {
-    const operationInfo = parseOperation(
+    const operationInfo = getParser(spec).parseOperation(
+      // @ts-ignore
       spec,
       "/test-file-upload",
       [],
@@ -451,7 +491,8 @@ describe("gen-api-models", () => {
   });
 
   it("should support multiple success cases", async () => {
-    const operationInfo = parseOperation(
+    const operationInfo = getParser(spec).parseOperation(
+      // @ts-ignore
       spec,
       "/test-multiple-success",
       [],
@@ -461,6 +502,7 @@ describe("gen-api-models", () => {
 
     if (operationInfo) {
       const code = renderOperation(operationInfo, true);
+      expect(code).toContain("200: Message");
       expect(code).toMatchSnapshot();
     } else {
       fail("failed to parse operation");
@@ -468,7 +510,8 @@ describe("gen-api-models", () => {
   });
 
   it("should support headers in response", async () => {
-    const operationInfo = parseOperation(
+    const operationInfo = getParser(spec).parseOperation(
+      // @ts-ignore
       spec,
       "/test-response-header",
       [],
@@ -546,8 +589,11 @@ describe("gen-api-models", () => {
         operationId: "testFileUpload",
         parameters: [
           {
-            name: "file",
-            type: `{ "uri": string, "name": string, "type": string }`,
+            name: version === 2 ? "file" : "body",
+            type:
+              version === 2
+                ? `{ "uri": string, "name": string, "type": string }`
+                : "File",
             in: "formData"
           }
         ],
@@ -576,7 +622,7 @@ describe("gen-api-models", () => {
         operationId: "testBinaryFileUpload",
         parameters: [
           {
-            name: "logo",
+            name: version === 2 ? "logo" : "body",
             type: `File`,
             in: "formData"
           }
@@ -587,20 +633,38 @@ describe("gen-api-models", () => {
       }
     ];
 
-    const allOperations = parseAllOperations(spec, "undefined", "undefined");
+    const allOperations = getParser(spec).parseAllOperations(
+      // @ts-ignore
+      spec,
+      "undefined",
+      "undefined"
+    );
+
+    expected.forEach(op =>
+      expect(
+        allOperations.find(e => e?.operationId === op?.operationId)
+      ).toMatchObject(op)
+    );
     expect(allOperations).toEqual(expect.arrayContaining(expected));
   });
 
   it("should render a client", async () => {
-    const allOperations = parseAllOperations(spec, "undefined", "undefined");
-    const code = await renderClientCode(spec, allOperations);
+    const allOperations = getParser(spec).parseAllOperations(
+      // @ts-ignore
+      spec,
+      "undefined",
+      "undefined"
+    );
+    const code = await renderClientCode(spec as ISpecMetaInfo, allOperations);
 
     expect(code).toMatchSnapshot();
   });
 
   it("should parse external definitions and their dependencies when they are NOT referenced in the spec", async () => {
-    // Person, Address and ZipCode are defined in an external defintion file
-    const { Person, Address, ZipCode } = spec.definitions || {};
+    // @ts-ignore
+    const { Person, Address, ZipCode } = isOpenAPIV2(spec)
+      ? spec.definitions
+      : spec.components?.schemas || {};
 
     // Person is referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
@@ -612,6 +676,7 @@ describe("gen-api-models", () => {
     // address is defined by Address, which is not referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
     // There's no reference to "Address" definition name anymore
+    // @ts-ignore
     expect(Person?.properties?.address).toEqual({
       type: "object",
       properties: {
@@ -627,6 +692,7 @@ describe("gen-api-models", () => {
     // ZipCode is a dependency of Address and it's local to it in the external definition file
     // It's resolved by including its properties as literal value of the parsed definition object
     // There's no reference to "ZipCode" definition name anymore
+    // @ts-ignore
     expect(Person?.properties?.address?.properties?.zipCode).toEqual(
       expect.objectContaining({
         pattern: expect.any(String),
@@ -639,7 +705,10 @@ describe("gen-api-models", () => {
 
   it("should parse external definitions and their dependencies when they are referenced in the spec", async () => {
     // Book, Author and Person are defined in an external defintion file
-    const { Book, Author, Person } = spec.definitions || {};
+    // @ts-ignore
+    const { Book, Author, Person } = isOpenAPIV2(spec)
+      ? spec.definitions
+      : spec.components?.schemas || {};
 
     // Book is referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
@@ -651,13 +720,14 @@ describe("gen-api-models", () => {
     // author is defined by Author which is not referenced by the spec
     // It's resolved by including its properties as literal value of the parsed definition object
     // There's no reference to "Author" definition name anymore
-    expect(Book?.properties?.author).toEqual({
+    // @ts-ignore
+    expect(Book?.properties?.author).toMatchObject({
       type: "object",
       properties: {
         isDead: expect.any(Object),
         // Person is a dependency of Author which is already referenced by the spec
         info: {
-          $ref: "#/definitions/Person"
+          $ref: expect.stringContaining("/Person")
         }
       }
     });
