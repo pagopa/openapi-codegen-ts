@@ -1,7 +1,8 @@
 // eslint-disable no-console
 import * as fs from "fs-extra";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import * as E from "fp-ts/Either";
 import * as SwaggerParser from "swagger-parser";
+
 import { getParser } from "./parse.utils";
 import {
   renderAllOperations,
@@ -10,21 +11,6 @@ import {
   renderSpecCode
 } from "./render";
 import { IGenerateApiOptions } from "./types";
-
-/**
- * Checks if a parsed spec is in OA2 format
- *
- * @param specs a parsed spec
- *
- * @returns true or false
- */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function isOpenAPIV2(
-  specs: OpenAPI.Document
-): specs is OpenAPIV2.Document {
-  // eslint-disable-next-line no-prototype-builtins
-  return "swagger" in specs;
-}
 
 /**
  * Wraps file writing to expose a common interface and log consistently
@@ -68,7 +54,13 @@ export async function generateApi(options: IGenerateApiOptions): Promise<void> {
 
   const api = await SwaggerParser.bundle(specFilePath);
 
-  const parser = getParser(api);
+  const maybeParser = getParser(api);
+
+  if (E.isLeft(maybeParser)) {
+    throw maybeParser.left;
+  }
+
+  const parser = maybeParser.right;
 
   await fs.ensureDir(definitionsDirPath);
 

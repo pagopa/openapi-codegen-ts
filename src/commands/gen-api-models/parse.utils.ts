@@ -1,6 +1,8 @@
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 
-import * as ParseOpenapiV2 from "./parse";
+import * as E from "fp-ts/Either";
+
+import * as ParseOpenapiV2 from "./parse.v2";
 import * as ParseOpenapiV3 from "./parse.v3";
 import {
   IAuthHeaderParameterInfo,
@@ -8,7 +10,6 @@ import {
   IOperationInfo,
   ISpecMetaInfo
 } from "./types";
-import { isOpenAPIV2 } from ".";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export type Parser<D extends OpenAPI.Document> = {
@@ -117,4 +118,9 @@ const parserV3: Parser<OpenAPI.Document> = {
 
 export const getParser = <D extends OpenAPI.Document>(
   spec: D
-): Parser<OpenAPI.Document> => (isOpenAPIV2(spec) ? parserV2 : parserV3);
+): E.Either<Error, Parser<OpenAPI.Document>> =>
+  ParseOpenapiV2.isOpenAPIV2(spec)
+    ? E.of(parserV2)
+    : ParseOpenapiV3.isOpenAPIV3(spec)
+    ? E.of(parserV3)
+    : E.left(Error("The specification must be of type OpenAPI 2 or 3"));
