@@ -265,6 +265,27 @@ describe.each`
     expect(code).toMatchSnapshot("all-of-test");
   });
 
+
+
+  it("should not generate a type intersection from allOf with one element", async () => {
+    const definitonName = "AllOfWithOneElementTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
+    const code = await renderDefinitionCode(
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
+      false
+    );
+
+    expect(code).toMatchSnapshot("all-of-test");
+  });
+
+
+
+
   it("should generate a type union from oneOf", async () => {
     const definitonName = "OneOfTest";
     const definition = getDefinitionOrFail(spec, definitonName);

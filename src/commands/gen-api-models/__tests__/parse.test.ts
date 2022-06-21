@@ -1,6 +1,8 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 
 import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
+import { parse } from "path";
+import { argv0 } from "process";
 import * as SwaggerParser from "swagger-parser";
 import { isOpenAPIV2 } from "../parse.v2";
 
@@ -29,9 +31,9 @@ describe.each`
     const parsed = isOpenAPIV2(spec)
       ? getParser(spec).getAuthHeaders(spec.securityDefinitions, security)
       : getParser(spec).getAuthHeaders(
-          spec?.components?.securitySchemes,
-          security
-        );
+        spec?.components?.securitySchemes,
+        security
+      );
 
     expect(parsed).toEqual([
       expect.objectContaining({
@@ -55,9 +57,9 @@ describe.each`
     const parsed = isOpenAPIV2(spec)
       ? getParser(spec).getAuthHeaders(spec.securityDefinitions, security)
       : getParser(spec).getAuthHeaders(
-          spec?.components?.securitySchemes,
-          security
-        );
+        spec?.components?.securitySchemes,
+        security
+      );
 
     expect(parsed).toEqual([
       expect.objectContaining({
@@ -217,6 +219,18 @@ describe.each`
     );
 
     expect(parsed.allOf).toBeDefined();
+    expect(parsed.oneOf).not.toBeDefined();
+  });
+
+  it("should parse a definition with allOf with just one element inside", () => {
+    const definition = getDefinitionOrFail(spec, "AllOfWithOneElementTest");
+
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
+
+    expect(parsed.allOf).toHaveLength(1);
     expect(parsed.oneOf).not.toBeDefined();
   });
 

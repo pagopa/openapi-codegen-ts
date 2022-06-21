@@ -366,27 +366,39 @@
 
     {{- 'import * as t from "io-ts";' | addImport -}}
 
-    {% for schema in definition.allOf -%}
-      {% if schema.type == "object" %}
-        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
-      {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | splitBy("/") | last -%}
-        {{ importLocalProp(realPropName) }}
-      {% endif %}
-    {% endfor %}
+    {% if definition.allOf.length > 1 %}
+      {% for schema in definition.allOf -%}
+        {% if schema.type == "object" %}
+          {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
+        {% elif schema.$ref %}
+          {%- set realPropName = schema.$ref | splitBy("/") | last -%}
+          {{ importLocalProp(realPropName) }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
 
     export const {{ definitionName }} =
-      t.intersection([
-        {% for schema in definition.allOf -%}
-          {% if schema.type == "object" %}
-            {{ definitionName + loop.index }},
+      {% if definition.allOf.length > 1 %}
+        t.intersection([
+          {% for schema in definition.allOf -%}
+            {% if schema.type == "object" %}
+              {{ definitionName + loop.index }},
+            {% elif schema.$ref %}
+              {{ schema.$ref | splitBy("/") | last }},
+            {% endif %}
+          {% endfor %}
+        ],
+        "{{ definitionName }}"
+      );
+      {% else %}
+        t.interface({
+          {% if definition.allOf[0].type == "object" %}
+            {{ definitionName}}
           {% elif schema.$ref %}
-            {{ schema.$ref | splitBy("/") | last }},
+            {{ definition.allOf[0].$ref | splitBy("/") | last }},
           {% endif %}
-        {% endfor %}
-      ],
-      "{{ definitionName }}"
-    );
+        })
+    {% endif %}
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 

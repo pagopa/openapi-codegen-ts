@@ -397,6 +397,15 @@ components:
           properties:
             unlimited:
               type: boolean
+    AllOfWithOneElementTest:
+      description: test if we can use allOf with just one element inside
+      allOf:
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Message"
     AllOfTest:
       allOf:
         - type: object
