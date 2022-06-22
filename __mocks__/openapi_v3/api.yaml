@@ -402,10 +402,12 @@ components:
       allOf:
         - type: object
           properties:
-            items:
-              type: array
-              items:
-                $ref: "#/components/schemas/Message"
+            key: 
+              type: string
+    AllOfWithOneRefElementTest:
+      description: test if we can use allOf with just ref one element inside
+      allOf:
+        - $ref: "#/components/schemas/Profile"
     AllOfTest:
       allOf:
         - type: object

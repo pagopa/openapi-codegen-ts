@@ -643,9 +643,24 @@ import * as t from \\"io-ts\\";
  * test if we can use allOf with just one element inside
  */
 
-export const AllOfWithOneElementTest = t.interface({
-  AllOfWithOneElementTest
+// required attributes
+const AllOfWithOneElementTest1R = t.interface({});
+
+// optional attributes
+const AllOfWithOneElementTest1O = t.partial({
+  key: t.string
 });
+
+export const AllOfWithOneElementTest1 = t.intersection(
+  [AllOfWithOneElementTest1R, AllOfWithOneElementTest1O],
+  \\"AllOfWithOneElementTest1\\"
+);
+
+export type AllOfWithOneElementTest1 = t.TypeOf<
+  typeof AllOfWithOneElementTest1
+>;
+
+export const AllOfWithOneElementTest = AllOfWithOneElementTest1;
 
 export type AllOfWithOneElementTest = t.TypeOf<typeof AllOfWithOneElementTest>;
 "
@@ -2215,9 +2230,24 @@ import * as t from \\"io-ts\\";
  * test if we can use allOf with just one element inside
  */
 
-export const AllOfWithOneElementTest = t.interface({
-  AllOfWithOneElementTest
+// required attributes
+const AllOfWithOneElementTest1R = t.interface({});
+
+// optional attributes
+const AllOfWithOneElementTest1O = t.partial({
+  key: t.string
 });
+
+export const AllOfWithOneElementTest1 = t.intersection(
+  [AllOfWithOneElementTest1R, AllOfWithOneElementTest1O],
+  \\"AllOfWithOneElementTest1\\"
+);
+
+export type AllOfWithOneElementTest1 = t.TypeOf<
+  typeof AllOfWithOneElementTest1
+>;
+
+export const AllOfWithOneElementTest = AllOfWithOneElementTest1;
 
 export type AllOfWithOneElementTest = t.TypeOf<typeof AllOfWithOneElementTest>;
 "

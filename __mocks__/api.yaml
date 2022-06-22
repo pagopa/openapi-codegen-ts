@@ -260,6 +260,10 @@ definitions:
         properties:
           key:
             type: string
+  AllOfWithOneRefElementTest:
+    description: test if we can use allOf with just one ref element inside
+    allOf:
+      - $ref: "#/definitions/Profile"
   AllOfOneOfTest:
     description: test if we can use allOf as oneOf
     x-one-of: true
