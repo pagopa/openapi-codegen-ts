@@ -1,8 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 
 import { OpenAPIV2, OpenAPIV3 } from "openapi-types";
-import { parse } from "path";
-import { argv0 } from "process";
 import * as SwaggerParser from "swagger-parser";
 import { isOpenAPIV2 } from "../parse.v2";
 
@@ -14,7 +12,7 @@ describe.each`
   version | specPath
   ${2}    | ${`${process.cwd()}/__mocks__/api.yaml`}
   ${3}    | ${`${process.cwd()}/__mocks__/openapi_v3/api.yaml`}
-`("Openapi V$version |> getAuthHeaders", ({ version, specPath }) => {
+`("Openapi V$version |> getAuthHeaders", ({ specPath }) => {
   beforeAll(async () => {
     spec = (await SwaggerParser.bundle(specPath)) as
       | OpenAPIV2.Document

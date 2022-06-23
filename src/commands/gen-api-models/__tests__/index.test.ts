@@ -294,6 +294,7 @@ describe.each`
       false
     );
 
+    expect(code).toMatchSnapshot("all-of-test");
   });
 
   it("should generate a type union from oneOf", async () => {
