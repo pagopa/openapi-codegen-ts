@@ -253,6 +253,17 @@ definitions:
             items:
               $ref: "#/definitions/Message"
       - $ref: "#/definitions/PaginationResponse"
+  AllOfWithOneElementTest:
+    description: test if we can use allOf with just one element inside
+    allOf:
+      - type: object
+        properties:
+          key:
+            type: string
+  AllOfWithOneRefElementTest:
+    description: test if we can use allOf with just one ref element inside
+    allOf:
+      - $ref: "#/definitions/Profile"
   AllOfOneOfTest:
     description: test if we can use allOf as oneOf
     x-one-of: true

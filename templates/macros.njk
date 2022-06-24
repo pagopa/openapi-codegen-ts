@@ -16,6 +16,14 @@
   {% endif %}
 {% endmacro %}
 
+{% macro printDefinitionName(name, schema) %}
+  {% if schema.type == "object" %}
+    {{ name }}
+  {% elif schema.$ref %}
+    {{ schema.$ref | splitBy("/") | last }}
+  {% endif %}
+{% endmacro%}
+
 {##
  # used when we want to define a properties of an object
  # which is not exported in its own file / type (inlined)
@@ -375,18 +383,19 @@
       {% endif %}
     {% endfor %}
 
-    export const {{ definitionName }} =
-      t.intersection([
-        {% for schema in definition.allOf -%}
-          {% if schema.type == "object" %}
-            {{ definitionName + loop.index }},
-          {% elif schema.$ref %}
-            {{ schema.$ref | splitBy("/") | last }},
-          {% endif %}
-        {% endfor %}
-      ],
-      "{{ definitionName }}"
-    );
+    {% if definition.allOf.length > 1 %}
+      export const {{ definitionName }} =
+        t.intersection([
+          {% for schema in definition.allOf -%}
+            {{ printDefinitionName(definitionName + loop.index, schema) }},
+          {% endfor %}
+        ],
+        "{{ definitionName }}"
+      );
+    {% else %}
+      export const {{ definitionName }} =
+      {{ printDefinitionName(definitionName + 1, definition.allOf[0]) }}
+    {% endif %}
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 

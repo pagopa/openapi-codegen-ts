@@ -397,6 +397,17 @@ components:
           properties:
             unlimited:
               type: boolean
+    AllOfWithOneElementTest:
+      description: test if we can use allOf with just one element inside
+      allOf:
+        - type: object
+          properties:
+            key: 
+              type: string
+    AllOfWithOneRefElementTest:
+      description: test if we can use allOf with just ref one element inside
+      allOf:
+        - $ref: "#/components/schemas/Profile"
     AllOfTest:
       allOf:
         - type: object

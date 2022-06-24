@@ -19,6 +19,9 @@ import { DisjointUnionsUserTest } from "../../generated/testapi/DisjointUnionsUs
 import { EnabledUserTest } from "../../generated/testapi/EnabledUserTest";
 import { EnumFalseTest } from "../../generated/testapi/EnumFalseTest";
 import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
+import { AllOfWithOneElementTest } from "../../generated/testapi/AllOfWithOneElementTest";
+import { AllOfWithOneRefElementTest } from "../../generated/testapi/AllOfWithOneRefElementTest";
+
 
 import * as E from "fp-ts/lib/Either"
 
@@ -321,6 +324,38 @@ describe("EnumFalseTest definition", () => {
     expect(E.isLeft(result)).toBe(true);
   });
 });
+
+describe("AllOfWithOneElementTest definition", () => {
+
+  const okElement = {key: "string"};
+  const notOkElement = {key: 1};
+
+  it("Should return a right", () => {
+    expect(E.isRight(AllOfWithOneElementTest.decode(okElement))).toBeTruthy();
+  })
+
+  it("Should return a left aaa", () => {
+    expect(E.isLeft(AllOfWithOneElementTest.decode(notOkElement))).toBeTruthy();
+  })
+
+})
+
+describe("AllOfWithOneRefElementTest", () => {
+
+const basicProfile = {
+    family_name: "Rossi",
+    fiscal_code: "RSSMRA80A01F205X",
+    has_profile: true,
+    is_email_set: false,
+    name: "Mario",
+    version: 123
+  };
+
+  it("Should return a right", () => {
+    expect(E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))).toBeTruthy();
+  })
+
+})
 
 describe("DisjointUnionsUserTest definition", () => {
   const enabledUser = {
