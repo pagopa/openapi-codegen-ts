@@ -264,6 +264,18 @@ definitions:
     description: test if we can use allOf with just one ref element inside
     allOf:
       - $ref: "#/definitions/Profile"
+  AllOfWithXExtensibleEnum:
+    description: test if allOf with x-extensible-enum works fine 
+    allOf:
+      - $ref: "#/definitions/Profile"
+      - type: object
+        properties:
+          status:
+            type: string
+            x-extensible-enum:
+              - ACTIVATED
+        required:
+          - status
   AllOfOneOfTest:
     description: test if we can use allOf as oneOf
     x-one-of: true
