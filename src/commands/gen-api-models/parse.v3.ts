@@ -140,7 +140,15 @@ export function parseDefinition(
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function parseSpecMeta(api: OpenAPIV3.Document): ISpecMetaInfo {
   return {
-    basePath: api.servers?.[0].url,
+    // If the first defined server is an absolute url
+    // the basePath is extracted.
+    // VARIABLES NOT SUPPORTED https://swagger.io/specification/#server-variable-object
+    basePath: api.servers?.[0].url.startsWith("http")
+      ? `/${api.servers?.[0].url
+          .split("/")
+          .slice(3)
+          .join("/")}`
+      : api.servers?.[0].url,
     version: api.info?.version,
     // eslint-disable-next-line sort-keys
     title: api.info?.title
