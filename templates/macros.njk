@@ -24,6 +24,22 @@
   {% endif %}
 {% endmacro%}
 
+{% macro defineEnum(definitionName, definition)  %}
+  {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
+    {% set enumTypeAlias %}
+      export enum {{ definitionName | capitalizeFirst }}Enum {
+          {% for enum in definition %}
+            "{{ enum }}" = "{{ enum }}",
+          {% endfor %}
+      }
+    {% endset %}
+    {{- enumTypeAlias | addTypeAlias -}}
+    enumType<{{ definitionName | capitalizeFirst }}Enum>(
+        {{ definitionName | capitalizeFirst }}Enum,
+        "{{ definitionName }}"
+    )
+{% endmacro %}
+
 {##
  # used when we want to define a properties of an object
  # which is not exported in its own file / type (inlined)
@@ -186,36 +202,9 @@
       {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
     {% elif definition["enum"] %}
-      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
-      {% set enumTypeAlias %}
-        export enum {{ definitionName | capitalizeFirst }}Enum {
-            {% for enum in definition["enum"] %}
-              "{{ enum }}" = "{{ enum }}",
-            {% endfor %}
-        }
-      {% endset %}
-      {{- enumTypeAlias | addTypeAlias -}}
-      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
-        {{ definitionName | capitalizeFirst }}Enum,
-        "{{ definitionName }}"
-      ){% endset %}
-
+      {{ defineEnum(definitionName, definition["enum"])}} 
     {% elif definition["x-extensible-enum"] %}
-      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
-      {% set enumTypeAlias %}
-        export enum {{ definitionName | capitalizeFirst }}Enum {
-            {% for enum in definition["x-extensible-enum"] %}
-              "{{ enum }}" = "{{ enum }}",
-            {% endfor %}
-        }
-      {% endset %}
-      {{- enumTypeAlias | addTypeAlias -}}
-      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
-        {{ definitionName | capitalizeFirst }}Enum,
-        "{{ definitionName }}"
-      ){% endset %}
-
-
+      {{ defineEnum(definitionName, definition["x-extensible-enum"])}} 
     {% else %}
       {% set typedef %}t.string{% endset %}
     {% endif %}
