@@ -16,18 +16,6 @@
   {% endif %}
 {% endmacro %}
 
-{% macro defineEnum(definitionName, definition) %}
-  {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
-    {% set enumTypeAlias %}
-      export enum {{ definitionName | capitalizeFirst }}Enum {
-          {% for enum in definition %}
-            "{{ enum }}" = "{{ enum }}",
-          {% endfor %}
-      }
-    {% endset %}
-    {{- enumTypeAlias | addTypeAlias -}}
-{% endmacro %}
-
 {% macro printDefinitionName(name, schema) %}
   {% if schema.type == "object" %}
     {{ name }}
@@ -198,13 +186,29 @@
       {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
     {% elif definition["enum"] %}
-      {{ defineEnum(definitionName, definition["enum"]) }}
+      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
+      {% set enumTypeAlias %}
+        export enum {{ definitionName | capitalizeFirst }}Enum {
+            {% for enum in definition["enum"] %}
+              "{{ enum }}" = "{{ enum }}",
+            {% endfor %}
+        }
+      {% endset %}
+      {{- enumTypeAlias | addTypeAlias -}}
       {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
         {{ definitionName | capitalizeFirst }}Enum,
         "{{ definitionName }}"
       ){% endset %}
     {% elif definition["x-extensible-enum"] %}
-      {{ defineEnum(definitionName, definition["x-extensible-enum"]) }} 
+      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
+      {% set enumTypeAlias %}
+        export enum {{ definitionName | capitalizeFirst }}Enum {
+            {% for enum in definition["x-extensible-enum"] %}
+              "{{ enum }}" = "{{ enum }}",
+            {% endfor %}
+        }
+      {% endset %}
+      {{- enumTypeAlias | addTypeAlias -}}
       {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
         {{ definitionName | capitalizeFirst }}Enum,
         "{{ definitionName }}"
