@@ -12,7 +12,6 @@ import { tryCatch } from "fp-ts/lib/TaskEither";
 
 import * as TE from "fp-ts/lib/TaskEither";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ensureDir } from "fs-extra";
 import config from "./config";
 import { startMockServer } from "./server";
 

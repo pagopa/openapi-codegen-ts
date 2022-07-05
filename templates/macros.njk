@@ -16,15 +16,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro printDefinitionName(name, schema) %}
-  {% if schema.type == "object" %}
-    {{ name }}
-  {% elif schema.$ref %}
-    {{ schema.$ref | splitBy("/") | last }}
-  {% endif %}
-{% endmacro%}
-
-{% macro defineEnum(definitionName, definition)  %}
+{% macro defineEnum(definitionName, definition) %}
   {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
     {% set enumTypeAlias %}
       export enum {{ definitionName | capitalizeFirst }}Enum {
@@ -34,11 +26,15 @@
       }
     {% endset %}
     {{- enumTypeAlias | addTypeAlias -}}
-    enumType<{{ definitionName | capitalizeFirst }}Enum>(
-        {{ definitionName | capitalizeFirst }}Enum,
-        "{{ definitionName }}"
-    )
 {% endmacro %}
+
+{% macro printDefinitionName(name, schema) %}
+  {% if schema.type == "object" %}
+    {{ name }}
+  {% elif schema.$ref %}
+    {{ schema.$ref | splitBy("/") | last }}
+  {% endif %}
+{% endmacro%}
 
 {##
  # used when we want to define a properties of an object
@@ -202,9 +198,17 @@
       {% set importdef %}import { {{ definition.format }} as {{ typedef }} } from "{{ definition["x-import"] }}";{% endset %}
       {{- importdef | addImport -}}
     {% elif definition["enum"] %}
-      {{ defineEnum(definitionName, definition["enum"])}} 
+      {{ defineEnum(definitionName, definition["enum"]) }}
+      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
+        {{ definitionName | capitalizeFirst }}Enum,
+        "{{ definitionName }}"
+      ){% endset %}
     {% elif definition["x-extensible-enum"] %}
-      {{ defineEnum(definitionName, definition["x-extensible-enum"])}} 
+      {{ defineEnum(definitionName, definition["x-extensible-enum"]) }} 
+      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
+        {{ definitionName | capitalizeFirst }}Enum,
+        "{{ definitionName }}"
+      ){% endset %}
     {% else %}
       {% set typedef %}t.string{% endset %}
     {% endif %}
@@ -376,7 +380,7 @@
 
     export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
 
-  {% elif definition.allOf and not definition["x-one-of"] %}
+  {% elif definition.allOf %}
 
     {{- 'import * as t from "io-ts";' | addImport -}}
 
