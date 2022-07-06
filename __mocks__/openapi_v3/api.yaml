@@ -408,6 +408,18 @@ components:
       description: test if we can use allOf with just ref one element inside
       allOf:
         - $ref: "#/components/schemas/Profile"
+    AllOfWithXExtensibleEnum:
+      description: test if allOf with x-extensible-enum works fine 
+      allOf:
+        - $ref: "#/components/schemas/Profile"
+        - type: object
+          properties:
+            status:
+              type: string
+              x-extensible-enum:
+                - ACTIVATED
+          required:
+            - status
     AllOfTest:
       allOf:
         - type: object
