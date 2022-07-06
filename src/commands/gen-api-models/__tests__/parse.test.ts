@@ -29,9 +29,9 @@ describe.each`
     const parsed = isOpenAPIV2(spec)
       ? getParser(spec).getAuthHeaders(spec.securityDefinitions, security)
       : getParser(spec).getAuthHeaders(
-        spec?.components?.securitySchemes,
-        security
-      );
+          spec?.components?.securitySchemes,
+          security
+        );
 
     expect(parsed).toEqual([
       expect.objectContaining({
@@ -55,9 +55,9 @@ describe.each`
     const parsed = isOpenAPIV2(spec)
       ? getParser(spec).getAuthHeaders(spec.securityDefinitions, security)
       : getParser(spec).getAuthHeaders(
-        spec?.components?.securitySchemes,
-        security
-      );
+          spec?.components?.securitySchemes,
+          security
+        );
 
     expect(parsed).toEqual([
       expect.objectContaining({
@@ -69,6 +69,21 @@ describe.each`
         type: "string"
       })
     ]);
+  });
+
+  it("should parse a basePath without host", () => {
+    // @ts-ignore
+    const parsed = getParser(spec).parseSpecMeta(spec);
+
+    console.log(parsed);
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        basePath: "/api/v1",
+        version: "1.0.0",
+        title: "Test API"
+      })
+    );
   });
 });
 
