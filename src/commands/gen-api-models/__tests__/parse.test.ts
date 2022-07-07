@@ -75,8 +75,6 @@ describe.each`
     // @ts-ignore
     const parsed = getParser(spec).parseSpecMeta(spec);
 
-    console.log(parsed);
-
     expect(parsed).toEqual(
       expect.objectContaining({
         basePath: "/api/v1",
@@ -207,8 +205,6 @@ describe.each`
       "undefined",
       "undefined"
     )("get");
-
-    console.log(parsed);
 
     expect(parsed).toEqual(
       expect.objectContaining({
