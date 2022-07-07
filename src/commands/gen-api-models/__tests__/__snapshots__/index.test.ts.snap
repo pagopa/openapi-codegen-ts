@@ -926,7 +926,9 @@ import {
   TestSimplePatchT,
   testSimplePatchDefaultDecoder,
   TestCustomTokenHeaderT,
-  testCustomTokenHeaderDefaultDecoder
+  testCustomTokenHeaderDefaultDecoder,
+  TestWithEmptyResponseT,
+  testWithEmptyResponseDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -948,7 +950,8 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestWithTwoParamsT> &
   TypeofApiCall<TestParametersAtPathLevelT> &
   TypeofApiCall<TestSimplePatchT> &
-  TypeofApiCall<TestCustomTokenHeaderT>;
+  TypeofApiCall<TestCustomTokenHeaderT> &
+  TypeofApiCall<TestWithEmptyResponseT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
@@ -963,7 +966,8 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestWithTwoParamsT> &
   TypeofApiParams<TestParametersAtPathLevelT> &
   TypeofApiParams<TestSimplePatchT> &
-  TypeofApiParams<TestCustomTokenHeaderT>);
+  TypeofApiParams<TestCustomTokenHeaderT> &
+  TypeofApiParams<TestWithEmptyResponseT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -1000,7 +1004,8 @@ export type WithDefaultsT<
   | TestWithTwoParamsT
   | TestParametersAtPathLevelT
   | TestSimplePatchT
-  | TestCustomTokenHeaderT,
+  | TestCustomTokenHeaderT
+  | TestWithEmptyResponseT,
   K
 >;
 
@@ -1047,6 +1052,8 @@ export type Client<
       readonly testSimplePatch: TypeofApiCall<TestSimplePatchT>;
 
       readonly testCustomTokenHeader: TypeofApiCall<TestCustomTokenHeaderT>;
+
+      readonly testWithEmptyResponse: TypeofApiCall<TestWithEmptyResponseT>;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -1144,6 +1151,13 @@ export type Client<
         ReplaceRequestParams<
           TestCustomTokenHeaderT,
           Omit<RequestParams<TestCustomTokenHeaderT>, K>
+        >
+      >;
+
+      readonly testWithEmptyResponse: TypeofApiCall<
+        ReplaceRequestParams<
+          TestWithEmptyResponseT,
+          Omit<RequestParams<TestWithEmptyResponseT>, K>
         >
       >;
     };
@@ -1496,6 +1510,24 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testWithEmptyResponseT: ReplaceRequestParams<
+    TestWithEmptyResponseT,
+    RequestParams<TestWithEmptyResponseT>
+  > = {
+    method: \\"get\\",
+
+    headers: () => ({}),
+
+    response_decoder: testWithEmptyResponseDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-with-empty-response\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testWithEmptyResponse: TypeofApiCall<TestWithEmptyResponseT> = createFetchRequestForApi(
+    testWithEmptyResponseT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testSimpleToken: (withDefaults || identity)(testSimpleToken),
@@ -1518,7 +1550,8 @@ export function createClient<K extends ParamKeys>({
       testParametersAtPathLevel
     ),
     testSimplePatch: (withDefaults || identity)(testSimplePatch),
-    testCustomTokenHeader: (withDefaults || identity)(testCustomTokenHeader)
+    testCustomTokenHeader: (withDefaults || identity)(testCustomTokenHeader),
+    testWithEmptyResponse: (withDefaults || identity)(testWithEmptyResponse)
   };
 }
 "
@@ -2582,7 +2615,9 @@ import {
   TestSimplePatchT,
   testSimplePatchDefaultDecoder,
   TestCustomTokenHeaderT,
-  testCustomTokenHeaderDefaultDecoder
+  testCustomTokenHeaderDefaultDecoder,
+  TestWithEmptyResponseT,
+  testWithEmptyResponseDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -2604,7 +2639,8 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestWithTwoParamsT> &
   TypeofApiCall<TestParametersAtPathLevelT> &
   TypeofApiCall<TestSimplePatchT> &
-  TypeofApiCall<TestCustomTokenHeaderT>;
+  TypeofApiCall<TestCustomTokenHeaderT> &
+  TypeofApiCall<TestWithEmptyResponseT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
@@ -2619,7 +2655,8 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestWithTwoParamsT> &
   TypeofApiParams<TestParametersAtPathLevelT> &
   TypeofApiParams<TestSimplePatchT> &
-  TypeofApiParams<TestCustomTokenHeaderT>);
+  TypeofApiParams<TestCustomTokenHeaderT> &
+  TypeofApiParams<TestWithEmptyResponseT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -2656,7 +2693,8 @@ export type WithDefaultsT<
   | TestWithTwoParamsT
   | TestParametersAtPathLevelT
   | TestSimplePatchT
-  | TestCustomTokenHeaderT,
+  | TestCustomTokenHeaderT
+  | TestWithEmptyResponseT,
   K
 >;
 
@@ -2703,6 +2741,8 @@ export type Client<
       readonly testSimplePatch: TypeofApiCall<TestSimplePatchT>;
 
       readonly testCustomTokenHeader: TypeofApiCall<TestCustomTokenHeaderT>;
+
+      readonly testWithEmptyResponse: TypeofApiCall<TestWithEmptyResponseT>;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -2800,6 +2840,13 @@ export type Client<
         ReplaceRequestParams<
           TestCustomTokenHeaderT,
           Omit<RequestParams<TestCustomTokenHeaderT>, K>
+        >
+      >;
+
+      readonly testWithEmptyResponse: TypeofApiCall<
+        ReplaceRequestParams<
+          TestWithEmptyResponseT,
+          Omit<RequestParams<TestWithEmptyResponseT>, K>
         >
       >;
     };
@@ -3162,6 +3209,24 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testWithEmptyResponseT: ReplaceRequestParams<
+    TestWithEmptyResponseT,
+    RequestParams<TestWithEmptyResponseT>
+  > = {
+    method: \\"get\\",
+
+    headers: () => ({}),
+
+    response_decoder: testWithEmptyResponseDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-with-empty-response\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testWithEmptyResponse: TypeofApiCall<TestWithEmptyResponseT> = createFetchRequestForApi(
+    testWithEmptyResponseT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testSimpleToken: (withDefaults || identity)(testSimpleToken),
@@ -3184,7 +3249,8 @@ export function createClient<K extends ParamKeys>({
       testParametersAtPathLevel
     ),
     testSimplePatch: (withDefaults || identity)(testSimplePatch),
-    testCustomTokenHeader: (withDefaults || identity)(testCustomTokenHeader)
+    testCustomTokenHeader: (withDefaults || identity)(testCustomTokenHeader),
+    testWithEmptyResponse: (withDefaults || identity)(testWithEmptyResponse)
   };
 }
 "
