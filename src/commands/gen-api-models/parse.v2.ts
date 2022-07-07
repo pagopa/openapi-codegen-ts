@@ -321,11 +321,12 @@ export const parseOperation = (
     // We are reading responseStatus from operation.responses keys, so it will never be null
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const response: OpenAPIV2.Response = operation.responses[responseStatus]!;
-    const typeRef = isRefObject(response)
-      ? response.$ref
-      : response.schema !== undefined && isRefObject(response.schema)
-      ? response.schema.$ref
-      : undefined;
+    const typeRef =
+      "schema" in response &&
+      response.schema !== undefined &&
+      isRefObject(response.schema)
+        ? response.schema.$ref
+        : undefined;
     const responseHeaders = Object.keys(
       !isRefObject(response) ? response.headers || {} : {}
     );
