@@ -390,12 +390,11 @@ export const parseOperation = (
       ? response.content?.[Object.keys(response.content ?? {})[0]]
       : undefined;
 
-    const typeRef = isRefObject(response)
-      ? response.$ref
-      : firstMediaContent?.schema !== undefined &&
-        isRefObject(firstMediaContent.schema)
-      ? firstMediaContent.schema.$ref
-      : undefined;
+    const typeRef =
+      firstMediaContent?.schema !== undefined &&
+      isRefObject(firstMediaContent.schema)
+        ? firstMediaContent.schema.$ref
+        : undefined;
     const responseHeaders = Object.keys(
       !isRefObject(response) ? response.headers || {} : {}
     );

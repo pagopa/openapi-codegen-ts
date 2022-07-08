@@ -75,8 +75,6 @@ describe.each`
     // @ts-ignore
     const parsed = getParser(spec).parseSpecMeta(spec);
 
-    console.log(parsed);
-
     expect(parsed).toEqual(
       expect.objectContaining({
         basePath: "/api/v1",
@@ -192,6 +190,29 @@ describe.each`
             name: "x-header-param",
             type: "string"
           }
+        ])
+      })
+    );
+  });
+
+  // We are not currently supporting responses as $ref
+  it("should parse an operation with response with no schema setting type to undefined", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/test-with-empty-response",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "get",
+        path: "/test-with-empty-response",
+        parameters: [],
+        responses: expect.arrayContaining([
+          { e1: "200", e2: "undefined", e3: [] }
         ])
       })
     );

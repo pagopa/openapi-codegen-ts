@@ -244,6 +244,13 @@ paths:
           description: "Will send `Authenticated`"
         "403":
           description: "You do not have necessary permissions for the resource"
+  /test-with-empty-response:
+    get:
+      operationId: "testWithEmptyResponse"
+      responses:
+        "200":
+          $ref: "#/components/responses/NotFound"
+          
 # -------------
 # Components
 # -------------
@@ -683,6 +690,13 @@ components:
       schema:
         type: string
   
+  # -------------
+  # Responses
+  # -------------
+  responses:
+    NotFound:
+      description: Not found
+
   # -------------
   # Sec Schemas
   # -------------

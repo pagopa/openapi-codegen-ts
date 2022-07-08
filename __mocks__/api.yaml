@@ -218,7 +218,7 @@ paths:
         "200":
           description: "Ok"
         "500":
-          description: "Fatal error"  
+          description: "Fatal error"
   /test-simple:
     patch:
       operationId: "testSimplePatch"
@@ -227,7 +227,7 @@ paths:
         "200":
           description: "Ok"
         "500":
-          description: "Fatal error"                            
+          description: "Fatal error"
   /test-custom-token-header:
     get:
       operationId: "testCustomTokenHeader"
@@ -238,12 +238,19 @@ paths:
         "200":
           description: "Will send `Authenticated`"
         "403":
-          description: "You do not have necessary permissions for the resource"    
+          description: "You do not have necessary permissions for the resource"
+  /test-with-empty-response:
+    get:
+      operationId: "testWithEmptyResponse"
+      responses:
+        "200":
+          $ref: "#/responses/NotFound"
+
 definitions:
   Person:
     $ref: "definitions.yaml#/Person"
   Book:
-    $ref: "definitions.yaml#/Book"        
+    $ref: "definitions.yaml#/Book"
   AllOfTest:
     allOf:
       - type: object
@@ -713,7 +720,10 @@ definitions:
           $ref: "#/definitions/DefinitionFieldWithDash"
     required:
       - items
-responses: {}
+responses:
+  NotFound:
+    description: Not found
+    #content: {} #TODO
 parameters:
   PaginationRequest:
     name: cursor
