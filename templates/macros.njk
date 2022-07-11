@@ -345,9 +345,9 @@
     {% if definition.additionalProperties %}
       // additional attributes
       {% if definition.additionalProperties == true -%}
-        {% set typedef %}t.dictionary(t.string, t.any, "{{ definitionName }}"){% endset %}
+        {% set typedef %}t.record(t.string, t.any, "{{ definitionName }}"){% endset %}
       {% else %}
-        {% set typedef %}t.dictionary(t.string,
+        {% set typedef %}t.record(t.string,
           {{ defineObjectProperty(false, definition.additionalProperties, camelCasedPropNames) }} "{{ definitionName }}")
         {% endset %}
       {%- endif %}
