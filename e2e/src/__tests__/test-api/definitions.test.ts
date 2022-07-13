@@ -21,11 +21,12 @@ import { EnumFalseTest } from "../../generated/testapi/EnumFalseTest";
 import { EnumTrueTest } from "../../generated/testapi/EnumTrueTest";
 import { AllOfWithOneElementTest } from "../../generated/testapi/AllOfWithOneElementTest";
 import { AllOfWithOneRefElementTest } from "../../generated/testapi/AllOfWithOneRefElementTest";
+import { AdditionalPropsTest } from "../../generated/testapi/AdditionalPropsTest";
 
 
 import * as E from "fp-ts/lib/Either"
 
-const { generatedFilesDir, isSpecEnabled } = config.specs.testapi;
+const { generatedFilesDir } = config.specs.testapi;
 
 // if there's no need for this suite in this particular run, just skip it
 
@@ -334,8 +335,27 @@ describe("AllOfWithOneElementTest definition", () => {
     expect(E.isRight(AllOfWithOneElementTest.decode(okElement))).toBeTruthy();
   })
 
-  it("Should return a left aaa", () => {
+  it("Should return a left", () => {
     expect(E.isLeft(AllOfWithOneElementTest.decode(notOkElement))).toBeTruthy();
+  })
+
+})
+
+describe("AdditionalPropsTest should be an object with a string as key and an array of number as value", () => {
+
+  const okElement = {"okElementProperty": [1, 2, 3]};
+  const notOkElement = {"notOkElementProperty": ["1", "2", "3"]};
+
+  it("Should return a right with a valid type", () => {
+    expect(E.isRight(AdditionalPropsTest.decode(okElement))).toBeTruthy();
+  })
+
+  it("Should return a left with a non valid element", () => {
+    expect(E.isLeft(AdditionalPropsTest.decode(notOkElement))).toBeTruthy();
+  })
+
+  it("Should return a left with undefined input", () => {
+    expect(E.isLeft(AdditionalPropsTest.decode(undefined))).toBeTruthy();
   })
 
 })
