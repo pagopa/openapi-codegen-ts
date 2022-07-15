@@ -194,7 +194,7 @@ describe.each`
     expect(code).toMatchSnapshot("enum-simple");
   });
 
-  it("should generate a dictionary from additionalProperties", async () => {
+  it("should generate a record from additionalProperties", async () => {
     const definitonName = "AdditionalPropsTest";
     const definition = getDefinitionOrFail(spec, definitonName);
 
@@ -207,11 +207,12 @@ describe.each`
       false
     );
 
-    expect(code).toContain("t.dictionary");
+    expect(code).toContain("t.record");
+    expect(code).not.toContain("t.dictionary");
     expect(code).toMatchSnapshot("additional-properties");
   });
 
-  it("should generate a dictionary from additionalProperties: true", async () => {
+  it("should generate a record from additionalProperties: true", async () => {
     const definitonName = "AdditionalPropsTrueTest";
     const definition = getDefinitionOrFail(spec, definitonName);
 
@@ -224,7 +225,8 @@ describe.each`
       false
     );
 
-    expect(code).toContain("t.dictionary");
+    expect(code).toContain("t.record");
+    expect(code).not.toContain("t.dictionary");
     expect(code).toContain("t.any");
     expect(code).toMatchSnapshot("additional-properties-true");
   });
@@ -242,7 +244,8 @@ describe.each`
       false
     );
 
-    expect(code).toContain("t.dictionary");
+    expect(code).toContain("t.record");
+    expect(code).not.toContain("t.dictionary");
     expect(code).toContain("withDefault");
     expect(code).toMatchSnapshot("additional-properties-default");
   });
