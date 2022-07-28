@@ -376,7 +376,7 @@ function getDecoderForResponse(
   }: ITuple3<string, string, ReadonlyArray<string>>,
   varName: string
 ): string {
-  return type === "Buffer" 
+  return type === "Buffer"
     ? `r.bufferArrayResponseDecoder(${status}) as any`
     : type === "Error"
     ? `r.basicErrorResponseDecoder<${status}>(${status})`

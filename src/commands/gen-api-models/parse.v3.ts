@@ -253,6 +253,7 @@ const parseExtraParameters = (
  *
  * @returns a IOperationInfo struct if correct, undefined otherwise
  */
+// eslint-disable-next-line
 export const parseOperation = (
   api: OpenAPIV3.Document,
   path: string,
@@ -405,7 +406,11 @@ export const parseOperation = (
     }
     const responseType = parsedRef
       ? parsedRef.e2
-      : firstMediaContent && "schema" in firstMediaContent && firstMediaContent.schema && "format" in firstMediaContent.schema && firstMediaContent.schema.format === "binary"
+      : firstMediaContent &&
+        "schema" in firstMediaContent &&
+        firstMediaContent.schema &&
+        "format" in firstMediaContent.schema &&
+        firstMediaContent.schema.format === "binary"
       ? "Buffer"
       : responseStatus === "200"
       ? defaultSuccessType

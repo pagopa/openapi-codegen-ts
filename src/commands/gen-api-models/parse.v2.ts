@@ -337,7 +337,10 @@ export const parseOperation = (
     }
     const responseType = parsedRef
       ? parsedRef.e2
-      : "schema" in response && response.schema && "format" in response.schema && response.schema.format === "binary"
+      : "schema" in response &&
+        response.schema &&
+        "format" in response.schema &&
+        response.schema.format === "binary"
       ? "Buffer"
       : responseStatus === "200"
       ? defaultSuccessType
