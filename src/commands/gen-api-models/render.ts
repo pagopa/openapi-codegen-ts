@@ -376,7 +376,9 @@ function getDecoderForResponse(
   }: ITuple3<string, string, ReadonlyArray<string>>,
   varName: string
 ): string {
-  return type === "Error"
+  return type === "Buffer" 
+    ? `r.bufferArrayResponseDecoder(${status}) as any`
+    : type === "Error"
     ? `r.basicErrorResponseDecoder<${status}>(${status})`
     : // checks at runtime if the provided decoder is t.undefined
       `${varName}[${status}].name === "undefined" 

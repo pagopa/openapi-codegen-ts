@@ -120,6 +120,27 @@ describe.each`
     );
   });
 
+  it("should parse an operation with external parameter", () => {
+    const parsed = getParser(spec).parseOperation(
+      // @ts-ignore
+      spec,
+      "/test-binary-file-download",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: 'get',
+        operationId: 'testBinaryFileDownload',
+        responses: [ { e1: '200', e2: 'Buffer', e3: [] } ],
+        path: '/test-binary-file-download',
+        consumes: undefined,
+      })
+    );
+  });
+
   it("should parse an operation which parameter has schema reference", () => {
     const parsed = getParser(spec).parseOperation(
       //@ts-ignore

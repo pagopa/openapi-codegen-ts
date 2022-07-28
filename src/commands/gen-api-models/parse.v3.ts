@@ -405,6 +405,8 @@ export const parseOperation = (
     }
     const responseType = parsedRef
       ? parsedRef.e2
+      : firstMediaContent && "schema" in firstMediaContent && firstMediaContent.schema && "format" in firstMediaContent.schema && firstMediaContent.schema.format === "binary"
+      ? "Buffer"
       : responseStatus === "200"
       ? defaultSuccessType
       : defaultErrorType;
