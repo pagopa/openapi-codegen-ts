@@ -3,7 +3,7 @@
 import { OpenAPIV2 } from "openapi-types";
 import * as SwaggerParser from "swagger-parser";
 
-import { renderDefinitionCode } from "../render";
+import { renderDefinitionCode, renderAllOperations } from "../render";
 import { getDefinitionOrFail, getParser } from "./utils/parser.utils";
 
 let spec: OpenAPIV2.Document;
@@ -37,4 +37,18 @@ describe.each`
 
     expect(code).toMatchSnapshot();
   });
+
+  it("should render RequestTypes for octet-stream", () => {
+      const operationInfo1 = getParser(spec).parseOperation(
+        // @ts-ignore
+        spec,
+        "/test-binary-file-download",
+        [],
+        "undefined",
+        "undefined"
+      )("get");
+      const code = renderAllOperations([operationInfo1], true)
+      expect(code).toMatchSnapshot();
+    })
+
 });
