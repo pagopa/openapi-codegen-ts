@@ -316,7 +316,7 @@ describe.each`
     expect(code).not.toContain("t.string");
     expect(code).toContain("enumType");
     expect(code).toMatchSnapshot("all-of-test");
-  })
+  });
 
   it("should generate a type union from oneOf", async () => {
     const definitonName = "OneOfTest";
@@ -748,7 +748,7 @@ describe.each`
     // @ts-ignore
     expect(Person?.properties?.address?.properties?.zipCode).toEqual(
       expect.objectContaining({
-        pattern: expect.any(String),
+        pattern: "^\\d{5}$",
         type: "string"
       })
     );

@@ -92,7 +92,7 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
     minLength: source.minLength,
     minimum: source.minimum,
     oneOf,
-    pattern: source.pattern,
+    pattern: source.pattern?.split("\\").join("\\\\"),
     required: source.required,
     title: source.title,
     type: source.type,
