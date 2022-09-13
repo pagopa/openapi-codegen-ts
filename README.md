@@ -23,6 +23,10 @@ In simple terms it converts an OpenAPI spec like [this one](https://github.com/t
 
 Note: the generated models requires the runtime dependency [`@pagopa/ts-commons`](https://www.npmjs.com/package/@pagopa/ts-commons).
 
+#### About string pattern definition
+
+Up until version 12.x, when handling string pattern definitions given in the OpenAPI specifications, the production of runtime types has a bug: when using a backslash (`\`) for escaping regular expression digits (e.g., `\d`), the generator drops it. Double backslashes (`\\`) can be used in the pattern description as a fix for this issue. Starting from version 12.x the codegen will notify you whenever it detects a `\\` inside a pattern definition as this bug has been resolved for OpenAPI 3.x.
+
 
 #### Usage
 
