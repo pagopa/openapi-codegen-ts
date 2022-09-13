@@ -82,7 +82,7 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
   if (source.pattern?.match(DOUBLE_BACKSLASH_REGEX) != null) {
     // eslint-disable-next-line no-console
     console.warn(
-      `WARNING: found a double backslash in the pattern ${source.pattern}: do you really intend it? (see https://github.com/pagopa/openapi-codegen-ts/blob/master/README.md)`
+      `WARNING: found a double backslash in the pattern ${source.pattern}: do you really intend it? (see https://github.com/pagopa/openapi-codegen-ts/blob/master/README.md#about-string-pattern-definition)`
     );
   }
 
