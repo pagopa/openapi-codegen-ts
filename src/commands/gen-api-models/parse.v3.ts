@@ -78,6 +78,14 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
       parseInnerDefinition(source.items[0])
     : parseInnerDefinition(source.items);
 
+  const DOUBLE_BACKSLASH_REGEX = /\\\\/;
+  if (source.pattern?.match(DOUBLE_BACKSLASH_REGEX) != null) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `WARNING: found a double backslash in the pattern ${source.pattern} : do you really intend it? (cfr https://github.com/pagopa/openapi-codegen-ts/blob/master/README.md to info about pattern)`
+    );
+  }
+
   return {
     additionalProperties,
     allOf,
