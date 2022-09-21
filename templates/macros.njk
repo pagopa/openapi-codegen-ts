@@ -200,7 +200,8 @@
         "{{ definitionName }}"
       ){% endset %}
     {% elif definition["x-extensible-enum"] %}
-      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
+      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";
+      import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";' | addImport -}}
       {% set enumTypeAlias %}
         export enum {{ definitionName | capitalizeFirst }}Enum {
             {% for enum in definition["x-extensible-enum"] %}
@@ -209,10 +210,12 @@
         }
       {% endset %}
       {{- enumTypeAlias | addTypeAlias -}}
-      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
-        {{ definitionName | capitalizeFirst }}Enum,
-        "{{ definitionName }}"
-      ){% endset %}
+      {% set typedef %}t.union([
+        enumType<{{ definitionName | capitalizeFirst }}Enum>(
+          {{ definitionName | capitalizeFirst }}Enum,
+          "{{ definitionName }}"
+        ),
+        NonEmptyString], "Extensible{{ definitionName }}"){% endset %}
     {% else %}
       {% set typedef %}t.string{% endset %}
     {% endif %}

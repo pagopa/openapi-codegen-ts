@@ -103,6 +103,8 @@ export interface IDefinition {
   readonly required?: ReadonlyArray<string>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly enum?: ReadonlyArray<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly ["x-extensible-enum"]?: ReadonlyArray<any>;
   readonly properties?: {
     readonly [name: string]: ReferenceObject | IDefinition;
   };

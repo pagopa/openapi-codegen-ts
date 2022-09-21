@@ -132,11 +132,11 @@ describe.each`
 
     expect(parsed).toEqual(
       expect.objectContaining({
-        method: 'get',
-        operationId: 'testBinaryFileDownload',
-        responses: [ { e1: '200', e2: 'Buffer', e3: [] } ],
-        path: '/test-binary-file-download',
-        consumes: undefined,
+        method: "get",
+        operationId: "testBinaryFileDownload",
+        responses: [{ e1: "200", e2: "Buffer", e3: [] }],
+        path: "/test-binary-file-download",
+        consumes: undefined
       })
     );
   });
@@ -297,7 +297,7 @@ describe.each`
       definition
     );
 
-    expect(parsed.enum).toEqual(expect.any(Array));
+    expect(parsed["x-extensible-enum"]).toEqual(expect.any(Array));
   });
 
   it("should handle AnObjectWithAnItemsField", async () => {

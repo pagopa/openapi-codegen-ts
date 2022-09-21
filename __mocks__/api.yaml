@@ -454,7 +454,7 @@ definitions:
     type: object
     properties:
       description:
-        type: string   
+        type: string
       enabled:
         type: boolean
         enum:

@@ -194,6 +194,22 @@ describe.each`
     expect(code).toMatchSnapshot("enum-simple");
   });
 
+  it("should handle extensible enums", async () => {
+    const definitonName = "PreferredLanguage";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
+    const code = await renderDefinitionCode(
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
+      false
+    );
+
+    expect(code).toMatchSnapshot("extesible-enum");
+  });
+
   it("should generate a record from additionalProperties", async () => {
     const definitonName = "AdditionalPropsTest";
     const definition = getDefinitionOrFail(spec, definitonName);
