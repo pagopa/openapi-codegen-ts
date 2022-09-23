@@ -26,7 +26,8 @@ import * as E from "fp-ts/lib/Either";
 import {
   PreferredLanguage,
   PreferredLanguageEnum
-} from "../../generated/testapi/PreferredLanguage";
+} from "../../generated/testapiV3/PreferredLanguage";
+import { PreferredLanguage as ExtensiblePreferredLanguage } from "../../generated/testapiV3-unstrict/PreferredLanguage";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapiV3;
@@ -336,23 +337,31 @@ describe("ExtensiblePreferredLanguage definition", () => {
   const l4Ko = "";
 
   it("should decode extensible enum with definied enum value", () => {
-    const result = PreferredLanguage.decode(l1Ok);
+    const result = ExtensiblePreferredLanguage.decode(l1Ok);
+    const strictResult = PreferredLanguage.decode(l1Ok);
     expect(E.isRight(result)).toBe(true);
+    expect(E.isRight(strictResult)).toBe(true);
   });
 
   it("should decode extensible enum with string value", () => {
-    const result = PreferredLanguage.decode(l2Extensible);
+    const result = ExtensiblePreferredLanguage.decode(l2Extensible);
+    const strictResult = PreferredLanguage.decode(l2Extensible);
     expect(E.isRight(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
   });
 
   it("should fail decode extensible enum with invalid value", () => {
-    const result = PreferredLanguage.decode(l3Ko);
+    const result = ExtensiblePreferredLanguage.decode(l3Ko);
+    const strictResult = PreferredLanguage.decode(l3Ko);
     expect(E.isLeft(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
   });
 
   it("should fail decode extensible enum with empty string", () => {
-    const result = PreferredLanguage.decode(l4Ko);
+    const result = ExtensiblePreferredLanguage.decode(l4Ko);
+    const strictResult = PreferredLanguage.decode(l4Ko);
     expect(E.isLeft(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
   });
 });
 
