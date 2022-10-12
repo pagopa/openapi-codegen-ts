@@ -367,7 +367,7 @@ export const parseOperation = (
           ]
       : [];
 
-  // If the requestBody is a reference, we need to import the type
+  // If the requestBody uses a reference, we need to import the refernced type
   if (bodySchema && isRefObject(bodySchema)) {
     importedTypes.add(
       bodySchema.$ref
