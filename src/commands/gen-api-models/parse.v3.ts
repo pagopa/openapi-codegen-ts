@@ -268,7 +268,7 @@ export const parseOperation = (
   extraParameters: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
   defaultSuccessType: string,
   defaultErrorType: string
-  // eslint-disable-next-line complexity, sonarjs/cognitive-complexity
+  // eslint-disable-next-line complexity, sonarjs/cognitive-complexity, max-lines-per-function
 ) => (operationKey: string): IOperationInfo | undefined => {
   const specParameters = api.components?.parameters;
 
