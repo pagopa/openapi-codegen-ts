@@ -367,6 +367,16 @@ export const parseOperation = (
           ]
       : [];
 
+  // If the requestBody is a reference, we need to import the type
+  if (bodySchema && isRefObject(bodySchema)) {
+    importedTypes.add(
+      bodySchema.$ref
+        .split("/")
+        .slice()
+        .pop() ?? ""
+    );
+  }
+
   const parameters = [
     ...extraParameters,
     ...authParams,
