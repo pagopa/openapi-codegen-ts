@@ -132,11 +132,11 @@ describe.each`
 
     expect(parsed).toEqual(
       expect.objectContaining({
-        method: 'get',
-        operationId: 'testBinaryFileDownload',
-        responses: [ { e1: '200', e2: 'Buffer', e3: [] } ],
-        path: '/test-binary-file-download',
-        consumes: undefined,
+        method: "get",
+        operationId: "testBinaryFileDownload",
+        responses: [{ e1: "200", e2: "Buffer", e3: [] }],
+        path: "/test-binary-file-download",
+        consumes: undefined
       })
     );
   });
@@ -180,7 +180,32 @@ describe.each`
           {
             name: "body?",
             in: "body",
-            type: "Message"
+            type: "NewModel"
+          }
+        ])
+      })
+    );
+  });
+
+  it("should parse a put operation with body as ref", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/put-test-parameter-with-body-ref",
+      [],
+      "undefined",
+      "undefined"
+    )("put");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "put",
+        path: "/put-test-parameter-with-body-ref",
+        parameters: expect.arrayContaining([
+          {
+            name: "body?",
+            in: "body",
+            type: "NewModel"
           }
         ])
       })

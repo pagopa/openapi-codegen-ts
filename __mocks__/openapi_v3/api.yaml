@@ -151,13 +151,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Message"
-
+              $ref: "#/components/schemas/NewModel"
       responses:
         201:
           description: "Created"
         500:
           description: "Fatal error"   
+  /put-test-parameter-with-body-ref:
+    put:
+      operationId: "putTestParameterWithBodyReference"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewModel"
+      responses:
+        201:
+          description: "Created"
+        500:
+          description: "Fatal error" 
   /test-parameter-with-dash/{path-param}:
     get:
       operationId: "testParameterWithDash"
@@ -390,6 +402,17 @@ components:
       required:
         - id
         - content
+    NewModel:
+      title: NewModel
+      type: object
+      properties:
+        id: 
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - name
     PaginationResponse:
       type: object
       description: Pagination response parameters.
