@@ -268,7 +268,7 @@ export const parseOperation = (
   extraParameters: ReadonlyArray<IParameterInfo | IHeaderParameterInfo>,
   defaultSuccessType: string,
   defaultErrorType: string
-  // eslint-disable-next-line complexity, sonarjs/cognitive-complexity
+  // eslint-disable-next-line complexity, sonarjs/cognitive-complexity, max-lines-per-function
 ) => (operationKey: string): IOperationInfo | undefined => {
   const specParameters = api.components?.parameters;
 
@@ -366,6 +366,16 @@ export const parseOperation = (
             }
           ]
       : [];
+
+  // If the requestBody uses a reference, we need to import the refernced type
+  if (bodySchema && isRefObject(bodySchema)) {
+    importedTypes.add(
+      bodySchema.$ref
+        .split("/")
+        .slice()
+        .pop() ?? ""
+    );
+  }
 
   const parameters = [
     ...extraParameters,

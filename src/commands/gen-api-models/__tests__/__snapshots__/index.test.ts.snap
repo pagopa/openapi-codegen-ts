@@ -917,6 +917,8 @@ import {
   testParameterWithReferenceDefaultDecoder,
   TestParameterWithBodyReferenceT,
   testParameterWithBodyReferenceDefaultDecoder,
+  PutTestParameterWithBodyReferenceT,
+  putTestParameterWithBodyReferenceDefaultDecoder,
   TestParameterWithDashT,
   testParameterWithDashDefaultDecoder,
   TestParameterWithDashAnUnderscoreT,
@@ -948,6 +950,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestResponseHeaderT> &
   TypeofApiCall<TestParameterWithReferenceT> &
   TypeofApiCall<TestParameterWithBodyReferenceT> &
+  TypeofApiCall<PutTestParameterWithBodyReferenceT> &
   TypeofApiCall<TestParameterWithDashT> &
   TypeofApiCall<TestParameterWithDashAnUnderscoreT> &
   TypeofApiCall<TestWithTwoParamsT> &
@@ -965,6 +968,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestResponseHeaderT> &
   TypeofApiParams<TestParameterWithReferenceT> &
   TypeofApiParams<TestParameterWithBodyReferenceT> &
+  TypeofApiParams<PutTestParameterWithBodyReferenceT> &
   TypeofApiParams<TestParameterWithDashT> &
   TypeofApiParams<TestParameterWithDashAnUnderscoreT> &
   TypeofApiParams<TestWithTwoParamsT> &
@@ -1004,6 +1008,7 @@ export type WithDefaultsT<
   | TestResponseHeaderT
   | TestParameterWithReferenceT
   | TestParameterWithBodyReferenceT
+  | PutTestParameterWithBodyReferenceT
   | TestParameterWithDashT
   | TestParameterWithDashAnUnderscoreT
   | TestWithTwoParamsT
@@ -1042,6 +1047,10 @@ export type Client<
 
       readonly testParameterWithBodyReference: TypeofApiCall<
         TestParameterWithBodyReferenceT
+      >;
+
+      readonly putTestParameterWithBodyReference: TypeofApiCall<
+        PutTestParameterWithBodyReferenceT
       >;
 
       readonly testParameterWithDash: TypeofApiCall<TestParameterWithDashT>;
@@ -1123,6 +1132,13 @@ export type Client<
         ReplaceRequestParams<
           TestParameterWithBodyReferenceT,
           Omit<RequestParams<TestParameterWithBodyReferenceT>, K>
+        >
+      >;
+
+      readonly putTestParameterWithBodyReference: TypeofApiCall<
+        ReplaceRequestParams<
+          PutTestParameterWithBodyReferenceT,
+          Omit<RequestParams<PutTestParameterWithBodyReferenceT>, K>
         >
       >;
 
@@ -1406,6 +1422,27 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const putTestParameterWithBodyReferenceT: ReplaceRequestParams<
+    PutTestParameterWithBodyReferenceT,
+    RequestParams<PutTestParameterWithBodyReferenceT>
+  > = {
+    method: \\"put\\",
+
+    headers: () => ({
+      \\"Content-Type\\": \\"application/json\\"
+    }),
+    response_decoder: putTestParameterWithBodyReferenceDefaultDecoder(),
+    url: ({}) => \`\${basePath}/put-test-parameter-with-body-ref\`,
+
+    body: ({ [\\"body\\"]: body }) => JSON.stringify(body),
+
+    query: () => withoutUndefinedValues({})
+  };
+  const putTestParameterWithBodyReference: TypeofApiCall<PutTestParameterWithBodyReferenceT> = createFetchRequestForApi(
+    putTestParameterWithBodyReferenceT,
+    options
+  );
+
   const testParameterWithDashT: ReplaceRequestParams<
     TestParameterWithDashT,
     RequestParams<TestParameterWithDashT>
@@ -1573,6 +1610,9 @@ export function createClient<K extends ParamKeys>({
     ),
     testParameterWithBodyReference: (withDefaults || identity)(
       testParameterWithBodyReference
+    ),
+    putTestParameterWithBodyReference: (withDefaults || identity)(
+      putTestParameterWithBodyReference
     ),
     testParameterWithDash: (withDefaults || identity)(testParameterWithDash),
     testParameterWithDashAnUnderscore: (withDefaults || identity)(
@@ -2639,6 +2679,8 @@ import {
   testParameterWithReferenceDefaultDecoder,
   TestParameterWithBodyReferenceT,
   testParameterWithBodyReferenceDefaultDecoder,
+  PutTestParameterWithBodyReferenceT,
+  putTestParameterWithBodyReferenceDefaultDecoder,
   TestParameterWithDashT,
   testParameterWithDashDefaultDecoder,
   TestParameterWithDashAnUnderscoreT,
@@ -2670,6 +2712,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestResponseHeaderT> &
   TypeofApiCall<TestParameterWithReferenceT> &
   TypeofApiCall<TestParameterWithBodyReferenceT> &
+  TypeofApiCall<PutTestParameterWithBodyReferenceT> &
   TypeofApiCall<TestParameterWithDashT> &
   TypeofApiCall<TestParameterWithDashAnUnderscoreT> &
   TypeofApiCall<TestWithTwoParamsT> &
@@ -2687,6 +2730,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestResponseHeaderT> &
   TypeofApiParams<TestParameterWithReferenceT> &
   TypeofApiParams<TestParameterWithBodyReferenceT> &
+  TypeofApiParams<PutTestParameterWithBodyReferenceT> &
   TypeofApiParams<TestParameterWithDashT> &
   TypeofApiParams<TestParameterWithDashAnUnderscoreT> &
   TypeofApiParams<TestWithTwoParamsT> &
@@ -2726,6 +2770,7 @@ export type WithDefaultsT<
   | TestResponseHeaderT
   | TestParameterWithReferenceT
   | TestParameterWithBodyReferenceT
+  | PutTestParameterWithBodyReferenceT
   | TestParameterWithDashT
   | TestParameterWithDashAnUnderscoreT
   | TestWithTwoParamsT
@@ -2764,6 +2809,10 @@ export type Client<
 
       readonly testParameterWithBodyReference: TypeofApiCall<
         TestParameterWithBodyReferenceT
+      >;
+
+      readonly putTestParameterWithBodyReference: TypeofApiCall<
+        PutTestParameterWithBodyReferenceT
       >;
 
       readonly testParameterWithDash: TypeofApiCall<TestParameterWithDashT>;
@@ -2845,6 +2894,13 @@ export type Client<
         ReplaceRequestParams<
           TestParameterWithBodyReferenceT,
           Omit<RequestParams<TestParameterWithBodyReferenceT>, K>
+        >
+      >;
+
+      readonly putTestParameterWithBodyReference: TypeofApiCall<
+        ReplaceRequestParams<
+          PutTestParameterWithBodyReferenceT,
+          Omit<RequestParams<PutTestParameterWithBodyReferenceT>, K>
         >
       >;
 
@@ -3138,6 +3194,27 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const putTestParameterWithBodyReferenceT: ReplaceRequestParams<
+    PutTestParameterWithBodyReferenceT,
+    RequestParams<PutTestParameterWithBodyReferenceT>
+  > = {
+    method: \\"put\\",
+
+    headers: () => ({
+      \\"Content-Type\\": \\"application/json\\"
+    }),
+    response_decoder: putTestParameterWithBodyReferenceDefaultDecoder(),
+    url: ({}) => \`\${basePath}/put-test-parameter-with-body-ref\`,
+
+    body: ({ [\\"body\\"]: body }) => JSON.stringify(body),
+
+    query: () => withoutUndefinedValues({})
+  };
+  const putTestParameterWithBodyReference: TypeofApiCall<PutTestParameterWithBodyReferenceT> = createFetchRequestForApi(
+    putTestParameterWithBodyReferenceT,
+    options
+  );
+
   const testParameterWithDashT: ReplaceRequestParams<
     TestParameterWithDashT,
     RequestParams<TestParameterWithDashT>
@@ -3305,6 +3382,9 @@ export function createClient<K extends ParamKeys>({
     ),
     testParameterWithBodyReference: (withDefaults || identity)(
       testParameterWithBodyReference
+    ),
+    putTestParameterWithBodyReference: (withDefaults || identity)(
+      putTestParameterWithBodyReference
     ),
     testParameterWithDash: (withDefaults || identity)(testParameterWithDash),
     testParameterWithDashAnUnderscore: (withDefaults || identity)(

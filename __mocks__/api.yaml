@@ -156,7 +156,20 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/Message"
+            $ref: "#/definitions/NewModel"
+      responses:
+        "201":
+          description: "Created"
+        "500":
+          description: "Fatal error"   
+  /put-test-parameter-with-body-ref:
+    put:
+      operationId: "putTestParameterWithBodyReference"
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/NewModel"
       responses:
         "201":
           description: "Created"
@@ -664,6 +677,17 @@ definitions:
     required:
       - id
       - content
+  NewModel:
+    title: NewModel
+    type: object
+    properties:
+      id: 
+        type: string
+      name:
+        type: string
+    required:
+      - id
+      - name
   Profile:
     title: Profile
     description: Describes the user's profile.
