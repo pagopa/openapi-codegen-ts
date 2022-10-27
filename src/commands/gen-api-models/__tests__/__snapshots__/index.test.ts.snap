@@ -2663,6 +2663,8 @@ import { identity } from \\"fp-ts/lib/function\\";
 import {
   TestAuthBearerT,
   testAuthBearerDefaultDecoder,
+  TestAuthBearerHttpT,
+  testAuthBearerHttpDefaultDecoder,
   TestSimpleTokenT,
   testSimpleTokenDefaultDecoder,
   TestMultipleSuccessT,
@@ -2704,6 +2706,7 @@ import {
 type __UNDEFINED_KEY = \\"_____\\";
 
 export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
+  TypeofApiCall<TestAuthBearerHttpT> &
   TypeofApiCall<TestSimpleTokenT> &
   TypeofApiCall<TestMultipleSuccessT> &
   TypeofApiCall<TestFileUploadT> &
@@ -2722,6 +2725,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestWithEmptyResponseT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
+  TypeofApiParams<TestAuthBearerHttpT> &
   TypeofApiParams<TestSimpleTokenT> &
   TypeofApiParams<TestMultipleSuccessT> &
   TypeofApiParams<TestFileUploadT> &
@@ -2762,6 +2766,7 @@ export type WithDefaultsT<
   K extends ParamKeys | __UNDEFINED_KEY = __UNDEFINED_KEY
 > = OmitApiCallParams<
   | TestAuthBearerT
+  | TestAuthBearerHttpT
   | TestSimpleTokenT
   | TestMultipleSuccessT
   | TestFileUploadT
@@ -2790,6 +2795,8 @@ export type Client<
 > = K extends __UNDEFINED_KEY
   ? {
       readonly testAuthBearer: TypeofApiCall<TestAuthBearerT>;
+
+      readonly testAuthBearerHttp: TypeofApiCall<TestAuthBearerHttpT>;
 
       readonly testSimpleToken: TypeofApiCall<TestSimpleTokenT>;
 
@@ -2838,6 +2845,13 @@ export type Client<
         ReplaceRequestParams<
           TestAuthBearerT,
           Omit<RequestParams<TestAuthBearerT>, K>
+        >
+      >;
+
+      readonly testAuthBearerHttp: TypeofApiCall<
+        ReplaceRequestParams<
+          TestAuthBearerHttpT,
+          Omit<RequestParams<TestAuthBearerHttpT>, K>
         >
       >;
 
@@ -3012,6 +3026,30 @@ export function createClient<K extends ParamKeys>({
   };
   const testAuthBearer: TypeofApiCall<TestAuthBearerT> = createFetchRequestForApi(
     testAuthBearerT,
+    options
+  );
+
+  const testAuthBearerHttpT: ReplaceRequestParams<
+    TestAuthBearerHttpT,
+    RequestParams<TestAuthBearerHttpT>
+  > = {
+    method: \\"get\\",
+
+    headers: ({
+      [\\"bearerTokenHttp\\"]: bearerTokenHttp
+    }: {
+      bearerTokenHttp: string;
+    }) => ({
+      Authorization: \`Bearer \${bearerTokenHttp}\`
+    }),
+    response_decoder: testAuthBearerHttpDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-auth-bearer-http\`,
+
+    query: ({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor }) =>
+      withoutUndefinedValues({ [\\"qo\\"]: qo, [\\"qr\\"]: qr, [\\"cursor\\"]: cursor })
+  };
+  const testAuthBearerHttp: TypeofApiCall<TestAuthBearerHttpT> = createFetchRequestForApi(
+    testAuthBearerHttpT,
     options
   );
 
@@ -3371,6 +3409,7 @@ export function createClient<K extends ParamKeys>({
 
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
+    testAuthBearerHttp: (withDefaults || identity)(testAuthBearerHttp),
     testSimpleToken: (withDefaults || identity)(testSimpleToken),
     testMultipleSuccess: (withDefaults || identity)(testMultipleSuccess),
     testFileUpload: (withDefaults || identity)(testFileUpload),

@@ -32,6 +32,32 @@ paths:
           description: You do not have necessary permissions for the resource
       security:
       - bearerToken: []
+  /test-auth-bearer-http:
+    get:
+      operationId: testAuthBearerHttp
+      parameters:
+      - name: qo
+        in: query
+        schema:
+          type: string
+      - name: qr
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: cursor
+        in: query
+        description: An opaque identifier that points to the next item in the collection.
+        schema:
+          minimum: 1
+          type: string
+      responses:
+        200:
+          description: Will send `Authenticated`
+        403:
+          description: You do not have necessary permissions for the resource
+      security:
+      - bearerTokenHttp: []
   /test-simple-token:
     get:
       operationId: "testSimpleToken"
@@ -740,6 +766,9 @@ components:
       name: Authorization
       in: header
       x-auth-scheme: bearer
+    bearerTokenHttp:
+      type: http
+      scheme: bearer
     simpleToken:
       type: apiKey
       name: X-Functions-Key

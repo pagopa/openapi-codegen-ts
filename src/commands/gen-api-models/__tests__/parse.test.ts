@@ -12,7 +12,7 @@ describe.each`
   version | specPath
   ${2}    | ${`${process.cwd()}/__mocks__/api.yaml`}
   ${3}    | ${`${process.cwd()}/__mocks__/openapi_v3/api.yaml`}
-`("Openapi V$version |> getAuthHeaders", ({ specPath }) => {
+`("Openapi V$version |> getAuthHeaders", ({ specPath, version }) => {
   beforeAll(async () => {
     spec = (await SwaggerParser.bundle(specPath)) as
       | OpenAPIV2.Document
@@ -43,6 +43,34 @@ describe.each`
         type: "string"
       })
     ]);
+  });
+
+  it("should parse a security definition with bearer token http", () => {
+    // basically, this tell which security defintion we select
+    const security = [
+      {
+        bearerTokenHttp: []
+      }
+    ];
+    const parsed = isOpenAPIV2(spec)
+      ? getParser(spec).getAuthHeaders(spec.securityDefinitions, security)
+      : getParser(spec).getAuthHeaders(
+          spec?.components?.securitySchemes,
+          security
+        );
+
+    if(version === 3) {
+      expect(parsed).toEqual([
+        expect.objectContaining({
+          authScheme: "bearer",
+          headerName: "Authorization",
+          in: "header",
+          name: "bearerTokenHttp",
+          tokenType: "apiKey",
+          type: "string"
+        })
+      ]);
+    }
   });
 
   it("should parse a security definition with no auth schema", () => {
