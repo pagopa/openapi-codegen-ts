@@ -613,6 +613,12 @@ const parseParamWithReference = (
   };
 };
 
+/**
+ * Convert a security definition of type 'http' (v3 only) to a security definition of type 'apiKey'.
+ *
+ * @param securityDef of any type
+ * @returns securityDef of type 'apiKey'
+ */
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 function convertV3HttpSecurityDefToV2ApiKeySecurityDef(
   securityDef: ITuple2<
