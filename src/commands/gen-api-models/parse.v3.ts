@@ -614,6 +614,31 @@ const parseParamWithReference = (
 };
 
 /**
+ * Convert a security definition of type 'http' (v3 only) to a security definition of type 'apiKey'.
+ *
+ * @param securityDef of any type
+ * @returns securityDef of type 'apiKey'
+ */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+function convertV3HttpSecurityDefToV2ApiKeySecurityDef(
+  securityDef: ITuple2<
+    string,
+    OpenAPIV3.ReferenceObject | OpenAPIV3.SecuritySchemeObject
+  >
+): ITuple2<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SecuritySchemeObject> {
+  const e2 = securityDef.e2;
+  if (!isRefObject(e2) && e2.type === "http" && e2.scheme === "bearer") {
+    return Tuple2(securityDef.e1, {
+      in: "header",
+      name: "Authorization",
+      type: "apiKey",
+      "x-auth-scheme": "bearer"
+    } as OpenAPIV3.SecuritySchemeObject);
+  }
+  return securityDef;
+}
+
+/**
  * Parse security along with security definitions to obtain a collection of tuples in the form (keyName, headerName).
  * It works with security object both global and operation-specific.
  * see: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityRequirementObject
@@ -650,6 +675,7 @@ export function getAuthHeaders(
 
   return securityDefs
     .filter(_ => _.e2 !== undefined)
+    .map(convertV3HttpSecurityDefToV2ApiKeySecurityDef)
     .filter(
       _ =>
         // eslint-disable-next-line no-prototype-builtins
