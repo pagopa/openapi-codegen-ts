@@ -205,7 +205,7 @@ export const renderOperation = (
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 export function renderDecoderCode({ responses, operationId }: IOperationInfo) {
-  // use the first 2xx type as "success type" that we allow to be overridden
+  // use the first 2xx type and 3xx as "success type" that we allow to be overridden
   const firstSuccessType = responses.find(
     ({ e1 }) => e1.length === 3 && (e1[0] === "2" || e1[0] === "3")
   );
