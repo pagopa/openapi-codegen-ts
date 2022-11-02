@@ -207,7 +207,7 @@ export const renderOperation = (
 export function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   // use the first 2xx type as "success type" that we allow to be overridden
   const firstSuccessType = responses.find(
-    ({ e1 }) => e1.length === 3 && e1[0] === "2"
+    ({ e1 }) => e1.length === 3 && (e1[0] === "2" || e1[0] === "3")
   );
   if (!firstSuccessType) {
     return "";

@@ -271,7 +271,17 @@ paths:
       responses:
         "200":
           $ref: "#/responses/NotFound"
-
+  /test-redirect-response-header:
+    post:
+      operationId: "testRedirectResponseHeader"
+      responses:
+        "302":
+          description: "redirect to location"
+          headers:
+            Location:
+              type: string
+        "500":
+          description: "Fatal error"       
 definitions:
   Person:
     $ref: "definitions.yaml#/Person"
