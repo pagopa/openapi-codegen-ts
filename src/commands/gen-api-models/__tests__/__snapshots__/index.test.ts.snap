@@ -932,7 +932,9 @@ import {
   TestCustomTokenHeaderT,
   testCustomTokenHeaderDefaultDecoder,
   TestWithEmptyResponseT,
-  testWithEmptyResponseDefaultDecoder
+  testWithEmptyResponseDefaultDecoder,
+  TestRedirectResponseHeaderT,
+  testRedirectResponseHeaderDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -957,7 +959,8 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestParametersAtPathLevelT> &
   TypeofApiCall<TestSimplePatchT> &
   TypeofApiCall<TestCustomTokenHeaderT> &
-  TypeofApiCall<TestWithEmptyResponseT>;
+  TypeofApiCall<TestWithEmptyResponseT> &
+  TypeofApiCall<TestRedirectResponseHeaderT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
@@ -975,7 +978,8 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestParametersAtPathLevelT> &
   TypeofApiParams<TestSimplePatchT> &
   TypeofApiParams<TestCustomTokenHeaderT> &
-  TypeofApiParams<TestWithEmptyResponseT>);
+  TypeofApiParams<TestWithEmptyResponseT> &
+  TypeofApiParams<TestRedirectResponseHeaderT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -1015,7 +1019,8 @@ export type WithDefaultsT<
   | TestParametersAtPathLevelT
   | TestSimplePatchT
   | TestCustomTokenHeaderT
-  | TestWithEmptyResponseT,
+  | TestWithEmptyResponseT
+  | TestRedirectResponseHeaderT,
   K
 >;
 
@@ -1070,6 +1075,10 @@ export type Client<
       readonly testCustomTokenHeader: TypeofApiCall<TestCustomTokenHeaderT>;
 
       readonly testWithEmptyResponse: TypeofApiCall<TestWithEmptyResponseT>;
+
+      readonly testRedirectResponseHeader: TypeofApiCall<
+        TestRedirectResponseHeaderT
+      >;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -1188,6 +1197,13 @@ export type Client<
         ReplaceRequestParams<
           TestWithEmptyResponseT,
           Omit<RequestParams<TestWithEmptyResponseT>, K>
+        >
+      >;
+
+      readonly testRedirectResponseHeader: TypeofApiCall<
+        ReplaceRequestParams<
+          TestRedirectResponseHeaderT,
+          Omit<RequestParams<TestRedirectResponseHeaderT>, K>
         >
       >;
     };
@@ -1597,6 +1613,27 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testRedirectResponseHeaderT: ReplaceRequestParams<
+    TestRedirectResponseHeaderT,
+    RequestParams<TestRedirectResponseHeaderT>
+  > = {
+    method: \\"post\\",
+
+    headers: () => ({
+      \\"Content-Type\\": \\"application/json\\"
+    }),
+    response_decoder: testRedirectResponseHeaderDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-redirect-response-header\`,
+
+    body: () => \\"{}\\",
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testRedirectResponseHeader: TypeofApiCall<TestRedirectResponseHeaderT> = createFetchRequestForApi(
+    testRedirectResponseHeaderT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testSimpleToken: (withDefaults || identity)(testSimpleToken),
@@ -1624,7 +1661,10 @@ export function createClient<K extends ParamKeys>({
     ),
     testSimplePatch: (withDefaults || identity)(testSimplePatch),
     testCustomTokenHeader: (withDefaults || identity)(testCustomTokenHeader),
-    testWithEmptyResponse: (withDefaults || identity)(testWithEmptyResponse)
+    testWithEmptyResponse: (withDefaults || identity)(testWithEmptyResponse),
+    testRedirectResponseHeader: (withDefaults || identity)(
+      testRedirectResponseHeader
+    )
   };
 }
 "
@@ -2696,7 +2736,9 @@ import {
   TestCustomTokenHeaderT,
   testCustomTokenHeaderDefaultDecoder,
   TestWithEmptyResponseT,
-  testWithEmptyResponseDefaultDecoder
+  testWithEmptyResponseDefaultDecoder,
+  TestRedirectResponseHeaderT,
+  testRedirectResponseHeaderDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -2722,7 +2764,8 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestParametersAtPathLevelT> &
   TypeofApiCall<TestSimplePatchT> &
   TypeofApiCall<TestCustomTokenHeaderT> &
-  TypeofApiCall<TestWithEmptyResponseT>;
+  TypeofApiCall<TestWithEmptyResponseT> &
+  TypeofApiCall<TestRedirectResponseHeaderT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestAuthBearerHttpT> &
@@ -2741,7 +2784,8 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestParametersAtPathLevelT> &
   TypeofApiParams<TestSimplePatchT> &
   TypeofApiParams<TestCustomTokenHeaderT> &
-  TypeofApiParams<TestWithEmptyResponseT>);
+  TypeofApiParams<TestWithEmptyResponseT> &
+  TypeofApiParams<TestRedirectResponseHeaderT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -2782,7 +2826,8 @@ export type WithDefaultsT<
   | TestParametersAtPathLevelT
   | TestSimplePatchT
   | TestCustomTokenHeaderT
-  | TestWithEmptyResponseT,
+  | TestWithEmptyResponseT
+  | TestRedirectResponseHeaderT,
   K
 >;
 
@@ -2839,6 +2884,10 @@ export type Client<
       readonly testCustomTokenHeader: TypeofApiCall<TestCustomTokenHeaderT>;
 
       readonly testWithEmptyResponse: TypeofApiCall<TestWithEmptyResponseT>;
+
+      readonly testRedirectResponseHeader: TypeofApiCall<
+        TestRedirectResponseHeaderT
+      >;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -2964,6 +3013,13 @@ export type Client<
         ReplaceRequestParams<
           TestWithEmptyResponseT,
           Omit<RequestParams<TestWithEmptyResponseT>, K>
+        >
+      >;
+
+      readonly testRedirectResponseHeader: TypeofApiCall<
+        ReplaceRequestParams<
+          TestRedirectResponseHeaderT,
+          Omit<RequestParams<TestRedirectResponseHeaderT>, K>
         >
       >;
     };
@@ -3407,6 +3463,27 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const testRedirectResponseHeaderT: ReplaceRequestParams<
+    TestRedirectResponseHeaderT,
+    RequestParams<TestRedirectResponseHeaderT>
+  > = {
+    method: \\"post\\",
+
+    headers: () => ({
+      \\"Content-Type\\": \\"application/json\\"
+    }),
+    response_decoder: testRedirectResponseHeaderDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-redirect-response-header\`,
+
+    body: () => \\"{}\\",
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testRedirectResponseHeader: TypeofApiCall<TestRedirectResponseHeaderT> = createFetchRequestForApi(
+    testRedirectResponseHeaderT,
+    options
+  );
+
   return {
     testAuthBearer: (withDefaults || identity)(testAuthBearer),
     testAuthBearerHttp: (withDefaults || identity)(testAuthBearerHttp),
@@ -3435,7 +3512,10 @@ export function createClient<K extends ParamKeys>({
     ),
     testSimplePatch: (withDefaults || identity)(testSimplePatch),
     testCustomTokenHeader: (withDefaults || identity)(testCustomTokenHeader),
-    testWithEmptyResponse: (withDefaults || identity)(testWithEmptyResponse)
+    testWithEmptyResponse: (withDefaults || identity)(testWithEmptyResponse),
+    testRedirectResponseHeader: (withDefaults || identity)(
+      testRedirectResponseHeader
+    )
   };
 }
 "
