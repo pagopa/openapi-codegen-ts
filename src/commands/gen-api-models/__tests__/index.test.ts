@@ -194,6 +194,38 @@ describe.each`
     expect(code).toMatchSnapshot("enum-simple");
   });
 
+  it("should handle extensible enums", async () => {
+    const definitonName = "PreferredLanguage";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
+    const code = await renderDefinitionCode(
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
+      false
+    );
+
+    expect(code).toMatchSnapshot("extesible-enum");
+  });
+
+  it("should handle extensible enums with strict option", async () => {
+    const definitonName = "PreferredLanguage";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
+    const code = await renderDefinitionCode(
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
+      true
+    );
+
+    expect(code).toMatchSnapshot("strict-extesible-enum");
+  });
+
   it("should generate a record from additionalProperties", async () => {
     const definitonName = "AdditionalPropsTest";
     const definition = getDefinitionOrFail(spec, definitonName);
@@ -311,6 +343,24 @@ describe.each`
         definition
       ),
       false
+    );
+
+    expect(code).not.toContain("t.string");
+    expect(code).toContain("enumType");
+    expect(code).toMatchSnapshot("all-of-test");
+  });
+
+  it("should not contain a t.string but an enum with strict option", async () => {
+    const definitonName = "AllOfWithXExtensibleEnum";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
+    const code = await renderDefinitionCode(
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
+      true
     );
 
     expect(code).not.toContain("t.string");

@@ -23,8 +23,13 @@ import { AllOfWithOneElementTest } from "../../generated/testapi/AllOfWithOneEle
 import { AllOfWithOneRefElementTest } from "../../generated/testapi/AllOfWithOneRefElementTest";
 import { AdditionalPropsTest } from "../../generated/testapi/AdditionalPropsTest";
 
-
-import * as E from "fp-ts/lib/Either"
+import * as E from "fp-ts/lib/Either";
+import {
+  PreferredLanguage,
+  PreferredLanguageEnum
+} from "../../generated/testapi/PreferredLanguage";
+import { PreferredLanguage as ExtensiblePreferredLanguage } from "../../generated/testapi-unstrict/PreferredLanguage";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 const { generatedFilesDir } = config.specs.testapi;
 
@@ -326,43 +331,73 @@ describe("EnumFalseTest definition", () => {
   });
 });
 
-describe("AllOfWithOneElementTest definition", () => {
+describe("ExtensiblePreferredLanguage definition", () => {
+  const l1Ok = PreferredLanguageEnum.de_DE;
+  const l2Extensible = "NON_EMPY" as NonEmptyString;
+  const l3Ko = 10;
+  const l4Ko = "";
 
-  const okElement = {key: "string"};
-  const notOkElement = {key: 1};
+  it("should decode extensible enum with definied enum value", () => {
+    const result = ExtensiblePreferredLanguage.decode(l1Ok);
+    const strictResult = PreferredLanguage.decode(l1Ok);
+    expect(E.isRight(result)).toBe(true);
+    expect(E.isRight(strictResult)).toBe(true);
+  });
+
+  it("should decode extensible enum with string value", () => {
+    const result = ExtensiblePreferredLanguage.decode(l2Extensible);
+    const strictResult = PreferredLanguage.decode(l2Extensible);
+    expect(E.isRight(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
+  });
+
+  it("should fail decode extensible enum with invalid value", () => {
+    const result = ExtensiblePreferredLanguage.decode(l3Ko);
+    const strictResult = PreferredLanguage.decode(l3Ko);
+    expect(E.isLeft(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
+  });
+
+  it("should fail decode extensible enum with empty string", () => {
+    const result = ExtensiblePreferredLanguage.decode(l4Ko);
+    const strictResult = PreferredLanguage.decode(l4Ko);
+    expect(E.isLeft(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
+  });
+});
+
+describe("AllOfWithOneElementTest definition", () => {
+  const okElement = { key: "string" };
+  const notOkElement = { key: 1 };
 
   it("Should return a right", () => {
     expect(E.isRight(AllOfWithOneElementTest.decode(okElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left", () => {
     expect(E.isLeft(AllOfWithOneElementTest.decode(notOkElement))).toBeTruthy();
-  })
-
-})
+  });
+});
 
 describe("AdditionalPropsTest should be an object with a string as key and an array of number as value", () => {
-
-  const okElement = {"okElementProperty": [1, 2, 3]};
-  const notOkElement = {"notOkElementProperty": ["1", "2", "3"]};
+  const okElement = { okElementProperty: [1, 2, 3] };
+  const notOkElement = { notOkElementProperty: ["1", "2", "3"] };
 
   it("Should return a right with a valid type", () => {
     expect(E.isRight(AdditionalPropsTest.decode(okElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left with a non valid element", () => {
     expect(E.isLeft(AdditionalPropsTest.decode(notOkElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left with undefined input", () => {
     expect(E.isLeft(AdditionalPropsTest.decode(undefined))).toBeTruthy();
-  })
-
-})
+  });
+});
 
 describe("AllOfWithOneRefElementTest", () => {
-
-const basicProfile = {
+  const basicProfile = {
     family_name: "Rossi",
     fiscal_code: "RSSMRA80A01F205X",
     has_profile: true,
@@ -372,10 +407,11 @@ const basicProfile = {
   };
 
   it("Should return a right", () => {
-    expect(E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))).toBeTruthy();
-  })
-
-})
+    expect(
+      E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))
+    ).toBeTruthy();
+  });
+});
 
 describe("DisjointUnionsUserTest definition", () => {
   const enabledUser = {

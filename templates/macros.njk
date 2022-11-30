@@ -161,7 +161,7 @@
 {##
  # defines a string property with constraints
  #}
-{% macro defineString(definitionName, definition, inline = false) -%}
+{% macro defineString(definitionName, definition, inline = false, strictInterfaces = false) -%}
     {% if definition.pattern %}
       {{- 'import { PatternString } from "@pagopa/ts-commons/lib/strings";' | addImport -}}
       {% set typedef %}PatternString("{{ definition.pattern | safe }}"){% endset %}
@@ -200,7 +200,12 @@
         "{{ definitionName }}"
       ){% endset %}
     {% elif definition["x-extensible-enum"] %}
-      {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
+      {% if strictInterfaces %}
+        {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
+      {% else %}
+        {{- 'import { enumType } from "@pagopa/ts-commons/lib/types";' | addImport -}}
+        {{- 'import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";' | addImport -}}
+      {% endif %}
       {% set enumTypeAlias %}
         export enum {{ definitionName | capitalizeFirst }}Enum {
             {% for enum in definition["x-extensible-enum"] %}
@@ -209,10 +214,12 @@
         }
       {% endset %}
       {{- enumTypeAlias | addTypeAlias -}}
-      {% set typedef %}enumType<{{ definitionName | capitalizeFirst }}Enum>(
-        {{ definitionName | capitalizeFirst }}Enum,
-        "{{ definitionName }}"
-      ){% endset %}
+      {% set typedef %}{% if not strictInterfaces %}t.union([{% endif %}
+        enumType<{{ definitionName | capitalizeFirst }}Enum>(
+          {{ definitionName | capitalizeFirst }}Enum,
+          "{{ definitionName }}"
+        ){% if not strictInterfaces %},
+        NonEmptyString], "Extensible{{ definitionName }}"){% endif %}{% endset %}
     {% else %}
       {% set typedef %}t.string{% endset %}
     {% endif %}
@@ -266,7 +273,7 @@
 {##
  # defines an object property of some prop.type
  #}
-{% macro defineObjectProperty(propName, prop, parentPropName, camelCasedPropNames) -%}
+{% macro defineObjectProperty(propName, prop, parentPropName, strictInterfaces, camelCasedPropNames) -%}
   {% if propName %}
     {% if camelCasedPropNames %}
       "{{ propName | camelCase }}":
@@ -285,7 +292,7 @@
   {% elif prop.type == "integer" %}
     {{ defineInteger(propName, prop, true) }}
   {% elif prop.type == "string" %}
-    {{ defineString(propName, prop, true) }}
+    {{ defineString(propName, prop, true, strictInterfaces) }}
   {% elif prop.type == "boolean" %}
     {{ defineBoolean(propName, prop, true) }}
   {% else %}
@@ -348,7 +355,7 @@
         {% set typedef %}t.record(t.string, t.any, "{{ definitionName }}"){% endset %}
       {% else %}
         {% set typedef %}t.record(t.string,
-          {{ defineObjectProperty(false, definition.additionalProperties, camelCasedPropNames) }} "{{ definitionName }}")
+          {{ defineObjectProperty(false, definition.additionalProperties, strictInterfaces, camelCasedPropNames) }} "{{ definitionName }}")
         {% endset %}
       {%- endif %}
       {% set defaultValue = definition.default | dump | safe if definition.default else undefined %}
@@ -358,7 +365,7 @@
       const {{ definitionName }}R = t.interface({
       {% for propName, prop in definition.properties -%}
         {% if definition.required and (definition.required | contains(propName)) %}
-          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames) }}
+          {{ defineObjectProperty(propName, prop, definitionName, strictInterfaces, camelCasedPropNames) }}
         {% endif %}
       {% endfor %}
       });
@@ -367,7 +374,7 @@
       const {{ definitionName }}O = t.partial({
       {% for propName, prop in definition.properties -%}
         {% if (not definition.required) or (definition.required and not (definition.required | contains(propName))) %}
-          {{ defineObjectProperty(propName, prop, definitionName, camelCasedPropNames) }}
+          {{ defineObjectProperty(propName, prop, definitionName, strictInterfaces, camelCasedPropNames) }}
         {% endif %}
       {% endfor %}
       });
@@ -452,7 +459,7 @@
 
   {% elif definition.type == "string" %}
 
-    {{ defineString(definitionName, definition) }}
+    {{ defineString(definitionName, definition, false, strictInterfaces) }}
 
   {% elif definition.type == "boolean" %}
 

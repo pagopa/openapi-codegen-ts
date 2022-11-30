@@ -19,10 +19,16 @@ import { DisjointUnionsUserTest } from "../../generated/testapiV3/DisjointUnions
 import { EnabledUserTest } from "../../generated/testapiV3/EnabledUserTest";
 import { EnumFalseTest } from "../../generated/testapiV3/EnumFalseTest";
 import { EnumTrueTest } from "../../generated/testapiV3/EnumTrueTest";
-import {AllOfWithOneElementTest} from "../../generated/testapiV3/AllOfWithOneElementTest";
-import {AllOfWithOneRefElementTest} from "../../generated/testapiV3/AllOfWithOneRefElementTest";
+import { AllOfWithOneElementTest } from "../../generated/testapiV3/AllOfWithOneElementTest";
+import { AllOfWithOneRefElementTest } from "../../generated/testapiV3/AllOfWithOneRefElementTest";
 
 import * as E from "fp-ts/lib/Either";
+import {
+  PreferredLanguage,
+  PreferredLanguageEnum
+} from "../../generated/testapiV3/PreferredLanguage";
+import { PreferredLanguage as ExtensiblePreferredLanguage } from "../../generated/testapiV3-unstrict/PreferredLanguage";
+import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 const { generatedFilesDir, isSpecEnabled } = config.specs.testapiV3;
 
@@ -324,24 +330,56 @@ describe("EnumFalseTest definition", () => {
   });
 });
 
-describe("AllOfWithOneElementTest definition", () => {
+describe("ExtensiblePreferredLanguage definition", () => {
+  const l1Ok = PreferredLanguageEnum.de_DE;
+  const l2Extensible = "NON_EMPY" as NonEmptyString;
+  const l3Ko = 10;
+  const l4Ko = "";
 
-  const okElement = {key: "string"};
-  const notOkElement = {key: 1};
+  it("should decode extensible enum with definied enum value", () => {
+    const result = ExtensiblePreferredLanguage.decode(l1Ok);
+    const strictResult = PreferredLanguage.decode(l1Ok);
+    expect(E.isRight(result)).toBe(true);
+    expect(E.isRight(strictResult)).toBe(true);
+  });
+
+  it("should decode extensible enum with string value", () => {
+    const result = ExtensiblePreferredLanguage.decode(l2Extensible);
+    const strictResult = PreferredLanguage.decode(l2Extensible);
+    expect(E.isRight(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
+  });
+
+  it("should fail decode extensible enum with invalid value", () => {
+    const result = ExtensiblePreferredLanguage.decode(l3Ko);
+    const strictResult = PreferredLanguage.decode(l3Ko);
+    expect(E.isLeft(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
+  });
+
+  it("should fail decode extensible enum with empty string", () => {
+    const result = ExtensiblePreferredLanguage.decode(l4Ko);
+    const strictResult = PreferredLanguage.decode(l4Ko);
+    expect(E.isLeft(result)).toBe(true);
+    expect(E.isLeft(strictResult)).toBe(true);
+  });
+});
+
+describe("AllOfWithOneElementTest definition", () => {
+  const okElement = { key: "string" };
+  const notOkElement = { key: 1 };
 
   it("Should return a right", () => {
     expect(E.isRight(AllOfWithOneElementTest.decode(okElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left", () => {
     expect(E.isLeft(AllOfWithOneElementTest.decode(notOkElement))).toBeTruthy();
-  })
-
-})
+  });
+});
 
 describe("AllOfWithOneRefElementTest", () => {
-
-const basicProfile = {
+  const basicProfile = {
     family_name: "Rossi",
     fiscal_code: "RSSMRA80A01F205X",
     has_profile: true,
@@ -351,10 +389,11 @@ const basicProfile = {
   };
 
   it("Should return a right", () => {
-    expect(E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))).toBeTruthy();
-  })
-
-})
+    expect(
+      E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))
+    ).toBeTruthy();
+  });
+});
 
 describe("DisjointUnionsUserTest definition", () => {
   const enabledUser = {

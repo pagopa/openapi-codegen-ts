@@ -350,7 +350,7 @@ describe.each`
       definition
     );
 
-    expect(parsed.enum).toEqual(expect.any(Array));
+    expect(parsed["x-extensible-enum"]).toEqual(expect.any(Array));
   });
 
   it("should handle AnObjectWithAnItemsField", async () => {

@@ -54,11 +54,12 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
         };
 
   // enum used to be defined with "x-extensible-enum" custom field
-  const enumm = looselySource.enum
-    ? looselySource.enum
-    : "x-extensible-enum" in looselySource
-    ? looselySource["x-extensible-enum"]
-    : undefined;
+  const enumm = looselySource.enum ? looselySource.enum : undefined;
+
+  const extesibleEnumm =
+    "x-extensible-enum" in looselySource
+      ? looselySource["x-extensible-enum"]
+      : undefined;
 
   const format = "format" in looselySource ? looselySource.format : undefined;
 
@@ -104,6 +105,7 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
     required: source.required,
     title: source.title,
     type: source.type,
+    ["x-extensible-enum"]: extesibleEnumm,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ["x-import"]: (source as any)["x-import"]
   };

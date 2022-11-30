@@ -48,7 +48,7 @@ export default async () => {
   const { specs, skipClient, skipGeneration } = config;
   const tasks = Object.values(specs)
     .filter(({ isSpecEnabled }) => isSpecEnabled)
-    .map(({ url, mockPort, generatedFilesDir }) => {
+    .map(({ url, mockPort, generatedFilesDir, strictInterfaces }) => {
       // eslint-disable-next-line sonarjs/prefer-immediate-return
       const p = pipe(
         skipGeneration
@@ -58,7 +58,7 @@ export default async () => {
               definitionsDirPath: generatedFilesDir,
               generateClient: true,
               specFilePath: url,
-              strictInterfaces: true
+              strictInterfaces
             }),
         TE.chain(() => (skipClient ? noopTE : tsStartServer(url, mockPort)))
       );

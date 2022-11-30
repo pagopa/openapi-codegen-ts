@@ -36,18 +36,35 @@ export default {
       generatedFilesDir: `${GENERATED_BASE_DIR}/be`,
       isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "be"),
       mockPort: 4102,
+      strictInterfaces: true,
       url: `${ROOT_DIRECTORY_FOR_E2E}/../__mocks__/be.yaml`
     },
-    testapi: {
+    strictTestapi: {
       generatedFilesDir: `${GENERATED_BASE_DIR}/testapi`,
       isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "testapi"),
       mockPort: 4101,
+      strictInterfaces: true,
       url: `${ROOT_DIRECTORY_FOR_E2E}/../__mocks__/api.yaml`
     },
-    testapiV3: {
+    strictTestapiV3: {
       generatedFilesDir: `${GENERATED_BASE_DIR}/testapiV3`,
       isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "testapiV3"),
       mockPort: 4103,
+      strictInterfaces: true,
+      url: `${ROOT_DIRECTORY_FOR_E2E}/../__mocks__/openapi_v3/api.yaml`
+    },
+    testapi: {
+      generatedFilesDir: `${GENERATED_BASE_DIR}/testapi-unstrict`,
+      isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "testapi"),
+      mockPort: 4104,
+      strictInterfaces: false,
+      url: `${ROOT_DIRECTORY_FOR_E2E}/../__mocks__/api.yaml`
+    },
+    testapiV3: {
+      generatedFilesDir: `${GENERATED_BASE_DIR}/testapiV3-unstrict`,
+      isSpecEnabled: includeInList(process.env.INCLUDE_SPECS, "testapiV3"),
+      mockPort: 4105,
+      strictInterfaces: false,
       url: `${ROOT_DIRECTORY_FOR_E2E}/../__mocks__/openapi_v3/api.yaml`
     }
   }
