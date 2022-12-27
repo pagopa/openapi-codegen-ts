@@ -95,7 +95,12 @@ function mergeParams<A extends object, B extends object>(a: A, b: B): any {
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 function listTemplates(): ReadonlyArray<string> {
-  return ["package.json.njk", "tsconfig.json.njk", "index.ts.njk"];
+  return [
+    ".npmignore.njk",
+    "package.json.njk",
+    "tsconfig.json.njk",
+    "index.ts.njk"
+  ];
 }
 
 /**
