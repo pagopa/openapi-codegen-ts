@@ -291,6 +291,28 @@ describe.each`
       })
     );
   });
+
+  it("should parse an operation with response with 302 and header location", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/test-redirect-response-header",
+      [],
+      "undefined",
+      "undefined"
+    )("post");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "post",
+        path: "/test-redirect-response-header",
+        parameters: [],
+        responses: expect.arrayContaining([
+          { e1: "302", e2: "undefined", e3: ["Location"] }
+        ])
+      })
+    );
+  });
 });
 
 describe.each`

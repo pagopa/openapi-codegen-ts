@@ -340,4 +340,17 @@ describeSuite("Http client generated from Test API spec", () => {
     // @ts-expect-error
     client.putTestParameterWithBodyReference({ body: "" });
   });
+
+  it("should make post with response 302 and location header", async () => {
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+      basePath: ""
+    });
+
+    expect(client.testRedirectResponseHeader).toEqual(expect.any(Function));
+
+    const result = await client.testRedirectResponseHeader({});
+    expect(isRight(result)).toBe(true);
+  });
 });
