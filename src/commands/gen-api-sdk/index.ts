@@ -23,10 +23,52 @@ const { render } = createTemplateEnvironment({
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 export async function generateSdk(options: IGenerateSdkOptions) {
+  // ensure target directories to exist
+  await fs.ensureDir(options.outPath);
+  const outPathNoStrict = `${options.outPath}/no-strict`;
+  await fs.ensureDir(outPathNoStrict);
+
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  await generatePackageFiles(options);
+
+  // generate definitions both strict and no-strict
+  // so that the users can choose which version to include in their code
+  await Promise.all(
+    [
+      {
+        definitionsDirPath: options.outPath,
+        strictInterfaces: true
+      },
+      {
+        definitionsDirPath: outPathNoStrict,
+        strictInterfaces: false
+      }
+    ].map(({ strictInterfaces, definitionsDirPath }) =>
+      generateApi({
+        camelCasedPropNames: options.camelCasedPropNames,
+        defaultErrorType: options.defaultErrorType,
+        defaultSuccessType: options.defaultSuccessType,
+        definitionsDirPath,
+        generateClient: true,
+        specFilePath: options.specFilePath,
+        strictInterfaces
+      })
+    )
+  );
+
+  // resolve references in spec file and bundle
+  await bundleApiSpec({
+    outPath: `${options.outPath}/openapi.yaml`,
+    specFilePath: options.specFilePath,
+    version: options.version
+  });
+}
+
+// generate and save files requires for the package to be published
+const generatePackageFiles = async (
+  options: IGenerateSdkOptions
+): Promise<void> => {
   const { inferAttr, ...params } = options;
-
-  await fs.ensureDir(params.outPath);
-
   const templateParams: IPackageAttributes &
     IRegistryAttributes &
     IGeneratorParams = inferAttr
@@ -38,21 +80,7 @@ export async function generateSdk(options: IGenerateSdkOptions) {
   const renderedFiles = await renderAll(listTemplates(), templateParams);
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
-  await generateApi({
-    camelCasedPropNames: options.camelCasedPropNames,
-    defaultErrorType: options.defaultErrorType,
-    defaultSuccessType: options.defaultSuccessType,
-    definitionsDirPath: options.outPath,
-    generateClient: true,
-    specFilePath: options.specFilePath,
-    strictInterfaces: options.strictInterfaces
-  });
-  await bundleApiSpec({
-    outPath: `${options.outPath}/openapi.yaml`,
-    specFilePath: options.specFilePath,
-    version: options.version
-  });
-}
+};
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 async function inferAttributesFromPackage(): Promise<

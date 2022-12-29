@@ -102,13 +102,6 @@ const argv = yargs
     // eslint-disable-next-line sort-keys
     group: CODE_GROUP
   })
-  .option("strict", {
-    // eslint-disable-next-line id-blacklist
-    boolean: true,
-    default: true,
-    description: "Generate strict interfaces (default: true)",
-    group: CODE_GROUP
-  })
   .option("out-dir", {
     alias: "o",
     demandOption: true,
@@ -167,8 +160,7 @@ generateSdk({
   defaultErrorType: argv["default-error-type"],
   defaultSuccessType: argv["default-success-type"],
   outPath: argv["out-dir"],
-  specFilePath: argv["api-spec"],
-  strictInterfaces: argv.strict
+  specFilePath: argv["api-spec"]
 }).then(
   // eslint-disable-next-line no-console
   () => console.log("done"),

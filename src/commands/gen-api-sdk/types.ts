@@ -8,7 +8,6 @@ export interface IRegistryAttributes {
 export interface IGeneratorParams {
   readonly specFilePath: string | OpenAPIV2.Document;
   readonly outPath: string;
-  readonly strictInterfaces?: boolean;
   readonly defaultSuccessType?: string;
   readonly defaultErrorType?: string;
   readonly camelCasedPropNames: boolean;
