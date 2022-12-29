@@ -16,48 +16,8 @@ const { render } = createTemplateEnvironment({
   templateDir: `${DEFAULT_TEMPLATE_DIR}/sdk`
 });
 
-/**
- * Generate models as well as package scaffolding for a sdk that talks to a provided api spec
- *
- * @param options
- */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
-export async function generateSdk(options: IGenerateSdkOptions) {
-  const { inferAttr, ...params } = options;
-
-  await fs.ensureDir(params.outPath);
-
-  const templateParams: IPackageAttributes &
-    IRegistryAttributes &
-    IGeneratorParams = inferAttr
-    ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      mergeParams(await inferAttributesFromPackage(), params)
-    : params;
-
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  const renderedFiles = await renderAll(listTemplates(), templateParams);
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
-  await generateApi({
-    camelCasedPropNames: options.camelCasedPropNames,
-    defaultErrorType: options.defaultErrorType,
-    defaultSuccessType: options.defaultSuccessType,
-    definitionsDirPath: options.outPath,
-    generateClient: true,
-    specFilePath: options.specFilePath,
-    strictInterfaces: options.strictInterfaces
-  });
-  await bundleApiSpec({
-    outPath: `${options.outPath}/openapi.yaml`,
-    specFilePath: options.specFilePath,
-    version: options.version
-  });
-}
-
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-async function inferAttributesFromPackage(): Promise<
-  IPackageAttributes & IRegistryAttributes
-> {
+const inferAttributesFromPackage = async (): Promise<IPackageAttributes &
+  IRegistryAttributes> => {
   const pkg = await fs
     .readFile(`${process.cwd()}/package.json`)
     .then(String)
@@ -68,22 +28,19 @@ async function inferAttributesFromPackage(): Promise<
       );
     });
   return {
-    name: `${pkg.name}-sdk`,
-    version: pkg.version,
-    // eslint-disable-next-line sort-keys
-    description: `Generated SDK for ${pkg.name}. ${pkg.description}`,
-    // eslint-disable-next-line sort-keys
+    access: pkg.publishConfig?.access,
     author: pkg.author,
+    description: `Generated SDK for ${pkg.name}. ${pkg.description}`,
     license: pkg.license,
+    name: `${pkg.name}-sdk`,
     registry: pkg.publishConfig?.registry,
-    // eslint-disable-next-line sort-keys
-    access: pkg.publishConfig?.access
+    version: pkg.version
   };
-}
+};
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions, @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
-function mergeParams<A extends object, B extends object>(a: A, b: B): any {
-  return Object.keys({ ...a, ...b }).reduce(
+// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+const mergeParams = <A extends object, B extends object>(a: A, b: B): any =>
+  Object.keys({ ...a, ...b }).reduce(
     // eslint-disable-next-line @typescript-eslint/ban-types
     (p: object, k: string) => ({
       ...p,
@@ -91,23 +48,16 @@ function mergeParams<A extends object, B extends object>(a: A, b: B): any {
     }),
     {}
   );
-}
-
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-function listTemplates(): ReadonlyArray<string> {
-  return ["package.json.njk", "tsconfig.json.njk", "index.ts.njk"];
-}
 
 /**
  * Renders all templates and return a hashmap in the form (filepath, renderedCode)
  *
  * @param options
  */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export async function renderAll(
+export const renderAll = async (
   files: ReadonlyArray<string>,
   options: IPackageAttributes & IRegistryAttributes & IGeneratorParams
-): Promise<Record<string, string>> {
+): Promise<Record<string, string>> => {
   const allContent = await Promise.all(
     files.map(file => render(file, options))
   );
@@ -118,7 +68,7 @@ export async function renderAll(
     }),
     {}
   );
-}
+};
 
 /**
  * Wraps file writing to expose a common interface and log consistently
@@ -128,19 +78,21 @@ export async function renderAll(
  * @param code code to be saved
  *
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
-function writeGeneratedCodeFile(name: string, outPath: string, code: string) {
+const writeGeneratedCodeFile = (
+  name: string,
+  outPath: string,
+  code: string
+): Promise<void> => {
   // eslint-disable-next-line no-console
   console.log(`${name} -> ${outPath}`);
   return fs.writeFile(outPath, code);
-}
+};
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
-function writeAllGeneratedCodeFiles(
+const writeAllGeneratedCodeFiles = (
   outPath: string,
   files: Record<string, string>
-) {
-  return Promise.all(
+): Promise<ReadonlyArray<void>> =>
+  Promise.all(
     Object.keys(files).map((filepath: string) =>
       writeGeneratedCodeFile(
         filepath,
@@ -149,4 +101,74 @@ function writeAllGeneratedCodeFiles(
       )
     )
   );
-}
+
+const listTemplates = (): ReadonlyArray<string> => [
+  ".npmignore.njk",
+  "package.json.njk",
+  "tsconfig.json.njk",
+  "index.ts.njk"
+];
+
+// generate and save files requires for the package to be published
+const generatePackageFiles = async (
+  options: IGenerateSdkOptions
+): Promise<void> => {
+  const { inferAttr, ...params } = options;
+  const templateParams: IPackageAttributes &
+    IRegistryAttributes &
+    IGeneratorParams = inferAttr
+    ? mergeParams(await inferAttributesFromPackage(), params)
+    : params;
+
+  const renderedFiles = await renderAll(listTemplates(), templateParams);
+
+  await writeAllGeneratedCodeFiles(options.outPath, renderedFiles);
+};
+
+/**
+ * Generate models as well as package scaffolding for a sdk that talks to a provided api spec
+ *
+ * @param options
+ */
+export const generateSdk = async (
+  options: IGenerateSdkOptions
+): Promise<void> => {
+  // ensure target directories to exist
+  await fs.ensureDir(options.outPath);
+  const outPathNoStrict = `${options.outPath}/no-strict`;
+  await fs.ensureDir(outPathNoStrict);
+
+  await generatePackageFiles(options);
+
+  // generate definitions both strict and no-strict
+  // so that the users can choose which version to include in their code
+  await Promise.all(
+    [
+      {
+        definitionsDirPath: options.outPath,
+        strictInterfaces: true
+      },
+      {
+        definitionsDirPath: outPathNoStrict,
+        strictInterfaces: false
+      }
+    ].map(({ strictInterfaces, definitionsDirPath }) =>
+      generateApi({
+        camelCasedPropNames: options.camelCasedPropNames,
+        defaultErrorType: options.defaultErrorType,
+        defaultSuccessType: options.defaultSuccessType,
+        definitionsDirPath,
+        generateClient: true,
+        specFilePath: options.specFilePath,
+        strictInterfaces
+      })
+    )
+  );
+
+  // resolve references in spec file and bundle
+  await bundleApiSpec({
+    outPath: `${options.outPath}/openapi.yaml`,
+    specFilePath: options.specFilePath,
+    version: options.version
+  });
+};
