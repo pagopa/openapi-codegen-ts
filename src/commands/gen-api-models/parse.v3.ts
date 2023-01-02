@@ -6,6 +6,7 @@
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPI, OpenAPIV3, IJsonSchema } from "openapi-types";
 import { uncapitalize } from "../../lib/utils";
+import { inferDefinitionType } from "./parse.utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
   IAuthHeaderParameterInfo,
@@ -103,7 +104,7 @@ function parseInnerDefinition(source: IJsonSchema): IDefinition {
     pattern: source.pattern?.split("\\").join("\\\\"),
     required: source.required,
     title: source.title,
-    type: source.type,
+    type: inferDefinitionType(source),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ["x-import"]: (source as any)["x-import"]
   };

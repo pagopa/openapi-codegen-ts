@@ -1,4 +1,4 @@
-import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
+import { IJsonSchema, OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 
 import * as E from "fp-ts/Either";
 
@@ -124,3 +124,30 @@ export const getParser = <D extends OpenAPI.Document>(
     : ParseOpenapiV3.isOpenAPIV3(spec)
     ? E.of(parserV3)
     : E.left(Error("The specification must be of type OpenAPI 2 or 3"));
+
+export const inferDefinitionType = (
+  source: IJsonSchema
+): string | undefined => {
+  // We expect type to be a single string
+  if (typeof source.type === "string") {
+    return source.type;
+  }
+  // As for JSON Schema, "type" might be an array of string
+  // Anyway, this is not permitted by OpenAPI
+  // https://swagger.io/specification/#schema-object
+  else if (Array.isArray(source.type)) {
+    new Error(
+      `field type: Value MUST be a string. Multiple types via an array are not supported. Received: Array`
+    );
+  }
+  // If source contains a "property" or "additionalProperties" field, we assume is an object even if "type" is not defined
+  // This to be allow specification to work even when they are less then perfect
+  else if ("properties" in source || "additionalProperties" in source) {
+    return "object";
+  }
+  // Some definitions expect an undefined type
+  // For example, allOf, oneOf, etc
+  else {
+    return source.type;
+  }
+};

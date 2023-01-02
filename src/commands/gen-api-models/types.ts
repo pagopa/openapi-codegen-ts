@@ -87,7 +87,7 @@ type ReferenceObject = OpenAPIV3.ReferenceObject;
  */
 export interface IDefinition {
   readonly title?: string;
-  readonly type?: string | ReadonlyArray<string>;
+  readonly type?: string;
   readonly description?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly default?: any;
