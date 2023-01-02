@@ -299,6 +299,18 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/NotFound"
+  /test-param-with-schema-ref/{param}:
+    get:
+      operationId: "testParamWithSchemaRef"
+      parameters:
+        - name: param
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CustomStringFormatTest"
+      responses:
+        "200":
+          description: "Ok"
           
 # -------------
 # Components
