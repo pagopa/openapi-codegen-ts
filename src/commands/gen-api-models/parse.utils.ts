@@ -141,9 +141,9 @@ export const inferDefinitionType = (source: IJsonSchema): string => {
   else if (Array.isArray(source.type)) {
     throw invalidTypeError("Array");
   }
-  // If source contains a "property" field, we assume is an object even if "type" is not defined
+  // If source contains a "property" or "additionalProperties" field, we assume is an object even if "type" is not defined
   // This to be allow specification to work even when they are less then perfect
-  else if ("properties" in source) {
+  else if ("properties" in source || "additionalProperties" in source) {
     return "object";
   }
   // For unknown cases, we throw

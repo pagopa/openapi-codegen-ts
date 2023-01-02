@@ -765,6 +765,13 @@ definitions:
         type: string
       prop_two: 
         type: string
+  ObjectDefinitionWithImplicitTypeAndAdditionalProperties:
+    # Sometimes type isn't specified, nevertheless we can infer the definition to be an object 
+    # type: object 
+    additionalProperties: 
+      type: array
+      items: 
+        type: number
 
 responses:
   NotFound:

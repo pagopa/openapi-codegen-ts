@@ -398,4 +398,23 @@ describe.each`
       })
     );
   });
+
+  it("should handle ObjectDefinitionWithImplicitTypeAndAdditionalProperties", async () => {
+    const definition = getDefinitionOrFail(
+      spec,
+      "ObjectDefinitionWithImplicitTypeAndAdditionalProperties"
+    );
+
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
+
+    expect(parsed.type).toBe("object");
+    expect(parsed.additionalProperties).toEqual(
+      expect.objectContaining({
+        type: "array"
+      })
+    );
+  });
 });
