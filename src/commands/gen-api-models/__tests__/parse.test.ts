@@ -291,6 +291,34 @@ describe.each`
       })
     );
   });
+
+  it("should dfsejdfvdfsadvfsda", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/test-param-with-schema-ref/{param}",
+      [],
+      "undefined",
+      "undefined"
+    )("get");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "get",
+        path: "/test-param-with-schema-ref/{param}",
+        parameters: [
+          expect.objectContaining({
+            name: "param",
+            in: "path",
+            type: "CustomStringFormatTest"
+          })
+        ],
+        responses: expect.arrayContaining([
+          { e1: "200", e2: "undefined", e3: [] }
+        ])
+      })
+    );
+  });
 });
 
 describe.each`
