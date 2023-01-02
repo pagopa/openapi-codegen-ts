@@ -59,7 +59,7 @@ describe.each`
           security
         );
 
-    if(version === 3) {
+    if (version === 3) {
       expect(parsed).toEqual([
         expect.objectContaining({
           authScheme: "bearer",
@@ -377,5 +377,25 @@ describe.each`
     } else {
       fail("a type should be specified");
     }
+  });
+
+  it("should handle ObjectDefinitionWithImplicitType", async () => {
+    const definition = getDefinitionOrFail(
+      spec,
+      "ObjectDefinitionWithImplicitType"
+    );
+
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
+
+    expect(parsed.type).toBe("object");
+    expect(parsed.properties).toEqual(
+      expect.objectContaining({
+        prop_one: expect.objectContaining({ type: "string" }),
+        prop_two: expect.objectContaining({ type: "string" })
+      })
+    );
   });
 });
