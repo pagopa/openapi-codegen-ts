@@ -518,9 +518,14 @@ const parseParameter = (
 ) => (
   param: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject
 ): IParameterInfo | undefined =>
-  !isRefObject(param)
-    ? parseInlineParam(param)
-    : parseParamWithReference(specParameters, operationId, param);
+  // is referenced from parameters section
+  isRefObject(param) ||
+  // OR is defined inline but references a component
+  (param.schema && isRefObject(param.schema))
+    ? // then parse parameter using its reference
+      parseParamWithReference(specParameters, operationId, param)
+    : // otherwise compose the parameter based on inline definition
+      parseInlineParam(param);
 
 const parseInlineParam = (
   param: OpenAPIV3.ParameterObject
