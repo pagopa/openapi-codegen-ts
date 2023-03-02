@@ -291,6 +291,11 @@ export const parseOperation = (
           // eslint-disable-next-line @typescript-eslint/no-use-before-define
           .map(parseParameter(specParameters, operationId))
           .filter((e): e is IParameterInfo => typeof e !== "undefined")
+          .map(param =>
+            param.in === "body"
+              ? { ...param, type: `${param.type} | ReadableStream<Uint8Array>` }
+              : param
+          )
       : [];
 
   const authHeadersAndParams = operation.security
