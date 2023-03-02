@@ -311,6 +311,18 @@ paths:
       responses:
         "200":
           description: "Ok"
+  /test-header-with-schema-ref:
+    get:
+      operationId: "testHeaderWithSchemaRef"
+      parameters:
+        - name: param
+          in: header
+          required: true
+          schema:
+            $ref: "#/components/schemas/CustomStringFormatTest"
+      responses:
+        "200":
+          description: "Ok"
           
 # -------------
 # Components
