@@ -1,13 +1,34 @@
+/* eslint-disable functional/immutable-data */
 /**
  * This module abstracts the start and stop of a Prism mock server (https://github.com/stoplightio/prism).
  *
  */
 
+import { once } from "events";
+import { createServer as createServerWithHttp, Server } from "http";
 import { createLogger } from "@stoplight/prism-core";
 import { getHttpOperationsFromResource } from "@stoplight/prism-http";
 import { createServer } from "@stoplight/prism-http-server";
 
 const servers = new Map<number, ReturnType<typeof createServer>>();
+
+export const startServer = async (
+  port: number,
+  mockGetUserSession: jest.Mock
+): Promise<Server> => {
+  const server = createServerWithHttp((request, response) => {
+    if (request.url?.startsWith("/test-parameter-with-body-ref")) {
+      mockGetUserSession(request, response);
+    } else {
+      response.statusCode = 500;
+      response.end();
+    }
+  }).listen(port);
+
+  await once(server, "listening");
+
+  return server;
+};
 
 /**
  * Starts a mock server for a given specification
@@ -45,6 +66,12 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
     })
     .then(server => servers.set(port, server));
 }
+
+export const closeServer = (server: Server): Promise<void> => {
+  console.log("Closing server");
+
+  return new Promise(done => server.close(done)).then(_ => void 0);
+};
 
 /**
  * Stop all the servers previously started
