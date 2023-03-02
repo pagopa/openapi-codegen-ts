@@ -552,8 +552,7 @@
 {% macro composedHeaderProducers(headerParams, consumes) -%}
   (
     {% if headerParams.length  %}
-    { {% for p in headerParams %}{{p.name | safeDestruct | safe }},{% endfor %} }: 
-    { {% for p in headerParams %}"{{p.name | safe }}":{{p.type}};{% endfor %} }
+    { {% for p in headerParams %}{{p.name | safeDestruct | safe }},{% endfor %} }
     {% endif %}
   ) => ({
     {% for p in headerParams %}"{{p.headerName}}": {{ tokenize(p) }},{% endfor %}
