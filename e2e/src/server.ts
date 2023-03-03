@@ -12,7 +12,7 @@ import { createServer } from "@stoplight/prism-http-server";
 
 const servers = new Map<number, ReturnType<typeof createServer>>();
 
-export const startServer = async (
+const startServer = async (
   port: number,
   mockGetUserSession: jest.Mock
 ): Promise<Server> => {
@@ -40,7 +40,6 @@ export const startServer = async (
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 function startMockServer(apiSpecUrl: string, port: number = 4100) {
-  const startedAt = Date.now();
   return getHttpOperationsFromResource(apiSpecUrl)
     .then(operations =>
       createServer(operations, {
@@ -58,20 +57,13 @@ function startMockServer(apiSpecUrl: string, port: number = 4100) {
     )
     .then(async server => {
       await server.listen(port);
-      // eslint-disable-next-line no-console
-      console.log(
-        `server started on port ${port} after ${Date.now() - startedAt}ms`
-      );
       return server;
     })
     .then(server => servers.set(port, server));
 }
 
-export const closeServer = (server: Server): Promise<void> => {
-  console.log("Closing server");
-
-  return new Promise(done => server.close(done)).then(_ => void 0);
-};
+const closeServer = (server: Server): Promise<void> =>
+  new Promise(done => server.close(done)).then(_ => void 0);
 
 /**
  * Stop all the servers previously started
@@ -91,4 +83,4 @@ function stopAllServers() {
   ).then(() => servers.clear());
 }
 
-export { startMockServer, stopAllServers };
+export { startMockServer, stopAllServers, closeServer, startServer };
