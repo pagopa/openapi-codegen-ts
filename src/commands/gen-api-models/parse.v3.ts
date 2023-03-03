@@ -334,7 +334,6 @@ export const parseOperation = (
           operation.requestBody.required ?? false
         ]
       : [undefined, false];
-
   const bodyParam: ReadonlyArray<IParameterInfo> =
     ["post", "put"].includes(method) && bodySchema
       ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -352,11 +351,10 @@ export const parseOperation = (
             {
               in: "body",
               name: `body${bodyRequired ? "" : "?"}`,
-              type:
-                bodySchema.$ref
-                  ?.split("/")
-                  .slice()
-                  .pop() ?? ""
+              type: `${bodySchema.$ref
+                ?.split("/")
+                .slice()
+                .pop() ?? ""} | ReadableStream<Uint8Array>`
             }
           ] as ReadonlyArray<IParameterInfo>)
         : [

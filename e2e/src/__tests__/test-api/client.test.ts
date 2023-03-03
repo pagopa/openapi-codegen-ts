@@ -7,6 +7,9 @@ import { createClient } from "../../generated/testapi/client";
 // @ts-ignore because leaked-handles doesn't ship type defintions
 import * as leaked from "leaked-handles";
 import { NewModel } from "../../generated/testapi/NewModel";
+import { Readable } from "stream";
+import { IncomingMessage, ServerResponse } from "http";
+import { startServer, closeServer } from "../../server";
 leaked.set({ debugSockets: true });
 
 const { skipClient } = config;
@@ -339,5 +342,40 @@ describeSuite("Http client generated from Test API spec", () => {
     client.putTestParameterWithBodyReference({ body: aData });
     // @ts-expect-error
     client.putTestParameterWithBodyReference({ body: "" });
+  });
+
+  it("should handle model ref model in body as readablestream", async () => {
+    const aData: NewModel = {
+      id: "anId",
+      name: "aName"
+    };
+
+    const mockTestEndpoint = jest.fn((request: IncomingMessage, response: ServerResponse) => {
+      let data = "";
+      request.on("data", chunk => data += chunk)
+      request.on("end", () => {
+        expect(JSON.parse(data)).toEqual(aData);
+        response.statusCode = 201;
+        response.end();
+      })
+      
+  } );
+    const server = await startServer(mockPort+10, mockTestEndpoint);
+
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort+10}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+      basePath: ""
+    });
+
+    const aDataAsBuffer = Readable.from(Buffer.from(JSON.stringify(aData))) as unknown as ReadableStream<Uint8Array>;
+
+    expect(client.testParameterWithBodyReference).toEqual(expect.any(Function));
+    const response = await client.testParameterWithBodyReference({ body: aDataAsBuffer });
+
+    expect(mockTestEndpoint).toHaveBeenCalledTimes(1);
+    
+
+    await closeServer(server);
   });
 });

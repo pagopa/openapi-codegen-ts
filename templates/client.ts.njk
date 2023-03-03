@@ -148,7 +148,11 @@ export function createClient<K extends ParamKeys>({
     response_decoder: {{ macro.responseDecoderName(operation) }}(),
     url: ({ {{ pathParams | pick("name") | stripQuestionMark | safeDestruct | join(', ') | safe  }} }) => `{{ macro.$("basePath") }}{{ macro.applyPathParams(operation.path, pathParams | pick("name") | stripQuestionMark) }}`,
     {% if bodyParams | length %}
-    body: ({ {{ bodyParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => JSON.stringify({{ bodyParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe  }}),
+    {% set bodyParamName = bodyParams | pick("name") | stripQuestionMark | safeIdentifier | join(", ") | safe %}
+    body: ({ {{ bodyParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => 
+      {{ bodyParamName }}?.constructor?.name === "Readable" || {{ bodyParamName }}?.constructor?.name === "ReadableStream"
+        ? ({{ bodyParamName }} as ReadableStream)
+        :JSON.stringify({{ bodyParamName }}),
     {% elif formParams | length %}
     body: ({ {{ formParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => {{ formParams | pick("name") | safeIdentifier | first }}.uri,
     {% elif formParamsBinary | length %}

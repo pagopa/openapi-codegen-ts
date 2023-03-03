@@ -1441,7 +1441,11 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testParameterWithBodyReferenceDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-parameter-with-body-ref\`,
 
-    body: ({ [\\"body\\"]: body }) => JSON.stringify(body),
+    body: ({ [\\"body\\"]: body }) =>
+      body?.constructor?.name === \\"Readable\\" ||
+      body?.constructor?.name === \\"ReadableStream\\"
+        ? (body as ReadableStream)
+        : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
   };
@@ -1462,7 +1466,11 @@ export function createClient<K extends ParamKeys>({
     response_decoder: putTestParameterWithBodyReferenceDefaultDecoder(),
     url: ({}) => \`\${basePath}/put-test-parameter-with-body-ref\`,
 
-    body: ({ [\\"body\\"]: body }) => JSON.stringify(body),
+    body: ({ [\\"body\\"]: body }) =>
+      body?.constructor?.name === \\"Readable\\" ||
+      body?.constructor?.name === \\"ReadableStream\\"
+        ? (body as ReadableStream)
+        : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
   };
@@ -3309,7 +3317,11 @@ export function createClient<K extends ParamKeys>({
     response_decoder: testParameterWithBodyReferenceDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-parameter-with-body-ref\`,
 
-    body: ({ [\\"body\\"]: body }) => JSON.stringify(body),
+    body: ({ [\\"body\\"]: body }) =>
+      body?.constructor?.name === \\"Readable\\" ||
+      body?.constructor?.name === \\"ReadableStream\\"
+        ? (body as ReadableStream)
+        : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
   };
@@ -3330,7 +3342,11 @@ export function createClient<K extends ParamKeys>({
     response_decoder: putTestParameterWithBodyReferenceDefaultDecoder(),
     url: ({}) => \`\${basePath}/put-test-parameter-with-body-ref\`,
 
-    body: ({ [\\"body\\"]: body }) => JSON.stringify(body),
+    body: ({ [\\"body\\"]: body }) =>
+      body?.constructor?.name === \\"Readable\\" ||
+      body?.constructor?.name === \\"ReadableStream\\"
+        ? (body as ReadableStream)
+        : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
   };

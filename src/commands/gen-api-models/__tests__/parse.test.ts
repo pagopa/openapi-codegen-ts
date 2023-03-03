@@ -208,7 +208,7 @@ describe.each`
           {
             name: "body?",
             in: "body",
-            type: "NewModel"
+            type: "NewModel | ReadableStream<Uint8Array>"
           }
         ])
       })
@@ -233,7 +233,7 @@ describe.each`
           {
             name: "body?",
             in: "body",
-            type: "NewModel"
+            type: "NewModel | ReadableStream<Uint8Array>"
           }
         ])
       })
