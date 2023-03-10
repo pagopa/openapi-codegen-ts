@@ -208,7 +208,7 @@ describe.each`
           {
             name: "body?",
             in: "body",
-            type: "NewModel | ReadableStream<Uint8Array>"
+            type: "NewModel | ReadableStream<Uint8Array> | Buffer"
           }
         ])
       })
@@ -233,7 +233,7 @@ describe.each`
           {
             name: "body?",
             in: "body",
-            type: "NewModel | ReadableStream<Uint8Array>"
+            type: "NewModel | ReadableStream<Uint8Array> | Buffer"
           }
         ])
       })
