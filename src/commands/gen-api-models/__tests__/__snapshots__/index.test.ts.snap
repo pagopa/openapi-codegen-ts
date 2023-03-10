@@ -1445,6 +1445,8 @@ export function createClient<K extends ParamKeys>({
       body?.constructor?.name === \\"Readable\\" ||
       body?.constructor?.name === \\"ReadableStream\\"
         ? (body as ReadableStream)
+        : body?.constructor?.name === \\"Buffer\\"
+        ? (body as Buffer)
         : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
@@ -1470,6 +1472,8 @@ export function createClient<K extends ParamKeys>({
       body?.constructor?.name === \\"Readable\\" ||
       body?.constructor?.name === \\"ReadableStream\\"
         ? (body as ReadableStream)
+        : body?.constructor?.name === \\"Buffer\\"
+        ? (body as Buffer)
         : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
@@ -3321,6 +3325,8 @@ export function createClient<K extends ParamKeys>({
       body?.constructor?.name === \\"Readable\\" ||
       body?.constructor?.name === \\"ReadableStream\\"
         ? (body as ReadableStream)
+        : body?.constructor?.name === \\"Buffer\\"
+        ? (body as Buffer)
         : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
@@ -3346,6 +3352,8 @@ export function createClient<K extends ParamKeys>({
       body?.constructor?.name === \\"Readable\\" ||
       body?.constructor?.name === \\"ReadableStream\\"
         ? (body as ReadableStream)
+        : body?.constructor?.name === \\"Buffer\\"
+        ? (body as Buffer)
         : JSON.stringify(body),
 
     query: () => withoutUndefinedValues({})
