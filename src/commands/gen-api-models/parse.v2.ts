@@ -293,7 +293,10 @@ export const parseOperation = (
           .filter((e): e is IParameterInfo => typeof e !== "undefined")
           .map(param =>
             param.in === "body"
-              ? { ...param, type: `${param.type} | ReadableStream<Uint8Array>` }
+              ? {
+                  ...param,
+                  type: `${param.type} | ReadableStream<Uint8Array> | Buffer`
+                }
               : param
           )
       : [];

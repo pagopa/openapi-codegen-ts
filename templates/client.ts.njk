@@ -152,7 +152,9 @@ export function createClient<K extends ParamKeys>({
     body: ({ {{ bodyParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => 
       {{ bodyParamName }}?.constructor?.name === "Readable" || {{ bodyParamName }}?.constructor?.name === "ReadableStream"
         ? ({{ bodyParamName }} as ReadableStream)
-        :JSON.stringify({{ bodyParamName }}),
+        : {{ bodyParamName }}?.constructor?.name === "Buffer"
+        ? ({{ bodyParamName }} as Buffer)
+        : JSON.stringify({{ bodyParamName }}),
     {% elif formParams | length %}
     body: ({ {{ formParams | pick("name") | stripQuestionMark | safeDestruct | join(", ") | safe  }} }) => {{ formParams | pick("name") | safeIdentifier | first }}.uri,
     {% elif formParamsBinary | length %}

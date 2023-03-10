@@ -354,7 +354,7 @@ export const parseOperation = (
               type: `${bodySchema.$ref
                 ?.split("/")
                 .slice()
-                .pop() ?? ""} | ReadableStream<Uint8Array>`
+                .pop() ?? ""} | ReadableStream<Uint8Array> | Buffer`
             }
           ] as ReadonlyArray<IParameterInfo>)
         : [
