@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@pagopa/openapi-codegen-ts": "../",
-    "@pagopa/ts-commons": "^10.14.2",
+    "@pagopa/ts-commons": "^10.15.0",
     "fp-ts": "^2.10.5",
     "io-ts": "^2.2.16"
   },
