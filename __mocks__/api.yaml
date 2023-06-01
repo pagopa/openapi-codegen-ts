@@ -295,6 +295,19 @@ paths:
       responses:
         "200":
           description: "Ok"
+  /test-header-optional:
+    get:
+      operationId: "testHeaderOptional"
+      parameters:
+        - name: param
+          in: header
+          required: false
+          schema:
+            $ref: "#/definitions/CustomStringFormatTest"
+      responses:
+        "200":
+          description: "Ok"
+
 definitions:
   Person:
     $ref: "definitions.yaml#/Person"
