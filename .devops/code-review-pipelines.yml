@@ -1,10 +1,4 @@
 # Azure DevOps pipeline to build, check source codes and run tests.
-#
-# To make Danger JS run on a pull request you need to add the following pipeline 
-# variable and set it with a GitHub access token (scope public_repo); otherwise 
-# set its value to 'skip' without marking it secret: 
-# - DANGER_GITHUB_API_TOKEN
-# 
 
 variables:
   NODE_VERSION: '12.19.1'
@@ -41,23 +35,6 @@ stages:
               yarn e2e:lint
             displayName: 'Lint e2e project'
 
-      - job: danger
-        condition: 
-          and(
-            succeeded(), 
-            and(
-              eq(variables['Build.Reason'], 'PullRequest'),
-              ne(variables['DANGER_GITHUB_API_TOKEN'], 'skip')
-            )
-          )
-        steps:
-          - template: azure-templates/setup-project.yml
-          - bash: |
-              yarn danger ci
-            env:
-              DANGER_GITHUB_API_TOKEN: '$(DANGER_GITHUB_API_TOKEN)'
-            displayName: 'Danger CI'
-
   - stage: Test
     dependsOn: []
     jobs:
@@ -72,7 +49,7 @@ stages:
               bash <(curl -s https://codecov.io/bash)
             displayName: 'Code coverage'
   
-  - stage: Teste_2e
+  - stage: Test_e2e
     dependsOn: []
     jobs:
       - job: e2e_tests
