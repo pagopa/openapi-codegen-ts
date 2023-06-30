@@ -152,6 +152,8 @@
   {% elif definition.minimum == "0" %}
     {{- 'import { NonNegativeInteger } from "@pagopa/ts-commons/lib/numbers";' | addImport -}}
     {% set typedef %}NonNegativeInteger{% endset %}
+  {% elif definition["enum"] and definition["enum"] | length == 1%}    
+    {% set typedef %}t.literal({{definition["enum"][0]}}){% endset %}
   {% else %}
     {% set typedef %}t.Integer{% endset %}
   {% endif %}

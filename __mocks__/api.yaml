@@ -382,6 +382,10 @@ definitions:
   AdditionalPropsTrueTest:
     type: object
     additionalProperties: true
+  ConstantIntegerTest:
+    title: ConstantIntegerTest
+    type: integer
+    enum: [100]
   NonNegativeNumberTest:
     title: NonNegativeNumberTest
     type: number
