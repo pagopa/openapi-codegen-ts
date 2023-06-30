@@ -10,6 +10,8 @@ import { WithinRangeExclusiveMinimumIntegerTest } from "../../generated/testapi/
 import { WithinRangeExclusiveMinimumNumberTest } from "../../generated/testapi/WithinRangeExclusiveMinimumNumberTest";
 import { WithinRangeExclusiveMinMaxNumberTest } from "../../generated/testapi/WithinRangeExclusiveMinMaxNumberTest";
 
+import { ConstantIntegerTest } from "../../generated/testapi/ConstantIntegerTest";
+
 import { WithinRangeIntegerTest } from "../../generated/testapi/WithinRangeIntegerTest";
 import { WithinRangeNumberTest } from "../../generated/testapi/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapi/WithinRangeStringTest";
@@ -23,8 +25,7 @@ import { AllOfWithOneElementTest } from "../../generated/testapi/AllOfWithOneEle
 import { AllOfWithOneRefElementTest } from "../../generated/testapi/AllOfWithOneRefElementTest";
 import { AdditionalPropsTest } from "../../generated/testapi/AdditionalPropsTest";
 
-
-import * as E from "fp-ts/lib/Either"
+import * as E from "fp-ts/lib/Either";
 
 const { generatedFilesDir } = config.specs.testapi;
 
@@ -100,6 +101,19 @@ describe("Profile defintion", () => {
     const { Profile } = await loadModule("Profile");
     const result = E.isRight(Profile.decode(example));
     expect(result).toEqual(expected);
+  });
+});
+
+describe("ConstantIntegerTest definition", () => {
+  it.each`
+    value  | expected
+    ${100} | ${true}
+    ${99}  | ${false}
+    ${101} | ${false}
+    ${199} | ${false}
+  `("should decode $value with ConstantIntegerTest", ({ value, expected }) => {
+    const result = ConstantIntegerTest.decode(value);
+    expect(E.isRight(result)).toEqual(expected);
   });
 });
 
@@ -327,42 +341,37 @@ describe("EnumFalseTest definition", () => {
 });
 
 describe("AllOfWithOneElementTest definition", () => {
-
-  const okElement = {key: "string"};
-  const notOkElement = {key: 1};
+  const okElement = { key: "string" };
+  const notOkElement = { key: 1 };
 
   it("Should return a right", () => {
     expect(E.isRight(AllOfWithOneElementTest.decode(okElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left", () => {
     expect(E.isLeft(AllOfWithOneElementTest.decode(notOkElement))).toBeTruthy();
-  })
-
-})
+  });
+});
 
 describe("AdditionalPropsTest should be an object with a string as key and an array of number as value", () => {
-
-  const okElement = {"okElementProperty": [1, 2, 3]};
-  const notOkElement = {"notOkElementProperty": ["1", "2", "3"]};
+  const okElement = { okElementProperty: [1, 2, 3] };
+  const notOkElement = { notOkElementProperty: ["1", "2", "3"] };
 
   it("Should return a right with a valid type", () => {
     expect(E.isRight(AdditionalPropsTest.decode(okElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left with a non valid element", () => {
     expect(E.isLeft(AdditionalPropsTest.decode(notOkElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left with undefined input", () => {
     expect(E.isLeft(AdditionalPropsTest.decode(undefined))).toBeTruthy();
-  })
-
-})
+  });
+});
 
 describe("AllOfWithOneRefElementTest", () => {
-
-const basicProfile = {
+  const basicProfile = {
     family_name: "Rossi",
     fiscal_code: "RSSMRA80A01F205X",
     has_profile: true,
@@ -372,10 +381,11 @@ const basicProfile = {
   };
 
   it("Should return a right", () => {
-    expect(E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))).toBeTruthy();
-  })
-
-})
+    expect(
+      E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))
+    ).toBeTruthy();
+  });
+});
 
 describe("DisjointUnionsUserTest definition", () => {
   const enabledUser = {
