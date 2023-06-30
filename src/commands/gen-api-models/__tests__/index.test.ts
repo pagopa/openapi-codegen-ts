@@ -92,6 +92,21 @@ describe.each`
     expect(code).toMatchSnapshot("within-range-strings");
   });
 
+  it("should handle ConstantInteger", async () => {
+    const definitonName = "ConstantIntegerTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
+    const code = await renderDefinitionCode(
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
+      false
+    );
+    expect(code).toMatchSnapshot("constant-integer-test");
+  });
+
   it("should handle NonNegativeNumbers", async () => {
     const definitonName = "NonNegativeNumberTest";
     const definition = getDefinitionOrFail(spec, definitonName);

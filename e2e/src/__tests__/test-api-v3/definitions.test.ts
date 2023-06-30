@@ -10,6 +10,8 @@ import { WithinRangeExclusiveMinimumIntegerTest } from "../../generated/testapiV
 import { WithinRangeExclusiveMinimumNumberTest } from "../../generated/testapiV3/WithinRangeExclusiveMinimumNumberTest";
 import { WithinRangeExclusiveMinMaxNumberTest } from "../../generated/testapiV3/WithinRangeExclusiveMinMaxNumberTest";
 
+import { ConstantIntegerTest } from "../../generated/testapiV3/ConstantIntegerTest";
+
 import { WithinRangeIntegerTest } from "../../generated/testapiV3/WithinRangeIntegerTest";
 import { WithinRangeNumberTest } from "../../generated/testapiV3/WithinRangeNumberTest";
 import { WithinRangeStringTest } from "../../generated/testapiV3/WithinRangeStringTest";
@@ -19,8 +21,8 @@ import { DisjointUnionsUserTest } from "../../generated/testapiV3/DisjointUnions
 import { EnabledUserTest } from "../../generated/testapiV3/EnabledUserTest";
 import { EnumFalseTest } from "../../generated/testapiV3/EnumFalseTest";
 import { EnumTrueTest } from "../../generated/testapiV3/EnumTrueTest";
-import {AllOfWithOneElementTest} from "../../generated/testapiV3/AllOfWithOneElementTest";
-import {AllOfWithOneRefElementTest} from "../../generated/testapiV3/AllOfWithOneRefElementTest";
+import { AllOfWithOneElementTest } from "../../generated/testapiV3/AllOfWithOneElementTest";
+import { AllOfWithOneRefElementTest } from "../../generated/testapiV3/AllOfWithOneRefElementTest";
 
 import * as E from "fp-ts/lib/Either";
 
@@ -98,6 +100,19 @@ describe("Profile defintion", () => {
     const { Profile } = await loadModule("Profile");
     const result = E.isRight(Profile.decode(example));
     expect(result).toEqual(expected);
+  });
+});
+
+describe("ConstantIntegerTest definition", () => {
+  it.each`
+    value  | expected
+    ${100} | ${true}
+    ${99}  | ${false}
+    ${101} | ${false}
+    ${199} | ${false}
+  `("should decode $value with ConstantIntegerTest", ({ value, expected }) => {
+    const result = ConstantIntegerTest.decode(value);
+    expect(E.isRight(result)).toEqual(expected);
   });
 });
 
@@ -325,23 +340,20 @@ describe("EnumFalseTest definition", () => {
 });
 
 describe("AllOfWithOneElementTest definition", () => {
-
-  const okElement = {key: "string"};
-  const notOkElement = {key: 1};
+  const okElement = { key: "string" };
+  const notOkElement = { key: 1 };
 
   it("Should return a right", () => {
     expect(E.isRight(AllOfWithOneElementTest.decode(okElement))).toBeTruthy();
-  })
+  });
 
   it("Should return a left", () => {
     expect(E.isLeft(AllOfWithOneElementTest.decode(notOkElement))).toBeTruthy();
-  })
-
-})
+  });
+});
 
 describe("AllOfWithOneRefElementTest", () => {
-
-const basicProfile = {
+  const basicProfile = {
     family_name: "Rossi",
     fiscal_code: "RSSMRA80A01F205X",
     has_profile: true,
@@ -351,10 +363,11 @@ const basicProfile = {
   };
 
   it("Should return a right", () => {
-    expect(E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))).toBeTruthy();
-  })
-
-})
+    expect(
+      E.isRight(AllOfWithOneRefElementTest.decode(basicProfile))
+    ).toBeTruthy();
+  });
+});
 
 describe("DisjointUnionsUserTest definition", () => {
   const enabledUser = {

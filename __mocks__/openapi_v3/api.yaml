@@ -580,6 +580,10 @@ components:
       title: NonNegativeNumberTest
       type: number
       minimum: 0
+    ConstantIntegerTest:
+      title: ConstantIntegerTest
+      type: integer
+      enum: [100]
     NonNegativeIntegerTest:
       title: NonNegativeIntegerTest
       type: integer
