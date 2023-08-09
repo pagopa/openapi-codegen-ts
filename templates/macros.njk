@@ -334,11 +334,10 @@
   {% endfor %}
 {% endmacro -%}
 
-{% macro defineOneOfProperty(composedPropName, prop, strictInterfaces, camelCasedPropNames) -%}
-    {% set definitionName = composedPropName %}
+{% macro defineOneOfProperty(definitionName, prop, strictInterfaces, camelCasedPropNames) -%}
     {% for schema in prop -%}
       {% if schema.type == "object" %}
-        {% set name = [definitionName, loop.index] | join %}
+        {% set name %}{{ definitionName }}{{ loop.index }}{% endset %}
         {{ defineObject(name, schema, strictInterfaces, camelCasedPropNames) }}
       {% elif schema.$ref %}
         {%- set realPropName = schema.$ref | splitBy("/") | last -%}
