@@ -268,7 +268,7 @@
 {##
  # defines a oneOf property
  #}
- {% macro defineOneOf(parentPropName, propName, definition, inline = false) -%}
+ {% macro defineOneOfProperty(parentPropName, propName, definition, inline = false) -%}
   {{- 'import * as t from "io-ts";' | addImport -}}
   {% set definitionName %}{{ parentPropName }}{{ propName | capitalizeFirst }}{% endset %}
   {{ definitionName }}
@@ -300,7 +300,7 @@
   {% elif prop.type == "boolean" %}
     {{ defineBoolean(propName, prop, true) }}
   {% elif prop.oneOf %}
-    {{ defineOneOf(parentPropName, propName, prop.oneOf, true)}}
+    {{ defineOneOfProperty(parentPropName, propName, prop.oneOf, true)}}
   {% else %}
     // TODO: generate model for definition "{{ propName }}: {{ prop.type }}"
   {% endif %}
@@ -334,7 +334,7 @@
   {% endfor %}
 {% endmacro -%}
 
-{% macro defineOneOfProperty(definitionName, prop, strictInterfaces, camelCasedPropNames) -%}
+{% macro defineOneOf(definitionName, prop, strictInterfaces, camelCasedPropNames) -%}
     {{- 'import * as t from "io-ts";' | addImport -}}
 
     {% for schema in prop -%}
@@ -386,7 +386,7 @@
         {{ defineObject(composedPropName, prop, strictInterfaces, camelCasedPropNames) }}
       {% elif prop.oneOf %}
         {% set composedPropName %}{{ definitionName }}{{ propName | capitalizeFirst }}{% endset %}
-        {{ defineOneOfProperty(composedPropName, prop.oneOf, strictInterfaces, camelCasedPropNames) }}
+        {{ defineOneOf(composedPropName, prop.oneOf, strictInterfaces, camelCasedPropNames) }}
       {% endif %}
     {% endfor %}
 
@@ -464,7 +464,7 @@
   {% elif definition.oneOf %}
     {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
 
-    {{ defineOneOfProperty(definitionName, oneOfProps, strictInterfaces, camelCasedPropNames) }}
+    {{ defineOneOf(definitionName, oneOfProps, strictInterfaces, camelCasedPropNames) }}
 
   {% elif definition.type == "number" %}
 
