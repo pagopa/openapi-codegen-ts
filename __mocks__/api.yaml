@@ -380,6 +380,7 @@ definitions:
             properties:
               bar:
                 type: string
+          - $ref: "#/definitions/Person"
   AdditionalPropsTest:
     type: object
     additionalProperties:

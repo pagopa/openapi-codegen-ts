@@ -514,6 +514,7 @@ components:
               properties:
                 bar:
                   type: string
+            - $ref: "#/components/schemas/Person"
     AllOfWithOneElementTest:
       description: test if we can use allOf with just one element inside
       allOf:
