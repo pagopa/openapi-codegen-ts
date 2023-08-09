@@ -335,6 +335,8 @@
 {% endmacro -%}
 
 {% macro defineOneOfProperty(definitionName, prop, strictInterfaces, camelCasedPropNames) -%}
+    {{- 'import * as t from "io-ts";' | addImport -}}
+
     {% for schema in prop -%}
       {% if schema.type == "object" %}
         {% set name %}{{ definitionName }}{{ loop.index }}{% endset %}
@@ -462,31 +464,7 @@
   {% elif definition.oneOf %}
     {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
 
-    {{- 'import * as t from "io-ts";' | addImport -}}
-
-    {% for schema in oneOfProps -%}
-      {% if schema.type == "object" %}
-        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
-      {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | splitBy("/") | last -%}
-        {{ importLocalProp(realPropName) }}
-      {% endif %}
-    {% endfor %}
-
-    export const {{ definitionName }} =
-      t.union([
-        {% for schema in oneOfProps -%}
-          {% if schema.type == "object" %}
-            {{ definitionName + loop.index }},
-          {% elif schema.$ref %}
-            {{ schema.$ref | splitBy("/") | last }},
-          {% endif %}
-        {% endfor %}
-      ],
-      "{{ definitionName }}"
-    );
-
-    export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+    {{ defineOneOfProperty(definitionName, oneOfProps, strictInterfaces, camelCasedPropNames) }}
 
   {% elif definition.type == "number" %}
 
