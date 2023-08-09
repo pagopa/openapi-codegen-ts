@@ -366,6 +366,20 @@ definitions:
         properties:
           unlimited:
             type: boolean
+  OneOfPropertyTest:
+    type: object
+    description: test if we can use `oneOf` as an object property
+    properties:
+      fields:
+        oneOf:
+          - type: object
+            properties:
+              foo:
+                type: string
+          - type: object
+            properties:
+              bar:
+                type: string
   AdditionalPropsTest:
     type: object
     additionalProperties:
