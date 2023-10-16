@@ -381,6 +381,12 @@ definitions:
               bar:
                 type: string
           - $ref: "#/definitions/Person"
+          - type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
   AdditionalPropsTest:
     type: object
     additionalProperties:

@@ -358,8 +358,24 @@ export type OneOfPropertyTestFields2 = t.TypeOf<
   typeof OneOfPropertyTestFields2
 >;
 
+export type OneOfPropertyTestFields4 = t.TypeOf<
+  typeof OneOfPropertyTestFields4
+>;
+export const OneOfPropertyTestFields4 = t.readonlyArray(
+  t.object,
+  \\"array of object\\"
+);
+
 export const OneOfPropertyTestFields = t.union(
-  [OneOfPropertyTestFields1, OneOfPropertyTestFields2, Person],
+  [
+    OneOfPropertyTestFields1,
+
+    OneOfPropertyTestFields2,
+
+    Person,
+
+    OneOfPropertyTestFields4
+  ],
   \\"OneOfPropertyTestFields\\"
 );
 
@@ -2316,8 +2332,24 @@ export type OneOfPropertyTestFields2 = t.TypeOf<
   typeof OneOfPropertyTestFields2
 >;
 
+export type OneOfPropertyTestFields3 = t.TypeOf<
+  typeof OneOfPropertyTestFields3
+>;
+export const OneOfPropertyTestFields3 = t.readonlyArray(
+  t.object,
+  \\"array of object\\"
+);
+
 export const OneOfPropertyTestFields = t.union(
-  [OneOfPropertyTestFields1, OneOfPropertyTestFields2, Person],
+  [
+    OneOfPropertyTestFields1,
+
+    OneOfPropertyTestFields2,
+
+    OneOfPropertyTestFields3,
+
+    Person
+  ],
   \\"OneOfPropertyTestFields\\"
 );
 
