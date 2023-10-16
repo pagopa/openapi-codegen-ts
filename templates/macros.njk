@@ -269,9 +269,8 @@
  # defines a oneOf property
  #}
  {% macro defineOneOfProperty(parentPropName, propName, definition, inline = false) -%}
-  {{- 'import * as t from "io-ts";' | addImport -}}
-  {% set definitionName %}{{ parentPropName }}{{ propName | capitalizeFirst }}{% endset %}
-  {{ definitionName }}
+    {{ parentPropName }}{{ propName | capitalizeFirst }}
+    {{ defineConst(definition.default, typedef, typedef, false, inline) }}
  {% endmacro %}
 
 {##
