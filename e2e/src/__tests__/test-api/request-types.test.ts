@@ -7,6 +7,14 @@ import * as E from "fp-ts/lib/Either";
 
 // @ts-ignore because leaked-handles doesn't ship type defintions
 import * as leaked from "leaked-handles";
+import {
+  createFetchRequestForApi,
+  ReplaceRequestParams,
+  RequestParams,
+  TypeofApiCall
+} from "@pagopa/ts-commons/lib/requests";
+import { options } from "yargs";
+import { right } from "fp-ts/lib/Either";
 leaked.set({ debugSockets: true });
 
 const { isSpecEnabled } = config.specs.testapi;
@@ -189,5 +197,66 @@ describeSuite("Request types generated from Test API spec", () => {
         }
       }
     );
+  });
+
+  describe("use custom decoder", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    // just a fetch instance that always return the default success status
+    const defaultSuccessStatus = 201;
+    const mockFetch = ((() => ({
+      status: defaultSuccessStatus,
+      json: async () => ({})
+    })) as unknown) as typeof fetch;
+
+    // just pick one of the response decoders we generate, any will do
+    const aDecoderFactory = requestTypes.testParameterWithReferenceDecoder;
+    type aRequestType = requestTypes.TestParameterWithReferenceT;
+
+    // just a mock decoder that always successfully decode
+    // only constraint: DecoderType must extend response decoder for the default status code
+    type DecoderType = undefined;
+    const mockIs = jest.fn<boolean, [unknown]>(_ => true);
+    const mockDecode = jest.fn(e => right<t.Errors, DecoderType>(e));
+    const mockEncode = jest.fn(e => e);
+    const aCustomDecoder = new t.Type<DecoderType, DecoderType, unknown>(
+      "CustomDecoder",
+      (mockIs as unknown) as t.Is<DecoderType>,
+      mockDecode,
+      mockEncode
+    );
+
+    it.each`
+      testName                       | decoder
+      ${"with explicit declaration"} | ${aDecoderFactory({ [defaultSuccessStatus]: aCustomDecoder })}
+      ${"with implicit declaration"} | ${aDecoderFactory(aCustomDecoder)}
+    `("should use custom decoder $testName", async ({ decoder }) => {
+      const apiRequestT: ReplaceRequestParams<
+        aRequestType,
+        RequestParams<aRequestType>
+      > = {
+        method: "post",
+        headers: () => ({
+          "Content-Type": "application/json"
+        }),
+        response_decoder: decoder,
+        url: ({}) => `/any/path`,
+        body: () => "any body",
+        query: () => ({})
+      };
+
+      const apiRequest: TypeofApiCall<aRequestType> = createFetchRequestForApi(
+        apiRequestT,
+        {
+          fetchApi: mockFetch
+        }
+      );
+
+      const result = await apiRequest({});
+      expect(mockDecode).toBeCalled();
+      expect(result.isRight()).toBe(true);
+    });
   });
 });
