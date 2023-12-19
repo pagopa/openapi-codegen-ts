@@ -685,6 +685,10 @@ function specTypeToTs(parameter: OpenAPIV2.ParameterObject): string {
   switch (parameter.type) {
     case "integer":
       return "number";
+    case "array":
+      return "type" in parameter.items
+        ? `${parameter.items.type}[]`
+        : parameter.type;
     case "file":
       return `{ "uri": string, "name": string, "type": string }`;
     default:
