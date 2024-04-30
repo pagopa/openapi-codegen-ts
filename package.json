@@ -59,6 +59,10 @@
     "typescript": "^4.3.5",
     "typestrict": "^0.0.9"
   },
+  "peerDependencies": {
+    "fp-ts": "^2.16.5",
+    "io-ts": "^2.2.21"
+  },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
