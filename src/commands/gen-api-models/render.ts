@@ -197,6 +197,36 @@ export const renderOperation = (
 };
 
 /**
+ * Retrieves the first successful response type from a list of operation responses.
+ *
+ * This function iterates through the provided responses and checks the status code.
+ * If a response has a status code starting with "2" (indicating success), it returns that response.
+ * If no such response is found, it checks for responses with status codes starting with "3" (indicating redirection).
+ * If any redirection responses are found, it returns the first one.
+ * If neither successful nor redirection responses are found, it returns `undefined`.
+ *
+ * @param responses - An array of operation responses to evaluate.
+ * @returns The first successful response, the first redirection response if no successful response is found, or `undefined` if neither are found.
+ */
+export const getfirstSuccessType = (
+  responses: IOperationInfo["responses"]
+): IOperationInfo["responses"][number] | undefined => {
+  const redirectResponses = [];
+  for (const response of responses) {
+    if (response.e1.length === 3) {
+      if (response.e1[0] === "2") {
+        return response;
+      }
+      if (response.e1[0] === "3") {
+        // eslint-disable-next-line functional/immutable-data
+        redirectResponses.push(response);
+      }
+    }
+  }
+  return redirectResponses.length > 0 ? redirectResponses[0] : undefined;
+};
+
+/**
  * Compose the code for response decoder of an operation
  *
  * @param operationInfo the operation
@@ -206,9 +236,7 @@ export const renderOperation = (
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, prefer-arrow/prefer-arrow-functions
 export function renderDecoderCode({ responses, operationId }: IOperationInfo) {
   // use the first 2xx type as "success type" that we allow to be overridden
-  const firstSuccessType = responses.find(
-    ({ e1 }) => e1.length === 3 && e1[0] === "2"
-  );
+  const firstSuccessType = getfirstSuccessType(responses);
   if (!firstSuccessType) {
     return "";
   }

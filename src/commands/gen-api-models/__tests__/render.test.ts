@@ -6,6 +6,8 @@ import * as SwaggerParser from "swagger-parser";
 import { renderDefinitionCode, renderAllOperations } from "../render";
 import { getDefinitionOrFail, getParser } from "./utils/parser.utils";
 
+import { getfirstSuccessType } from "../render";
+
 let spec: OpenAPIV2.Document;
 
 describe.each`
@@ -50,5 +52,33 @@ describe.each`
       const code = renderAllOperations([operationInfo1], true)
       expect(code).toMatchSnapshot();
     })
+});
 
+describe("getfirstSuccessType", () => {
+  it("should return the first successful response", () => {
+    const responses = [
+      { e1: "200", e2: "SuccessType", e3: [] },
+      { e1: "301", e2: "RedirectType", e3: [] }
+    ];
+    const result = getfirstSuccessType(responses);
+    expect(result).toEqual({ e1: "200", e2: "SuccessType", e3: [] });
+  });
+
+  it("should return the first redirection response if no successful response is found", () => {
+    const responses = [
+      { e1: "301", e2: "RedirectType", e3: [] },
+      { e1: "302", e2: "AnotherRedirectType", e3: [] }
+    ];
+    const result = getfirstSuccessType(responses);
+    expect(result).toEqual({ e1: "301", e2: "RedirectType", e3: [] });
+  });
+
+  it("should return undefined if no successful or redirection responses are found", () => {
+    const responses = [
+      { e1: "400", e2: "ClientErrorType", e3: [] },
+      { e1: "500", e2: "ServerErrorType", e3: [] }
+    ];
+    const result = getfirstSuccessType(responses);
+    expect(result).toBeUndefined();
+  });
 });
