@@ -417,3 +417,45 @@ describe("DisjointUnionsUserTest definition", () => {
     expect(E.isLeft(enabledUserTest)).toBe(true);
   });
 });
+
+describe("OneOfPropertyTest definition", () => {
+  const variant1 = {
+    fields: {
+      foo: "foo"
+    }
+  };
+
+  const variant2 = {
+    fields: {
+      bar: "bar"
+    }
+  };
+
+  const variant3 = {
+    fields: [
+      {
+        name: "name"
+      }
+    ]
+  };
+
+  const variant4 = {
+    fields: {
+      name: "name",
+      address: "address"
+    }
+  };
+
+  it.each`
+    title                        | example     | expected
+    ${"should decode variant 1"} | ${variant1} | ${true}
+    ${"should decode variant 2"} | ${variant2} | ${true}
+    ${"should decode variant 3"} | ${variant3} | ${true}
+    ${"should decode variant 4"} | ${variant4} | ${true}
+  `("$title", async ({ example, expected }) => {
+    const { OneOfPropertyTest } = await loadModule("OneOfPropertyTest");
+    const result = E.isRight(OneOfPropertyTest.decode(example));
+
+    expect(result).toEqual(expected);
+  });
+});
