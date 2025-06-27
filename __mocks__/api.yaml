@@ -7,6 +7,8 @@ host: localhost
 basePath: /api/v1
 schemes:
   - https
+security:
+  - customToken: []
 securityDefinitions:
   bearerToken:
     type: apiKey

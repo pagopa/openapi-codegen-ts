@@ -952,7 +952,11 @@ import {
   TestHeaderWithSchemaRefT,
   testHeaderWithSchemaRefDefaultDecoder,
   TestHeaderOptionalT,
-  testHeaderOptionalDefaultDecoder
+  testHeaderOptionalDefaultDecoder,
+  TestOverriddenSecurityT,
+  testOverriddenSecurityDefaultDecoder,
+  TestOverriddenSecurityT,
+  testOverriddenSecurityDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -980,7 +984,9 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestWithEmptyResponseT> &
   TypeofApiCall<TestParamWithSchemaRefT> &
   TypeofApiCall<TestHeaderWithSchemaRefT> &
-  TypeofApiCall<TestHeaderOptionalT>;
+  TypeofApiCall<TestHeaderOptionalT> &
+  TypeofApiCall<TestOverriddenSecurityT> &
+  TypeofApiCall<TestOverriddenSecurityT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
@@ -1001,7 +1007,9 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestWithEmptyResponseT> &
   TypeofApiParams<TestParamWithSchemaRefT> &
   TypeofApiParams<TestHeaderWithSchemaRefT> &
-  TypeofApiParams<TestHeaderOptionalT>);
+  TypeofApiParams<TestHeaderOptionalT> &
+  TypeofApiParams<TestOverriddenSecurityT> &
+  TypeofApiParams<TestOverriddenSecurityT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -1044,7 +1052,9 @@ export type WithDefaultsT<
   | TestWithEmptyResponseT
   | TestParamWithSchemaRefT
   | TestHeaderWithSchemaRefT
-  | TestHeaderOptionalT,
+  | TestHeaderOptionalT
+  | TestOverriddenSecurityT
+  | TestOverriddenSecurityT,
   K
 >;
 
@@ -1105,6 +1115,10 @@ export type Client<
       readonly testHeaderWithSchemaRef: TypeofApiCall<TestHeaderWithSchemaRefT>;
 
       readonly testHeaderOptional: TypeofApiCall<TestHeaderOptionalT>;
+
+      readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
+
+      readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -1246,6 +1260,20 @@ export type Client<
           Omit<RequestParams<TestHeaderOptionalT>, K>
         >
       >;
+
+      readonly testOverriddenSecurity: TypeofApiCall<
+        ReplaceRequestParams<
+          TestOverriddenSecurityT,
+          Omit<RequestParams<TestOverriddenSecurityT>, K>
+        >
+      >;
+
+      readonly testOverriddenSecurity: TypeofApiCall<
+        ReplaceRequestParams<
+          TestOverriddenSecurityT,
+          Omit<RequestParams<TestOverriddenSecurityT>, K>
+        >
+      >;
     };
 
 /**
@@ -1335,8 +1363,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testMultipleSuccessDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-multiple-success\`,
 
@@ -1353,7 +1382,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"post\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"multipart/form-data\\"
     }),
     response_decoder: testFileUploadDefaultDecoder(),
@@ -1378,7 +1409,9 @@ export function createClient<K extends ParamKeys>({
     //  reference: https://github.com/github/fetch/issues/505#issuecomment-293064470
     // The solution is to skip the Content-Type header and let fetch add it for us.
     // @ts-ignore as IRequestType would require something
-    headers: () => ({}),
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testBinaryFileUploadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-binary-file-upload\`,
 
@@ -1405,8 +1438,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testBinaryFileDownloadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-binary-file-download\`,
 
@@ -1423,8 +1457,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testResponseHeaderDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-response-header\`,
 
@@ -1441,7 +1476,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"post\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: testParameterWithReferenceDefaultDecoder(),
@@ -1463,7 +1500,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"post\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: testParameterWithBodyReferenceDefaultDecoder(),
@@ -1490,7 +1529,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"put\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: putTestParameterWithBodyReferenceDefaultDecoder(),
@@ -1518,9 +1559,12 @@ export function createClient<K extends ParamKeys>({
     method: \\"get\\",
 
     headers: ({
+      [\\"customToken\\"]: customToken,
       [\\"headerInlineParam\\"]: headerInlineParam,
       [\\"x-header-param\\"]: xHeaderParam
     }) => ({
+      \\"custom-token\\": customToken,
+
       headerInlineParam: headerInlineParam,
 
       \\"x-header-param\\": xHeaderParam
@@ -1544,9 +1588,12 @@ export function createClient<K extends ParamKeys>({
     method: \\"get\\",
 
     headers: ({
+      [\\"customToken\\"]: customToken,
       [\\"headerInlineParam\\"]: headerInlineParam,
       [\\"x-header-param\\"]: xHeaderParam
     }) => ({
+      \\"custom-token\\": customToken,
+
       headerInlineParam: headerInlineParam,
 
       \\"x-header-param\\": xHeaderParam
@@ -1569,8 +1616,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testWithTwoParamsDefaultDecoder(),
     url: ({ [\\"first-param\\"]: firstParam, [\\"second-param\\"]: secondParam }) =>
       \`\${basePath}/test-two-path-params/\${firstParam}/\${secondParam}\`,
@@ -1588,8 +1636,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testParametersAtPathLevelDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-path-level-parameter\`,
 
@@ -1607,7 +1656,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"patch\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: testSimplePatchDefaultDecoder(),
@@ -1647,8 +1698,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testWithEmptyResponseDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-with-empty-response\`,
 
@@ -1665,8 +1717,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testParamWithSchemaRefDefaultDecoder(),
     url: ({ [\\"param\\"]: param }) =>
       \`\${basePath}/test-param-with-schema-ref/\${param}\`,
@@ -1684,7 +1737,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: ({ [\\"param\\"]: param }) => ({
+    headers: ({ [\\"customToken\\"]: customToken, [\\"param\\"]: param }) => ({
+      \\"custom-token\\": customToken,
+
       param: param
     }),
     response_decoder: testHeaderWithSchemaRefDefaultDecoder(),
@@ -1703,7 +1758,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: ({ [\\"param\\"]: param }) => ({
+    headers: ({ [\\"customToken\\"]: customToken, [\\"param\\"]: param }) => ({
+      \\"custom-token\\": customToken,
+
       param: param
     }),
     response_decoder: testHeaderOptionalDefaultDecoder(),
@@ -1713,6 +1770,43 @@ export function createClient<K extends ParamKeys>({
   };
   const testHeaderOptional: TypeofApiCall<TestHeaderOptionalT> = createFetchRequestForApi(
     testHeaderOptionalT,
+    options
+  );
+
+  const testOverriddenSecurityT: ReplaceRequestParams<
+    TestOverriddenSecurityT,
+    RequestParams<TestOverriddenSecurityT>
+  > = {
+    method: \\"get\\",
+
+    headers: ({ [\\"bearerToken\\"]: bearerToken }) => ({
+      Authorization: \`Bearer \${bearerToken}\`
+    }),
+    response_decoder: testOverriddenSecurityDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-with-overridden-security\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT> = createFetchRequestForApi(
+    testOverriddenSecurityT,
+    options
+  );
+
+  const testOverriddenSecurityT: ReplaceRequestParams<
+    TestOverriddenSecurityT,
+    RequestParams<TestOverriddenSecurityT>
+  > = {
+    method: \\"get\\",
+
+    headers: () => ({}),
+
+    response_decoder: testOverriddenSecurityDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-with-overridden-security-no-auth\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT> = createFetchRequestForApi(
+    testOverriddenSecurityT,
     options
   );
 
@@ -1748,7 +1842,9 @@ export function createClient<K extends ParamKeys>({
     testHeaderWithSchemaRef: (withDefaults || identity)(
       testHeaderWithSchemaRef
     ),
-    testHeaderOptional: (withDefaults || identity)(testHeaderOptional)
+    testHeaderOptional: (withDefaults || identity)(testHeaderOptional),
+    testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity),
+    testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity)
   };
 }
 "
@@ -2840,7 +2936,11 @@ import {
   TestHeaderWithSchemaRefT,
   testHeaderWithSchemaRefDefaultDecoder,
   TestHeaderOptionalT,
-  testHeaderOptionalDefaultDecoder
+  testHeaderOptionalDefaultDecoder,
+  TestOverriddenSecurityT,
+  testOverriddenSecurityDefaultDecoder,
+  TestOverriddenSecurityT,
+  testOverriddenSecurityDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -2869,7 +2969,9 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestWithEmptyResponseT> &
   TypeofApiCall<TestParamWithSchemaRefT> &
   TypeofApiCall<TestHeaderWithSchemaRefT> &
-  TypeofApiCall<TestHeaderOptionalT>;
+  TypeofApiCall<TestHeaderOptionalT> &
+  TypeofApiCall<TestOverriddenSecurityT> &
+  TypeofApiCall<TestOverriddenSecurityT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestAuthBearerHttpT> &
@@ -2891,7 +2993,9 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestWithEmptyResponseT> &
   TypeofApiParams<TestParamWithSchemaRefT> &
   TypeofApiParams<TestHeaderWithSchemaRefT> &
-  TypeofApiParams<TestHeaderOptionalT>);
+  TypeofApiParams<TestHeaderOptionalT> &
+  TypeofApiParams<TestOverriddenSecurityT> &
+  TypeofApiParams<TestOverriddenSecurityT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -2935,7 +3039,9 @@ export type WithDefaultsT<
   | TestWithEmptyResponseT
   | TestParamWithSchemaRefT
   | TestHeaderWithSchemaRefT
-  | TestHeaderOptionalT,
+  | TestHeaderOptionalT
+  | TestOverriddenSecurityT
+  | TestOverriddenSecurityT,
   K
 >;
 
@@ -2998,6 +3104,10 @@ export type Client<
       readonly testHeaderWithSchemaRef: TypeofApiCall<TestHeaderWithSchemaRefT>;
 
       readonly testHeaderOptional: TypeofApiCall<TestHeaderOptionalT>;
+
+      readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
+
+      readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -3146,6 +3256,20 @@ export type Client<
           Omit<RequestParams<TestHeaderOptionalT>, K>
         >
       >;
+
+      readonly testOverriddenSecurity: TypeofApiCall<
+        ReplaceRequestParams<
+          TestOverriddenSecurityT,
+          Omit<RequestParams<TestOverriddenSecurityT>, K>
+        >
+      >;
+
+      readonly testOverriddenSecurity: TypeofApiCall<
+        ReplaceRequestParams<
+          TestOverriddenSecurityT,
+          Omit<RequestParams<TestOverriddenSecurityT>, K>
+        >
+      >;
     };
 
 /**
@@ -3255,8 +3379,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testMultipleSuccessDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-multiple-success\`,
 
@@ -3277,7 +3402,9 @@ export function createClient<K extends ParamKeys>({
     //  reference: https://github.com/github/fetch/issues/505#issuecomment-293064470
     // The solution is to skip the Content-Type header and let fetch add it for us.
     // @ts-ignore as IRequestType would require something
-    headers: () => ({}),
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testFileUploadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-file-upload\`,
 
@@ -3308,7 +3435,9 @@ export function createClient<K extends ParamKeys>({
     //  reference: https://github.com/github/fetch/issues/505#issuecomment-293064470
     // The solution is to skip the Content-Type header and let fetch add it for us.
     // @ts-ignore as IRequestType would require something
-    headers: () => ({}),
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testBinaryFileUploadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-binary-file-upload\`,
 
@@ -3335,8 +3464,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testBinaryFileDownloadDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-binary-file-download\`,
 
@@ -3353,8 +3483,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testResponseHeaderDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-response-header\`,
 
@@ -3371,7 +3502,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"post\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: testParameterWithReferenceDefaultDecoder(),
@@ -3393,7 +3526,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"post\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: testParameterWithBodyReferenceDefaultDecoder(),
@@ -3420,7 +3555,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"put\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: putTestParameterWithBodyReferenceDefaultDecoder(),
@@ -3448,9 +3585,12 @@ export function createClient<K extends ParamKeys>({
     method: \\"get\\",
 
     headers: ({
+      [\\"customToken\\"]: customToken,
       [\\"headerInlineParam\\"]: headerInlineParam,
       [\\"x-header-param\\"]: xHeaderParam
     }) => ({
+      \\"custom-token\\": customToken,
+
       headerInlineParam: headerInlineParam,
 
       \\"x-header-param\\": xHeaderParam
@@ -3474,9 +3614,12 @@ export function createClient<K extends ParamKeys>({
     method: \\"get\\",
 
     headers: ({
+      [\\"customToken\\"]: customToken,
       [\\"headerInlineParam\\"]: headerInlineParam,
       [\\"x-header-param\\"]: xHeaderParam
     }) => ({
+      \\"custom-token\\": customToken,
+
       headerInlineParam: headerInlineParam,
 
       \\"x-header-param\\": xHeaderParam
@@ -3499,8 +3642,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testWithTwoParamsDefaultDecoder(),
     url: ({ [\\"first-param\\"]: firstParam, [\\"second-param\\"]: secondParam }) =>
       \`\${basePath}/test-two-path-params/\${firstParam}/\${secondParam}\`,
@@ -3518,8 +3662,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testParametersAtPathLevelDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-path-level-parameter\`,
 
@@ -3537,7 +3682,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"patch\\",
 
-    headers: () => ({
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
       \\"Content-Type\\": \\"application/json\\"
     }),
     response_decoder: testSimplePatchDefaultDecoder(),
@@ -3577,8 +3724,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testWithEmptyResponseDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-with-empty-response\`,
 
@@ -3595,8 +3743,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: () => ({}),
-
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken
+    }),
     response_decoder: testParamWithSchemaRefDefaultDecoder(),
     url: ({ [\\"param\\"]: param }) =>
       \`\${basePath}/test-param-with-schema-ref/\${param}\`,
@@ -3614,7 +3763,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: ({ [\\"param\\"]: param }) => ({
+    headers: ({ [\\"customToken\\"]: customToken, [\\"param\\"]: param }) => ({
+      \\"custom-token\\": customToken,
+
       param: param
     }),
     response_decoder: testHeaderWithSchemaRefDefaultDecoder(),
@@ -3633,7 +3784,9 @@ export function createClient<K extends ParamKeys>({
   > = {
     method: \\"get\\",
 
-    headers: ({ [\\"param\\"]: param }) => ({
+    headers: ({ [\\"customToken\\"]: customToken, [\\"param\\"]: param }) => ({
+      \\"custom-token\\": customToken,
+
       param: param
     }),
     response_decoder: testHeaderOptionalDefaultDecoder(),
@@ -3643,6 +3796,43 @@ export function createClient<K extends ParamKeys>({
   };
   const testHeaderOptional: TypeofApiCall<TestHeaderOptionalT> = createFetchRequestForApi(
     testHeaderOptionalT,
+    options
+  );
+
+  const testOverriddenSecurityT: ReplaceRequestParams<
+    TestOverriddenSecurityT,
+    RequestParams<TestOverriddenSecurityT>
+  > = {
+    method: \\"get\\",
+
+    headers: ({ [\\"bearerToken\\"]: bearerToken }) => ({
+      Authorization: \`Bearer \${bearerToken}\`
+    }),
+    response_decoder: testOverriddenSecurityDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-with-overridden-security\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT> = createFetchRequestForApi(
+    testOverriddenSecurityT,
+    options
+  );
+
+  const testOverriddenSecurityT: ReplaceRequestParams<
+    TestOverriddenSecurityT,
+    RequestParams<TestOverriddenSecurityT>
+  > = {
+    method: \\"get\\",
+
+    headers: () => ({}),
+
+    response_decoder: testOverriddenSecurityDefaultDecoder(),
+    url: ({}) => \`\${basePath}/test-with-overridden-security-no-auth\`,
+
+    query: () => withoutUndefinedValues({})
+  };
+  const testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT> = createFetchRequestForApi(
+    testOverriddenSecurityT,
     options
   );
 
@@ -3679,7 +3869,9 @@ export function createClient<K extends ParamKeys>({
     testHeaderWithSchemaRef: (withDefaults || identity)(
       testHeaderWithSchemaRef
     ),
-    testHeaderOptional: (withDefaults || identity)(testHeaderOptional)
+    testHeaderOptional: (withDefaults || identity)(testHeaderOptional),
+    testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity),
+    testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity)
   };
 }
 "
