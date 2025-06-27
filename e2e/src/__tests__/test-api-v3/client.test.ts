@@ -18,6 +18,7 @@ const { generatedFilesDir, mockPort, isSpecEnabled } = config.specs.testapiV3;
 
 // if there's no need for this suite in this particular run, just skip it
 const describeSuite = skipClient || !isSpecEnabled ? describe.skip : describe;
+const customToken = "anAPIKey";
 
 // given a spied fetch call, check if the request has been made using the provided parameter in querystring
 const hasQueryParam = (paramName: string) => ([input]: Parameters<
@@ -82,7 +83,8 @@ describeSuite("Http client generated from Test API spec", () => {
       headerInlineParam: "value",
       "path-param": "value",
       "request-id": "value",
-      "x-header-param": "value"
+      "x-header-param": "value",
+      customToken
     });
     expect(isRight(result)).toBe(true);
   });
@@ -103,7 +105,8 @@ describeSuite("Http client generated from Test API spec", () => {
       headerInlineParam: "value",
       "path-param": "value",
       "request-id": "value",
-      "x-header-param": "value"
+      "x-header-param": "value",
+      customToken
     });
     expect(isRight(result)).toBe(true);
   });
@@ -134,7 +137,8 @@ describeSuite("Http client generated from Test API spec", () => {
       headerInlineParam: "value",
       "path-param": "value",
       "request-id": "value",
-      "x-header-param": "value"
+      "x-header-param": "value",
+      customToken
     });
 
     expect(spiedFetch).toHaveBeenCalledTimes(1);
@@ -200,18 +204,21 @@ describeSuite("Http client generated from Test API spec", () => {
     // It can be called with expected query parameters
     const resultWithCursor = await client.testParametersAtPathLevel({
       "request-id": "an id",
-      cursor: "a cursor"
+      cursor: "a cursor",
+      customToken
     });
 
     // It can be called without optional parameters
     const result = await client.testParametersAtPathLevel({
-      "request-id": "an id"
+      "request-id": "an id",
+      customToken
     });
 
     // It cannot be called without optional parameters
     // @ts-expect-error
     await client.testParametersAtPathLevel({
-      cursor: "a cursor"
+      cursor: "a cursor",
+      customToken
     });
   });
 
@@ -239,7 +246,8 @@ describeSuite("Http client generated from Test API spec", () => {
     expect.assertions(2);
     try {
       await client.testBinaryFileUpload({
-        body: {} as File
+        body: {} as File,
+        customToken
       });
     } catch (e) {
       expect(e).toEqual(
@@ -259,13 +267,7 @@ describeSuite("Http client generated from Test API spec", () => {
 
     expect(client.testParameterWithDash).toEqual(expect.any(Function));
 
-    const result = await client.testSimplePatch({
-      "foo-bar": "value",
-      headerInlineParam: "value",
-      "path-param": "value",
-      "request-id": "value",
-      "x-header-param": "value"
-    });
+    const result = await client.testSimplePatch({ customToken });
     expect(isRight(result)).toBe(true);
   });
 
@@ -282,7 +284,7 @@ describeSuite("Http client generated from Test API spec", () => {
 
     expect(client.testBinaryFileDownload).toEqual(expect.any(Function));
 
-    const result = await client.testBinaryFileDownload({});
+    const result = await client.testBinaryFileDownload({ customToken });
 
     expect(result).toMatchObject(
       right({
@@ -320,9 +322,9 @@ describeSuite("Http client generated from Test API spec", () => {
     };
 
     expect(client.testParameterWithBodyReference).toEqual(expect.any(Function));
-    client.testParameterWithBodyReference({ body: aData });
+    client.testParameterWithBodyReference({ body: aData, customToken });
     // @ts-expect-error
-    client.testParameterWithBodyReference({ body: "" });
+    client.testParameterWithBodyReference({ body: "", customToken });
   });
 
   it("should handle model ref model in body for put operation", async () => {
@@ -340,11 +342,10 @@ describeSuite("Http client generated from Test API spec", () => {
     expect(client.putTestParameterWithBodyReference).toEqual(
       expect.any(Function)
     );
-    client.putTestParameterWithBodyReference({ body: aData });
+    client.putTestParameterWithBodyReference({ body: aData, customToken });
     // @ts-expect-error
-    client.putTestParameterWithBodyReference({ body: "" });
+    client.putTestParameterWithBodyReference({ body: "", customToken });
   });
-  
 
   it("should handle model ref model in body as readablestream", async () => {
     const aData: NewModel = {
@@ -352,31 +353,36 @@ describeSuite("Http client generated from Test API spec", () => {
       name: "aName"
     };
 
-    const mockTestEndpoint = jest.fn((request: IncomingMessage, response: ServerResponse) => {
-      let data = "";
-      request.on("data", chunk => data += chunk)
-      request.on("end", () => {
-        expect(JSON.parse(data)).toEqual(aData);
-        response.statusCode = 201;
-        response.end();
-      })
-      
-  } );
-    const server = await startServer(mockPort+10, mockTestEndpoint);
+    const mockTestEndpoint = jest.fn(
+      (request: IncomingMessage, response: ServerResponse) => {
+        let data = "";
+        request.on("data", chunk => (data += chunk));
+        request.on("end", () => {
+          expect(JSON.parse(data)).toEqual(aData);
+          response.statusCode = 201;
+          response.end();
+        });
+      }
+    );
+    const server = await startServer(mockPort + 10, mockTestEndpoint);
 
     const client = createClient({
-      baseUrl: `http://localhost:${mockPort+10}`,
+      baseUrl: `http://localhost:${mockPort + 10}`,
       fetchApi: (nodeFetch as any) as typeof fetch,
       basePath: ""
     });
 
-    const aDataAsBuffer = Readable.from(Buffer.from(JSON.stringify(aData))) as unknown as ReadableStream<Uint8Array>;
+    const aDataAsBuffer = (Readable.from(
+      Buffer.from(JSON.stringify(aData))
+    ) as unknown) as ReadableStream<Uint8Array>;
 
     expect(client.testParameterWithBodyReference).toEqual(expect.any(Function));
-    const response = await client.testParameterWithBodyReference({ body: aDataAsBuffer });
+    const response = await client.testParameterWithBodyReference({
+      body: aDataAsBuffer,
+      customToken
+    });
 
     expect(mockTestEndpoint).toHaveBeenCalledTimes(1);
-    
 
     await closeServer(server);
   });

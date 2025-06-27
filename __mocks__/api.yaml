@@ -319,7 +319,7 @@ paths:
           description: "Ok"
   /test-with-overridden-security-no-auth:
     get:
-      operationId: "testOverriddenSecurity"
+      operationId: "testOverriddenSecurityNoAuth"
       security: []
       responses:
         "200":
