@@ -269,6 +269,76 @@ describe.each`
     );
   });
 
+  it("should parse an operation with security overridden", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/test-with-overridden-security",
+      [
+        //global security defined
+        {
+          authScheme: "bearer",
+          headerName: "Authorization",
+          in: "header",
+          name: "bearerToken",
+          tokenType: "apiKey",
+          type: "string"
+        }
+      ],
+      "undefined",
+      "undefined"
+    )("get");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "get",
+        path: "/test-with-overridden-security",
+        headers: expect.arrayContaining(["Authorization"]),
+        parameters: expect.arrayContaining([
+          {
+            authScheme: "bearer",
+            tokenType: "apiKey",
+            headerName: "Authorization",
+            in: "header",
+            name: "bearerToken",
+            type: "string"
+          }
+        ])
+      })
+    );
+  });
+
+  it("should parse an operation with security overridden and no auth specified", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/test-with-overridden-security-no-auth",
+      [
+        //global security defined
+        {
+          authScheme: "bearer",
+          headerName: "Authorization",
+          in: "header",
+          name: "bearerToken",
+          tokenType: "apiKey",
+          type: "string"
+        }
+      ],
+      "undefined",
+      "undefined"
+    )("get");
+
+    console.log(parsed);
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "get",
+        path: "/test-with-overridden-security-no-auth",
+        headers: expect.not.arrayContaining(["Authorization"]),
+        parameters: []
+      })
+    );
+  });
+
   // We are not currently supporting responses as $ref
   it("should parse an operation with response with no schema setting type to undefined", () => {
     const parsed = getParser(spec).parseOperation(

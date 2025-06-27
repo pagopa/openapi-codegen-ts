@@ -4,7 +4,7 @@
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPIV2, IJsonSchema, OpenAPI } from "openapi-types";
-import { uncapitalize } from "../../lib/utils";
+import { isAuthHeaderParameter, uncapitalize } from "../../lib/utils";
 import { inferDefinitionType } from "./parse.utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
@@ -301,14 +301,32 @@ export const parseOperation = (
           )
       : [];
 
-  const authHeadersAndParams = operation.security
-    ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      getAuthHeaders(securityDefinitions, operation.security)
-    : [];
+  // eslint-disable-next-line functional/no-let
+  let refinedExtraParameters;
+  const isGlobalSecurityDefined = api.securityDefinitions !== undefined;
+  if (isGlobalSecurityDefined && operation.security) {
+    // we encountered an operation level override of security definition
+    // so we filter out already defined auth for this operation and proceed
+    refinedExtraParameters = extraParameters.filter(
+      element => !isAuthHeaderParameter(element)
+    );
+  } else {
+    refinedExtraParameters = extraParameters;
+  }
+
+  const authHeadersAndParams =
+    operation.security && operation.security.length !== 0
+      ? // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        getAuthHeaders(securityDefinitions, operation.security)
+      : [];
 
   const authParams = authHeadersAndParams;
 
-  const parameters = [...extraParameters, ...authParams, ...operationParams];
+  const parameters = [
+    ...refinedExtraParameters,
+    ...authParams,
+    ...operationParams
+  ];
 
   const contentTypeHeaders =
     (method === "post" || method === "put") &&
@@ -319,7 +337,7 @@ export const parseOperation = (
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const authHeaders = authHeadersAndParams.map(pick("headerName"));
 
-  const extraHeaders = extraParameters
+  const extraHeaders = refinedExtraParameters
     .filter((p): p is IHeaderParameterInfo => p.in === "header")
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     .map(pick("headerName"));

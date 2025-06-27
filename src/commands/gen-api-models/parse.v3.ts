@@ -5,7 +5,7 @@
 
 import { ITuple2, Tuple2, Tuple3 } from "@pagopa/ts-commons/lib/tuples";
 import { OpenAPI, OpenAPIV3, IJsonSchema } from "openapi-types";
-import { uncapitalize } from "../../lib/utils";
+import { isAuthHeaderParameter, uncapitalize } from "../../lib/utils";
 import { inferDefinitionType } from "./parse.utils";
 import {
   ExtendedOpenAPIV2SecuritySchemeApiKey,
@@ -318,9 +318,23 @@ export const parseOperation = (
           .filter((e): e is IParameterInfo => typeof e !== "undefined")
       : [];
 
-  const authHeadersAndParams = operation.security
-    ? getAuthHeaders(securityDefinitions, operation.security)
-    : [];
+  // eslint-disable-next-line functional/no-let
+  let refinedExtraParameters;
+  const isGlobalSecurityDefined = api.security !== undefined;
+  if (isGlobalSecurityDefined && operation.security) {
+    // we encountered an operation level override of security definition
+    // so we filter out already defined auth for this operation and proceed
+    refinedExtraParameters = extraParameters.filter(
+      element => !isAuthHeaderParameter(element)
+    );
+  } else {
+    refinedExtraParameters = extraParameters;
+  }
+
+  const authHeadersAndParams =
+    operation.security && operation.security.length !== 0
+      ? getAuthHeaders(securityDefinitions, operation.security)
+      : [];
 
   const authParams = authHeadersAndParams;
 
@@ -377,7 +391,7 @@ export const parseOperation = (
   }
 
   const parameters = [
-    ...extraParameters,
+    ...refinedExtraParameters,
     ...authParams,
     ...operationParams,
     ...bodyParam
@@ -391,7 +405,7 @@ export const parseOperation = (
 
   const authHeaders = authHeadersAndParams.map(pick("headerName"));
 
-  const extraHeaders = extraParameters
+  const extraHeaders = refinedExtraParameters
     .filter((p): p is IHeaderParameterInfo => p.in === "header")
 
     .map(pick("headerName"));
