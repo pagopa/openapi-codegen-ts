@@ -307,6 +307,21 @@ paths:
       responses:
         "200":
           description: "Ok"
+  /test-with-overridden-security:
+    get:
+      operationId: "testOverriddenSecurity"
+      security:
+        - bearerToken: []
+      responses:
+        "200":
+          description: "Ok"
+  /test-with-overridden-security-no-auth:
+    get:
+      operationId: "testOverriddenSecurity"
+      security: []
+      responses:
+        "200":
+          description: "Ok"
 
 definitions:
   Person:
