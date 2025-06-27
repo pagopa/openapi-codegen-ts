@@ -955,8 +955,8 @@ import {
   testHeaderOptionalDefaultDecoder,
   TestOverriddenSecurityT,
   testOverriddenSecurityDefaultDecoder,
-  TestOverriddenSecurityT,
-  testOverriddenSecurityDefaultDecoder
+  TestOverriddenSecurityNoAuthT,
+  testOverriddenSecurityNoAuthDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -986,7 +986,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestHeaderWithSchemaRefT> &
   TypeofApiCall<TestHeaderOptionalT> &
   TypeofApiCall<TestOverriddenSecurityT> &
-  TypeofApiCall<TestOverriddenSecurityT>;
+  TypeofApiCall<TestOverriddenSecurityNoAuthT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestSimpleTokenT> &
@@ -1009,7 +1009,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestHeaderWithSchemaRefT> &
   TypeofApiParams<TestHeaderOptionalT> &
   TypeofApiParams<TestOverriddenSecurityT> &
-  TypeofApiParams<TestOverriddenSecurityT>);
+  TypeofApiParams<TestOverriddenSecurityNoAuthT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -1054,7 +1054,7 @@ export type WithDefaultsT<
   | TestHeaderWithSchemaRefT
   | TestHeaderOptionalT
   | TestOverriddenSecurityT
-  | TestOverriddenSecurityT,
+  | TestOverriddenSecurityNoAuthT,
   K
 >;
 
@@ -1118,7 +1118,9 @@ export type Client<
 
       readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
 
-      readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
+      readonly testOverriddenSecurityNoAuth: TypeofApiCall<
+        TestOverriddenSecurityNoAuthT
+      >;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -1268,10 +1270,10 @@ export type Client<
         >
       >;
 
-      readonly testOverriddenSecurity: TypeofApiCall<
+      readonly testOverriddenSecurityNoAuth: TypeofApiCall<
         ReplaceRequestParams<
-          TestOverriddenSecurityT,
-          Omit<RequestParams<TestOverriddenSecurityT>, K>
+          TestOverriddenSecurityNoAuthT,
+          Omit<RequestParams<TestOverriddenSecurityNoAuthT>, K>
         >
       >;
     };
@@ -1792,21 +1794,21 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
-  const testOverriddenSecurityT: ReplaceRequestParams<
-    TestOverriddenSecurityT,
-    RequestParams<TestOverriddenSecurityT>
+  const testOverriddenSecurityNoAuthT: ReplaceRequestParams<
+    TestOverriddenSecurityNoAuthT,
+    RequestParams<TestOverriddenSecurityNoAuthT>
   > = {
     method: \\"get\\",
 
     headers: () => ({}),
 
-    response_decoder: testOverriddenSecurityDefaultDecoder(),
+    response_decoder: testOverriddenSecurityNoAuthDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-with-overridden-security-no-auth\`,
 
     query: () => withoutUndefinedValues({})
   };
-  const testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT> = createFetchRequestForApi(
-    testOverriddenSecurityT,
+  const testOverriddenSecurityNoAuth: TypeofApiCall<TestOverriddenSecurityNoAuthT> = createFetchRequestForApi(
+    testOverriddenSecurityNoAuthT,
     options
   );
 
@@ -1844,7 +1846,9 @@ export function createClient<K extends ParamKeys>({
     ),
     testHeaderOptional: (withDefaults || identity)(testHeaderOptional),
     testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity),
-    testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity)
+    testOverriddenSecurityNoAuth: (withDefaults || identity)(
+      testOverriddenSecurityNoAuth
+    )
   };
 }
 "
@@ -2939,8 +2943,8 @@ import {
   testHeaderOptionalDefaultDecoder,
   TestOverriddenSecurityT,
   testOverriddenSecurityDefaultDecoder,
-  TestOverriddenSecurityT,
-  testOverriddenSecurityDefaultDecoder
+  TestOverriddenSecurityNoAuthT,
+  testOverriddenSecurityNoAuthDefaultDecoder
 } from \\"./requestTypes\\";
 
 // This is a placeholder for undefined when dealing with object keys
@@ -2971,7 +2975,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestHeaderWithSchemaRefT> &
   TypeofApiCall<TestHeaderOptionalT> &
   TypeofApiCall<TestOverriddenSecurityT> &
-  TypeofApiCall<TestOverriddenSecurityT>;
+  TypeofApiCall<TestOverriddenSecurityNoAuthT>;
 
 export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestAuthBearerHttpT> &
@@ -2995,7 +2999,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestHeaderWithSchemaRefT> &
   TypeofApiParams<TestHeaderOptionalT> &
   TypeofApiParams<TestOverriddenSecurityT> &
-  TypeofApiParams<TestOverriddenSecurityT>);
+  TypeofApiParams<TestOverriddenSecurityNoAuthT>);
 
 /**
  * Defines an adapter for TypeofApiCall which omit one or more parameters in the signature
@@ -3041,7 +3045,7 @@ export type WithDefaultsT<
   | TestHeaderWithSchemaRefT
   | TestHeaderOptionalT
   | TestOverriddenSecurityT
-  | TestOverriddenSecurityT,
+  | TestOverriddenSecurityNoAuthT,
   K
 >;
 
@@ -3107,7 +3111,9 @@ export type Client<
 
       readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
 
-      readonly testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT>;
+      readonly testOverriddenSecurityNoAuth: TypeofApiCall<
+        TestOverriddenSecurityNoAuthT
+      >;
     }
   : {
       readonly testAuthBearer: TypeofApiCall<
@@ -3264,10 +3270,10 @@ export type Client<
         >
       >;
 
-      readonly testOverriddenSecurity: TypeofApiCall<
+      readonly testOverriddenSecurityNoAuth: TypeofApiCall<
         ReplaceRequestParams<
-          TestOverriddenSecurityT,
-          Omit<RequestParams<TestOverriddenSecurityT>, K>
+          TestOverriddenSecurityNoAuthT,
+          Omit<RequestParams<TestOverriddenSecurityNoAuthT>, K>
         >
       >;
     };
@@ -3818,21 +3824,21 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
-  const testOverriddenSecurityT: ReplaceRequestParams<
-    TestOverriddenSecurityT,
-    RequestParams<TestOverriddenSecurityT>
+  const testOverriddenSecurityNoAuthT: ReplaceRequestParams<
+    TestOverriddenSecurityNoAuthT,
+    RequestParams<TestOverriddenSecurityNoAuthT>
   > = {
     method: \\"get\\",
 
     headers: () => ({}),
 
-    response_decoder: testOverriddenSecurityDefaultDecoder(),
+    response_decoder: testOverriddenSecurityNoAuthDefaultDecoder(),
     url: ({}) => \`\${basePath}/test-with-overridden-security-no-auth\`,
 
     query: () => withoutUndefinedValues({})
   };
-  const testOverriddenSecurity: TypeofApiCall<TestOverriddenSecurityT> = createFetchRequestForApi(
-    testOverriddenSecurityT,
+  const testOverriddenSecurityNoAuth: TypeofApiCall<TestOverriddenSecurityNoAuthT> = createFetchRequestForApi(
+    testOverriddenSecurityNoAuthT,
     options
   );
 
@@ -3871,7 +3877,9 @@ export function createClient<K extends ParamKeys>({
     ),
     testHeaderOptional: (withDefaults || identity)(testHeaderOptional),
     testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity),
-    testOverriddenSecurity: (withDefaults || identity)(testOverriddenSecurity)
+    testOverriddenSecurityNoAuth: (withDefaults || identity)(
+      testOverriddenSecurityNoAuth
+    )
   };
 }
 "
