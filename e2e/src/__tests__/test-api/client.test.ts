@@ -388,4 +388,28 @@ describeSuite("Http client generated from Test API spec", () => {
 
     await closeServer(server);
   });
+
+  it("should override global security for operation level strategy", async () => {
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+      basePath: ""
+    });
+
+    const result = await client.testOverriddenSecurity({ bearerToken: "abc" });
+    expect(isRight(result)).toBeTruthy();
+    // @ts-expect-error
+    client.putTestParameterWithBodyReference({});
+  });
+
+  it("should override global security for operation level strategy with no auth", async () => {
+    const client = createClient({
+      baseUrl: `http://localhost:${mockPort}`,
+      fetchApi: (nodeFetch as any) as typeof fetch,
+      basePath: ""
+    });
+
+    const result = await client.testOverriddenSecurityNoAuth({});
+    expect(isRight(result)).toBeTruthy();
+  });
 });
