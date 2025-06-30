@@ -328,7 +328,6 @@ describe.each`
       "undefined"
     )("get");
 
-    console.log(parsed);
     expect(parsed).toEqual(
       expect.objectContaining({
         method: "get",
