@@ -1,0 +1,76 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: WithDefaults Test API
+  description: An Openapi for testing client default parameters
+host: localhost
+basePath: /api/v1
+schemes:
+  - https
+
+securityDefinitions:
+  bearerToken:
+    type: apiKey
+    name: Authorization
+    in: header
+    x-auth-scheme: bearer
+
+security:
+  - Bearer: []
+
+paths:
+  /test-1:
+    get:
+      operationId: "test1"
+      security:
+        - bearerToken: []
+      parameters:
+        - name: "qo"
+          in: "query"
+          required: true
+          type: "string"
+
+      responses:
+        "200":
+          description: "Will send `Authenticated`"
+        "403":
+          description: "You do not have necessary permissions for the resource"
+
+  /test-2:
+    post:
+      operationId: "test2"
+      security:
+        - bearerToken: []
+      parameters:
+        - name: "body"
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/NewModel"
+
+      responses:
+        "200":
+          description: "Will send `Authenticated`"
+        "403":
+          description: "You do not have necessary permissions for the resource"
+
+definitions:
+  NewModel:
+    title: NewModel
+    type: object
+    properties:
+      id: 
+        type: string
+      name:
+        type: string
+    required:
+      - id
+      - name
+responses:
+
+parameters:
+
+consumes:
+  - application/json
+produces:
+  - application/json
