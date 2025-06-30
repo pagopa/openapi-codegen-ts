@@ -596,6 +596,19 @@ describe.each`
   });
 
   it("should parse operations", () => {
+    const commonAuth = {
+      parameters: [
+        {
+          in: "header",
+          name: "customToken",
+          tokenType: "apiKey",
+          authScheme: "none",
+          headerName: "custom-token",
+          type: "string"
+        }
+      ],
+      headers: ["custom-token"]
+    };
     const expected = [
       {
         path: "/test-auth-bearer",
@@ -635,12 +648,11 @@ describe.each`
         produces: "application/json"
       },
       {
+        ...commonAuth,
         path: "/test-multiple-success",
-        headers: [],
         importedTypes: new Set(["Message", "OneOfTest"]),
         method: "get",
         operationId: "testMultipleSuccess",
-        parameters: [],
         responses: [
           { e1: "200", e2: "Message", e3: [] },
           { e1: "202", e2: "undefined", e3: [] },
@@ -651,11 +663,12 @@ describe.each`
       },
       {
         path: "/test-file-upload",
-        headers: ["Content-Type"],
+        headers: ["Content-Type", ...commonAuth.headers],
         importedTypes: new Set(),
         method: "post",
         operationId: "testFileUpload",
         parameters: [
+          ...commonAuth.parameters,
           {
             name: version === 2 ? "file" : "body",
             type:
@@ -670,12 +683,11 @@ describe.each`
         produces: "application/json"
       },
       {
+        ...commonAuth,
         path: "/test-response-header",
-        headers: [],
         importedTypes: new Set(["Message"]),
         method: "get",
         operationId: "testResponseHeader",
-        parameters: [],
         responses: [
           { e1: "201", e2: "Message", e3: ["Location", "Id"] },
           { e1: "500", e2: "undefined", e3: [] }
@@ -684,11 +696,12 @@ describe.each`
       },
       {
         path: "/test-binary-file-upload",
-        headers: ["Content-Type"],
+        headers: ["Content-Type", ...commonAuth.headers],
         importedTypes: new Set(),
         method: "post",
         operationId: "testBinaryFileUpload",
         parameters: [
+          ...commonAuth.parameters,
           {
             name: version === 2 ? "logo" : "body",
             type: `File`,

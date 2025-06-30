@@ -3,6 +3,13 @@
  *
  * @param s string to be capitalized
  */
+
+import {
+  IAuthHeaderParameterInfo,
+  IHeaderParameterInfo,
+  IParameterInfo
+} from "../commands/gen-api-models/types";
+
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function capitalize(s: string): string {
   return `${s[0].toUpperCase()}${s.slice(1)}`;
@@ -60,3 +67,7 @@ export function withGenerics(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-function-return-type
 export const pipe = (...fns: ReadonlyArray<(a: any) => any>) => (value: any) =>
   fns.reduce((p, f) => f(p), value);
+
+export const isAuthHeaderParameter = (
+  parameter: IHeaderParameterInfo | IParameterInfo
+): parameter is IAuthHeaderParameterInfo => "authScheme" in parameter;
