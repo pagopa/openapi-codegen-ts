@@ -277,10 +277,9 @@ describe.each`
       [
         //global security defined
         {
-          authScheme: "bearer",
-          headerName: "Authorization",
+          authScheme: "none",
           in: "header",
-          name: "bearerToken",
+          name: "custom-token",
           tokenType: "apiKey",
           type: "string"
         }
@@ -316,10 +315,9 @@ describe.each`
       [
         //global security defined
         {
-          authScheme: "bearer",
-          headerName: "Authorization",
+          authScheme: "none",
           in: "header",
-          name: "bearerToken",
+          name: "custom-token",
           tokenType: "apiKey",
           type: "string"
         }
