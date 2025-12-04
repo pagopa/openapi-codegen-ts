@@ -933,6 +933,8 @@ import {
   testParameterWithBodyReferenceDefaultDecoder,
   PutTestParameterWithBodyReferenceT,
   putTestParameterWithBodyReferenceDefaultDecoder,
+  PatchTestParameterWithBodyReferenceT,
+  patchTestParameterWithBodyReferenceDefaultDecoder,
   TestParameterWithDashT,
   testParameterWithDashDefaultDecoder,
   TestParameterWithDashAnUnderscoreT,
@@ -975,6 +977,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestParameterWithReferenceT> &
   TypeofApiCall<TestParameterWithBodyReferenceT> &
   TypeofApiCall<PutTestParameterWithBodyReferenceT> &
+  TypeofApiCall<PatchTestParameterWithBodyReferenceT> &
   TypeofApiCall<TestParameterWithDashT> &
   TypeofApiCall<TestParameterWithDashAnUnderscoreT> &
   TypeofApiCall<TestWithTwoParamsT> &
@@ -998,6 +1001,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestParameterWithReferenceT> &
   TypeofApiParams<TestParameterWithBodyReferenceT> &
   TypeofApiParams<PutTestParameterWithBodyReferenceT> &
+  TypeofApiParams<PatchTestParameterWithBodyReferenceT> &
   TypeofApiParams<TestParameterWithDashT> &
   TypeofApiParams<TestParameterWithDashAnUnderscoreT> &
   TypeofApiParams<TestWithTwoParamsT> &
@@ -1043,6 +1047,7 @@ export type WithDefaultsT<
   | TestParameterWithReferenceT
   | TestParameterWithBodyReferenceT
   | PutTestParameterWithBodyReferenceT
+  | PatchTestParameterWithBodyReferenceT
   | TestParameterWithDashT
   | TestParameterWithDashAnUnderscoreT
   | TestWithTwoParamsT
@@ -1090,6 +1095,10 @@ export type Client<
 
       readonly putTestParameterWithBodyReference: TypeofApiCall<
         PutTestParameterWithBodyReferenceT
+      >;
+
+      readonly patchTestParameterWithBodyReference: TypeofApiCall<
+        PatchTestParameterWithBodyReferenceT
       >;
 
       readonly testParameterWithDash: TypeofApiCall<TestParameterWithDashT>;
@@ -1190,6 +1199,13 @@ export type Client<
         ReplaceRequestParams<
           PutTestParameterWithBodyReferenceT,
           Omit<RequestParams<PutTestParameterWithBodyReferenceT>, K>
+        >
+      >;
+
+      readonly patchTestParameterWithBodyReference: TypeofApiCall<
+        ReplaceRequestParams<
+          PatchTestParameterWithBodyReferenceT,
+          Omit<RequestParams<PatchTestParameterWithBodyReferenceT>, K>
         >
       >;
 
@@ -1554,6 +1570,35 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const patchTestParameterWithBodyReferenceT: ReplaceRequestParams<
+    PatchTestParameterWithBodyReferenceT,
+    RequestParams<PatchTestParameterWithBodyReferenceT>
+  > = {
+    method: \\"patch\\",
+
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
+      \\"Content-Type\\": \\"application/json\\"
+    }),
+    response_decoder: patchTestParameterWithBodyReferenceDefaultDecoder(),
+    url: ({}) => \`\${basePath}/patch-test-parameter-with-body-ref\`,
+
+    body: ({ [\\"body\\"]: body }) =>
+      body?.constructor?.name === \\"Readable\\" ||
+      body?.constructor?.name === \\"ReadableStream\\"
+        ? (body as ReadableStream)
+        : body?.constructor?.name === \\"Buffer\\"
+        ? (body as Buffer)
+        : JSON.stringify(body),
+
+    query: () => withoutUndefinedValues({})
+  };
+  const patchTestParameterWithBodyReference: TypeofApiCall<PatchTestParameterWithBodyReferenceT> = createFetchRequestForApi(
+    patchTestParameterWithBodyReferenceT,
+    options
+  );
+
   const testParameterWithDashT: ReplaceRequestParams<
     TestParameterWithDashT,
     RequestParams<TestParameterWithDashT>
@@ -1828,6 +1873,9 @@ export function createClient<K extends ParamKeys>({
     ),
     putTestParameterWithBodyReference: (withDefaults || identity)(
       putTestParameterWithBodyReference
+    ),
+    patchTestParameterWithBodyReference: (withDefaults || identity)(
+      patchTestParameterWithBodyReference
     ),
     testParameterWithDash: (withDefaults || identity)(testParameterWithDash),
     testParameterWithDashAnUnderscore: (withDefaults || identity)(
@@ -2921,6 +2969,8 @@ import {
   testParameterWithBodyReferenceDefaultDecoder,
   PutTestParameterWithBodyReferenceT,
   putTestParameterWithBodyReferenceDefaultDecoder,
+  PatchTestParameterWithBodyReferenceT,
+  patchTestParameterWithBodyReferenceDefaultDecoder,
   TestParameterWithDashT,
   testParameterWithDashDefaultDecoder,
   TestParameterWithDashAnUnderscoreT,
@@ -2964,6 +3014,7 @@ export type ApiOperation = TypeofApiCall<TestAuthBearerT> &
   TypeofApiCall<TestParameterWithReferenceT> &
   TypeofApiCall<TestParameterWithBodyReferenceT> &
   TypeofApiCall<PutTestParameterWithBodyReferenceT> &
+  TypeofApiCall<PatchTestParameterWithBodyReferenceT> &
   TypeofApiCall<TestParameterWithDashT> &
   TypeofApiCall<TestParameterWithDashAnUnderscoreT> &
   TypeofApiCall<TestWithTwoParamsT> &
@@ -2988,6 +3039,7 @@ export type ParamKeys = keyof (TypeofApiParams<TestAuthBearerT> &
   TypeofApiParams<TestParameterWithReferenceT> &
   TypeofApiParams<TestParameterWithBodyReferenceT> &
   TypeofApiParams<PutTestParameterWithBodyReferenceT> &
+  TypeofApiParams<PatchTestParameterWithBodyReferenceT> &
   TypeofApiParams<TestParameterWithDashT> &
   TypeofApiParams<TestParameterWithDashAnUnderscoreT> &
   TypeofApiParams<TestWithTwoParamsT> &
@@ -3034,6 +3086,7 @@ export type WithDefaultsT<
   | TestParameterWithReferenceT
   | TestParameterWithBodyReferenceT
   | PutTestParameterWithBodyReferenceT
+  | PatchTestParameterWithBodyReferenceT
   | TestParameterWithDashT
   | TestParameterWithDashAnUnderscoreT
   | TestWithTwoParamsT
@@ -3083,6 +3136,10 @@ export type Client<
 
       readonly putTestParameterWithBodyReference: TypeofApiCall<
         PutTestParameterWithBodyReferenceT
+      >;
+
+      readonly patchTestParameterWithBodyReference: TypeofApiCall<
+        PatchTestParameterWithBodyReferenceT
       >;
 
       readonly testParameterWithDash: TypeofApiCall<TestParameterWithDashT>;
@@ -3190,6 +3247,13 @@ export type Client<
         ReplaceRequestParams<
           PutTestParameterWithBodyReferenceT,
           Omit<RequestParams<PutTestParameterWithBodyReferenceT>, K>
+        >
+      >;
+
+      readonly patchTestParameterWithBodyReference: TypeofApiCall<
+        ReplaceRequestParams<
+          PatchTestParameterWithBodyReferenceT,
+          Omit<RequestParams<PatchTestParameterWithBodyReferenceT>, K>
         >
       >;
 
@@ -3584,6 +3648,35 @@ export function createClient<K extends ParamKeys>({
     options
   );
 
+  const patchTestParameterWithBodyReferenceT: ReplaceRequestParams<
+    PatchTestParameterWithBodyReferenceT,
+    RequestParams<PatchTestParameterWithBodyReferenceT>
+  > = {
+    method: \\"patch\\",
+
+    headers: ({ [\\"customToken\\"]: customToken }) => ({
+      \\"custom-token\\": customToken,
+
+      \\"Content-Type\\": \\"application/json\\"
+    }),
+    response_decoder: patchTestParameterWithBodyReferenceDefaultDecoder(),
+    url: ({}) => \`\${basePath}/patch-test-parameter-with-body-ref\`,
+
+    body: ({ [\\"body\\"]: body }) =>
+      body?.constructor?.name === \\"Readable\\" ||
+      body?.constructor?.name === \\"ReadableStream\\"
+        ? (body as ReadableStream)
+        : body?.constructor?.name === \\"Buffer\\"
+        ? (body as Buffer)
+        : JSON.stringify(body),
+
+    query: () => withoutUndefinedValues({})
+  };
+  const patchTestParameterWithBodyReference: TypeofApiCall<PatchTestParameterWithBodyReferenceT> = createFetchRequestForApi(
+    patchTestParameterWithBodyReferenceT,
+    options
+  );
+
   const testParameterWithDashT: ReplaceRequestParams<
     TestParameterWithDashT,
     RequestParams<TestParameterWithDashT>
@@ -3859,6 +3952,9 @@ export function createClient<K extends ParamKeys>({
     ),
     putTestParameterWithBodyReference: (withDefaults || identity)(
       putTestParameterWithBodyReference
+    ),
+    patchTestParameterWithBodyReference: (withDefaults || identity)(
+      patchTestParameterWithBodyReference
     ),
     testParameterWithDash: (withDefaults || identity)(testParameterWithDash),
     testParameterWithDashAnUnderscore: (withDefaults || identity)(

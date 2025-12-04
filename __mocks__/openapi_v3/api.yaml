@@ -198,6 +198,19 @@ paths:
           description: "Created"
         500:
           description: "Fatal error" 
+  /patch-test-parameter-with-body-ref:
+    patch:
+      operationId: "patchTestParameterWithBodyReference"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewModel"
+      responses:
+        201:
+          description: "Created"
+        500:
+          description: "Fatal error" 
   /test-parameter-with-dash/{path-param}:
     get:
       operationId: "testParameterWithDash"

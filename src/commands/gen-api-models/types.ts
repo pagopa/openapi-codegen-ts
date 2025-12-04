@@ -20,7 +20,7 @@ export interface IGenerateApiOptions {
 /**
  * Supported http methods
  */
-export type SupportedMethod = "get" | "post" | "put" | "delete";
+export type SupportedMethod = "get" | "patch" | "post" | "put" | "delete";
 
 export type SupportedAuthScheme = "bearer" | "digest" | "none";
 
