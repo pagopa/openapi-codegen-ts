@@ -254,6 +254,7 @@ describe.each`
       expect.objectContaining({
         method: "patch",
         path: "/patch-test-parameter-with-body-ref",
+        consumes: "application/json",
         parameters: expect.arrayContaining([
           {
             name: "body?",
