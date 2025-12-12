@@ -240,6 +240,32 @@ describe.each`
     );
   });
 
+  it("should parse a patch operation with body as ref", () => {
+    const parsed = getParser(spec).parseOperation(
+      //@ts-ignore
+      spec,
+      "/patch-test-parameter-with-body-ref",
+      [],
+      "undefined",
+      "undefined"
+    )("patch");
+
+    expect(parsed).toEqual(
+      expect.objectContaining({
+        method: "patch",
+        path: "/patch-test-parameter-with-body-ref",
+        consumes: "application/json",
+        parameters: expect.arrayContaining([
+          {
+            name: "body?",
+            in: "body",
+            type: "NewModel | ReadableStream<Uint8Array> | Buffer"
+          }
+        ])
+      })
+    );
+  });
+
   it("should parse an operation with header parameters", () => {
     const parsed = getParser(spec).parseOperation(
       //@ts-ignore

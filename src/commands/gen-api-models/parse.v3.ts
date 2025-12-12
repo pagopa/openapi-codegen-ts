@@ -349,7 +349,7 @@ export const parseOperation = (
         ]
       : [undefined, false];
   const bodyParam: ReadonlyArray<IParameterInfo> =
-    ["post", "put"].includes(method) && bodySchema
+    ["patch", "post", "put"].includes(method) && bodySchema
       ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         "multipart/form-data" in operation?.requestBody?.content
@@ -398,7 +398,7 @@ export const parseOperation = (
   ];
 
   const contentTypeHeaders =
-    (method === "post" || method === "put") &&
+    (method === "patch" || method === "post" || method === "put") &&
     Object.keys([...operationParams, ...bodyParam]).length > 0
       ? ["Content-Type"]
       : [];
