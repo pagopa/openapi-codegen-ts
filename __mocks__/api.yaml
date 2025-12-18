@@ -827,6 +827,18 @@ definitions:
           $ref: "#/definitions/DefinitionFieldWithDash"
     required:
       - items
+  AnObjectWithAnItemsNativeTypeField:
+      description: |-
+        What if a object has a field named items?
+        The case is an object like { items: [] }, which is legal
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+      required:
+        - items
   ObjectDefinitionWithImplicitType:
     # Sometimes type isn't specified, nevertheless we can infer the definition to be an object 
     # type: object 

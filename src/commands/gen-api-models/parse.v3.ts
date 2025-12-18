@@ -839,6 +839,8 @@ function specTypeToTs(parameter: OpenAPIV3.ParameterObject): string {
   switch (schema.type) {
     case "integer":
       return "number";
+    case "array":
+      return "type" in schema.items ? `${schema.items.type}[]` : schema.type;
     default:
       return schema.type;
   }

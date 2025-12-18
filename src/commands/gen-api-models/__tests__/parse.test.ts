@@ -500,6 +500,30 @@ describe.each`
     }
   });
 
+  it("should handle AnObjectWithAnItemsNativeTypeField", async () => {
+    const definition = getDefinitionOrFail(spec, "AnObjectWithAnItemsNativeTypeField");
+
+    const parsed = getParser(spec).parseDefinition(
+      // @ts-ignore
+      definition
+    );
+
+    //expect(parsed).toEqual({});
+    expect(parsed.type).toBe("object");
+    expect(parsed.properties?.items).toEqual(expect.any(Object));
+
+    if (parsed.properties?.items && "type" in parsed.properties?.items) {
+      expect(parsed.properties?.items.type).toBe("array");
+      expect(parsed.properties?.items.items).toEqual(
+        expect.objectContaining({
+          type: "string"
+        })
+      );
+    } else {
+      fail("a type should be specified");
+    }
+  });
+
   it("should handle ObjectDefinitionWithImplicitType", async () => {
     const definition = getDefinitionOrFail(
       spec,

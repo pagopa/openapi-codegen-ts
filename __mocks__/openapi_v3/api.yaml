@@ -592,6 +592,18 @@ components:
             $ref: "#/components/schemas/DefinitionFieldWithDash"
       required:
         - items
+    AnObjectWithAnItemsNativeTypeField:
+      description: |-
+        What if a object has a field named items of a native type?
+        The case is an object like { items: [] }, which is legal
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+      required:
+        - items
     AnObjectWithRefImport:
       title: AnObjectWithRefImport
       description: Describes an object with a ref import
