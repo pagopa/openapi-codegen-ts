@@ -266,6 +266,14 @@
 {% endmacro %}
 
 {##
+ # defines a oneOf property
+ #}
+ {% macro defineOneOfProperty(parentPropName, propName, definition, inline = false) -%}
+    {{ parentPropName }}{{ propName | capitalizeFirst }}
+    {{ defineConst(definition.default, typedef, typedef, false, inline) }}
+ {% endmacro %}
+
+{##
  # defines an object property of some prop.type
  #}
 {% macro defineObjectProperty(propName, prop, parentPropName, camelCasedPropNames) -%}
@@ -290,6 +298,8 @@
     {{ defineString(propName, prop, true) }}
   {% elif prop.type == "boolean" %}
     {{ defineBoolean(propName, prop, true) }}
+  {% elif prop.oneOf %}
+    {{ defineOneOfProperty(parentPropName, propName, prop.oneOf, true)}}
   {% else %}
     // TODO: generate model for definition "{{ propName }}: {{ prop.type }}"
   {% endif %}
@@ -323,6 +333,38 @@
   {% endfor %}
 {% endmacro -%}
 
+{% macro defineOneOf(definitionName, prop, strictInterfaces, camelCasedPropNames) -%}
+    {{- 'import * as t from "io-ts";' | addImport -}}
+
+    {% for schema in prop -%}
+      {% if schema.type == "object" %}
+        {% set name %}{{ definitionName }}{{ loop.index }}{% endset %}
+        {{ defineObject(name, schema, strictInterfaces, camelCasedPropNames) }}
+      {% elif schema.$ref %}
+        {%- set realPropName = schema.$ref | splitBy("/") | last -%}
+        {{ importLocalProp(realPropName) }}
+      {% elif schema.type == "array" %}
+        {% set name %}{{ definitionName }}{{ loop.index }}{% endset %}
+        {{ defineArray(name, schema) }}
+      {% endif %}
+    {% endfor %}
+
+    export const {{ definitionName }} =
+      t.union([
+        {% for schema in prop -%}
+          {% if schema.type == "object" or schema.type == "array" %}
+            {{ definitionName }}{{ loop.index }},
+          {% elif schema.$ref %}
+            {{ schema.$ref | splitBy("/") | last }},
+          {% endif %}
+        {% endfor %}
+      ],
+      "{{ definitionName }}"
+    );
+
+    export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+{% endmacro -%}
+
 {##
  # define object properties recursively,
  # supports additionaProperties, allOf and oneOf.
@@ -341,6 +383,9 @@
       {% if prop.type == "object" %}
         {% set composedPropName %}{{ definitionName }}{{ propName | capitalizeFirst }}{% endset %}
         {{ defineObject(composedPropName, prop, strictInterfaces, camelCasedPropNames) }}
+      {% elif prop.oneOf %}
+        {% set composedPropName %}{{ definitionName }}{{ propName | capitalizeFirst }}{% endset %}
+        {{ defineOneOf(composedPropName, prop.oneOf, strictInterfaces, camelCasedPropNames) }}
       {% endif %}
     {% endfor %}
 
@@ -418,31 +463,7 @@
   {% elif definition.oneOf %}
     {% set oneOfProps = definition.oneOf if definition.oneOf else definition.allOf %}
 
-    {{- 'import * as t from "io-ts";' | addImport -}}
-
-    {% for schema in oneOfProps -%}
-      {% if schema.type == "object" %}
-        {{ defineObject(definitionName + loop.index, schema, strictInterfaces, camelCasedPropNames) }}
-      {% elif schema.$ref %}
-        {%- set realPropName = schema.$ref | splitBy("/") | last -%}
-        {{ importLocalProp(realPropName) }}
-      {% endif %}
-    {% endfor %}
-
-    export const {{ definitionName }} =
-      t.union([
-        {% for schema in oneOfProps -%}
-          {% if schema.type == "object" %}
-            {{ definitionName + loop.index }},
-          {% elif schema.$ref %}
-            {{ schema.$ref | splitBy("/") | last }},
-          {% endif %}
-        {% endfor %}
-      ],
-      "{{ definitionName }}"
-    );
-
-    export type {{ definitionName }} = t.TypeOf<typeof {{ definitionName }}>;
+    {{ defineOneOf(definitionName, oneOfProps, strictInterfaces, camelCasedPropNames) }}
 
   {% elif definition.type == "number" %}
 

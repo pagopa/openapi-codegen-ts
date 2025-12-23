@@ -350,6 +350,23 @@ describe.each`
     expect(code).toMatchSnapshot("oneof-test");
   });
 
+  it("should generate an object with a union property when that property has oneOf", async () => {
+    const definitonName = "OneOfPropertyTest";
+    const definition = getDefinitionOrFail(spec, definitonName);
+
+    const code = await renderDefinitionCode(
+      definitonName,
+      getParser(spec).parseDefinition(
+        // @ts-ignore
+        definition
+      ),
+      false
+    );
+
+    expect(code).toContain("t.union");
+    expect(code).toMatchSnapshot("oneof-property-test");
+  });
+
   it("should generate a type union from allOf when x-one-of is used", async () => {
     if (version === 2) {
       const definitonName = "AllOfOneOfTest";
