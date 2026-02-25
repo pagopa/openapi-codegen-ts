@@ -8,12 +8,16 @@ on:
       - reopened
       - synchronize
 
+permissions:
+  pull-requests: write
+
 jobs:
   lint:
     name: Validate PR title And link Jira Issue
     runs-on: ubuntu-22.04
     env:
       JIRA_COMMENT_REGEX: "^.*Jira.*"
+      PR_TITLE: ${{ github.event.pull_request.title }}
     steps:
       - uses: Slashgear/action-check-pr-title@860e8dc639f8e60335a6f5e8936ba67ed2536890
         id: lint
@@ -33,7 +37,6 @@ jobs:
         id: extract_jira_issue
         if: steps.lint.outcome == 'success'
         run: |
-          PR_TITLE=$(echo "${{ github.event.pull_request.title }}")
           ISSUES_STR=$(awk -F'\\[|\\]' '{print $2}' <<< "$PR_TITLE" | sed "s/#//g" | sed "s/,//g")
           ISSUES=($ISSUES_STR)
           JIRA_ISSUE=$(echo ${ISSUES_STR##* })
@@ -78,5 +81,5 @@ jobs:
       - name: Failure message
         if: steps.lint.outcome != 'success'
         run: |
-          echo "Pull request title (${{ github.event.pull_request.title }}) is not properly formatted or it is not related to any Jira issue"
+          echo "Pull request title ($PR_TITLE) is not properly formatted or it is not related to any Jira issue"
           exit 1
